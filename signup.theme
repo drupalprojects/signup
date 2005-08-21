@@ -1,0 +1,20 @@
+<?php
+
+// $Id$
+
+//you can alter this themed user signup form to suit your needs, adding new form elements and other
+//information.  in order for the form to be rendered properly, the name of the form element 
+//must be in the form of 'signup_form_data][NameOfDataField', where NameOfDataField is replaced with 
+//the actual name of the data field.  it's also suggested that the displayed name of the field to the 
+//user be the same as the name of the data field, but it's not required. see below for examples
+function theme_signup_user_form() {
+  $form = form_textfield(t('Name'), 'signup_form_data][Name', NULL, 40, 64, $description = NULL, 
+    $attributes = NULL, $required = FALSE);
+  $form .= form_textfield(t('Email'), 'signup_form_data][Email', NULL, 40, 64, $description = NULL, 
+    $attributes = NULL, $required = FALSE);
+  $form .= form_textfield(t('Phone'), 'signup_form_data][Phone', NULL, 40, 64, $description = NULL, 
+    $attributes = NULL, $required = FALSE);
+  return $form;
+}
+
+?>
