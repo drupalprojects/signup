@@ -211,7 +211,9 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
     case 'delete pre':        
 
       //if the node has any signups, prevent deletion and warn
-      if ($user_signups = db_num_rows(db_query('SELECT nid FROM {signup_log} WHERE nid = %d', $node->nid))) {
+      if (variable_get('signup_nodeapi_' . $node->type, FALSE) && ($user_signups = db_num_rows(db_query('SELECT nid 
+        FROM {signup_log} WHERE nid = %d', $node->nid)))) {
+      
         $data_to_inject = '<br>';
         drupal_set_message(t('WARNING: %d user(s) signed up for this event.  Deleting this event will delete 
         all signups associated with it!.', array('%title'=>$node->title, '%d'=>$user_signups)));
