@@ -212,9 +212,9 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
 
       //if the node has any signups, prevent deletion and warn
       if ($user_signups = db_num_rows(db_query('SELECT nid FROM {signup_log} WHERE nid = %d', $node->nid))) {
-        $data_to_inject = FALSE;
-        drupal_set_message(t('%title cannot be deleted, %d user(s) signed up for this event.  Delete all signups
-          for the event in order to delete the event.', array('%title'=>$node->title, '%d'=>$user_signups)));
+        $data_to_inject = '<br>';
+        drupal_set_message(t('WARNING: %d user(s) signed up for this event.  Deleting this event will delete 
+        all signups associated with it!.', array('%title'=>$node->title, '%d'=>$user_signups)));
       } else {
         $data_to_inject = '<h4>' . t('No users signed up for this event') . '</h4>';  
       }
