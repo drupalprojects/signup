@@ -331,6 +331,20 @@ function signup_admin_page() {
 }
 
 /**
+ * Callback function for canceling signups
+ * @ingroup signup_callback
+ */
+function signup_cancel_signup($uid, $nid) {
+  
+  //delete the selected user from the log table and return to the previous page
+  db_query("DELETE FROM {signup_log} WHERE uid = %d AND nid = %d", $uid, $nid);
+  drupal_set_message(t('Signup cancelled'));
+  drupal_goto();  
+
+}
+      
+      
+/**
  * Callback function for closing signups
  * @ingroup signup_callback
  */
@@ -450,8 +464,7 @@ function signup_user_signup() {
       
     //user has elected to cancel their signup, so delete them from the log, and warn
     case t('Cancel Signup'):
-      db_query("DELETE FROM {signup_log} WHERE uid = %d AND nid = %d", $edit['uid'], $edit['nid']);
-      drupal_set_message(t('Signup cancelled'));
+      signup_cancel_signup($edit['uid'], $edit['nid']);
       break;
   }
   
@@ -478,7 +491,7 @@ function signup_user_signups_form($node) {
   $result = db_query("SELECT u.uid, u.name, s.signup_time, s.form_data FROM {signup_log} s INNER JOIN {users} u ON 
     u.uid = s.uid WHERE s.nid =%d", $node->nid);
   $output = "<h1>" . $node->title . "</h1>";
-  $header = array(array('data' => t('%d individual(s) signed up', array('%d' => db_num_rows($result))), 'colspan' => 2));
+  $header = array(array('data' => t('%d individual(s) signed up', array('%d' => db_num_rows($result))), 'colspan' => 3));
   $rows = array();
   
   //get default timezone offset for the site
@@ -496,8 +509,9 @@ function signup_user_signups_form($node) {
     
     //build the row for this user  
     $rows[] = array('<a href="user/' . $signed_up_user->uid . '">' . $signed_up_user->name . '</a><br>' . 
-      date(variable_get('signup_date_string', 'D, M jS, g:i A'), $signed_up_user->signup_time - $offset), 
-      implode('<br>', $table_data));   
+      date(variable_get('signup_date_string', 'M jS, g:i A'), $signed_up_user->signup_time - $offset), 
+      implode('<br>', $table_data), form(form_hidden('nid', $node->nid) . form_hidden('uid', $signed_up_user->uid) . 
+      form_submit(t('Cancel Signup')), 'post', url('signup', drupal_get_destination())));   
   }
   $output .= theme('table', $header, $rows);
   print theme('page', $output);
