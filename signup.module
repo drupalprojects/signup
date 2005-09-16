@@ -410,7 +410,7 @@ function signup_user_signup() {
       }
       
       //get current time and serialize the user's signup data
-      $curtime = gmmktime();
+      $curtime = time();
       $signup_form_data = serialize($edit['signup_form_data']);
       
       //pull this event from the signup table, determine if reminder/confirmation emails are going to be sent,
