@@ -295,8 +295,10 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
             $form_data = unserialize($result->form_data);
             $header = array(array('data' => t('Your signup information'), 'colspan' => 2));
             $rows = array();
-            foreach ($form_data as $key => $value) {
-              $rows[] = array($key . ':', $value);
+            if(is_array($form_data)) {
+              foreach ($form_data as $key => $value) {
+                $rows[] = array($key . ':', $value);
+              }
             }
             $output = theme('table', $header, $rows) . form($hidden . form_submit(t('Cancel Signup')), 'post',
               url('signup', drupal_get_destination()));
