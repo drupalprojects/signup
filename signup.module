@@ -531,6 +531,7 @@ function signup_user_signups_form($node) {
     }
     
     // build the form for this row
+    $form = array();
     $form['#action'] = url('signup', drupal_get_destination());
     $form['nid'] = array('#type' => 'hidden', '#value' => $node->nid);
     $form['uid'] = array('#type' => 'hidden', '#value' => $signed_up_user->uid);
