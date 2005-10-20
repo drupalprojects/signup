@@ -172,7 +172,7 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
       //inject this setting for all nodes types.  checking enables signups for the specified node type
       $form['signup_nodeapi_' . $node->type] = array('#type' => 'checkbox', '#title' => t('Allow signups'), '#default_value' => variable_get('signup_nodeapi_' . $node->type, FALSE) == 1, '#description' => t('If selected, users will be allowed to do signups for this node type'));
       return $form;
-    case 'form post':
+    case 'form':
         if($node->signup || variable_get('signup_nodeapi_' . $node->type, 0)) {
           
           //pull the signup admin form data for this node, and display the form
@@ -218,9 +218,9 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
 
     case 'delete':
 
-        //clean up the signup tables for the deleted node   
-        db_query("DELETE FROM {signup} WHERE nid = %d", $node->nid);
-        db_query("DELETE FROM {signup_log} WHERE nid = %d", $node->nid);
+        //clean up the signup tables for the deleted node  
+        drupal_trashbin($node->did, 'node', 'signup', "DELETE FROM {signup} WHERE nid = %d", $node->nid);
+        drupal_trashbin($node->did, 'node', 'signup_log', "DELETE FROM {signup_log} WHERE nid = %d", $node->nid);
       break;
       
     case 'delete pre':        
@@ -278,7 +278,7 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
           $user->uid, $node->nid);
           $form['nid'] = array('#type' => 'hidden', '#value' => $node->nid);
           $form['uid'] = array('#type' => 'hidden', '#value' => $user->uid);
-          $form['#destination'] = url('signup', drupal_get_destination());
+          $form['#action'] = url('signup', drupal_get_destination());
           
           if(db_num_rows($result) == 0) {
            
@@ -357,9 +357,10 @@ function signup_admin_page() {
 function signup_cancel_signup($uid, $nid) {
   
   //delete the selected user from the log table and return to the previous page
-  db_query("DELETE FROM {signup_log} WHERE uid = %d AND nid = %d", $uid, $nid);
+  $did = db_next_id('{deleted}_did');
+  drupal_trashbin($did, 'signup', 'signup_log', "DELETE FROM {signup_log} WHERE uid = %d AND nid = %d", $uid, $nid);
   drupal_set_message(t('Signup cancelled'));
-  drupal_goto();  
+  drupal_goto("node/$nid");  
 
 }
       
@@ -433,7 +434,7 @@ function signup_user_signup() {
       
       //get current time and serialize the user's signup data
       $curtime = time();
-      $signup_form_data = serialize($edit['signup_form_data']);
+      $signup_form_data = serialize($edit['collapse']['signup_user_form']['signup_form_data']);
       
       //pull this event from the signup table, determine if reminder/confirmation emails are going to be sent,
       //and inform the user
@@ -454,7 +455,7 @@ function signup_user_signup() {
       $starttime = $node->event_start ? _event_date(variable_get('signup_date_string', 'D, M jS, g:i A'), 
         $node->event_start, $offset) : t('[Untimed]');
       $signup_data_array = array();         
-      foreach ($edit['signup_form_data'] as $key => $value) {
+      foreach ($edit['collapse']['signup_user_form']['signup_form_data'] as $key => $value) {
         $signup_data_array[] = $key . ': ' . $value; 
       }       
       $signup_data = t('SIGNUP INFORMATION') . "\n\r\n\r" . implode("\n\r", $signup_data_array);   
@@ -530,7 +531,7 @@ function signup_user_signups_form($node) {
     }
     
     // build the form for this row
-    $form['#destination'] = url('signup', drupal_get_destination());
+    $form['#action'] = url('signup', drupal_get_destination());
     $form['nid'] = array('#type' => 'hidden', '#value' => $node->nid);
     $form['uid'] = array('#type' => 'hidden', '#value' => $signed_up_user->uid);
     $form['submit'] = array('#type' => 'submit', '#value' => t('Cancel Signup'));
