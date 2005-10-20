@@ -170,11 +170,8 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
     case 'settings':
     
       //inject this setting for all nodes types.  checking enables signups for the specified node type
-      return form_checkbox(t('Allow signups'), 'signup_nodeapi_' . $node->type, $value = 1, 
-        variable_get('signup_nodeapi_' . $node->type, FALSE) == 1, 
-        t('if selected, users will be allowed to do signups for this node type'), $attributes = NULL, 
-        $required = FALSE);
-        break;
+      $form['signup_nodeapi_' . $node->type] = array('#type' => 'checkbox', '#title' => t('Allow signups'), '#default_value' => variable_get('signup_nodeapi_' . $node->type, FALSE) == 1, '#description' => t('If selected, users will be allowed to do signups for this node type'));
+      return $form;
     case 'form post':
         if($node->signup || variable_get('signup_nodeapi_' . $node->type, 0)) {
           
@@ -189,7 +186,9 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
           $node->signup_reminder_email = $result->reminder_email;
           $node->signup_completed = $result->completed;
 
-          return form_group_collapsible(t('Sign up settings'), _signup_admin_form($node), TRUE);   
+          $form['collapse'] = array('#type' => 'fieldset', '#title' => t('Sign up settings'), '#collapsible' => TRUE, '#collapsed' => TRUE);
+          $form['collapse']['_signup_admin_form'] = _signup_admin_form($node);
+          return $form;  
         }        
       break;
       
@@ -277,16 +276,20 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
           //check here to see if the user is already signed up for this node
           $result = db_query("SELECT signup_time, form_data FROM {signup_log} WHERE uid = %d AND nid =%d",
           $user->uid, $node->nid);
-          $hidden = form_hidden('nid', $node->nid) . form_hidden('uid', $user->uid);
+          $form['nid'] = array('#type' => 'hidden', '#value' => $node->nid);
+          $form['uid'] = array('#type' => 'hidden', '#value' => $user->uid);
+          $form['#destination'] = url('signup', drupal_get_destination());
           
           if(db_num_rows($result) == 0) {
            
             //user isn't signed up, so check to make sure they have signup
             //permissions.  if this is the case, then print the themed signup form
             if (user_access('allow signups')) {
-              $form_data = theme('signup_user_form') . $hidden . form_submit(t('Sign up'));
-              $form = form($form_data, 'post', url('signup', drupal_get_destination()));
-              $output = form_group_collapsible(t('Sign up for %title', array('%title'=>$node->title)), $form, TRUE);
+              $form['collapse'] = array('#type' => 'fieldset', '#title' => t('Sign up for %title', array('%title'=>$node->title)), '#collapsible' => TRUE, '#collapsed' => TRUE);
+              
+              $form['collapse']['signup_user_form'] = theme('signup_user_form');
+              $form['collapse']['submit'] = array('#type' => 'submit', '#value' => t('Sign up'));             
+              $output = drupal_get_form('signup_nodeapi_view', $form);
             }
             
           //the user is already signed up, so print a table of their signup data, and give them the option to cancel
@@ -300,8 +303,8 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
                 $rows[] = array($key . ':', $value);
               }
             }
-            $output = theme('table', $header, $rows) . form($hidden . form_submit(t('Cancel Signup')), 'post',
-              url('signup', drupal_get_destination()));
+            $form['submit'] = array('#type' => 'submit', '#value' => t('Cancel Signup'));
+            $output = theme('table', $header, $rows) . drupal_get_form('signup_nodeapi_view', $form);
           }
         }
         $node->body .= $output; 
@@ -395,10 +398,12 @@ function signup_settings_page() {
   }
   
   //print the settings page
-  $output = '<h2>' . t('Default signup information') . '</h2><br>' . t('New signup nodes will start with these settings');
-  $output .= _signup_admin_form($node);
-  $output .= form_submit(t('Submit'));
-  print theme('page', form($output));
+  $form['title'] = array('#type' => 'markup', '#value' => '<h2>' . t('Default signup information') . '</h2><br>' . t('New signup nodes will start with these settings'));
+  $form['group'] = array('#type' => 'fieldset', '#title' => t('Sign up settings'));
+  $form['group']['_signup_admin_form'] = _signup_admin_form($node);
+  $form['submit'] = array('#type' => 'submit', '#value' => t('Submit'));
+  return drupal_get_form('signup_settings_page', $form);
+  
 }
 
 /**
@@ -524,11 +529,16 @@ function signup_user_signups_form($node) {
       $table_data[] = $key . ': ' . $value; 
     }
     
+    // build the form for this row
+    $form['#destination'] = url('signup', drupal_get_destination());
+    $form['nid'] = array('#type' => 'hidden', '#value' => $node->nid);
+    $form['uid'] = array('#type' => 'hidden', '#value' => $signed_up_user->uid);
+    $form['submit'] = array('#type' => 'submit', '#value' => t('Cancel Signup'));
+    
     //build the row for this user  
     $rows[] = array('<a href="user/' . $signed_up_user->uid . '">' . $signed_up_user->name . '</a><br>' . 
       gmdate(variable_get('signup_date_string', 'M jS, g:i A'), $signed_up_user->signup_time - $offset), 
-      implode('<br>', $table_data), form(form_hidden('nid', $node->nid) . form_hidden('uid', $signed_up_user->uid) . 
-      form_submit(t('Cancel Signup')), 'post', url('signup', drupal_get_destination())));   
+      implode('<br>', $table_data), drupal_get_form('signup_user_signups_form_'. $node->nid, $form));   
   }
   $output .= theme('table', $header, $rows);
   print theme('page', $output);
@@ -556,30 +566,22 @@ function _signup_admin_form($node) {
   }
   
   //compose the form fields
-  $form = '';
-  $form .= form_textfield(t('Send signups to'), 'signup_forwarding_email', $node->signup_forwarding_email, 40, 64, 
-    $description = t('Email address where notification of new signups will be sent. Leave blank for no notifications'), 
-    $attributes = NULL, $required = FALSE);
-  $form .= form_checkbox(t('Send confirmation'), 'signup_send_confirmation', $value = 1, $node->signup_send_confirmation, 
-    $description = NULL, $attributes = NULL, $required = FALSE);
-  $form .= form_textarea(t('Confirmation email'), 'signup_confirmation_email', $node->signup_confirmation_email, 40, 6,
-    $description = t('Email sent to user upon signup. Supported string substitutions: %event, %time, %username, %useremail, 
-    %info (user signup information)'), $attributes = NULL, $required = FALSE);
-  $form .= '<div class="container-inline">' . form_checkbox(t('Send reminder'), 'signup_send_reminder', $value = 1,
-    $node->signup_send_reminder, $description = NULL, $attributes = NULL, $required = FALSE);
+  $form['signup_forwarding_email'] = array('#type' => 'textfield', '#title' => t('Send signups to'), '#default_value' => $node->signup_forwarding_email, '#size' => 40, '#maxlength' => 64, '#description' => t('Email address where notification of new signups will be sent. Leave blank for no notifications'));
+  $form['signup_send_confirmation'] = array('#type' => 'checkbox', '#title' => t('Send confirmation'), '#default_value' => $node->signup_send_confirmation);
+  $form['signup_confirmation_email'] = array('#type' => 'textarea', '#title' => t('Confirmation email'), '#default_value' => $node->signup_confirmation_email, '#cols' => 40, '#rows' => 6, '#description' => t('Email sent to user upon signup. Supported string substitutions: %event, %time, %username, %useremail, %info (user signup information)'));
+  $form['container_inline'] = array('#type' => 'markup', '#value' => '<div class="container-inline">');
+  $form['signup_send_reminder'] = array('#type' => 'checkbox', '#title' => t('Send reminder'), '#default_value' => $node->signup_send_reminder);
   $options = array ();
   for ($i = 1; $i <= 60; $i++) {
     $options[$i] = $i;
   }
-  $form .= form_select('', 'signup_reminder_days_before', $node->signup_reminder_days_before, $options, $description = NULL, 
-    $extra = 0, $multiple = FALSE, $required = FALSE);
-  $form .= "day(s) before event</div>";
-  $form .= form_textarea(t('Reminder email'), 'signup_reminder_email', $node->signup_reminder_email, 40, 6, 
-    $description = t('Email sent to user as an event reminder. Supported string substitutions: %event, %time, %username, 
-    %useremail'), $attributes = NULL, $required = FALSE);
-  $form .= form_hidden('signup', 1, $edit = 'edit');
+  $form['signup_reminder_days_before'] = array('#type' => 'select', '#default_value' => $node->signup_reminder_days_before, '#options' => $options);
+  $form['end_div'] = array('#type' => 'markup', '#value' => t('day(s) before event').'</div>');
+  
+  $form['signup_reminder_email'] = array('#type' => 'textarea', '#title' => t('Reminder email'), '#default_value' => $node->signup_reminder_email, '#cols' => 40, '#rows' => 6, '#description' => t('Email sent to user as an event reminder. Supported string substitutions: %event, %time, %username, %useremail'));
+  $form['signup'] = array('#type' => 'hidden', '#value' => 1);
 
-  return form_group(t('Signup information'), $form, $description = NULL, $attributes = NULL);
+  return $form;
 }
 
 ?>
