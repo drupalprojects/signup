@@ -217,8 +217,8 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
     case 'delete':
 
         //clean up the signup tables for the deleted node  
-        drupal_trashbin($node->did, 'node', 'signup', "DELETE FROM {signup} WHERE nid = %d", $node->nid);
-        drupal_trashbin($node->did, 'node', 'signup_log', "DELETE FROM {signup_log} WHERE nid = %d", $node->nid);
+        db_query("DELETE FROM {signup} WHERE nid = %d", $node->nid);
+        db_query("DELETE FROM {signup_log} WHERE nid = %d", $node->nid);
       break;
       
     case 'delete pre':        
@@ -226,13 +226,11 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
       //if the node has any signups, prevent deletion and warn
       if (variable_get('signup_nodeapi_' . $node->type, FALSE) && ($user_signups = db_num_rows(db_query('SELECT 
         nid FROM {signup_log} WHERE nid = %d', $node->nid)))) {     
-        $data_to_inject = '<br>';
-        drupal_set_message(t('WARNING: %d user(s) signed up for this event.  Deleting this event will delete 
-        all signups associated with it!.', array('%title'=>$node->title, '%d'=>$user_signups)));
-      } else {
-        $data_to_inject = '<h4>' . t('No users signed up for this event') . '</h4>';  
+
+        $form['signup'] = array('#type' => 'markup', '#value' => t('WARNING: %d user(s) signed up for %title.  Deleting this event will delete all signups associated with it!', array('%title'=>$node->title, '%d'=>$user_signups)));
+        $form['foo'] = array('#type' => 'textfield', '#title' => 'foo');
+        return $form;
       }
-      return $data_to_inject;
       break;
 
     case 'load':
@@ -355,13 +353,11 @@ function signup_admin_page() {
 function signup_cancel_signup($uid, $nid) {
   
   //delete the selected user from the log table and return to the previous page
-  $did = db_next_id('{deleted}_did');
-  drupal_trashbin($did, 'signup', 'signup_log', "DELETE FROM {signup_log} WHERE uid = %d AND nid = %d", $uid, $nid);
+  db_query("DELETE FROM {signup_log} WHERE uid = %d AND nid = %d", $uid, $nid);
   drupal_set_message(t('Signup cancelled'));
   drupal_goto("node/$nid");  
 
-}
-      
+}     
       
 /**
  * Callback function for closing signups
@@ -447,7 +443,7 @@ function signup_user_signup() {
       
       //get current time and serialize the user's signup data
       $curtime = time();
-      $signup_form_data = serialize($edit['signup_form_data']);
+      $signup_form_data = serialize($edit['signup_user_form']['signup_form_data']);
       
       //pull this event from the signup table, determine if reminder/confirmation emails are going to be sent,
       //and inform the user
@@ -468,7 +464,7 @@ function signup_user_signup() {
       $starttime = $node->event_start ? _event_date(variable_get('signup_date_string', 'D, M jS, g:i A'), 
         $node->event_start, $offset) : t('[Untimed]');
       $signup_data_array = array();         
-      foreach ($edit['signup_form_data'] as $key => $value) {
+      foreach ($edit['signup_user_form']['signup_form_data'] as $key => $value) {
         $signup_data_array[] = $key . ': ' . $value; 
       }       
       $signup_data = t('SIGNUP INFORMATION') . "\n\r\n\r" . implode("\n\r", $signup_data_array);   
