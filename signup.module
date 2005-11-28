@@ -158,6 +158,13 @@ function signup_perm() {
  * @defgroup signup_nodeapi Functions for nodeapi integration
  */
 
+function signup_form_alter($form_id, &$form) {
+  if (isset($form['type']) && $form['type']['#value'] .'_node_settings' == $form_id) {
+    $type = $form['type']['#value'];
+    $form['workflow']['signup_nodeapi_' . $type] = array('#type' => 'checkbox', '#title' => t('Allow signups'), '#default_value' => variable_get('signup_nodeapi_' . $type, FALSE) == 1, '#description' => t('If selected, users will be allowed to do signups for this node type'));
+  }
+}
+
  /**
  * hook_nodeapi implementation
  *
@@ -165,11 +172,6 @@ function signup_perm() {
 */ 
 function signup_nodeapi(&$node, $op, $arg = 0) {
   switch ($op) {
-    case 'settings':
-    
-      //inject this setting for all nodes types.  checking enables signups for the specified node type
-      $form['signup_nodeapi_' . $node->type] = array('#type' => 'checkbox', '#title' => t('Allow signups'), '#default_value' => variable_get('signup_nodeapi_' . $node->type, FALSE) == 1, '#description' => t('If selected, users will be allowed to do signups for this node type'));
-      return $form;
     case 'form':
         if($node->signup || variable_get('signup_nodeapi_' . $node->type, 0)) {
           
