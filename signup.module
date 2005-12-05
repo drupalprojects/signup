@@ -161,8 +161,22 @@ function signup_perm() {
 function signup_form_alter($form_id, &$form) {
   if (isset($form['type']) && $form['type']['#value'] .'_node_settings' == $form_id) {
     $type = $form['type']['#value'];
-    $form['workflow']['signup_nodeapi_' . $type] = array('#type' => 'checkbox', '#title' => t('Allow signups'), '#default_value' => variable_get('signup_nodeapi_' . $type, FALSE) == 1, '#description' => t('If selected, users will be allowed to do signups for this node type'));
-  }
+    $form['workflow']['signup_form_' . $type] = array('#type' => 'checkbox', '#title' => t('Allow signups'), '#default_value' => variable_get('signup_form_' . $type, FALSE) == 1, '#description' => t('If selected, users will be allowed to do signups for this node type'));
+    
+  //inject the appropriate signup data into the node form if the node type is signup enabled
+  } elseif ($form['type']['#value'] .'_node_form' == $form_id  && variable_get('signup_form_' . $form['type']['#value'], 0)) {
+    
+    //check to see if it's a new node.  if not, then load the node
+    if (isset($form['nid']['#value'])) {
+      $node = node_load($form['nid']['#value']);
+    } else {
+      $node = NULL;
+    }
+    
+    $form['collapse'] = array('#type' => 'fieldset', '#title' => t('Sign up settings'), '#collapsible' => TRUE, '#collapsed' => TRUE);
+    $form['collapse']['_signup_admin_form'] = _signup_admin_form($node);
+    return $form;
+  } 
 }
 
  /**
@@ -172,30 +186,10 @@ function signup_form_alter($form_id, &$form) {
 */ 
 function signup_nodeapi(&$node, $op, $arg = 0) {
   switch ($op) {
-    case 'form':
-        if($node->signup || variable_get('signup_nodeapi_' . $node->type, 0)) {
-          
-          //pull the signup admin form data for this node, and display the form
-          $result = db_fetch_object(db_query("SELECT * FROM {signup} WHERE nid = %d", ($node->nid ? $node->nid : 0)));            
-          $node->signup = 1;
-          $node->signup_forwarding_email = $result->forwarding_email;
-          $node->signup_send_confirmation = $result->send_confirmation;
-          $node->signup_confirmation_email = $result->confirmation_email;
-          $node->signup_send_reminder  = $result->send_reminder ;
-          $node->signup_reminder_days_before = $result->reminder_days_before;
-          $node->signup_reminder_email = $result->reminder_email;
-          $node->signup_completed = $result->completed;
-
-          $form['collapse'] = array('#type' => 'fieldset', '#title' => t('Sign up settings'), '#collapsible' => TRUE, '#collapsed' => TRUE);
-          $form['collapse']['_signup_admin_form'] = _signup_admin_form($node);
-          return $form;  
-        }        
-      break;
-      
     case 'insert':
     
       //if it's a signup enabled node type, then insert a new row for this node
-      if (variable_get('signup_nodeapi_' . $node->type, 0)) {
+      if (variable_get('signup_form_' . $node->type, 0)) {
         $edit = $_POST['edit'];
         db_query("INSERT INTO {signup} (nid, forwarding_email, send_confirmation, confirmation_email,
         send_reminder, reminder_days_before, reminder_email) VALUES (%d, '%s', %d, '%s', %d, %d, '%s')", 
@@ -207,7 +201,7 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
     case 'update':
     
       //if this is a signup enabled node type, then update the signup info for the node
-      if (variable_get('signup_nodeapi_' . $node->type, 0)) {
+      if (variable_get('signup_form_' . $node->type, 0)) {
         db_query("UPDATE {signup} SET forwarding_email  = '%s', send_confirmation = %d, confirmation_email  = '%s',
           send_reminder = %d, reminder_days_before = %d, reminder_email = '%s'
           WHERE nid = %d", $node->signup_forwarding_email, $node->signup_send_confirmation, 
@@ -226,7 +220,7 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
     case 'delete pre':        
 
       //if the node has any signups, prevent deletion and warn
-      if (variable_get('signup_nodeapi_' . $node->type, FALSE) && ($user_signups = db_num_rows(db_query('SELECT 
+      if (variable_get('signup_form_' . $node->type, FALSE) && ($user_signups = db_num_rows(db_query('SELECT 
         nid FROM {signup_log} WHERE nid = %d', $node->nid)))) {     
 
         $form['signup'] = array('#type' => 'markup', '#value' => t('WARNING: %d user(s) signed up for %title.  Deleting this event will delete all signups associated with it!', array('%title'=>$node->title, '%d'=>$user_signups)));
@@ -236,7 +230,7 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
       break;
 
     case 'load':
-      if (variable_get('signup_nodeapi_' . $node->type, 0)) {
+      if (variable_get('signup_form_' . $node->type, 0)) {
 
         //load signup data into the node.  if this is a new node, then load the defaults
         $result = db_fetch_object(db_query("SELECT * FROM {signup} WHERE nid = %d", ($node->nid ? $node->nid : 0)));              
@@ -287,7 +281,7 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
               
               $form['collapse']['signup_user_form'] = signup_user_form();
               $form['collapse']['submit'] = array('#type' => 'submit', '#value' => t('Sign up'));             
-              $output = drupal_get_form('signup_nodeapi_view', $form);
+              $output = drupal_get_form('signup_form_view', $form);
             }
             
           //the user is already signed up, so print a table of their signup data, and give them the option to cancel
@@ -302,7 +296,7 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
               }
             }
             $form['submit'] = array('#type' => 'submit', '#value' => t('Cancel Signup'));
-            $output = theme('table', $header, $rows) . drupal_get_form('signup_nodeapi_view', $form);
+            $output = theme('table', $header, $rows) . drupal_get_form('signup_form_view', $form);
           }
         }
         $node->body .= $output; 
@@ -384,12 +378,19 @@ function signup_settings_page() {
   
   //if the form has been submitted, update the data in the database
   switch ($op) {
-    case t('Submit'):              
-      db_query("UPDATE {signup} SET forwarding_email  = '%s', send_confirmation = %d, confirmation_email  = '%s',
-          send_reminder = %d, reminder_days_before = %d, reminder_email = '%s'
-          WHERE nid = 0", $edit['signup_forwarding_email'], $edit['signup_send_confirmation'], 
-          $edit['signup_confirmation_email'], $edit['signup_send_reminder'], $edit['signup_reminder_days_before'], 
-          $edit['signup_reminder_email']);
+    case t('Submit'):
+      if (db_num_rows(db_query('SELECT nid FROM {signup} WHERE nid = 0'))) {              
+        db_query("UPDATE {signup} SET forwarding_email  = '%s', send_confirmation = %d, confirmation_email  = '%s',
+            send_reminder = %d, reminder_days_before = %d, reminder_email = '%s'
+            WHERE nid = 0", $edit['signup_forwarding_email'], $edit['signup_send_confirmation'], 
+            $edit['signup_confirmation_email'], $edit['signup_send_reminder'], $edit['signup_reminder_days_before'], 
+            $edit['signup_reminder_email']);
+          
+      } else {
+        db_query("INSERT INTO {signup} VALUES(0, '%s', %d, '%s', %d, %d, '%s', 0, 0, '', 0)", $edit['signup_forwarding_email'], 
+        $edit['signup_send_confirmation'], $edit['signup_confirmation_email'], $edit['signup_send_reminder'],
+        $edit['signup_reminder_days_before'], $edit['signup_reminder_email']);
+      }
       drupal_set_message(t('Signup settings updated'));
       break;
   }
@@ -403,7 +404,7 @@ function signup_settings_page() {
   
 }
 
-//you can alter this user signup form to suit your needs via hook_form_alter--the $form_id is signup_nodeapi_view
+//you can alter this user signup form to suit your needs via hook_form_alter--the $form_id is signup_form_view
 //feel free to alter any elements in this section, remove them, or add any others.  do not alter any 
 //of the other elements in the form.  in order for the form to be rendered properly, the name of the form 
 //element must be in the form of $form['signup_form_data']['NameOfDataField'], where NameOfDataField is replaced with 
