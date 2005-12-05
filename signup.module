@@ -370,11 +370,18 @@ function signup_settings_page() {
   //if the form has been submitted, update the data in the database
   switch ($op) {
     case t('Submit'):              
-      db_query("UPDATE {signup} SET forwarding_email  = '%s', send_confirmation = %d, confirmation_email  = '%s',
-          send_reminder = %d, reminder_days_before = %d, reminder_email = '%s'
-          WHERE nid = 0", $edit['signup_forwarding_email'], $edit['signup_send_confirmation'], 
-          $edit['signup_confirmation_email'], $edit['signup_send_reminder'], $edit['signup_reminder_days_before'], 
-          $edit['signup_reminder_email']);
+      if (db_num_rows(db_query('SELECT nid FROM {signup} WHERE nid = 0'))) {              
+        db_query("UPDATE {signup} SET forwarding_email  = '%s', send_confirmation = %d, confirmation_email  = '%s',
+            send_reminder = %d, reminder_days_before = %d, reminder_email = '%s'
+            WHERE nid = 0", $edit['signup_forwarding_email'], $edit['signup_send_confirmation'], 
+            $edit['signup_confirmation_email'], $edit['signup_send_reminder'], $edit['signup_reminder_days_before'], 
+            $edit['signup_reminder_email']);
+          
+      } else {
+        db_query("INSERT INTO {signup} VALUES(0, '%s', %d, '%s', %d, %d, '%s', 0, 0, '', 0)", $edit['signup_forwarding_email'], 
+        $edit['signup_send_confirmation'], $edit['signup_confirmation_email'], $edit['signup_send_reminder'],
+        $edit['signup_reminder_days_before'], $edit['signup_reminder_email']);
+      }
       drupal_set_message(t('Signup settings updated'));
       break;
   }
