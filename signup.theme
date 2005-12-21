@@ -8,12 +8,15 @@
 //the actual name of the data field.  it's also suggested that the displayed name of the field to the 
 //user be the same as the name of the data field, but it's not required. see below for examples
 function theme_signup_user_form() {
-  $form = form_textfield(t('Name'), 'signup_form_data][Name', NULL, 40, 64, $description = NULL, 
+  $form = '';
+/*  $form .= form_textfield(t('Name'), 'signup_form_data][Name', NULL, 40, 64, $description = NULL, 
     $attributes = NULL, $required = FALSE);
   $form .= form_textfield(t('Email'), 'signup_form_data][Email', NULL, 40, 64, $description = NULL, 
     $attributes = NULL, $required = FALSE);
   $form .= form_textfield(t('Phone'), 'signup_form_data][Phone', NULL, 40, 64, $description = NULL, 
-    $attributes = NULL, $required = FALSE);
+    $attributes = NULL, $required = FALSE);*/
+  $form .= form_textarea(t('Comments'), 'signup_form_data][Comments', NULL, 40, 5, $description = 
+    t('Please comment on any aspect of the event which the moderator may benefit from.'));
   return $form;
 }
 
