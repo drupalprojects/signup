@@ -150,6 +150,7 @@ function signup_perm() {
  * @ingroup signup_nodeapi
 */ 
 function signup_nodeapi(&$node, $op, $arg = 0) {
+  $edit = $_POST['edit'];
   switch ($op) {
     case 'settings':
     
@@ -174,30 +175,46 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
           $node->signup_completed = $result->completed;
 
           return _signup_admin_form($node);   
-        }        
+        }
+        else {
+          return form_checkbox(t('Enable signups for this node'), 'signup_enable');
+        }
       break;
       
     case 'insert':
     
-      //if it's a signup enabled node type, then insert a new row for this node
+      //if it's a signup enabled node, then insert a new row for this node
       if (variable_get('signup_nodeapi_' . $node->type, 0)) {
-        $edit = $_POST['edit'];
         db_query("INSERT INTO {signup} (nid, forwarding_email, send_confirmation, confirmation_email,
         send_reminder, reminder_days_before, reminder_email) VALUES (%d, '%s', %d, '%s', %d, %d, '%s')", 
         $node->nid, $edit['signup_forwarding_email'], $edit['signup_send_confirmation'], $edit['signup_confirmation_email'],
         $edit['signup_send_reminder'], $edit['signup_reminder_days_before'], $edit['signup_reminder_email']);
-      }       
+      }
+      elseif ($edit['signup_enable']) {
+        $defaults = db_fetch_array(db_query('SELECT * FROM {signup} WHERE nid = 0'));
+        db_query("INSERT INTO {signup} (nid, forwarding_email, send_confirmation, confirmation_email,
+        send_reminder, reminder_days_before, reminder_email) VALUES (%d, '%s', %d, '%s', %d, %d, '%s')", 
+        $node->nid, $defaults['signup_forwarding_email'], $defaults['signup_send_confirmation'], $defaults['signup_confirmation_email'],
+        $defaults['signup_send_reminder'], $defaults['signup_reminder_days_before'], $defaults['signup_reminder_email']);
+      }
       break;
 
     case 'update':
     
-      //if this is a signup enabled node type, then update the signup info for the node
+      //if this is a signup enabled node, then update the signup info for the node
       if (variable_get('signup_nodeapi_' . $node->type, 0)) {
         db_query("UPDATE {signup} SET forwarding_email  = '%s', send_confirmation = %d, confirmation_email  = '%s',
           send_reminder = %d, reminder_days_before = %d, reminder_email = '%s'
           WHERE nid = %d", $node->signup_forwarding_email, $node->signup_send_confirmation, 
           $node->signup_confirmation_email, $node->signup_send_reminder, $node->signup_reminder_days_before, 
           $node->signup_reminder_email, $node->nid);         
+      }
+      elseif ($edit['signup_enable']) {
+        $defaults = db_fetch_array(db_query('SELECT * FROM {signup} WHERE nid = 0'));
+        db_query("INSERT INTO {signup} (nid, forwarding_email, send_confirmation, confirmation_email,
+        send_reminder, reminder_days_before, reminder_email) VALUES (%d, '%s', %d, '%s', %d, %d, '%s')", 
+        $node->nid, $defaults['signup_forwarding_email'], $defaults['signup_send_confirmation'], $defaults['signup_confirmation_email'],
+        $defaults['signup_send_reminder'], $defaults['signup_reminder_days_before'], $defaults['signup_reminder_email']);
       }
       break;
 
@@ -207,35 +224,22 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
         db_query("DELETE FROM {signup} WHERE nid = %d", $node->nid);
         db_query("DELETE FROM {signup_log} WHERE nid = %d", $node->nid);
       break;
-      
-    case 'delete pre':        
-
-      //if the node has any signups, prevent deletion and warn
-      if (variable_get('signup_nodeapi_' . $node->type, FALSE) && ($user_signups = db_num_rows(db_query('SELECT nid 
-        FROM {signup_log} WHERE nid = %d', $node->nid)))) {
-      
-        $data_to_inject = '<br>';
-        drupal_set_message(t('WARNING: %d user(s) signed up for this event.  Deleting this event will delete 
-        all signups associated with it!.', array('%title'=>$node->title, '%d'=>$user_signups)));
-      } else {
-        $data_to_inject = '<h4>' . t('No users signed up for this event') . '</h4>';  
-      }
-      return $data_to_inject;
-      break;
 
     case 'load':
-      if (variable_get('signup_nodeapi_' . $node->type, 0)) {
-
-        //load signup data into the node.  if this is a new node, then load the defaults
-        $result = db_fetch_object(db_query("SELECT * FROM {signup} WHERE nid = %d", ($node->nid ? $node->nid : 0)));              
+    
+      //check for a signup for this node.  if it's a new node, load the defaults
+      $result = db_query("SELECT * FROM {signup} WHERE nid = %d", ($node->nid ? $node->nid : 0));
+        
+      //load signup data for both new nodes w/ enabled node types, and any existing nodes that are already signup enabled
+      if ((!$node->nid && variable_get('signup_nodeapi_' . $node->type, 0)) || ($node->nid && db_num_rows($result))) {                     $signup = db_fetch_object($result);
         $node->signup = 1;
-        $node->signup_forwarding_email = $result->forwarding_email;
-        $node->signup_send_confirmation = $result->send_confirmation;
-        $node->signup_confirmation_email = $result->confirmation_email;
-        $node->signup_send_reminder  = $result->send_reminder ;
-        $node->signup_reminder_days_before = $result->reminder_days_before;
-        $node->signup_reminder_email = $result->reminder_email;
-        $node->signup_completed = $result->completed;
+        $node->signup_forwarding_email = $signup->forwarding_email;
+        $node->signup_send_confirmation = $signup->send_confirmation;
+        $node->signup_confirmation_email = $signup->confirmation_email;
+        $node->signup_send_reminder  = $signup->send_reminder ;
+        $node->signup_reminder_days_before = $signup->reminder_days_before;
+        $node->signup_reminder_email = $signup->reminder_email;
+        $node->signup_completed = $signup->completed;
       }
       
       break;
@@ -254,8 +258,8 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
           
           //this is an anonymous user. if they have signup permissions, then display a login link
           if ($user->uid == 0) {
-            $node->body .= user_access('allow signups') ? t('<p>Please <a href="%login">login/register</a> to sign up 
-              for this event.</p>', array("%login"=>url('user/login', drupal_get_destination()))) : '';
+            $node->body .= user_access('allow signups') ? t('<p>Please %login to sign up for this event.</p>', 
+            array("%login"=> l(t('login/register'), 'user/login', array(), drupal_get_destination()))) : '';
             break;
           }
           
@@ -271,7 +275,7 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
             if (user_access('allow signups')) {
               $form_data = theme('signup_user_form') . $hidden . form_submit(t('Sign up'));
               $form = form($form_data, 'post', url('signup', drupal_get_destination()));
-              $output = form_group(t('Sign up for %title', array('%title'=>$node->title)), $form);
+              $output = form_group(t('Sign up for %title', array('%title'=> check_plain($node->title))), $form);
             }
             
           //the user is already signed up, so print a table of their signup data, and give them the option to cancel
@@ -282,12 +286,29 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
             $rows = array();
             if(is_array($form_data)) {
               foreach ($form_data as $key => $value) {
-                $rows[] = array($key . ':', $value);
+                $rows[] = array(check_plain($key) . ':', check_plain($value));
               }
             }
             $output = theme('table', $header, $rows) . form($hidden . form_submit(t('Cancel Signup')), 'post',
               url('signup', drupal_get_destination()));
           }
+        }
+        
+        //if user has signup perm, and signup_user_view is enabled, then display the current signups
+        //pull all user signed up for this event, and start table creation
+        if (user_access('allow signups') && variable_get('signup_user_view', 0)) {
+          $signups = db_query("SELECT u.uid, u.name, s.signup_time, s.form_data FROM {signup_log} s INNER JOIN {users} u ON 
+    u.uid = s.uid WHERE s.nid =%d", $node->nid);
+          $header = array(array('data' => t('%d individual(s) signed up', array('%d' => db_num_rows($signups)))));
+          $rows = array();
+
+          //loop through the users
+          while ($signed_up_user = db_fetch_object($signups)) {
+
+            //build the row for this user
+            $rows[] = array(l(check_plain($signed_up_user->name), "user/$signed_up_user->uid"));
+          }
+          $output .= theme('table', $header, $rows);
         }
         $node->body .= $output; 
       }
@@ -319,13 +340,13 @@ function signup_admin_page() {
   $rows = array();
   
   //loop through the signup nodes, pull the number of signups for each, and create the summary table
-  while ($event = db_fetch_object($result)) {
-    $offset = $event->event_start ? event_get_offset($event->timezone, $event->event_start) : '';                
-    $number_of_signups = db_fetch_array(db_query('SELECT COUNT(nid) FROM {signup_log} WHERE nid = %d', $event->nid));
-    $rows[] = array('<a href="node/' . $event->nid . '">' . $event->title . '</a>' . ($event->event_start ? 
+  while ($signup_event = db_fetch_object($result)) {
+    $offset = $signup_event->event_start ? event_get_offset($signup_event->timezone, $signup_event->event_start) : '';                
+    $number_of_signups = db_fetch_array(db_query('SELECT COUNT(nid) FROM {signup_log} WHERE nid = %d', $signup_event->nid));
+    $rows[] = array(l(check_plain($signup_event->title), "node/$signup_event->nid") . ($signup_event->event_start ? 
       '<br>' . _event_date(variable_get('signup_date_string', 'D, M jS, g:i A'), 
-      $event->event_start, $offset) : ''), strval($number_of_signups['COUNT(nid)']), '<a href="node/' . $event->nid . '/signups">'
-        . t('View Signups') . '</a> <a href="closesignup/' . $event->nid . '"><br>' . t('Close Event') . '</a>');   
+      $signup_event->event_start, $offset) : ''), strval($number_of_signups['COUNT(nid)']), l(t('View Signups'), 
+      "node/$signup_event->nid/signups") .'<br>'. l(t('Close Event'), "closesignup/$signup_event->nid"));   
   }
   $output .= theme('table', $header, $rows);
   print theme('page', $output);
@@ -369,7 +390,8 @@ function signup_settings_page() {
   
   //if the form has been submitted, update the data in the database
   switch ($op) {
-    case t('Submit'):              
+    case t('Submit'):
+      variable_set('signup_user_view', $edit['signup_user_view']);
       if (db_num_rows(db_query('SELECT nid FROM {signup} WHERE nid = 0'))) {              
         db_query("UPDATE {signup} SET forwarding_email  = '%s', send_confirmation = %d, confirmation_email  = '%s',
             send_reminder = %d, reminder_days_before = %d, reminder_email = '%s'
@@ -387,7 +409,9 @@ function signup_settings_page() {
   }
   
   //print the settings page
-  $output = '<h2>' . t('Default signup information') . '</h2><br>' . t('New signup nodes will start with these settings');
+  $output = form_checkbox(t('Users can view signups'), 'signup_user_view', 1, variable_get('signup_user_view', 0), 
+    t('Selecting this option allows users with signup permissions to see who has already signed up.'));
+  $output .= '<h2>' . t('Default signup information') . '</h2><br>' . t('New signup nodes will start with these settings');
   $output .= _signup_admin_form($node);
   $output .= form_submit(t('Submit'));
   print theme('page', form($output));
@@ -499,7 +523,7 @@ function signup_user_signups_form($node) {
   //pull all user signed up for this event, and start table creation
   $result = db_query("SELECT u.uid, u.name, s.signup_time, s.form_data FROM {signup_log} s INNER JOIN {users} u ON 
     u.uid = s.uid WHERE s.nid =%d", $node->nid);
-  $output = "<h1>" . $node->title . "</h1>";
+  $output = "<h1>" . check_plain($node->title) . "</h1>";
   $header = array(array('data' => t('%d individual(s) signed up', array('%d' => db_num_rows($result))), 'colspan' => 3));
   $rows = array();
   
@@ -513,11 +537,11 @@ function signup_user_signups_form($node) {
 
     //compose the user data   
     foreach ($form_data as $key => $value) {
-      $table_data[] = $key . ': ' . $value; 
+      $table_data[] = check_plain($key) . ': ' . check_plain($value); 
     }
     
     //build the row for this user  
-    $rows[] = array('<a href="user/' . $signed_up_user->uid . '">' . $signed_up_user->name . '</a><br>' . 
+    $rows[] = array(l(check_plain($signed_up_user->name), "user/$signed_up_user->uid") .'<br>'. 
       gmdate(variable_get('signup_date_string', 'M jS, g:i A'), $signed_up_user->signup_time - $offset), 
       implode('<br>', $table_data), form(form_hidden('nid', $node->nid) . form_hidden('uid', $signed_up_user->uid) . 
       form_submit(t('Cancel Signup')), 'post', url('signup', drupal_get_destination())));   
