@@ -194,15 +194,15 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
         $defaults = db_fetch_array(db_query('SELECT * FROM {signup} WHERE nid = 0'));
         db_query("INSERT INTO {signup} (nid, forwarding_email, send_confirmation, confirmation_email,
         send_reminder, reminder_days_before, reminder_email) VALUES (%d, '%s', %d, '%s', %d, %d, '%s')", 
-        $node->nid, $defaults['signup_forwarding_email'], $defaults['signup_send_confirmation'], $defaults['signup_confirmation_email'],
-        $defaults['signup_send_reminder'], $defaults['signup_reminder_days_before'], $defaults['signup_reminder_email']);
+        $node->nid, $defaults['forwarding_email'], $defaults['send_confirmation'], $defaults['confirmation_email'],
+        $defaults['send_reminder'], $defaults['reminder_days_before'], $defaults['reminder_email']);
       }
       break;
 
     case 'update':
     
       //if this is a signup enabled node, then update the signup info for the node
-      if (variable_get('signup_nodeapi_' . $node->type, 0)) {
+      if (db_num_rows(db_query('SELECT * FROM {signup} WHERE nid = %d', $node->nid))) {
         db_query("UPDATE {signup} SET forwarding_email  = '%s', send_confirmation = %d, confirmation_email  = '%s',
           send_reminder = %d, reminder_days_before = %d, reminder_email = '%s'
           WHERE nid = %d", $node->signup_forwarding_email, $node->signup_send_confirmation, 
@@ -213,8 +213,8 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
         $defaults = db_fetch_array(db_query('SELECT * FROM {signup} WHERE nid = 0'));
         db_query("INSERT INTO {signup} (nid, forwarding_email, send_confirmation, confirmation_email,
         send_reminder, reminder_days_before, reminder_email) VALUES (%d, '%s', %d, '%s', %d, %d, '%s')", 
-        $node->nid, $defaults['signup_forwarding_email'], $defaults['signup_send_confirmation'], $defaults['signup_confirmation_email'],
-        $defaults['signup_send_reminder'], $defaults['signup_reminder_days_before'], $defaults['signup_reminder_email']);
+        $node->nid, $defaults['forwarding_email'], $defaults['send_confirmation'], $defaults['confirmation_email'],
+        $defaults['send_reminder'], $defaults['reminder_days_before'], $defaults['reminder_email']);
       }
       break;
 
