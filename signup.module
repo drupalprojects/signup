@@ -40,6 +40,42 @@
  */
 
 /**
+ * Implementation of hook_block().
+ * @ingroup signup_core
+ * @param $op the operation that is being requested.  This defaults to 'list', which indicates that the method should
+ *        return which blocks are available.
+ * @param $delta the specific block to display.  This is actually the offset into an array.
+ * @return one of two possibilities.  The first is an array of available blocks.  The other is an array containing a
+ *        block.
+ */
+function signup_block($op = 'list', $delta = 0) {
+  global $user;
+  switch ($op) {
+    case 'list' :
+      $blocks[0]['info'] = t('List of users current signups.');
+      return $blocks;
+      break;
+    case 'view' :
+      if (user_access('access content')) {
+        switch ($delta) {
+          case 0:
+            $titles = array();
+            $result = db_query('SELECT title, n.nid FROM {node} n INNER JOIN {signup_log} s on n.nid = s.nid WHERE 
+              s.uid = %d', $user->uid);
+            while ($node = db_fetch_array($result)) {
+              $titles[] = l($node['title'], 'node/'. $node['nid']);
+            }
+            if (count($titles) > 0) {
+              $block['subject'] = t('Current Signups');
+              $block['content'] = theme_item_list($titles);
+            }
+            return $block;
+        }
+      }
+  }
+}
+
+/**
  * Implementation of hook_cron().
  * @ingroup signup_core
  */
