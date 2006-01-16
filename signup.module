@@ -303,8 +303,8 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
 
           //this is an anonymous user. if they have signup permissions, then display a login link
           if ($user->uid == 0) {
-            $node->body .= user_access('allow signups') ? t('<p>Please %login to sign up for this event.</p>',
-            array("%login"=> l(t('login/register'), 'user/login', array(), drupal_get_destination()))) : '';
+            $node->body .= user_access('allow signups') ? '<div class="signup_anonymous">'. t('<p>Please %login to sign up for this event.</p>',
+            array("%login"=> l(t('login/register'), 'user/login', array(), drupal_get_destination()))) .'</div>' : '';
             break;
           }
 
