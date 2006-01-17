@@ -186,6 +186,31 @@ function signup_perm() {
 }
 
 /**
+ * Implementation of hook_user().
+ * @ingroup signup_core
+ */
+function signup_user($op, &$edit, &$user, $category = NULL) {
+  switch ($op) {
+    case 'view':
+
+      //grab list of events the user signed up for
+      $signups = _signup_list_user_signups($user->uid);
+      if (count($signups) > 0) {
+        $output = t('<h4>Current Signups<h4>') . theme_item_list($signups);
+      }
+
+      //grab list of signup conflict data for this user
+      $conflicts = _signup_user_conflicts($user->uid);
+      if (isset($conflicts)) {
+        $output .= $conflicts['title'] . $conflicts['data'];
+      }
+      if (isset($output)) {
+        return array(t('Signup information') => $output);
+      }
+  }
+}
+
+/**
  * @defgroup signup_nodeapi Functions for nodeapi integration
  */
 
@@ -358,23 +383,6 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
         $node->body .= $output;
       }
       break;
-  }
-}
-
-function signup_user($op, &$edit, &$user, $category = NULL) {
-  switch ($op) {
-    case 'view':
-      $signups = _signup_list_user_signups($user->uid);
-      if (count($signups) > 0) {
-        $output = t('<h4>Current Signups<h4>') . theme_item_list($signups);
-      }
-      $conflicts = _signup_user_conflicts($user->uid);
-      if (isset($conflicts)) {
-        $output .= $conflicts['title'] . $conflicts['data'];
-      }
-      if (isset($output)) {
-        return array(t('Signup information') => $output);
-      }
   }
 }
 
@@ -726,33 +734,36 @@ function _signup_admin_form($node) {
  */
 function _signup_get_conflicts($uid) {
 
-  //pull all signup nodes for the specified user
   $conflicts = array();
-  $signups = db_query('SELECT n.nid, n.title, e.event_start AS start, e.event_end AS end FROM {signup_log} s INNER JOIN {node} n ON s.nid = n.nid INNER JOIN {event} e ON n.nid = e.nid WHERE s.uid = %d', $uid);
+  if (module_exist('event')) {
 
-  //for each signup, pull all nodes that have a time conflict.  ignore duplicate conflicts
-  while ($events = db_fetch_array($signups)) {
-    $nid = $events['nid'];
-    $title = $events['title'];
-    $end = $events['end'];
-    $start = $events['start'];
-    $nodes[$nid][] = (integer) $nid;
-    $skip = implode(', ', $nodes[$nid]);
-    $conflicting = db_query('SELECT n.nid, n.title, e.event_start AS start, e.event_end AS end FROM {signup_log} s INNER JOIN {node} n ON s.nid = n.nid INNER JOIN {event} e ON n.nid = e.nid WHERE s.uid = %d AND ((event_start <= %d AND event_start >= %d) OR(event_end <= %d AND event_end >= %d) OR (event_end >= %d AND event_start <= %d)) AND n.nid NOT IN(%s)', $uid, $end, $start, $end, $start, $end, $start, $skip);
+    //pull all signup nodes for the specified user
+    $signups = db_query('SELECT n.nid, n.title, e.event_start AS start, e.event_end AS end FROM {signup_log} s INNER JOIN {node} n ON s.nid = n.nid INNER JOIN {event} e ON n.nid = e.nid WHERE s.uid = %d', $uid);
 
-    //if there are conflicts, build a conflict array.  mark conflicts to prevent duplicates
-    if (db_num_rows($conflicting)) {
-      $conflicts[$nid][] = array('nid' => $nid, 'title' => $title, 'start' => $start, 'end' => $end);
-      while ($conflict = db_fetch_array($conflicting)) {
-        $conflicts[$nid][] = $conflict;
-        $total_conflicts++;
-        $nodes[$conflict['nid']][] = $nid;
+    //for each signup, pull all nodes that have a time conflict.  ignore duplicate conflicts
+    while ($events = db_fetch_array($signups)) {
+      $nid = $events['nid'];
+      $title = $events['title'];
+      $end = $events['end'];
+      $start = $events['start'];
+      $nodes[$nid][] = (integer) $nid;
+      $skip = implode(', ', $nodes[$nid]);
+      $conflicting = db_query('SELECT n.nid, n.title, e.event_start AS start, e.event_end AS end FROM {signup_log} s INNER JOIN {node} n ON s.nid = n.nid INNER JOIN {event} e ON n.nid = e.nid WHERE s.uid = %d AND ((event_start <= %d AND event_start >= %d) OR(event_end <= %d AND event_end >= %d) OR (event_end >= %d AND event_start <= %d)) AND n.nid NOT IN(%s)', $uid, $end, $start, $end, $start, $end, $start, $skip);
+
+      //if there are conflicts, build a conflict array.  mark conflicts to prevent duplicates
+      if (db_num_rows($conflicting)) {
+        $conflicts[$nid][] = array('nid' => $nid, 'title' => $title, 'start' => $start, 'end' => $end);
+        while ($conflict = db_fetch_array($conflicting)) {
+          $conflicts[$nid][] = $conflict;
+          $total_conflicts++;
+          $nodes[$conflict['nid']][] = $nid;
+        }
       }
     }
-  }
 
-  if ($conflicts) {
-    $conflicts['total'] = $total_conflicts;
+    if ($conflicts) {
+      $conflicts['total'] = $total_conflicts;
+    }
   }
   return $conflicts;
 }
