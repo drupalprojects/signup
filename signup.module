@@ -388,6 +388,9 @@ function signup_user($op, &$edit, &$user, $category = NULL) {
  */
 function signup_admin_page() {
 
+  $output = '';
+  drupal_set_title(t('Signups'));
+
   //tests for optional support of event.module
   $_EVENT = module_exist('event');
   $event_select = $_EVENT ? ', e.event_start, e.timezone' : '';
@@ -397,7 +400,7 @@ function signup_admin_page() {
   //pull all open signup nodes, and start the creation of the table
   $result = db_query("SELECT n.title, n.nid$event_select FROM {signup} s INNER JOIN {node} n ON
     n.nid = s.nid$event_join WHERE s.completed = 0 ORDER BY$event_order_by n.title");
-  $output = "<h1>Signups</h1>";
+
   $header = array(t('Event'), t('Signups'), t('Operations'));
   $rows = array();
 
