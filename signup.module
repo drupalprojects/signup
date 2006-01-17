@@ -316,7 +316,7 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
     case 'view':
 
       //if this is a signup node, start checks for what's to be printed
-      if ($node->signup) {
+      if ($node->signup && ($_POST['op']) != t('Preview')) {
         global $user;
 
         //the node has been closed for signups, and the user has signup permissions.  let them know it's closed
