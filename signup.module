@@ -59,15 +59,16 @@ function signup_block($op = 'list', $delta = 0) {
       if (user_access('access content')) {
         switch ($delta) {
           case 0:
-            $titles = array();
-            $result = db_query('SELECT title, n.nid FROM {node} n INNER JOIN {signup_log} s on n.nid = s.nid WHERE
-              s.uid = %d', $user->uid);
-            while ($node = db_fetch_array($result)) {
-              $titles[] = l($node['title'], 'node/'. $node['nid']);
+            $titles = _signup_list_user_signups($user->uid);
+            $conflicts = _signup_get_conflicts($user->uid);
+            if (count($conflicts)) {
+              $conflict_teaser = l(t('%number schedule %conflict', array('%number' => $conflicts['total'], '%conflict' => format_plural($conflicts['total'], t('conflict exists'), t('conflicts exist')))), "user/$user->uid");
+            } else {
+              $conflict_teaser = '';
             }
             if (count($titles) > 0) {
               $block['subject'] = t('Current Signups');
-              $block['content'] = theme_item_list($titles);
+              $block['content'] = theme_item_list($titles) . $conflict_teaser;
             }
             return $block;
         }
@@ -161,6 +162,14 @@ function signup_menu($may_cache) {
     $items[] = array('path' => 'admin/signup', 'title' => t('signup'),
       'callback' => 'signup_admin_page',
       'access' => user_access('admin signups'));
+    $items[] = array('path' => 'admin/signup/overview', 'title' => t('overview'),
+        'access' => user_access('admin signups'), 'type' => MENU_DEFAULT_LOCAL_TASK, 'weight' => -10);
+    $items[] = array('path' => 'admin/signup/conflicts', 'title' => t('conflicts'),
+        'callback' => 'signup_conflict_summary', 'access' => user_access('admin signups'),
+        'type' => MENU_LOCAL_TASK, 'weight' => -5);
+    $items[] = array('path' => 'admin/signup/conflict_detail', 'title' => t('conflict detail'),
+        'callback' => 'signup_conflict_detail', 'access' => user_access('admin signups'),
+        'type' => MENU_LOCAL_TASK);
 
     //user signup callback
     $items[] = array('path' => 'signup', 'access' => TRUE, 'type' => MENU_CALLBACK, 'callback' => 'signup_user_signup');
@@ -188,6 +197,31 @@ function signup_menu($may_cache) {
  */
 function signup_perm() {
   return array('allow signups', 'admin signups');
+}
+
+/**
+ * Implementation of hook_user().
+ * @ingroup signup_core
+ */
+function signup_user($op, &$edit, &$user, $category = NULL) {
+  switch ($op) {
+    case 'view':
+
+      //grab list of events the user signed up for
+      $signups = _signup_list_user_signups($user->uid);
+      if (count($signups) > 0) {
+        $output = t('<h4>Current Signups<h4>') . theme_item_list($signups);
+      }
+
+      //grab list of signup conflict data for this user
+      $conflicts = _signup_user_conflicts($user->uid);
+      if (isset($conflicts)) {
+        $output .= $conflicts['title'] . $conflicts['data'];
+      }
+      if (isset($output)) {
+        return array(t('Signup information') => array( 'signup' => $output));
+      }
+  }
 }
 
 /**
@@ -317,8 +351,8 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
 
           //this is an anonymous user. if they have signup permissions, then display a login link
           if ($user->uid == 0) {
-            $node->body .= user_access('allow signups') ? t('<p>Please %login to sign up for this event.</p>',
-            array("%login"=> l(t('login/register'), 'user/login', array(), drupal_get_destination()))) : '';
+            $node->body .= user_access('allow signups') ? '<div class="signup_anonymous">'. t('<p>Please %login to sign up for this event.</p>',
+            array("%login"=> l(t('login/register'), 'user/login', array(), drupal_get_destination()))) .'</div>' : '';
             break;
           }
 
@@ -389,6 +423,9 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
  */
 function signup_admin_page() {
 
+  $output = '';
+  drupal_set_title(t('Signups'));
+
   //tests for optional support of event.module
   $_EVENT = module_exist('event');
   $event_select = $_EVENT ? ', e.event_start, e.timezone' : '';
@@ -398,7 +435,7 @@ function signup_admin_page() {
   //pull all open signup nodes, and start the creation of the table
   $result = db_query("SELECT n.title, n.nid$event_select FROM {signup} s INNER JOIN {node} n ON
     n.nid = s.nid$event_join WHERE s.completed = 0 ORDER BY$event_order_by n.title");
-  $output = "<h1>Signups</h1>";
+
   $header = array(t('Event'), t('Signups'), t('Operations'));
   $rows = array();
 
@@ -440,6 +477,63 @@ function signup_close_signup($nid, $cron = 'no') {
   if ($cron == 'no') {
     drupal_goto('admin/signup');
   }
+}
+
+/**
+ * Callback function for generating a detail report of signup conflicts
+ * @ingroup signup_callback
+ */
+function signup_conflict_detail() {
+
+  //pull all users who have signed up for a node
+  $result = db_query('SELECT DISTINCT u.uid, u.name FROM {users} u INNER JOIN {signup_log} s on u.uid = s.uid ORDER BY u.name');
+
+  //for each user, build a conflict detail section, and add their number of conflicts to the total
+  while ($user = db_fetch_object($result)) {
+    $conflicts = _signup_user_conflicts($user->uid);
+    if (isset($conflicts)) {
+      $sum .= $conflicts['title'] . $conflicts['data'];
+      $total_conflicts += $conflicts['total'];
+    } else {
+      $sum .= t('<h4>%user, 0 schedule conflicts</h4>', array('%user' => l($user->name, "user/$user->uid")));
+    }
+  }
+
+  //list the number of conflicts at the top of the page
+  if (isset($total_conflicts)) {
+    $output = t('<h2>%total total %conflict</h2>', array('%total' => $total_conflicts, '%conflict' => format_plural($total_conflicts, t('conflict'), t('conflicts')))) . $sum;
+  } else {
+    $output = t('<h2>No schedule conflicts</h2>');
+  }
+  print theme('page', $output);
+}
+
+/**
+ * Callback function for generating a summary report of signup conflicts
+ * @ingroup signup_callback
+ */
+function signup_conflict_summary() {
+
+  //pull all users who have signed up for a node
+  $result = db_query('SELECT DISTINCT u.uid, u.name FROM {users} u INNER JOIN {signup_log} s on u.uid = s.uid ORDER BY u.name');
+
+  //for each user, build summary table row, and add their number of conflicts to the total
+  while ($user = db_fetch_object($result)) {
+    $conflicts = _signup_user_conflicts($user->uid);
+    $user_total = (count($conflicts) ? $conflicts['total'] : 0);
+    $rows[] = array(l($user->name, "user/$user->uid"), $user_total);
+    $total_conflicts += $user_total;
+  }
+
+  //list the number of conflicts at the top of the page
+  if ($total_conflicts > 0) {
+    $header = array(t('user'), t('conflicts'));
+    $output = t('<h2>%total total %conflict</h2>', array('%total' => $total_conflicts, '%conflict' => format_plural($total_conflicts, t('conflict'), t('conflicts'))));
+    $output .= theme('table', $header, $rows);
+  } else {
+    $output = t('<h2>No schedule conflicts</h2>');
+  }
+  print theme('page', $output);
 }
 
 /**
@@ -679,4 +773,89 @@ function _signup_admin_form($node) {
   return $form;
 }
 
+/**
+ * Returns an array of conflict information for the specified uid
+ * @ingroup signup_internal
+ */
+function _signup_get_conflicts($uid) {
+
+  $conflicts = array();
+  if (module_exist('event')) {
+
+    //pull all signup nodes for the specified user
+    $signups = db_query('SELECT n.nid, n.title, e.event_start AS start, e.event_end AS end FROM {signup_log} s INNER JOIN {node} n ON s.nid = n.nid INNER JOIN {event} e ON n.nid = e.nid WHERE s.uid = %d', $uid);
+
+    //for each signup, pull all nodes that have a time conflict.  ignore duplicate conflicts
+    while ($events = db_fetch_array($signups)) {
+      $nid = $events['nid'];
+      $title = $events['title'];
+      $end = $events['end'];
+      $start = $events['start'];
+      $nodes[$nid][] = (integer) $nid;
+      $skip = implode(', ', $nodes[$nid]);
+      $conflicting = db_query('SELECT n.nid, n.title, e.event_start AS start, e.event_end AS end FROM {signup_log} s INNER JOIN {node} n ON s.nid = n.nid INNER JOIN {event} e ON n.nid = e.nid WHERE s.uid = %d AND ((event_start <= %d AND event_start >= %d) OR(event_end <= %d AND event_end >= %d) OR (event_end >= %d AND event_start <= %d)) AND n.nid NOT IN(%s)', $uid, $end, $start, $end, $start, $end, $start, $skip);
+
+      //if there are conflicts, build a conflict array.  mark conflicts to prevent duplicates
+      if (db_num_rows($conflicting)) {
+        $conflicts[$nid][] = array('nid' => $nid, 'title' => $title, 'start' => $start, 'end' => $end);
+        while ($conflict = db_fetch_array($conflicting)) {
+          $conflicts[$nid][] = $conflict;
+          $total_conflicts++;
+          $nodes[$conflict['nid']][] = $nid;
+        }
+      }
+    }
+
+    if ($conflicts) {
+      $conflicts['total'] = $total_conflicts;
+    }
+  }
+  return $conflicts;
+}
+
+/**
+ * Returns an array of node titles w/ links for all events the specified user has signed up for
+ * @ingroup signup_internal
+ */
+function _signup_list_user_signups($uid) {
+
+  $titles = array();
+  $result = db_query('SELECT title, n.nid FROM {node} n INNER JOIN {signup_log} s on n.nid = s.nid WHERE
+    s.uid = %d', $uid);
+  while ($node = db_fetch_array($result)) {
+    $titles[] = l($node['title'], 'node/'. $node['nid']);
+  }
+  return $titles;
+}
+
+/**
+ * Returns a formatted list of conflict information for the specified user
+ * @ingroup signup_internal
+ */
+function _signup_user_conflicts($uid) {
+
+  $user = user_load(array('uid' => $uid));
+  $conflicts = _signup_get_conflicts($uid);
+
+  //if there are conflicts, pull the total from the array, and build a title section
+  if (count($conflicts)) {
+    $return['total'] = array_pop($conflicts);
+    $return['title'] = t('<h4>%user, %total schedule %conflict:</h4>', array('%total' => $return['total'], '%conflict' => format_plural($return['total'], t('conflict'), t('conflicts')), '%user' => l($user->name, "user/$user->uid")));
+
+    $output = '';
+
+    //pull the main event off the array, and then loop through and put all the conflicts to that event in an item list
+    foreach($conflicts as $nid) {
+      $list = array();
+      $node = array_shift($nid);
+      $output .= l(check_plain($node['title']), 'node/'. $node['nid']) .' '. t('conflicts with:');
+      foreach ($nid as $conflict) {
+        $list[] = l(check_plain($conflict['title']), 'node/'. $conflict['nid']);
+      }
+      $output .= theme('item_list', $list);
+    }
+    $return['data'] = $output;
+  }
+  return $return;
+}
 ?>
