@@ -266,7 +266,7 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
     case 'insert':
 
       //if it's a signup enabled node, then insert a new row for this node
-      if (variable_get('signup_nodeapi_' . $node->type, 0)) {
+      if (variable_get('signup_form_' . $node->type, 0)) {
         db_query("INSERT INTO {signup} (nid, forwarding_email, send_confirmation, confirmation_email,
         send_reminder, reminder_days_before, reminder_email) VALUES (%d, '%s', %d, '%s', %d, %d, '%s')",
         $node->nid, $form_values['signup_forwarding_email'], $form_values['signup_send_confirmation'], $form_values['signup_confirmation_email'],
@@ -324,7 +324,7 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
       $result = db_query("SELECT * FROM {signup} WHERE nid = %d", ($node->nid ? $node->nid : 0));
 
       //load signup data for both new nodes w/ enabled node types, and any existing nodes that are already signup enabled
-      if ((!$node->nid && variable_get('signup_nodeapi_' . $node->type, 0)) || ($node->nid && db_num_rows($result))) {                     $signup = db_fetch_object($result);
+      if ((!$node->nid && variable_get('signup_form_' . $node->type, 0)) || ($node->nid && db_num_rows($result))) {                     $signup = db_fetch_object($result);
         $node->signup = 1;
         $node->signup_forwarding_email = $signup->forwarding_email;
         $node->signup_send_confirmation = $signup->send_confirmation;
@@ -339,7 +339,7 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
     case 'view':
 
       //if this is a signup node, start checks for what's to be printed
-      if ($node->signup) {
+      if ($node->signup && !isset($node->preview)) {
         global $user;
 
         //the node has been closed for signups, and the user has signup permissions.  let them know it's closed
