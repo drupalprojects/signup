@@ -403,27 +403,39 @@ function signup_admin_page() {
   $_EVENT = module_exist('event');
   $event_select = $_EVENT ? ', e.event_start, e.timezone' : '';
   $event_join = $_EVENT ? ' LEFT JOIN {event} e ON e.nid = n.nid' : '';
-  $event_order_by = $_EVENT ? ' e.event_start,' : '';
 
+  $header = array(
+    array('data' => t('Event'), 'field' => 'n.title', 'sort' => 'asc'),
+    array('data' => t('Signups'), 'field' => 'count'),
+    array('data' => t('Operations')),
+  );
+
+  //if event module enabled, then add event start time to table
+  if ($_EVENT) {
+    $header = array_merge(array(array('data' => t('Start'), 'field' => 'e.event_start')), $header);
+  }
   //pull all open signup nodes, and start the creation of the table
-  $result = db_query("SELECT n.title, n.nid$event_select FROM {signup} s INNER JOIN {node} n ON
-    n.nid = s.nid$event_join WHERE s.completed = 0 ORDER BY$event_order_by n.title");
-
-  $header = array(t('Event'), t('Signups'), t('Operations'));
-  $rows = array();
+  $sql = "SELECT n.title, n.nid$event_select, COUNT(*) AS count FROM {signup_log} s_l INNER JOIN {node} n ON
+    n.nid = s.nid$event_join INNER JOIN {signup} s ON s.nid = s_l.nid WHERE s.completed = 0 GROUP BY n.nid".
+    tablesort_sql($header);
+  $result = pager_query($sql, 25);
 
   //loop through the signup nodes, pull the number of signups for each, and create the summary table
   while ($signup_event = db_fetch_object($result)) {
-    $offset = $signup_event->event_start ? event_get_offset($signup_event->timezone, $signup_event->event_start) : '';
-    $number_of_signups = db_fetch_array(db_query('SELECT COUNT(nid) FROM {signup_log} WHERE nid = %d', $signup_event->nid));
-    $rows[] = array(l(check_plain($signup_event->title), "node/$signup_event->nid") . ($signup_event->event_start ?
-      '<br>' . _event_date(variable_get('signup_date_string', 'D, M jS, g:i A'),
-      $signup_event->event_start, $offset) : ''), strval($number_of_signups['COUNT(nid)']), l(t('View Signups'),
-      "node/$signup_event->nid/signups") .'<br>'. l(t('Close Event'), "closesignup/$signup_event->nid"));
+    $row = array();
+    if ($_EVENT) {
+      $offset = $signup_event->event_start ? event_get_offset($signup_event->timezone, $signup_event->event_start) : '';
+      $row[] = $signup_event->event_start ?_event_date(variable_get('signup_date_string', 'D, M jS, g:i A'),
+        $signup_event->event_start, $offset) : '';
+    }
+    $row[] = l(check_plain($signup_event->title), "node/$signup_event->nid");
+    $row[] = $signup_event->count;
+    $row[] = l(t('View Signups'), "node/$signup_event->nid/signups") .'<br>'. l(t('Close Event'),
+      "closesignup/$signup_event->nid");
+    $rows[] = $row;
   }
   $output .= theme('table', $header, $rows);
   print theme('page', $output);
-
 }
 
 /**
