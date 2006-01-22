@@ -1,0 +1,121 @@
+<?php
+
+// $Id$
+
+//  TODO's
+
+
+/**
+ * @defgroup signup_ecommerce_core Core drupal hooks
+ */
+
+/**
+ * Implementation of hook_help().
+ * @ingroup signup_ecommerce_core
+ */
+function signup_ecommerce_help($section) {
+  switch ($section) {
+    case 'admin/modules#description':
+      return t('Integrates signup module and ecommerce module');
+      break;
+    case 'admin/help#signup':
+      return t('<p>signup_ecommerce provides basic integration between the ecommerce module and the signup module, specifically allowing automatic user signup upon purchase of an enabled product type.</p><br><p>To enable the feature, go to administer->content->configure->content types, and click \'configure\' for the node type you wish to enable. Make sure that the \'Allow signups\' and \'Signup/Ecommerce Integration\' checkboxes are checked, and save the settings.</p><br><p>For the node type you just enabled, any time somebody purchases a product of that node type, they will automatically be signed up for that node.  The signup information will include the transaction ID for reference</p>');
+  }
+}
+
+/**
+ * @defgroup signup_nodeapi Functions for nodeapi integration
+ */
+
+ /**
+ * hook_nodeapi implementation
+ *
+ * @ingroup signup_ecommerce_nodeapi
+*/
+function signup_ecommerce_nodeapi(&$node, $op, $arg = 0) {
+  switch ($op) {
+    case 'settings':
+
+      //inject this setting for all nodes types.  checking enables auto-signups for the specified node type
+      return form_checkbox(t('Signup/Ecommerce Integration'), 'signup_ecommerce_nodeapi_' . $node->type, $value = 1,
+        variable_get('signup_ecommerce_nodeapi_' . $node->type, FALSE) == 1,
+        t('if selected, users will be automatically signed up for any products they purchase'), $attributes = NULL,
+        $required = FALSE);
+        break;
+  }
+}
+
+/**
+ * @defgroup signup_ecommerce_signup Functions in signup core
+ */
+
+ /**
+ * Suppresses the display of the signup form
+ *
+ * @ingroup signup_ecommerce_signup
+*/
+function signup_ecommerce_signup_suppress($node) {
+  global $user;
+  $signed_up = db_num_rows(db_query('SELECT nid FROM {signup_log} WHERE nid = %d AND uid = %d', $node->nid, $user->uid));
+  if ($signed_up) {
+    return FALSE;
+  } else {
+    return _signup_ecommerce_is_autosignup($node);
+  }
+}
+
+/**
+ * @defgroup signup_ecommerce_ecommerce Functions in ecommerce core
+ */
+
+/**
+ * Add a payment method.
+ * @ingroup signup_ecommerce_ecommerce
+ *
+ * @param &$txn
+ *   The transaction object for an order. This keeps growing in data from screen
+ *   to screen.
+ * @param $op
+ *   What kind of action is being performed. Possible values:
+ */
+function signup_ecommerce_ecommerceapi(&$txn, $op) {
+
+  global $user;
+
+  switch ($op) {
+    case 'on payment completion':
+      if (module_exist('signup')) {
+        // load the transaction
+        $t = store_transaction_load($txn['txnid']);
+        if (is_array($t->items)) {
+          // loop through each item. if it's an autosignup node, and user hasn't already signed up, then sign 'em up
+          foreach ($t->items as $item) {
+            $node = node_load(array('nid' => $item->nid));
+            $signed_up = db_num_rows(db_query('SELECT nid FROM {signup_log} WHERE nid = %d AND uid = %d', $node->nid, $user->uid));
+            if (_signup_ecommerce_is_autosignup($node) && !$signed_up) {
+              $edit['nid'] = $node->nid;
+              $edit['uid'] = $user->uid;
+              $edit['signup_form_data']['TransactionID'] = $txn['txnid'];
+              _signup_sign_up_user($edit);
+            }
+          }
+        }
+      }
+      break;
+  }
+}
+
+/**
+ * @defgroup signup_ecommerce internal.  Internal functions in signup_ecommerce
+ */
+
+ /**
+ * Verify if the node in question is an autosignup node
+ *
+ * @ingroup signup_ecommerce_internal
+*/
+function _signup_ecommerce_is_autosignup($node) {
+  return variable_get('signup_nodeapi_'. $node->type, FALSE) && variable_get('signup_ecommerce_nodeapi_'. $node->type, FALSE) && product_load($node);
+}
+
+?>
