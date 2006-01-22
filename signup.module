@@ -465,7 +465,11 @@ function signup_admin_page() {
     $rows[] = $row;
   }
   $output .= theme('table', $header, $rows);
-  print theme('page', $output);
+  $pager = theme('pager', NULL, 25, 0, tablesort_pager());
+  if (!empty($pager)) {
+    $output .= $pager;
+  }
+  return $output;
 }
 
 /**
@@ -747,7 +751,7 @@ function _signup_get_conflicts($uid) {
       $start = $events['start'];
       $nodes[$nid][] = (integer) $nid;
       $skip = implode(', ', $nodes[$nid]);
-      $conflicting = db_query('SELECT n.nid, n.title, e.event_start AS start, e.event_end AS end FROM {signup_log} s INNER JOIN {node} n ON s.nid = n.nid INNER JOIN {event} e ON n.nid = e.nid WHERE s.uid = %d AND ((event_start <= %d AND event_start >= %d) OR(event_end <= %d AND event_end >= %d) OR (event_end >= %d AND event_start <= %d)) AND n.nid NOT IN(%s)', $uid, $end, $start, $end, $start, $end, $start, $skip);
+      $conflicting = db_query('SELECT n.nid, n.title, e.event_start AS start, e.event_end AS end FROM {signup_log} s INNER JOIN {node} n ON s.nid = n.nid INNER JOIN {event} e ON n.nid = e.nid WHERE s.uid = %d AND ((event_start < %d AND event_start > %d) OR(event_end < %d AND event_end > %d) OR (event_end >= %d AND event_start <= %d)) AND n.nid NOT IN(%s)', $uid, $end, $start, $end, $start, $end, $start, $skip);
 
       //if there are conflicts, build a conflict array.  mark conflicts to prevent duplicates
       if (db_num_rows($conflicting)) {
