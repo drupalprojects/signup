@@ -94,7 +94,7 @@ function signup_ecommerce_ecommerceapi(&$txn, $op) {
             $signed_up = db_num_rows(db_query('SELECT nid FROM {signup_log} WHERE nid = %d AND uid = %d', $node->nid, $user->uid));
             if (_signup_ecommerce_is_autosignup($node) && !$signed_up) {
               $edit['nid'] = $node->nid;
-              $edit['uid'] = $user->uid;
+              $edit['uid'] = $txn['uid'];
               $edit['signup_form_data']['TransactionID'] = $txn['txnid'];
               _signup_sign_up_user($edit);
             }
