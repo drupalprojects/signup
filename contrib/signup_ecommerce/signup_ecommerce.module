@@ -69,7 +69,7 @@ function signup_ecommerce_signup_suppress($node) {
  */
 
 /**
- * Add a payment method.
+ * Add signups if necessary
  * @ingroup signup_ecommerce_ecommerce
  *
  * @param &$txn
@@ -78,24 +78,22 @@ function signup_ecommerce_signup_suppress($node) {
  * @param $op
  *   What kind of action is being performed. Possible values:
  */
-function signup_ecommerce_ecommerceapi(&$txn, $op) {
-
-  global $user;
+function signup_ecommerce_ec_transactionapi(&$txn, $op) {
 
   switch ($op) {
-    case 'on payment completion':
+    case 'insert':
       if (module_exist('signup')) {
         // load the transaction
-        $t = store_transaction_load($txn['txnid']);
+        $t = store_transaction_load($txn->txnid);
         if (is_array($t->items)) {
           // loop through each item. if it's an autosignup node, and user hasn't already signed up, then sign 'em up
           foreach ($t->items as $item) {
             $node = node_load(array('nid' => $item->nid));
-            $signed_up = db_num_rows(db_query('SELECT nid FROM {signup_log} WHERE nid = %d AND uid = %d', $node->nid, $user->uid));
+            $signed_up = db_num_rows(db_query('SELECT nid FROM {signup_log} WHERE nid = %d AND uid = %d', $node->nid, $t->uid));
             if (_signup_ecommerce_is_autosignup($node) && !$signed_up) {
               $edit['nid'] = $node->nid;
-              $edit['uid'] = $txn['uid'];
-              $edit['signup_form_data']['TransactionID'] = $txn['txnid'];
+              $edit['uid'] = $t->uid;
+              $edit['signup_form_data']['TransactionID'] = $txn->txnid;
               _signup_sign_up_user($edit);
             }
           }
