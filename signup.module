@@ -452,7 +452,8 @@ function signup_cancel_signup($uid, $nid) {
 
   //delete the selected user from the log table and return to the previous page
   db_query("DELETE FROM {signup_log} WHERE uid = %d AND nid = %d", $uid, $nid);
-  drupal_set_message(t('Signup cancelled'));
+  $node = db_fetch_object(db_query("SELECT nid, title FROM {node} WHERE nid = %d", $nid));
+  drupal_set_message(t('Signup to %title cancelled', array('%title' => l(check_plain($node->title), "node/$node->nid"))));
   drupal_goto();
 
 }
@@ -752,6 +753,7 @@ function _signup_list_user_signups($uid) {
 function _signup_sign_up_user($edit = NULL) {
 
   $edit = $edit ? $edit : $_POST['edit'];
+  $user = user_load(array('uid' => $edit['uid']));
 
   if (user_access('allow signups')) {
     //this check is in case a node type was enabled, and the node the user is trying to sign up for is not in
@@ -774,14 +776,13 @@ function _signup_sign_up_user($edit = NULL) {
     //and inform the user
     $event = db_fetch_object(db_query("SELECT * FROM {signup} WHERE nid = %d", $edit['nid']));
     $confirmation_email = $event->send_confirmation ? '  ' . t('You will receive a confirmation email shortly
-        which contains  further event information') : '';
-    $reminder_email = $event->send_reminder ? '  ' . t('You will receive a reminder email %d day(s) before the event',
-    array('%d' => $event->reminder_days_before)) : '';
+        which contains further event information.') : '';
+    $reminder_email = $event->send_reminder ? '  ' . t('You will receive a reminder email %number %days before the event.',
+    array('%number' => $event->reminder_days_before, '%days' => format_plural($event->reminder_days_before, t('day'), t('days')))) : '';
 
     //insert the user into the signup_log
     db_query("INSERT INTO {signup_log} (uid, nid, signup_time, form_data) VALUES
         (%d, %d, %d, '%s')", $edit['uid'], $edit['nid'], $curtime, $signup_form_data);
-    drupal_set_message(t('Signup confirmed.') . $confirmation_email . $reminder_email);
 
     //load the node, format the start time, and compose the user's signup data for later use in the emails
     $node = node_load(array('nid'=> $edit['nid']));
@@ -816,6 +817,7 @@ function _signup_sign_up_user($edit = NULL) {
       "\n\r" . t('email:') . $user->mail . "\n\r\n\r" . $signup_data;
       user_mail($event->forwarding_email, $subject, $message, $header);
     }
+    drupal_set_message(t('Signup to %title confirmed.', array('%title' => l(check_plain($node->title), "node/$node->nid"))) . $confirmation_email . $reminder_email);
   } else {
     drupal_access_denied();
   }
