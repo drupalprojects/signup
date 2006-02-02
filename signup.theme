@@ -2,20 +2,46 @@
 
 // $Id$
 
+/**
+ * Format a user signup for diplay in a schedule list
+ *
+ * @param node
+ *   The node which needs theming
+ */
+function theme_signup_user_schedule($node) {
+  $output = '';
+  $output .= '<div class="signup-user-schedule"><div class="'. $node->type. 'signup-title"><h4>'. l(check_plain($node->title), "node/$node->nid") . '</h4></div></div>';
+
+  // event-based data, only if it's an event node
+  if (isset($node->event_start)) {
+    $output .= '<div class="signup-user-schedule"><div class="'. $node->type. 'signup-start"><label>'. t('Start: ') .'</label>'. $node->start_format .'</div></div>';
+    if ($node->event_start != $node->event_end) {
+      $output .= '<div class="signup-user-schedule"><div class="'. $node->type. 'signup-end"><label>'. t('End: ') .'</label>'. $node->end_format .'</div></div>';
+    }
+    if (variable_get('configurable_timezones', 1)) {
+      $zones = event_zonelist();
+      $output .= '<div class="signup-user-schedule"><div class="'. $node->type. 'signup-tz"><label>'. t('Timezone: ') .'</label>'. $zones[$node->timezone] .'</div></div>';
+    }
+  } else {
+    $output .= '<div class="signup-user-schedule"><div class="'. $node->type. 'signup-untimed">'. t('[Untimed]') . '</div></div>';
+  }
+  return $output;
+}
+
 //you can alter this themed user signup form to suit your needs, adding new form elements and other
-//information.  in order for the form to be rendered properly, the name of the form element 
-//must be in the form of 'signup_form_data][NameOfDataField', where NameOfDataField is replaced with 
-//the actual name of the data field.  it's also suggested that the displayed name of the field to the 
+//information.  in order for the form to be rendered properly, the name of the form element
+//must be in the form of 'signup_form_data][NameOfDataField', where NameOfDataField is replaced with
+//the actual name of the data field.  it's also suggested that the displayed name of the field to the
 //user be the same as the name of the data field, but it's not required. see below for examples
 function theme_signup_user_form() {
   $form = '';
-/*  $form .= form_textfield(t('Name'), 'signup_form_data][Name', NULL, 40, 64, $description = NULL, 
+/*  $form .= form_textfield(t('Name'), 'signup_form_data][Name', NULL, 40, 64, $description = NULL,
     $attributes = NULL, $required = FALSE);
-  $form .= form_textfield(t('Phone'), 'signup_form_data][Phone', NULL, 40, 64, $description = NULL, 
+  $form .= form_textfield(t('Phone'), 'signup_form_data][Phone', NULL, 40, 64, $description = NULL,
     $attributes = NULL, $required = FALSE);*/
-  $form .= form_textfield(t('Email'), 'signup_form_data][Email', NULL, 40, 64, $description = NULL, 
+  $form .= form_textfield(t('Email'), 'signup_form_data][Email', NULL, 40, 64, $description = NULL,
     $attributes = NULL, $required = FALSE);
-  $form .= form_textarea(t('Comments'), 'signup_form_data][Comments', NULL, 40, 5, $description = 
+  $form .= form_textarea(t('Comments'), 'signup_form_data][Comments', NULL, 40, 5, $description =
     t('Please comment on any aspect of the event which the moderator may benefit from.'));
   return $form;
 }
