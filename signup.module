@@ -62,13 +62,13 @@ function signup_block($op = 'list', $delta = 0) {
             $titles = _signup_list_user_signups($user->uid);
             $conflicts = _signup_get_conflicts($user->uid);
             if (count($conflicts)) {
-              $conflict_teaser = l(t('%number schedule %conflict', array('%number' => $conflicts['total'], '%conflict' => format_plural($conflicts['total'], t('conflict exists'), t('conflicts exist')))), "user/$user->uid");
+              $conflict_teaser = '<br>'. l(t('%number schedule %conflict', array('%number' => $conflicts['total'], '%conflict' => format_plural($conflicts['total'], t('conflict exists'), t('conflicts exist')))), "user/$user->uid");
             } else {
               $conflict_teaser = '';
             }
             if (count($titles) > 0) {
               $block['subject'] = t('Current Signups');
-              $block['content'] = theme_item_list($titles) . $conflict_teaser;
+              $block['content'] = theme_item_list($titles) . l(t('view signup schedule'), "user/$user->uid/signups"). $conflict_teaser;
             }
             return $block;
         }
@@ -149,7 +149,9 @@ function signup_help($section) {
  */
 function signup_menu($may_cache) {
 
+  global $user;
   $items = array();
+  $access = user_access('admin signups');
 
   if ($may_cache) {
 
@@ -161,18 +163,20 @@ function signup_menu($may_cache) {
     //admin/signup menu item
     $items[] = array('path' => 'admin/signup', 'title' => t('signup'),
       'callback' => 'signup_admin_page',
-      'access' => user_access('admin signups'));
+      'access' => $access);
     $items[] = array('path' => 'admin/signup/overview', 'title' => t('overview'),
-        'access' => user_access('admin signups'), 'type' => MENU_DEFAULT_LOCAL_TASK, 'weight' => -10);
+        'access' => $access, 'type' => MENU_DEFAULT_LOCAL_TASK, 'weight' => -10);
     $items[] = array('path' => 'admin/signup/conflicts', 'title' => t('conflicts'),
-        'callback' => 'signup_conflict_summary', 'access' => user_access('admin signups'),
+        'callback' => 'signup_conflict_summary', 'access' => $access,
         'type' => MENU_LOCAL_TASK, 'weight' => -5);
     $items[] = array('path' => 'admin/signup/conflict_detail', 'title' => t('conflict detail'),
-        'callback' => 'signup_conflict_detail', 'access' => user_access('admin signups'),
+        'callback' => 'signup_conflict_detail', 'access' => $access,
         'type' => MENU_LOCAL_TASK);
 
-    //user signup callback
+    //user signup callbacks
     $items[] = array('path' => 'signup', 'access' => TRUE, 'type' => MENU_CALLBACK, 'callback' => 'signup_user_signup');
+    $items[] = array('path' => 'user/' . $user->uid . '/signups', 'access' => ($access || ($user->uid == arg(1))), 'type' => MENU_CALLBACK,
+    'callback' => 'signup_user_schedule');
 
     //close signup callback
     $items[] = array('path' => 'closesignup', 'access' => TRUE, 'type' => MENU_CALLBACK, 'callback' => 'signup_close_signup');
@@ -183,7 +187,7 @@ function signup_menu($may_cache) {
   	  $node = node_load(array('nid'=>arg(1)));
       $items[] = array('path' => 'node/' . arg(1) . '/signups', 'title' => t('signups'),
           'callback' => 'signup_user_signups_form', 'callback arguments' => array($node),
-          'access' => user_access('admin signups'), 'type' => MENU_LOCAL_TASK, 'weight' => 20);
+          'access' => $access, 'type' => MENU_LOCAL_TASK, 'weight' => 20);
 
   	}
   }
@@ -210,7 +214,7 @@ function signup_user($op, &$edit, &$user, $category = NULL) {
       //grab list of events the user signed up for
       $signups = _signup_list_user_signups($user->uid);
       if (count($signups) > 0) {
-        $output = t('<h4>Current Signups<h4>') . theme_item_list($signups);
+        $output = t('<h4>Current Signups -- '. l(t('view signup schedule'), "user/$user->uid/signups") .'<h4>') . theme_item_list($signups);
       }
 
       //grab list of signup conflict data for this user
@@ -617,6 +621,27 @@ function signup_user_form() {
 }
 
 /**
+ * Callback function which prints a schedule of user's signups
+ * @ingroup signup_callback
+ */
+function signup_user_schedule() {
+
+  $output = '';
+  $user = user_load(array('uid' => arg(1)));
+  drupal_set_title(t('Signups for %user', array('%user' => $user->name)));
+
+  $titles = _signup_list_user_signups($user->uid);
+
+  // theme each signup
+  foreach ($titles as $nid => $title) {
+    $node = node_load(array('nid' => $nid));
+    $output .= theme('signup_user_schedule', $node);
+  }
+
+  print theme('page', $output);
+}
+
+/**
  * Callback function which handles sending of emails upon user signup, and signup cancellations
  * @ingroup signup_callback
  */
@@ -781,10 +806,19 @@ function _signup_get_conflicts($uid) {
 function _signup_list_user_signups($uid) {
 
   $titles = array();
-  $result = db_query('SELECT title, n.nid FROM {node} n INNER JOIN {signup_log} s on n.nid = s.nid WHERE
-    s.uid = %d', $uid);
+
+  //tests for optional support of event.module
+  $_EVENT = module_exist('event');
+  $event_join = $_EVENT ? ' LEFT JOIN {event} e ON e.nid = n.nid' : '';
+  $event_where = $_EVENT ? ' AND (e.event_start >= '. time() . ' OR e.event_start IS NULL)' : '';
+  $order_by = $_EVENT ? 'e.event_start' : 'n.title';
+
+  //pull all open signup nodes for this user
+  $result = db_query("SELECT n.title, n.nid FROM {signup_log} s_l INNER JOIN {node} n ON n.nid = s_l.nid
+    $event_join WHERE s_l.uid = '%s'$event_where ORDER BY $order_by", $uid);
+
   while ($node = db_fetch_array($result)) {
-    $titles[] = l($node['title'], 'node/'. $node['nid']);
+    $titles[$node['nid']] = l($node['title'], 'node/'. $node['nid']);
   }
   return $titles;
 }
