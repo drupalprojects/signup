@@ -422,9 +422,8 @@ function signup_admin_page() {
   }
   //pull all open signup nodes, and start the creation of the table
   $sql = "SELECT n.title, n.nid$event_select, COUNT(*) AS count FROM
-          {signup_log} s_l INNER JOIN {node} n INNER JOIN {signup} s
-          ON n.nid = s.nid AND s.nid = s_l.nid$event_join
-          WHERE s.completed = 0 GROUP BY n.nid";
+          {signup} s INNER JOIN {node} n ON n.nid = s.nid INNER JOIN {signup_log} s_l
+           ON s.nid = s_l.nid$event_join WHERE s.completed = 0 GROUP BY n.nid";
   $sql .= tablesort_sql($header);
   $result = pager_query($sql, 25);
 
