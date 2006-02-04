@@ -175,12 +175,14 @@ function signup_menu($may_cache) {
 
     //user signup callbacks
     $items[] = array('path' => 'signup', 'access' => TRUE, 'type' => MENU_CALLBACK, 'callback' => 'signup_user_signup');
-    $items[] = array('path' => 'user/' . $user->uid . '/signups', 'access' => ($access || ($user->uid == arg(1))), 'type' => MENU_CALLBACK,
-    'callback' => 'signup_user_schedule');
 
     //close signup callback
     $items[] = array('path' => 'closesignup', 'access' => TRUE, 'type' => MENU_CALLBACK, 'callback' => 'signup_close_signup');
   } else {
+
+    // user signup schedule callback
+    $items[] = array('path' => 'user/' . $user->uid . '/signups', 'access' => ($access || ($user->uid == arg(1))), 'type' => MENU_CALLBACK,
+    'callback' => 'signup_user_schedule');
 
     //if it's a signup event, then put in a signup tab
   	if (db_num_rows(db_query("SELECT nid FROM {signup} WHERE nid = %d", arg(1)))) {
