@@ -292,6 +292,12 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
         $node->nid, $defaults['forwarding_email'], $defaults['send_confirmation'], $defaults['confirmation_email'],
         $defaults['send_reminder'], $defaults['reminder_days_before'], $defaults['reminder_email']);
       }
+      elseif (variable_get('signup_form_' . $node->type, 0)) {
+        db_query("INSERT INTO {signup} (nid, forwarding_email, send_confirmation, confirmation_email,
+          send_reminder, reminder_days_before, reminder_email) VALUES (%d, '%s', %d, '%s', %d, %d, '%s')",
+          $node->nid, $edit['forwarding_email'], $edit['send_confirmation'], $edit['confirmation_email'],
+          $edit['send_reminder'], $edit['reminder_days_before'], $edit['reminder_email']);
+      }
       break;
 
     case 'delete':
