@@ -252,7 +252,7 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
 
           return _signup_admin_form($node);
         }
-        else {
+        elseif (user_access('admin signups')) {
           return form_checkbox(t('Enable signups for this node'), 'signup_enable');
         }
       break;
