@@ -721,7 +721,7 @@ function signup_user_signups_form($node) {
 
     //build the row for this user
     $rows[] = array(l(check_plain($signed_up_user->name), "user/$signed_up_user->uid") .'<br>'.
-      gmdate(variable_get('signup_date_string', 'M jS, g:i A'), $signed_up_user->signup_time - $offset),
+      gmdate(variable_get('signup_date_string', 'M jS, g:i A'), $signed_up_user->signup_time + $offset),
       implode('<br>', $table_data), drupal_get_form('signup_user_signups_form_'. $node->nid, $form));
   }
   $output .= theme('table', $header, $rows);
