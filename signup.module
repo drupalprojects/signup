@@ -664,7 +664,7 @@ function signup_user_signups_form($node) {
 
     //build the row for this user
     $rows[] = array(l(check_plain($signed_up_user->name), "user/$signed_up_user->uid") .'<br>'.
-      gmdate(variable_get('signup_date_string', 'M jS, g:i A'), $signed_up_user->signup_time - $offset),
+      gmdate(variable_get('signup_date_string', 'M jS, g:i A'), $signed_up_user->signup_time + $offset),
       implode('<br>', $table_data), form(form_hidden('nid', $node->nid) . form_hidden('uid', $signed_up_user->uid) .
       form_submit(t('Cancel Signup')), 'post', url('signup', drupal_get_destination())));
   }
