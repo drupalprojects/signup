@@ -167,7 +167,7 @@ function signup_menu($may_cache) {
   } else {
 
     // user signup schedule callback
-    $items[] = array('path' => 'user/' . $user->uid . '/signups', 'access' => ($access || ($user->uid == arg(1))), 'type' => MENU_CALLBACK,
+    $items[] = array('path' => 'user/' . arg(1) . '/signups', 'access' => ($access || ($user->uid == arg(1))), 'type' => MENU_CALLBACK,
     'callback' => 'signup_user_schedule');
 
     //if it's a signup event, then put in a signup tab
