@@ -35,6 +35,8 @@
 //  FIXES
 //  signups tab still appears on previously created but now disabled node type
 
+include(drupal_get_path('module', 'signup') . '/signup.theme');
+
 /**
  * @defgroup signup_core Core drupal hooks
  */
@@ -181,7 +183,7 @@ function signup_menu($may_cache) {
   } else {
 
     // user signup schedule callback
-    $items[] = array('path' => 'user/' . $user->uid . '/signups', 'access' => ($access || ($user->uid == arg(1))), 'type' => MENU_CALLBACK,
+    $items[] = array('path' => 'user/' . arg(1) . '/signups', 'access' => ($access || ($user->uid == arg(1))), 'type' => MENU_CALLBACK,
     'callback' => 'signup_user_schedule');
 
     //if it's a signup event, then put in a signup tab
@@ -225,7 +227,7 @@ function signup_user($op, &$edit, &$user, $category = NULL) {
         $output .= $conflicts['title'] . $conflicts['data'];
       }
       if (isset($output)) {
-        return array(t('Signup information') => array( 'signup' => $output));
+        return array(t('Signup information') => array( array('value' => $output, 'class' => 'user')));
       }
   }
 }
