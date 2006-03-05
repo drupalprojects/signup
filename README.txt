@@ -47,6 +47,12 @@ Note: Backing up your database is a very good idea before you begin!
 6. Grant the proper access to user accounts under: administer > access control
    
    allow signups: allows the selected role to sign up for nodes
+
+   NOTE: Enabling 'allow signups' for the anonymous user will only place a 
+         login/register link in any signup node that an anonymous user may
+         visit.  Signup module does not currently support signups for 
+         anonymous users.
+
    admin signups: allows the selected role to view who has signed up
                   for nodes
    
