@@ -111,6 +111,10 @@ function signup_cron() {
     //loop through the results, calling the event closing function
     while ($signup = db_fetch_object($result)) {
       signup_close_signup($signup->nid, $cron = 'yes');
+      foreach (module_implements('signup_close') as $module) {
+      	$function = $module .'_signup_close';
+      	$function($signup->nid);
+      }
     }
   }
 }
