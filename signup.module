@@ -594,6 +594,91 @@ function signup_settings_page() {
 }
 
 /**
+ * Signs up a user to a node. NOTE: other modules can call this function. To do so, edit must be as follows:
+ *
+ * edit['nid'] : nid of the node to which the user will be signed up
+ * edit['uid'] : uid of the user to sign up
+ * $edit['signup_form_data'] : an array of key/value pairs -- key is the data category, value is the user input
+ *
+ * @ingroup signup_internal
+ */
+function signup_sign_up_user($edit = NULL) {
+
+  $edit = $edit ? $edit : $_POST['edit'];
+  $user = user_load(array('uid' => $edit['uid']));
+
+  if (user_access('allow signups')) {
+    //this check is in case a node type was enabled, and the node the user is trying to sign up for is not in
+    //the signup table. this would be the case for all nodes created when signup.module was not enabled.  if
+    //no row exists for this node, then grab the signup defaults and create a new row before proceeding
+    if (db_num_rows(db_query("SELECT * FROM {signup} WHERE nid = %d", $edit['nid'])) == 0) {
+      $defaults = db_fetch_object(db_query("SELECT * FROM {signup} WHERE nid = 0"));
+      db_query("INSERT INTO {signup} (nid, forwarding_email, send_confirmation, confirmation_email,
+          send_reminder, reminder_days_before, reminder_email) VALUES (%d, '%s', %d, '%s', %d, %d, '%s')",
+      $edit['nid'], $defaults->signup_forwarding_email, $defaults->signup_send_confirmation,
+      $defaults->signup_confirmation_email, $defaults->signup_send_reminder, $defaults->signup_reminder_days_before,
+      $defaults->signup_reminder_email);
+    }
+
+    //get current time and serialize the user's signup data
+    $curtime = time();
+
+    //allow other modules to inject data into the user's signup data.
+    $node = node_load(array('nid'=> $edit['nid']));
+    $extra = module_invoke_all('signup_sign_up', $node);
+    $signup_form_data = serialize(array_merge($edit['signup_form_data'], $extra));
+
+    //pull this event from the signup table, determine if reminder/confirmation emails are going to be sent,
+    //and inform the user
+    $event = db_fetch_object(db_query("SELECT * FROM {signup} WHERE nid = %d", $edit['nid']));
+    $confirmation_email = $event->send_confirmation ? '  ' . t('You will receive a confirmation email shortly
+        which contains further event information.') : '';
+    $reminder_email = $event->send_reminder ? '  ' . t('You will receive a reminder email %number %days before the event.',
+    array('%number' => $event->reminder_days_before, '%days' => format_plural($event->reminder_days_before, t('day'), t('days')))) : '';
+
+    //insert the user into the signup_log
+    db_query("INSERT INTO {signup_log} (uid, nid, signup_time, form_data) VALUES
+        (%d, %d, %d, '%s')", $edit['uid'], $edit['nid'], $curtime, $signup_form_data);
+
+    //load the node, format the start time, and compose the user's signup data for later use in the emails
+    $offset = $node->event_start ? event_get_offset($node->timezone, $node->event_start) : '';
+    $starttime = $node->event_start ? _event_date(variable_get('signup_date_string', 'D, M jS, g:i A'),
+    $node->event_start, $offset) : t('[Untimed]');
+    $signup_data_array = array();
+    foreach ($edit['signup_form_data'] as $key => $value) {
+      $signup_data_array[] = $key . ': ' . $value;
+    }
+    $signup_data = t('SIGNUP INFORMATION') . "\n\r\n\r" . implode("\n\r", $signup_data_array);
+    $trans = array("%event" => $node->title, "%time" => $starttime, "%username" => $user->name,
+    "%useremail" => $user->mail, "%info" => $signup_data);
+
+    //if a confirmation is to be sent, compose the mail message, translate the string substitutions, and send it
+    if ($event->send_confirmation && $user->mail) {
+      $header = "From: $event->forwarding_email\nReply-to: $event->forwarding_email\nX-Mailer:
+          Drupal\nReturn-path: $event->forwarding_email\nErrors-to: $event->forwarding_email";
+      $subject = t('Signup confirmation for event: %event', array('%event' => $node->title));
+      $message = strtr($event->confirmation_email, $trans);
+      user_mail($user->mail, $subject, $message, $header);
+    }
+
+    //if a forwarding email is to be sent, compose the mail message, translate the string substitutions, and send it
+    if ($event->forwarding_email) {
+      $site_mail = variable_get('site_mail', 'noadmin@noadmin.com');
+      $header = "From: " . t('New Event Signup') . "\nReply-to: $site_mail\nX-Mailer:
+          Drupal\nReturn-path: $site_mail\nErrors-to: $site_mail";
+      $subject = t('Signup confirmation for event: %title', array('%title' => $node->title));
+      $message = t('The following information was submitted as a signup for %title', array('%title' => $node->title)) .
+      "\n\r" . t('Date/Time: %time', array('%time'=>$starttime)) . ":\n\r\n\r\n\r" . t('username:') . $user->name .
+      "\n\r" . t('email:') . $user->mail . "\n\r\n\r" . $signup_data;
+      user_mail($event->forwarding_email, $subject, $message, $header);
+    }
+    drupal_set_message(t('Signup to %title confirmed.', array('%title' => l(check_plain($node->title), "node/$node->nid"))) . $confirmation_email . $reminder_email);
+  } else {
+    drupal_access_denied();
+  }
+}
+
+/**
  * Callback function which prints a schedule of user's signups
  * @ingroup signup_callback
  */
@@ -796,91 +881,6 @@ function _signup_list_user_signups($uid) {
     $titles[$node['nid']] = l($node['title'], 'node/'. $node['nid']);
   }
   return $titles;
-}
-
-/**
- * Signs up a user to a node. NOTE: other modules can call this function. To do so, edit must be as follows:
- *
- * edit['nid'] : nid of the node to which the user will be signed up
- * edit['uid'] : uid of the user to sign up
- * $edit['signup_form_data'] : an array of key/value pairs -- key is the data category, value is the user input
- *
- * @ingroup signup_internal
- */
-function _signup_sign_up_user($edit = NULL) {
-
-  $edit = $edit ? $edit : $_POST['edit'];
-  $user = user_load(array('uid' => $edit['uid']));
-
-  if (user_access('allow signups')) {
-    //this check is in case a node type was enabled, and the node the user is trying to sign up for is not in
-    //the signup table. this would be the case for all nodes created when signup.module was not enabled.  if
-    //no row exists for this node, then grab the signup defaults and create a new row before proceeding
-    if (db_num_rows(db_query("SELECT * FROM {signup} WHERE nid = %d", $edit['nid'])) == 0) {
-      $defaults = db_fetch_object(db_query("SELECT * FROM {signup} WHERE nid = 0"));
-      db_query("INSERT INTO {signup} (nid, forwarding_email, send_confirmation, confirmation_email,
-          send_reminder, reminder_days_before, reminder_email) VALUES (%d, '%s', %d, '%s', %d, %d, '%s')",
-      $edit['nid'], $defaults->signup_forwarding_email, $defaults->signup_send_confirmation,
-      $defaults->signup_confirmation_email, $defaults->signup_send_reminder, $defaults->signup_reminder_days_before,
-      $defaults->signup_reminder_email);
-    }
-
-    //get current time and serialize the user's signup data
-    $curtime = time();
-
-    //allow other modules to inject data into the user's signup data.
-    $node = node_load(array('nid'=> $edit['nid']));
-    $extra = module_invoke_all('signup_sign_up', $node);
-    $signup_form_data = serialize(array_merge($edit['signup_form_data'], $extra));
-
-    //pull this event from the signup table, determine if reminder/confirmation emails are going to be sent,
-    //and inform the user
-    $event = db_fetch_object(db_query("SELECT * FROM {signup} WHERE nid = %d", $edit['nid']));
-    $confirmation_email = $event->send_confirmation ? '  ' . t('You will receive a confirmation email shortly
-        which contains further event information.') : '';
-    $reminder_email = $event->send_reminder ? '  ' . t('You will receive a reminder email %number %days before the event.',
-    array('%number' => $event->reminder_days_before, '%days' => format_plural($event->reminder_days_before, t('day'), t('days')))) : '';
-
-    //insert the user into the signup_log
-    db_query("INSERT INTO {signup_log} (uid, nid, signup_time, form_data) VALUES
-        (%d, %d, %d, '%s')", $edit['uid'], $edit['nid'], $curtime, $signup_form_data);
-
-    //load the node, format the start time, and compose the user's signup data for later use in the emails
-    $offset = $node->event_start ? event_get_offset($node->timezone, $node->event_start) : '';
-    $starttime = $node->event_start ? _event_date(variable_get('signup_date_string', 'D, M jS, g:i A'),
-    $node->event_start, $offset) : t('[Untimed]');
-    $signup_data_array = array();
-    foreach ($edit['signup_form_data'] as $key => $value) {
-      $signup_data_array[] = $key . ': ' . $value;
-    }
-    $signup_data = t('SIGNUP INFORMATION') . "\n\r\n\r" . implode("\n\r", $signup_data_array);
-    $trans = array("%event" => $node->title, "%time" => $starttime, "%username" => $user->name,
-    "%useremail" => $user->mail, "%info" => $signup_data);
-
-    //if a confirmation is to be sent, compose the mail message, translate the string substitutions, and send it
-    if ($event->send_confirmation && $user->mail) {
-      $header = "From: $event->forwarding_email\nReply-to: $event->forwarding_email\nX-Mailer:
-          Drupal\nReturn-path: $event->forwarding_email\nErrors-to: $event->forwarding_email";
-      $subject = t('Signup confirmation for event: %event', array('%event' => $node->title));
-      $message = strtr($event->confirmation_email, $trans);
-      user_mail($user->mail, $subject, $message, $header);
-    }
-
-    //if a forwarding email is to be sent, compose the mail message, translate the string substitutions, and send it
-    if ($event->forwarding_email) {
-      $site_mail = variable_get('site_mail', 'noadmin@noadmin.com');
-      $header = "From: " . t('New Event Signup') . "\nReply-to: $site_mail\nX-Mailer:
-          Drupal\nReturn-path: $site_mail\nErrors-to: $site_mail";
-      $subject = t('Signup confirmation for event: %title', array('%title' => $node->title));
-      $message = t('The following information was submitted as a signup for %title', array('%title' => $node->title)) .
-      "\n\r" . t('Date/Time: %time', array('%time'=>$starttime)) . ":\n\r\n\r\n\r" . t('username:') . $user->name .
-      "\n\r" . t('email:') . $user->mail . "\n\r\n\r" . $signup_data;
-      user_mail($event->forwarding_email, $subject, $message, $header);
-    }
-    drupal_set_message(t('Signup to %title confirmed.', array('%title' => l(check_plain($node->title), "node/$node->nid"))) . $confirmation_email . $reminder_email);
-  } else {
-    drupal_access_denied();
-  }
 }
 
 /**
