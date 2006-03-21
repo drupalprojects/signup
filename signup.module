@@ -127,9 +127,10 @@ function signup_cron() {
     //loop through the results, calling the event closing function
     while ($signup = db_fetch_object($result)) {
       signup_close_signup($signup->nid, $cron = 'yes');
+      $node = node_load($signup->nid);
       foreach (module_implements('signup_close') as $module) {
       	$function = $module .'_signup_close';
-      	$function($signup->nid);
+      	$function($node);
       }
     }
   }
@@ -499,7 +500,11 @@ function signup_cancel_signup($uid, $nid) {
 
   //delete the selected user from the log table and return to the previous page
   db_query("DELETE FROM {signup_log} WHERE uid = %d AND nid = %d", $uid, $nid);
-  $node = db_fetch_object(db_query("SELECT nid, title FROM {node} WHERE nid = %d", $nid));
+  $node = node_load($nid);
+  foreach (module_implements('signup_cancel') as $module) {
+    $function = $module .'_signup_cancel';
+    $function($node);
+  }
   drupal_set_message(t('Signup to %title cancelled', array('%title' => l(check_plain($node->title), "node/$node->nid"))));
   drupal_goto();
 
@@ -514,6 +519,11 @@ function signup_close_signup($nid, $cron = 'no') {
   //close the specified node for signups, and head back to the admin/signup page if it's not a cron task
   db_query("UPDATE {signup} SET completed = 1 WHERE nid = %d", $nid);
   if ($cron == 'no') {
+    $node = node_load($nid);
+    foreach (module_implements('signup_close') as $module) {
+      $function = $module .'_signup_close';
+      $function($node);
+    }
     drupal_goto('admin/signup');
   }
 }
@@ -865,7 +875,11 @@ function _signup_sign_up_user($edit = NULL) {
 
     //get current time and serialize the user's signup data
     $curtime = time();
-    $signup_form_data = serialize($edit['signup_form_data']);
+
+    //allow other modules to inject data into the user's signup data.
+    $node = node_load($edit['nid']);
+    $extra = module_invoke_all('signup_sign_up', $node);
+    $signup_form_data = serialize(array_merge($edit['signup_form_data'], $extra));
 
     //pull this event from the signup table, determine if reminder/confirmation emails are going to be sent,
     //and inform the user
@@ -880,7 +894,6 @@ function _signup_sign_up_user($edit = NULL) {
         (%d, %d, %d, '%s')", $edit['uid'], $edit['nid'], $curtime, $signup_form_data);
 
     //load the node, format the start time, and compose the user's signup data for later use in the emails
-    $node = node_load(array('nid'=> $edit['nid']));
     $offset = $node->event_start ? event_get_offset($node->timezone, $node->event_start) : '';
     $starttime = $node->event_start ? _event_date(variable_get('signup_date_string', 'D, M jS, g:i A'),
     $node->event_start, $offset) : t('[Untimed]');
