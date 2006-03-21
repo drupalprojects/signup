@@ -94,7 +94,7 @@ function signup_ecommerce_ec_transactionapi(&$txn, $op) {
               $edit['nid'] = $node->nid;
               $edit['uid'] = $t->uid;
               $edit['signup_form_data']['TransactionID'] = $txn->txnid;
-              _signup_sign_up_user($edit);
+              signup_sign_up_user($edit);
             }
           }
         }
