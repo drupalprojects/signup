@@ -600,7 +600,6 @@ function signup_settings_page() {
  * edit['uid'] : uid of the user to sign up
  * $edit['signup_form_data'] : an array of key/value pairs -- key is the data category, value is the user input
  *
- * @ingroup signup_internal
  */
 function signup_sign_up_user($edit = NULL) {
 
@@ -712,7 +711,7 @@ function signup_user_signup() {
 
   switch ($op) {
     case t("Sign up"):
-      _signup_sign_up_user();
+      signup_sign_up_user();
 
       break;
 
