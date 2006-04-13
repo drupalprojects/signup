@@ -112,6 +112,7 @@ function signup_cron() {
         $event->event_start, $offset), "%username" => $signup->name, "%useremail" => $signup->mail);
         $message = strtr($event->reminder_email, $trans);
         user_mail($signup->mail, $subject, $message, $header);
+        watchdog('signup', t('Reminder for %event sent to %useremail.', array('%event' => $event->title, '%useremail' => $signup->mail)));
       }
 
       //reminders for this event are all sent, so mark it in the database so they're not sent again
@@ -132,6 +133,7 @@ function signup_cron() {
       	$function = $module .'_signup_close';
       	$function($node);
       }
+      watchdog('signup', t('Signups closed for %event by cron.', array('%event' => $node->title)));
     }
   }
 }
@@ -165,7 +167,7 @@ function signup_menu($may_cache) {
     //admin/settings/signup menu item
     $items[] = array('path' => 'admin/settings/signup', 'title' => t('signup'),
       'callback' => 'signup_settings_page',
-      'access' => user_access('access administration pages'));
+      'access' => $access);
 
     //admin/signup menu item
     $items[] = array('path' => 'admin/signup', 'title' => t('signup'),
@@ -175,16 +177,36 @@ function signup_menu($may_cache) {
         'access' => $access, 'type' => MENU_DEFAULT_LOCAL_TASK, 'weight' => -10);
     $items[] = array('path' => 'admin/signup/conflicts', 'title' => t('conflicts'),
         'callback' => 'signup_conflict_summary', 'access' => $access,
-        'type' => MENU_LOCAL_TASK, 'weight' => -5);
+        'type' => MENU_LOCAL_TASK, 'weight' => 0);
     $items[] = array('path' => 'admin/signup/conflict_detail', 'title' => t('conflict detail'),
         'callback' => 'signup_conflict_detail', 'access' => $access,
-        'type' => MENU_LOCAL_TASK);
+        'type' => MENU_LOCAL_TASK, 'weight' => 3);
 
     //user signup callbacks
     $items[] = array('path' => 'signup', 'access' => TRUE, 'type' => MENU_CALLBACK, 'callback' => 'signup_user_signup');
 
     //close signup callback
-    $items[] = array('path' => 'closesignup', 'access' => TRUE, 'type' => MENU_CALLBACK, 'callback' => 'signup_close_signup');
+    $items[] = array('path' => 'closesignup', 'access' => $access, 'type' => MENU_CALLBACK, 'callback' => 'signup_close_signup');
+
+    //open signup callback
+    $items[] = array('path' => 'opensignup', 'access' => $access, 'type' => MENU_CALLBACK, 'callback' => 'signup_open_signup');
+
+    // open/closed tabs
+      $items[] = array(
+        'path' => 'admin/signup/open',
+        'title' => t('open'),
+        'type' => MENU_LOCAL_TASK,
+        'access' => user_access('admin signups'),
+        'weight' => -8,
+      );
+      $items[] = array(
+        'path' => 'admin/signup/closed',
+        'title' => t('closed'),
+        'type' => MENU_LOCAL_TASK,
+        'access' => user_access('admin signups'),
+        'weight' => -6,
+      );
+
   } else {
 
     // user signup schedule callback
@@ -192,7 +214,7 @@ function signup_menu($may_cache) {
     'callback' => 'signup_user_schedule');
 
     //if it's a signup event, then put in a signup tab
-  	if (db_num_rows(db_query("SELECT nid FROM {signup} WHERE nid = %d", arg(1)))) {
+  	if (arg(0) == 'node' && is_numeric(arg(1)) && db_num_rows(db_query("SELECT nid FROM {signup} WHERE nid = %d", arg(1)))) {
   	  $node = node_load(array('nid'=>arg(1)));
       $items[] = array('path' => 'node/' . arg(1) . '/signups', 'title' => t('signups'),
           'callback' => 'signup_user_signups_form', 'callback arguments' => array($node),
@@ -343,7 +365,8 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
       $result = db_query("SELECT * FROM {signup} WHERE nid = %d", ($node->nid ? $node->nid : 0));
 
       //load signup data for both new nodes w/ enabled node types, and any existing nodes that are already signup enabled
-      if ((!$node->nid && variable_get('signup_form_' . $node->type, 0)) || ($node->nid && db_num_rows($result))) {                     $signup = db_fetch_object($result);
+      if ((!$node->nid && variable_get('signup_form_' . $node->type, 0)) || ($node->nid && db_num_rows($result))) {
+        $signup = db_fetch_object($result);
         $node->signup = 1;
         $node->signup_forwarding_email = $signup->forwarding_email;
         $node->signup_send_confirmation = $signup->send_confirmation;
@@ -452,6 +475,17 @@ function signup_admin_page() {
   $event_select = $_EVENT ? ', e.event_start, e.timezone' : '';
   $event_join = $_EVENT ? ' LEFT JOIN {event} e ON e.nid = n.nid' : '';
 
+  //limit query for open/closed tabs
+  if (arg(2) == 'open'){
+    $where = ' WHERE s.completed = 0';
+  }
+  elseif (arg(2) == 'closed') {
+    $where = ' WHERE s.completed = 1';
+  }
+  else {
+    $where = '';
+  }
+
   $header = array(
     array('data' => t('Event'), 'field' => 'n.title', 'sort' => 'asc'),
     array('data' => t('Signups'), 'field' => 'count'),
@@ -464,9 +498,9 @@ function signup_admin_page() {
   }
 
   //pull all open signup nodes, and start the creation of the table
-  $sql = "SELECT n.title, n.nid$event_select, COUNT(*) AS count FROM
+  $sql = "SELECT n.title, n.nid, s.completed$event_select, COUNT(*) AS count FROM
           {signup} s INNER JOIN {node} n ON n.nid = s.nid INNER JOIN {signup_log} s_l
-           ON s.nid = s_l.nid$event_join WHERE s.completed = 0 GROUP BY n.nid";
+           ON s.nid = s_l.nid$event_join$where GROUP BY n.nid";
   $sql .= tablesort_sql($header);
   $result = pager_query($sql, 25);
 
@@ -480,11 +514,12 @@ function signup_admin_page() {
     }
     $row[] = l(check_plain($signup_event->title), "node/$signup_event->nid");
     $row[] = $signup_event->count;
-    $row[] = l(t('View Signups'), "node/$signup_event->nid/signups") .'<br>'. l(t('Close Event'),
-      "closesignup/$signup_event->nid");
+    $row[] = l(t('View Signups'), "node/$signup_event->nid/signups") .'<br>'. ($signup_event->completed ?
+      ('<em>'. t('Closed: ') .'</em>' . l(t('Open Event'), "opensignup/$signup_event->nid")) : l(t('Close Event'),
+      "closesignup/$signup_event->nid"));
     $rows[] = $row;
   }
-  $output .= theme('table', $header, $rows);
+  $output .= theme('table', $header, $rows, array('style' => 'width:100%'));
   $pager = theme('pager', NULL, 25, 0, tablesort_pager());
   if (!empty($pager)) {
     $output .= $pager;
@@ -524,6 +559,7 @@ function signup_close_signup($nid, $cron = 'no') {
       $function = $module .'_signup_close';
       $function($node);
     }
+    watchdog('signup', t('Signups closed for %link.', array('%link'=>l($node->title, 'node/'.$nid))));
     drupal_goto('admin/signup');
   }
 }
@@ -586,6 +622,25 @@ function signup_conflict_summary() {
 }
 
 /**
+ * Callback function for reopening signups
+ * @ingroup signup_callback
+ */
+function signup_open_signup($nid, $cron = 'no') {
+
+  //close the specified node for signups, and head back to the admin/signup page if it's not a cron task
+  db_query("UPDATE {signup} SET completed = 0 WHERE nid = %d", $nid);
+  if ($cron == 'no') {
+    $node = node_load(array('nid'=>$nid));
+    foreach (module_implements('signup_open') as $module) {
+      $function = $module .'_signup_open';
+      $function($node);
+    }
+    watchdog('signup', t('Signups reopened for %link.', array('%link'=>l($node->title, 'node/'.$nid))));
+    drupal_goto('admin/signup');
+  }
+}
+
+/**
  * Prints the settings page under admin/setttings/signup
  * @ingroup signup_callback
  */
@@ -593,6 +648,7 @@ function signup_settings_page() {
 
   //print the settings page
   $form['signup_user_view'] = array('#type' => 'checkbox', '#title' => t('Users can view signups'), '#default_value' => variable_get('signup_user_view', 0), '#description' => t('Selecting this option allows users with signup permissions to see who has already signed up.'));
+  $form['signup_close_early'] = array('#type' => 'textfield', '#title' => t('Close x hours before'), '#default_value' => variable_get('signup_close_early', 1), '#size' => 5, '#maxlength' => 10, '#description' => t('The number of hours before the event which signups will no longer be allowed. Use negative numbers to close signups after the event start (example: -12)'));
   $form['title'] = array('#type' => 'markup', '#value' => '<h2>' . t('Default signup information') . '</h2><br>' . t('New signup nodes will start with these settings'));
   $form['group'] = array('#type' => 'fieldset', '#title' => t('Sign up settings'));
   $form['group']['_signup_admin_form'] = _signup_admin_form($node);
@@ -612,6 +668,7 @@ function signup_settings_page_submit($form_id, $form_values) {
 
   //if the form has been submitted, update the data in the database
   variable_set('signup_user_view', $form_values['signup_user_view']);
+  variable_set('signup_close_early', is_numeric($form_values['signup_close_early']) ? $form_values['signup_close_early'] : 1);
   if (db_num_rows(db_query('SELECT nid FROM {signup} WHERE nid = 0'))) {
     db_query("UPDATE {signup} SET forwarding_email  = '%s', send_confirmation = %d, confirmation_email  = '%s',
             send_reminder = %d, reminder_days_before = %d, reminder_email = '%s'
