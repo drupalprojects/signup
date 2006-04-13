@@ -520,7 +520,7 @@ function signup_admin_page() {
     $rows[] = $row;
   }
   $output .= theme('table', $header, $rows, array('style' => 'width:100%'));
-  $pager = theme('pager', NULL, 25, 0, tablesort_pager());
+  $pager = theme('pager', NULL, 25, 0);
   if (!empty($pager)) {
     $output .= $pager;
   }
