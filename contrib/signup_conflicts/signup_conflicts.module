@@ -106,6 +106,28 @@ function signup_conflicts_menu($may_cache) {
 }
 
 /**
+ * Implementation of hook_user().
+ * @ingroup signup_conflicts_core
+ */
+function signup_conflicts_user($op, &$edit, &$user, $category = NULL) {
+  switch ($op) {
+    case 'view':
+
+      //grab list of events the user signed up for
+      $signups = signup_list_user_signups($user->uid);
+
+      //grab list of signup conflict data for this user
+      $conflicts = _signup_conflicts_user_conflicts($user->uid);
+      if (isset($conflicts) && count($signups)) {
+        $output = $conflicts['title'] . $conflicts['data'];
+      }
+      if (isset($output)) {
+        return array(t('Signup conflicts exist') => array( array('value' => $output, 'class' => 'user')));
+      }
+  }
+}
+
+/**
  * @defgroup signup_conflicts_callback Functions which are the menu callbacks for this module
  */
 
@@ -164,28 +186,6 @@ function signup_conflicts_summary() {
     $output = t('<h2>No schedule conflicts</h2>');
   }
   print theme('page', $output);
-}
-
-/**
- * Implementation of hook_user().
- * @ingroup signup_conflicts_core
- */
-function signup_conflicts_user($op, &$edit, &$user, $category = NULL) {
-  switch ($op) {
-    case 'view':
-
-      //grab list of events the user signed up for
-      $signups = signup_list_user_signups($user->uid);
-
-      //grab list of signup conflict data for this user
-      $conflicts = _signup_conflicts_user_conflicts($user->uid);
-      if (isset($conflicts) && count($signups)) {
-        $output = $conflicts['title'] . $conflicts['data'];
-      }
-      if (isset($output)) {
-        return array(t('Signup conflicts exist') => array( array('value' => $output, 'class' => 'user')));
-      }
-  }
 }
 
 /**
