@@ -548,30 +548,6 @@ function signup_close_signup($nid, $cron = 'no') {
 }
 
 /**
- * Returns an array of node titles w/ links for all events the specified user has signed up for
- * @ingroup signup_internal
- */
-function signup_list_user_signups($uid) {
-
-  $titles = array();
-
-  //tests for optional support of event.module
-  $_EVENT = module_exist('event');
-  $event_join = $_EVENT ? ' LEFT JOIN {event} e ON e.nid = n.nid' : '';
-  $event_where = $_EVENT ? ' AND (e.event_start >= '. time() . ' OR e.event_start IS NULL)' : '';
-  $order_by = $_EVENT ? 'e.event_start' : 'n.title';
-
-  //pull all open signup nodes for this user
-  $result = db_query("SELECT n.title, n.nid FROM {signup_log} s_l INNER JOIN {node} n ON n.nid = s_l.nid
-    $event_join WHERE s_l.uid = '%s'$event_where ORDER BY $order_by", $uid);
-
-  while ($node = db_fetch_array($result)) {
-    $titles[$node['nid']] = l($node['title'], 'node/'. $node['nid']);
-  }
-  return $titles;
-}
-
-/**
  * Callback function for reopening signups
  * @ingroup signup_callback
  */
@@ -633,6 +609,29 @@ function signup_settings_page_submit($form_id, $form_values) {
   }
   drupal_set_message(t('Signup settings updated'));
 
+}
+
+/**
+ * Returns an array of node titles w/ links for all events the specified user has signed up for.
+ */
+function signup_list_user_signups($uid) {
+
+  $titles = array();
+
+  //tests for optional support of event.module
+  $_EVENT = module_exist('event');
+  $event_join = $_EVENT ? ' LEFT JOIN {event} e ON e.nid = n.nid' : '';
+  $event_where = $_EVENT ? ' AND (e.event_start >= '. time() . ' OR e.event_start IS NULL)' : '';
+  $order_by = $_EVENT ? 'e.event_start' : 'n.title';
+
+  //pull all open signup nodes for this user
+  $result = db_query("SELECT n.title, n.nid FROM {signup_log} s_l INNER JOIN {node} n ON n.nid = s_l.nid
+    $event_join WHERE s_l.uid = '%s'$event_where ORDER BY $order_by", $uid);
+
+  while ($node = db_fetch_array($result)) {
+    $titles[$node['nid']] = l($node['title'], 'node/'. $node['nid']);
+  }
+  return $titles;
 }
 
 /**
