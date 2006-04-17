@@ -28,7 +28,7 @@ function signup_conflicts_block($op = 'list', $delta = 0) {
             $titles = signup_list_user_signups($user->uid);
             $conflicts = _signup_conflicts_get_conflicts($user->uid);
             if (count($titles) && count($conflicts)) {
-              $conflict_teaser = '<br>'. l(t('%number schedule %conflict among your current signups', array('%number' => $conflicts['total'], '%conflict' => format_plural($conflicts['total'], t('conflict exists'), t('conflicts exist')))), "user/$user->uid");
+              $conflict_teaser = '<br>'. l(t('%number schedule %conflict in your current signups', array('%number' => $conflicts['total'], '%conflict' => format_plural($conflicts['total'], t('conflict exists'), t('conflicts exist')))), "user/$user->uid");
               $block['subject'] = t('Schedule conflicts');
               $block['content'] = $conflict_teaser;
             }
