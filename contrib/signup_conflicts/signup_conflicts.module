@@ -28,7 +28,7 @@ function signup_conflicts_block($op = 'list', $delta = 0) {
             $titles = signup_list_user_signups($user->uid);
             $conflicts = _signup_conflicts_get_conflicts($user->uid);
             if (count($titles) && count($conflicts)) {
-              $conflict_teaser = '<br>'. l(t('%number schedule %conflict among your current signups', array('%number' => $conflicts['total'], '%conflict' => format_plural($conflicts['total'], t('conflict exists'), t('conflicts exist')))), "user/$user->uid");
+              $conflict_teaser = '<br>'. l(t('%number schedule %conflict in your current signups', array('%number' => $conflicts['total'], '%conflict' => format_plural($conflicts['total'], t('conflict exists'), t('conflicts exist')))), "user/$user->uid");
               $block['subject'] = t('Schedule conflicts');
               $block['content'] = $conflict_teaser;
             }
@@ -61,27 +61,6 @@ function signup_conflicts_help($section) {
 }
 
 /**
- * Implementation of hook_form_alter()
- *
- * @ingroup signup_conflicts_core
- * @param $form_id The form being altered.
- * @param $form The form array.
- */
-function signup_conflicts_form_alter($form_id, &$form) {
-
-  /* this is a check for module dependencies.  the only way we
-    can ensure this check happening when the module is initially
-    enabled is to insert the check for when the form is initially
-    built, which will also be caught when the admin/module page is
-    reloaded upon submission.  this means we never want to call this
-    function when the form has been submitted, so make sure there's
-    no $_POST. */
-  if ($form_id == 'system_modules' && !$_POST) {
-      _signup_conflicts_system_module_validate($form);
-  }
-}
-
-/**
  * Implmentation of hook_menu()
  * @ingroup signup_conflicts_core
  */
@@ -103,6 +82,29 @@ function signup_conflicts_menu($may_cache) {
   }
 
   return $items;
+}
+
+
+/**
+ * Implementation of hook_user().
+ * @ingroup signup_conflicts_core
+ */
+function signup_conflicts_user($op, &$edit, &$user, $category = NULL) {
+  switch ($op) {
+    case 'view':
+
+      //grab list of events the user signed up for
+      $signups = signup_list_user_signups($user->uid);
+
+      //grab list of signup conflict data for this user
+      $conflicts = _signup_conflicts_user_conflicts($user->uid);
+      if (isset($conflicts) && count($signups)) {
+        $output = $conflicts['title'] . $conflicts['data'];
+      }
+      if (isset($output)) {
+        return array(t('Signup conflicts exist') => $output);
+      }
+  }
 }
 
 /**
@@ -167,28 +169,6 @@ function signup_conflicts_summary() {
 }
 
 /**
- * Implementation of hook_user().
- * @ingroup signup_conflicts_core
- */
-function signup_conflicts_user($op, &$edit, &$user, $category = NULL) {
-  switch ($op) {
-    case 'view':
-
-      //grab list of events the user signed up for
-      $signups = signup_list_user_signups($user->uid);
-
-      //grab list of signup conflict data for this user
-      $conflicts = _signup_conflicts_user_conflicts($user->uid);
-      if (isset($conflicts) && count($signups)) {
-        $output = $conflicts['title'] . $conflicts['data'];
-      }
-      if (isset($output)) {
-        return array(t('Signup conflicts exist') => array( array('value' => $output, 'class' => 'user')));
-      }
-  }
-}
-
-/**
  * @defgroup signup_conflicts_internal Internal module functions
  */
 
@@ -230,40 +210,6 @@ function _signup_conflicts_get_conflicts($uid) {
     }
   }
   return $conflicts;
-}
-
-/**
- * Validates module dependencies for the module.
- *
- * @param $form The form array passed from hook_form_alter.
- *
- * Set the $module variable to a string which is the name of the module, minus
- * the .module extension.  Set $dependencies to an array of module names which
- * the module is dependent on--each element is a string which is the module name
- * minus the .module extension.  Note that this will not check for any dependencies
- * for the modules this module depends on--only those that are explicitly listed in
- * the $dependencies array.
- */
-function _signup_conflicts_system_module_validate(&$form) {
-
-  $module = 'signup_conflicts';
-  $dependencies = array('event', 'signup');
-
-  foreach ($dependencies as $dependency) {
-  	if (!in_array($dependency, $form['status']['#default_value'])) {
-  	  $missing_dependency = TRUE;
-  	  $missing_dependency_list[] = $dependency;
-  	}
-  }
-
-  if (in_array($module, $form['status']['#default_value']) && isset($missing_dependency)) {
-    db_query("UPDATE {system} SET status = 0 WHERE type = 'module' AND name = '%s'", $module);
-    $key = array_search($module, $form['status']['#default_value']);
-    unset($form['status']['#default_value'][$key]);
-    drupal_set_message(t('The module %module was deactivated--it requires the following disabled/non-existant modules to function properly: %dependencies', array('%module' => $module, '%dependencies' => implode(', ', $missing_dependency_list))), 'error');
-
-  }
-
 }
 
 /**
