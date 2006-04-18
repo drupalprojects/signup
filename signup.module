@@ -616,8 +616,9 @@ function signup_sign_up_user($edit = NULL) {
 
   $edit = $edit ? $edit : $_POST['edit'];
   $user = user_load(array('uid' => $edit['uid']));
+  $node = node_load(array('nid'=> $edit['nid']));
 
-  if (user_access('allow signups')) {
+  if (user_access('allow signups') && !$node->signup_completed) {
     //this check is in case a node type was enabled, and the node the user is trying to sign up for is not in
     //the signup table. this would be the case for all nodes created when signup.module was not enabled.  if
     //no row exists for this node, then grab the signup defaults and create a new row before proceeding
@@ -634,7 +635,6 @@ function signup_sign_up_user($edit = NULL) {
     $curtime = time();
 
     //allow other modules to inject data into the user's signup data.
-    $node = node_load(array('nid'=> $edit['nid']));
     $extra = module_invoke_all('signup_sign_up', $node);
     $signup_form_data = serialize(array_merge($edit['signup_form_data'], $extra));
 
