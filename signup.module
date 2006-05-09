@@ -249,7 +249,7 @@ function signup_user($op, &$edit, &$user, $category = NULL) {
 function signup_form_alter($form_id, &$form) {
   if (isset($form['type']) && $form['type']['#value'] .'_node_settings' == $form_id) {
     $type = $form['type']['#value'];
-    $form['workflow']['signup_form_' . $type] = array('#type' => 'checkbox', '#title' => t('Allow signups'), '#default_value' => variable_get('signup_form_' . $type, FALSE) == 1, '#description' => t('If selected, users will be allowed to do signups for this node type'));
+    $form['workflow']['signup_form_' . $type] = array('#type' => 'checkbox', '#title' => t('Allow signups'), '#default_value' => variable_get('signup_form_' . $type, FALSE) == 1, '#description' => t('If selected, users will be allowed to signup for this node type'));
 
   //inject the appropriate signup data into the node form if the node type is signup enabled
   } elseif ($form['type']['#value'] .'_node_form' == $form_id) {
@@ -267,7 +267,7 @@ function signup_form_alter($form_id, &$form) {
       return $form;
     }
     elseif (user_access('admin signups')) {
-      $form['signup_enable'] = array('#type' => 'checkbox', '#title' => t('Enable signups for this node'));
+      $form['signup_enable'] = array('#type' => 'checkbox', '#title' => t('Enable signups for this %node_type', array('%node_type' => node_get_name($form['type']['#value']))));
       return $form;
     }
   }
