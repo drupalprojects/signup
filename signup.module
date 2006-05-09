@@ -243,7 +243,7 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
       //inject this setting for all nodes types.  checking enables signups for the specified node type
       return form_checkbox(t('Allow signups'), 'signup_nodeapi_' . $node->type, $value = 1,
         variable_get('signup_nodeapi_' . $node->type, FALSE) == 1,
-        t('if selected, users will be allowed to do signups for this node type'), $attributes = NULL,
+        t('if selected, users will be allowed to signup for this node type'), $attributes = NULL,
         $required = FALSE);
         break;
     case 'form post':
@@ -263,7 +263,7 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
           return _signup_admin_form($node);
         }
         elseif (user_access('admin signups')) {
-          return form_checkbox(t('Enable signups for this node'), 'signup_enable');
+          return form_checkbox(t('Enable signups for this %node_type', array('%node_type' => node_invoke($node, 'node_name'))), 'signup_enable');
         }
       break;
 
