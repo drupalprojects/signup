@@ -423,7 +423,7 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
         if (user_access('allow signups') && variable_get('signup_user_view', 0)) {
           $signups = db_query("SELECT u.uid, u.name, s.signup_time, s.form_data FROM {signup_log} s INNER JOIN {users} u ON
     u.uid = s.uid WHERE s.nid =%d", $node->nid);
-          $header = array(array('data' => t('%d individual(s) signed up', array('%d' => db_num_rows($signups)))));
+          $header = array(array('data' => t('%users signed up', array('%users' => format_plural(db_num_rows($signups), '1 individual', '%count individuals')))));
           $rows = array();
 
           //loop through the users
@@ -800,7 +800,8 @@ function signup_user_signups_form($node) {
   $result = db_query("SELECT u.uid, u.name, s.signup_time, s.form_data FROM {signup_log} s INNER JOIN {users} u ON
     u.uid = s.uid WHERE s.nid =%d", $node->nid);
   $output = "<h1>" . check_plain($node->title) . "</h1>";
-  $header = array(array('data' => t('%d individual(s) signed up', array('%d' => db_num_rows($result))), 'colspan' => 3));
+  $header = array(array('data' => t('%users signed up', array('%users' => format_plural(db_num_rows($result), '1 individual', '%count individuals'))), 'colspan' => 3));
+
   $rows = array();
 
   //get default timezone offset for the site
