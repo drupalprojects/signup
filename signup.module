@@ -331,18 +331,6 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
         db_query("DELETE FROM {signup_log} WHERE nid = %d", $node->nid);
       break;
 
-    case 'delete pre':
-
-      //if the node has any signups, prevent deletion and warn
-      if (variable_get('signup_form_' . $node->type, FALSE) && ($user_signups = db_num_rows(db_query('SELECT
-        nid FROM {signup_log} WHERE nid = %d', $node->nid)))) {
-
-        $form['signup'] = array('#type' => 'markup', '#value' => t('WARNING: %d user(s) signed up for %title.  Deleting this event will delete all signups associated with it!', array('%title'=>$node->title, '%d'=>$user_signups)));
-        $form['foo'] = array('#type' => 'textfield', '#title' => 'foo');
-        return $form;
-      }
-      break;
-
     case 'load':
       //check for a signup for this node.  if it's a new node, load the defaults
       $result = db_query("SELECT * FROM {signup} WHERE nid = %d", ($node->nid ? $node->nid : 0));
