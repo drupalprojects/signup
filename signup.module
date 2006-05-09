@@ -334,11 +334,10 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
     case 'delete pre':
 
       //if the node has any signups, prevent deletion and warn
-      if (variable_get('signup_form_' . $node->type, FALSE) && ($user_signups = db_num_rows(db_query('SELECT
-        nid FROM {signup_log} WHERE nid = %d', $node->nid)))) {
+      if (variable_get('signup_form_' . $node->type, FALSE) 
+          && ($user_signups = db_num_rows(db_query('SELECT nid FROM {signup_log} WHERE nid = %d', $node->nid)))) {
 
-        $form['signup'] = array('#type' => 'markup', '#value' => t('WARNING: %d user(s) signed up for %title.  Deleting this event will delete all signups associated with it!', array('%title'=>$node->title, '%d'=>$user_signups)));
-        $form['foo'] = array('#type' => 'textfield', '#title' => 'foo');
+        $form['signup'] = array('#type' => 'markup', '#value' => t('WARNING: %users signed up for %title.  Deleting this event will delete all signups associated with it!', array('%title' => theme('placeholder', $node->title), '%users' => format_plural($user_signups, '1 user', '%count users'))));
         return $form;
       }
       break;
