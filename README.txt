@@ -1,4 +1,12 @@
-signup allows users to sign up for nodes of any type.  includes options for sending a notification email to a selected email address upon a new user signup (good for notifying event coordinators, etc.), and a confirmation email to users who sign up--these options are per node.  when used on event nodes (with event.module installed), it can also send out reminder emails to all signups X days before the start of the event (per node setting), and auto-close event signups X hours before their start (general setting).  settings exist for resticting signups to selected roles and content types. 
+signup allows users to sign up for nodes of any type.  includes
+options for sending a notification email to a selected email address
+upon a new user signup (good for notifying event coordinators, etc.),
+and a confirmation email to users who sign up--these options are per
+node.  when used on event nodes (with event.module installed), it can
+also send out reminder emails to all signups X days before the start
+of the event (per node setting), and auto-close event signups X hours
+before their start (general setting).  settings exist for resticting
+signups to selected roles and content types.
 
 TO INSTALL:
 Note: It is assumed that you have Drupal up and running.  Be sure to
