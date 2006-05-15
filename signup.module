@@ -144,14 +144,18 @@ function signup_menu($may_cache) {
   if ($may_cache) {
 
     //admin/settings/signup menu item
-    $items[] = array('path' => 'admin/settings/signup', 'title' => t('signup'),
+    
+    $items[] = array('path' => 'admin/settings/signup', 'access' => $access,
       'callback' => 'signup_settings_page',
-      'access' => $access);
+      'title' => user_access('administer site configuration') ?
+                               t('signup') : t('signup settings'));
 
     //admin/signup menu item
-    $items[] = array('path' => 'admin/signup', 'title' => t('signup'),
+    $items[] = array('path' => 'admin/signup', 'access' => $access,
       'callback' => 'signup_admin_page',
-      'access' => $access);
+      'title' => user_access('administer site configuration') ?
+                               t('signup') : t('signup overview'));
+
     $items[] = array('path' => 'admin/signup/overview', 'title' => t('overview'),
         'access' => $access, 'type' => MENU_DEFAULT_LOCAL_TASK, 'weight' => -10);
 
