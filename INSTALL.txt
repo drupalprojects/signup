@@ -9,15 +9,7 @@ package and read the online documentation.
 
 1. Place the signup package into your Drupal modules/ directory.
 
-2. Load the database definition file (signup.mysql) using the
-   tool of your choice (e.g. phpmyadmin). For mysql and command line
-   access use:
-     mysql -u user -p drupal < signup.mysql
-
-   Replace 'user' with the MySQL username, and 'drupal' with the
-   database being used.
-
-3. Enable the signup module by navigating to: administer > modules
+2. Enable the signup module by navigating to: administer > modules
 
    Note: if you want support for automatic closing of events and
    reminder emails you must also install and enable the event package!
@@ -25,23 +17,20 @@ package and read the online documentation.
    Click the 'Save configuration' button at the bottom to commit your
    changes.
 
-4. For the final configuration of the module, navigate to
+3. For the final configuration of the module, navigate to
    administer > settings > signup
 
    Here you can configure the options for the module.
 
-5. Enable the node types that you wish to allow signups for under
+4. Enable the node types that you wish to allow signups for under
 
    administer > settings > content types > configure
 
-   Note--in Drupal 4.6.X, the path is:
-   administer > content > configure (it's a tab on the content screen) > 
-   content types (a link on the configure screen) > configure (a link
-   on the content types screen - whew!).  
+   You may wish to create a new content type specifically for event
+   signups using either the Flexinode module or the Content
+   Construction Kit (CCK).
 
-   You may wish to create a new content type specifically for event signups.
-
-6. Grant the proper access to user accounts under: administer > access control
+5. Grant the proper access to user accounts under: administer > access control
    
    allow signups: allows the selected role to sign up for nodes
 
@@ -53,9 +42,9 @@ package and read the online documentation.
    admin signups: allows the selected role to view who has signed up
                   for nodes
    
-   viewing the signup report under administer > signup, and configuring
+   Viewing the signup report under administer > signup, and configuring
    administer > settings > signup are restricted to user who have the
    'access administration pages' privilege
 
-7. Start signing up!
+6. Start signing up!
 
