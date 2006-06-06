@@ -30,16 +30,16 @@ package and read the online documentation.
 
    Here you can configure the options for the module.
 
-5. Enable the node types that you wish to allow signups for under
+5. Enable the node types that you wish to allow signups for:
 
-   administer > settings > content types > configure
+   administer > content > configure (a tab on the content screen) > 
+   content types (a subtab on the configure screen) > configure (a link
+   on the content types screen - whew!).  You can navigate directly to
+   the list of content types by going to: "admin/node/configure/types"
+   on your own site.
 
-   Note--in Drupal 4.6.X, the path is:
-   administer > content > configure (it's a tab on the content screen) > 
-   content types (a link on the configure screen) > configure (a link
-   on the content types screen - whew!).  
-
-   You may wish to create a new content type specifically for event signups.
+   You may wish to create a new content type specifically for event
+   signups by enabling the "flexinode" module.
 
 6. Grant the proper access to user accounts under: administer > access control
    
