@@ -836,4 +836,3 @@ function _signup_admin_form($node) {
   return $form;
 }
 
-?>
