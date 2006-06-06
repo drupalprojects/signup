@@ -105,4 +105,3 @@ function signup_update_1() {
   return _system_update_utf8(array('signup', 'signup_log'));
 }
 
-?>

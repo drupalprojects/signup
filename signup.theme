@@ -47,5 +47,3 @@ function theme_signup_user_form() {
 
   return $form;
 }
-
-?>
