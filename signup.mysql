@@ -1,4 +1,4 @@
--- $Id$
+-- $id$
 
 -- 
 -- Table structure for table `signup`
@@ -14,7 +14,6 @@ CREATE TABLE signup (
   reminder_email longtext NOT NULL,
   close_in_advance_time int(10) unsigned NOT NULL default '0',
   close_signup_limit int(10) unsigned NOT NULL default '0',
-  permissions longtext NOT NULL,
   completed int(2) NOT NULL default '0',
   PRIMARY KEY  (nid)
 ) TYPE=MyISAM;
@@ -23,9 +22,7 @@ CREATE TABLE signup (
 -- Dumping data for table `signup`
 -- 
 
-INSERT INTO signup (nid, forwarding_email, send_confirmation, confirmation_email, send_reminder, reminder_days_before, reminder_email, close_in_advance_time, close_signup_limit, permissions, completed) VALUES (0, '', 1, 'Enter your default confirmation email message here', 1, 0, 'Enter your default reminder email message here', 0, 0, '', 0);
-
-
+INSERT INTO signup (nid, forwarding_email, send_confirmation, confirmation_email, send_reminder, reminder_days_before, reminder_email, close_in_advance_time, close_signup_limit, completed) VALUES (0, '', 1, 'Enter your default confirmation email message here', 1, 0, 'Enter your default reminder email message here', 0, 0,  0);
 
 
 -- 
