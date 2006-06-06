@@ -1,24 +1,6 @@
 <?php
 // $Id$
 
-//  TODO's
-//  1. add support limiting signups to certain roles, per node
-//  2. veiwing/manual opening of closed signups
-//  3. make datetime display dependent on medium date format display setting in admin/settings
-//  4. adding support for custom auto-closing settings per node: time before event start, number of signups
-//  5. better header info for emails sent to forwarding email address?
-//  6. validation of forwarding email addresses
-//  7. validation of user submitted data
-//  8. catch remote user logins and get their email addy (currently signup relies on the email addy of a registered user for
-//     confirmation/reminder emails)
-//  9. support for admin own signups
-//  10. user page support where users can see a list of the events they've signed up for
-//  11. ability for admins to cancel signups from the signup tab
-//  12. feature to allow event admins to email signup group
-//  13. fix reminder message notification so it doesn't display on signups where reminder has already been sent
-//  14. make display of reminder email info conditional on whether node is event enabled (form edit page)
-//  15. better themed user signup form?
-
 include(drupal_get_path('module', 'signup') . '/signup.theme');
 
 /**
