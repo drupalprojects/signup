@@ -258,21 +258,31 @@ function signup_form_alter($form_id, &$form) {
 
   //inject the appropriate signup data into the node form if the node type is signup enabled
   } elseif ($form['type']['#value'] .'_node_form' == $form_id) {
+    // Load the node if it already exists.
+    if (isset($form['nid']['#value'])) {
+      $node = node_load($form['nid']['#value']);
+    }
+    else {
+      $node = NULL;
+    }
     if (variable_get('signup_form_' . $form['type']['#value'], 0)) {
-
-      //check to see if it's a new node.  if not, then load the node
-      if (isset($form['nid']['#value'])) {
-        $node = node_load($form['nid']['#value']);
-      } else {
-        $node = NULL;
-      }
-
       $form['collapse'] = array('#type' => 'fieldset', '#title' => t('Sign up settings'), '#collapsible' => TRUE, '#collapsed' => TRUE);
       $form['collapse']['_signup_admin_form'] = _signup_admin_form($node);
       return $form;
     }
     elseif (user_access('admin signups')) {
-      $form['signup_enable'] = array('#type' => 'checkbox', '#title' => t('Enable signups for this %node_type', array('%node_type' => node_get_name($form['type']['#value']))));
+      $form['signup'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Signup settings'),
+        '#collapsible' => TRUE,
+        '#collapsed' => TRUE,
+        '#weight' => 30,
+      );
+      $form['signup']['signup_enable'] = array(
+        '#type' => 'checkbox',
+        '#default_value' => $node->signup,
+        '#title' => t('Enable signups for this %node_type', array('%node_type' => node_get_name($form['type']['#value']))),
+      );
       return $form;
     }
   }
