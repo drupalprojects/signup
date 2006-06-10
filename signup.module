@@ -230,7 +230,7 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
       //inject this setting for all nodes types.  checking enables signups for the specified node type
       return form_checkbox(t('Allow signups'), 'signup_nodeapi_' . $node->type, $value = 1,
         variable_get('signup_nodeapi_' . $node->type, FALSE) == 1,
-        t('if selected, users will be allowed to signup for this node type'), $attributes = NULL,
+        t('If selected, users will be allowed to signup for this node type.'), $attributes = NULL,
         $required = FALSE);
         break;
     case 'form post':
@@ -559,7 +559,7 @@ function signup_settings_page() {
   //print the settings page
   $output = form_checkbox(t('Users can view signups'), 'signup_user_view', 1, variable_get('signup_user_view', 0),
     t('Selecting this option allows users with signup permissions to see who has already signed up.'));
-  $output .= form_textfield(t('Close x hours before'), 'signup_close_early', variable_get('signup_close_early', 1), 5, 10, t('The number of hours before the event which signups will no longer be allowed. Use negative numbers to close signups after the event start (example: -12)'));
+  $output .= form_textfield(t('Close x hours before'), 'signup_close_early', variable_get('signup_close_early', 1), 5, 10, t('The number of hours before the event which signups will no longer be allowed. Use negative numbers to close signups after the event start (example: -12).'));
 
   $output .= '<h2>' . t('Default signup information') . '</h2><br>' . t('New signup nodes will start with these settings');
   $output .= _signup_admin_form($node);
@@ -792,13 +792,13 @@ function _signup_admin_form($node) {
   //compose the form fields
   $form = '';
   $form .= form_textfield(t('Send signups to'), 'signup_forwarding_email', $node->signup_forwarding_email, 40, 64,
-    $description = t('Email address where notification of new signups will be sent. Leave blank for no notifications'),
+    $description = t('Email address where notification of new signups will be sent. Leave blank for no notifications.'),
     $attributes = NULL, $required = FALSE);
   $form .= form_checkbox(t('Send confirmation'), 'signup_send_confirmation', $value = 1, $node->signup_send_confirmation,
     $description = NULL, $attributes = NULL, $required = FALSE);
   $form .= form_textarea(t('Confirmation email'), 'signup_confirmation_email', $node->signup_confirmation_email, 40, 6,
     $description = t('Email sent to user upon signup. Supported string substitutions: %event, %time, %username, %useremail,
-    %info (user signup information)'), $attributes = NULL, $required = FALSE);
+    %info (user signup information).'), $attributes = NULL, $required = FALSE);
   $form .= '<div class="container-inline">' . form_checkbox(t('Send reminder'), 'signup_send_reminder', $value = 1,
     $node->signup_send_reminder, $description = NULL, $attributes = NULL, $required = FALSE);
   $options = array ();
@@ -809,8 +809,7 @@ function _signup_admin_form($node) {
     $extra = 0, $multiple = FALSE, $required = FALSE);
   $form .= "day(s) before event</div>";
   $form .= form_textarea(t('Reminder email'), 'signup_reminder_email', $node->signup_reminder_email, 40, 6,
-    $description = t('Email sent to user as an event reminder. Supported string substitutions: %event, %time, %username,
-    %useremail'), $attributes = NULL, $required = FALSE);
+    $description = t('Email sent to user as an event reminder. Supported string substitutions: %event, %time, %username, %useremail.'), $attributes = NULL, $required = FALSE);
   $form .= form_hidden('signup', 1, $edit = 'edit');
 
   return form_group(t('Signup information'), $form, $description = NULL, $attributes = NULL);
