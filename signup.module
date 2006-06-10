@@ -224,7 +224,7 @@ function signup_form_alter($form_id, &$form) {
       '#type' => 'checkbox',
       '#title' => t('Allow signups'),
       '#default_value' => variable_get('signup_form_' . $type, FALSE) == 1,
-      '#description' => t('If selected, users will be allowed to signup for this node type')
+      '#description' => t('If selected, users will be allowed to signup for this node type.')
     );
   // Inject the appropriate signup data into the node form if the node
   // type is signup enabled. 
@@ -553,7 +553,7 @@ function signup_settings_page() {
 
   //print the settings page
   $form['signup_user_view'] = array('#type' => 'checkbox', '#title' => t('Users can view signups'), '#default_value' => variable_get('signup_user_view', 0), '#description' => t('Selecting this option allows users with signup permissions to see who has already signed up.'));
-  $form['signup_close_early'] = array('#type' => 'textfield', '#title' => t('Close x hours before'), '#default_value' => variable_get('signup_close_early', 1), '#size' => 5, '#maxlength' => 10, '#description' => t('The number of hours before the event which signups will no longer be allowed. Use negative numbers to close signups after the event start (example: -12)'));
+  $form['signup_close_early'] = array('#type' => 'textfield', '#title' => t('Close x hours before'), '#default_value' => variable_get('signup_close_early', 1), '#size' => 5, '#maxlength' => 10, '#description' => t('The number of hours before the event which signups will no longer be allowed. Use negative numbers to close signups after the event start (example: -12).'));
   $form['title'] = array('#type' => 'markup', '#value' => '<h2>' . t('Default signup information') . '</h2><br>' . t('New signup nodes will start with these settings'));
   $form['group'] = array('#type' => 'fieldset', '#title' => t('Sign up settings'));
   $form['group']['_signup_admin_form'] = _signup_admin_form($node);
@@ -818,9 +818,9 @@ function _signup_admin_form($node) {
   }
 
   //compose the form fields
-  $form['signup_forwarding_email'] = array('#type' => 'textfield', '#title' => t('Send signups to'), '#default_value' => $node->signup_forwarding_email, '#size' => 40, '#maxlength' => 64, '#description' => t('Email address where notification of new signups will be sent. Leave blank for no notifications'));
+  $form['signup_forwarding_email'] = array('#type' => 'textfield', '#title' => t('Send signups to'), '#default_value' => $node->signup_forwarding_email, '#size' => 40, '#maxlength' => 64, '#description' => t('Email address where notification of new signups will be sent. Leave blank for no notifications.'));
   $form['signup_send_confirmation'] = array('#type' => 'checkbox', '#title' => t('Send confirmation'), '#default_value' => $node->signup_send_confirmation);
-  $form['signup_confirmation_email'] = array('#type' => 'textarea', '#title' => t('Confirmation email'), '#default_value' => $node->signup_confirmation_email, '#cols' => 40, '#rows' => 6, '#description' => t('Email sent to user upon signup. Supported string substitutions: %event, %time, %username, %useremail, %info (user signup information)'));
+  $form['signup_confirmation_email'] = array('#type' => 'textarea', '#title' => t('Confirmation email'), '#default_value' => $node->signup_confirmation_email, '#cols' => 40, '#rows' => 6, '#description' => t('Email sent to user upon signup. Supported string substitutions: %event, %time, %username, %useremail, %info (user signup information).'));
   $form['container_inline'] = array('#type' => 'markup', '#value' => '<div class="container-inline">');
   $form['signup_send_reminder'] = array('#type' => 'checkbox', '#title' => t('Send reminder'), '#default_value' => $node->signup_send_reminder);
   $options = array ();
