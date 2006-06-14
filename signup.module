@@ -126,7 +126,7 @@ function signup_menu($may_cache) {
   if ($may_cache) {
 
     //admin/settings/signup menu item
-    
+
     $items[] = array('path' => 'admin/settings/signup', 'access' => $access,
       'callback' => 'signup_settings_page',
       'title' => user_access('administer site configuration') ?
