@@ -548,7 +548,7 @@ function signup_settings_page() {
             $edit['signup_reminder_email']);
 
       } else {
-        db_query("INSERT INTO {signup} VALUES(0, '%s', %d, '%s', %d, %d, '%s', 0, 0, '', 0)", $edit['signup_forwarding_email'],
+        db_query("INSERT INTO {signup} VALUES(0, '%s', %d, '%s', %d, %d, '%s', 0, 0, 0)", $edit['signup_forwarding_email'],
         $edit['signup_send_confirmation'], $edit['signup_confirmation_email'], $edit['signup_send_reminder'],
         $edit['signup_reminder_days_before'], $edit['signup_reminder_email']);
       }
