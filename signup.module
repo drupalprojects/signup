@@ -582,7 +582,7 @@ function signup_settings_page_submit($form_id, $form_values) {
     $form_values['signup_reminder_email']);
 
   } else {
-    db_query("INSERT INTO {signup} VALUES(0, '%s', %d, '%s', %d, %d, '%s', 0, 0, '', 0)", $form_values['signup_forwarding_email'],
+    db_query("INSERT INTO {signup} VALUES(0, '%s', %d, '%s', %d, %d, '%s', 0, 0, 0)", $form_values['signup_forwarding_email'],
     $form_values['signup_send_confirmation'], $form_values['signup_confirmation_email'], $form_values['signup_send_reminder'],
     $form_values['signup_reminder_days_before'], $form_values['signup_reminder_email']);
   }
