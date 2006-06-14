@@ -175,9 +175,10 @@ function signup_menu($may_cache) {
     //if it's a signup event, then put in a signup tab
   	if (arg(0) == 'node' && is_numeric(arg(1)) && db_num_rows(db_query("SELECT nid FROM {signup} WHERE nid = %d", arg(1)))) {
   	  $node = node_load(array('nid'=>arg(1)));
+  	  $access_own = user_access('admin own signups') && ($user->uid == $node->uid);
       $items[] = array('path' => 'node/' . arg(1) . '/signups', 'title' => t('signups'),
           'callback' => 'signup_user_signups_form', 'callback arguments' => array($node),
-          'access' => $access, 'type' => MENU_LOCAL_TASK, 'weight' => 20);
+          'access' => $access || $access_own, 'type' => MENU_LOCAL_TASK, 'weight' => 20);
 
   	}
   }
@@ -190,7 +191,7 @@ function signup_menu($may_cache) {
  * @ingroup signup_core
  */
 function signup_perm() {
-  return array('allow signups', 'admin signups');
+  return array('allow signups', 'admin signups', 'admin own signups');
 }
 
 /**
