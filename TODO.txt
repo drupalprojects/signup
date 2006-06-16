@@ -6,8 +6,6 @@ features, please email signup@dwwright.net.
 
 * add support limiting signups to certain roles, per node
 
-* veiwing/manual opening of closed signups
-
 * make datetime display dependent on medium date format display
   setting in admin/settings
 
@@ -25,11 +23,6 @@ features, please email signup@dwwright.net.
   confirmation/reminder emails)
 
 * support for admin own signups
-
-* user page support where users can see a list of the events they've
-  signed up for
-
-* ability for admins to cancel signups from the signup tab
 
 * feature to allow event admins to email signup group
 

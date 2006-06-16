@@ -34,10 +34,8 @@ package and read the online documentation.
    
    allow signups: allows the selected role to sign up for nodes
 
-   NOTE: Enabling 'allow signups' for the anonymous user will only place a 
-         login/register link in any signup node that an anonymous user may
-         visit.  Signup module does not currently support signups for 
-         anonymous users.
+   NOTE: Enabling 'allow signups' for the anonymous user will allow anonymous
+         users to sign up by entering an email address.
 
    admin signups: allows the selected role to view who has signed up
                   for nodes
