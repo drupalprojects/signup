@@ -1,7 +1,7 @@
 <?php
 // $Id$
 
-include(drupal_get_path('module', 'signup') . '/signup.theme');
+include_once(drupal_get_path('module', 'signup') . '/signup.theme');
 
 /**
  * @defgroup signup_core Core drupal hooks
