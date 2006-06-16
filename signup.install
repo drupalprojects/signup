@@ -1,6 +1,6 @@
 <?php
 // $Id$
- 
+
 /**
  * Implementation of hook_install()
  *
@@ -35,9 +35,11 @@ function signup_install() {
       $q2 = db_query("CREATE TABLE IF NOT EXISTS {signup_log} (
                 uid int(10) unsigned NOT NULL default '0',
                 nid int(10) unsigned NOT NULL default '0',
+                anon_mail varchar(255) NOT NULL default '',
                 signup_time int(10) unsigned NOT NULL default '0',
                 form_data longtext NOT NULL,
-                UNIQUE KEY uid_nid (uid,nid)
+                KEY uid (uid),
+                KEY nid (nid)
             ) TYPE=MyISAM /*!40100 DEFAULT CHARACTER SET utf8 */;");
 
       $q3 = db_query("INSERT INTO {signup} (nid, forwarding_email,
@@ -70,19 +72,23 @@ function signup_install() {
       $q2 = db_query("CREATE TABLE {signup_log} (
                 uid integer NOT NULL default '0',
                 nid integer NOT NULL default '0',
+                anon_mail text NOT NULL default '',
                 signup_time integer NOT NULL default '0',
                 form_data text NOT NULL default ''
             );");
 
-      $q3 = db_query('CREATE UNIQUE INDEX {signup_log}_uid_nid_idx ON {signup_log}(uid,nid);');
+      $q3 = db_query("CREATE INDEX {signup_log}_uid_idx ON {signup_log}(uid);");
 
-      $q4 = db_query( "INSERT INTO {signup} (nid, forwarding_email,
+      $q4 = db_query("CREATE INDEX {signup_log}_nid_idx ON {signup_log}(nid);");
+
+      $q5 = db_query( "INSERT INTO {signup} (nid, forwarding_email,
                 send_confirmation, confirmation_email, send_reminder,
                 reminder_days_before, reminder_email, close_in_advance_time,
                 close_signup_limit, completed) VALUES (0, '', 1,
-                'Enter your default confirmation email message here', 1, 0, 
+                'Enter your default confirmation email message here', 1, 0,
                 'Enter your default reminder email message here', 0, 0, 0);");
-      if ($q1 && $q2 && $q3 && $q4) {
+
+      if ($q1 && $q2 && $q3 && $q4 && $q5) {
         $created = TRUE;
       }
       break;
@@ -106,5 +112,27 @@ function signup_update_1() {
 function signup_update_2() {
   $ret = array();
   $ret[] = update_sql("ALTER TABLE {signup} DROP permissions");
+  return $ret;
+}
+
+function signup_update_3() {
+  $ret = array();
+  switch ($GLOBALS['db_type']) {
+    case 'mysql':
+    case 'mysqli':
+      $ret[] = update_sql("ALTER TABLE {signup_log} ADD anon_mail VARCHAR( 255 ) NOT NULL default '' AFTER nid;");
+      $ret[] = update_sql("ALTER TABLE {signup_log} DROP INDEX uid_nid;");
+      $ret[] = update_sql("ALTER TABLE {signup_log} ADD INDEX (uid);");
+      $ret[] = update_sql("ALTER TABLE {signup_log} ADD INDEX (nid);");
+    break;
+
+    case 'pgsql':
+      db_add_column($ret, 'signup_log', 'anon_mail', 'text', array('not null' => TRUE, 'default' => "''"));
+      $ret[] = update_sql("DROP INDEX {signup_log}_uid_nid_idx;");
+      $ret[] = update_sql("CREATE INDEX {signup_log}_uid_idx ON {signup_log}(uid);");
+      $ret[] = update_sql("CREATE INDEX {signup_log}_nid_idx ON {signup_log}(nid);");
+    break;
+
+  }
   return $ret;
 }

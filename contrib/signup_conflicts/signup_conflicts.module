@@ -138,7 +138,7 @@ function signup_conflicts_user($op, &$edit, &$user, $category = NULL) {
 function signup_conflicts_detail() {
 
   //pull all users who have signed up for a node
-  $result = db_query('SELECT DISTINCT u.uid, u.name FROM {users} u INNER JOIN {signup_log} s on u.uid = s.uid ORDER BY u.name');
+  $result = db_query('SELECT DISTINCT u.uid, u.name FROM {users} u INNER JOIN {signup_log} s on u.uid = s.uid WHERE u.uid != 0 ORDER BY u.name');
 
   //for each user, build a conflict detail section, and add their number of conflicts to the total
   while ($user = db_fetch_object($result)) {
@@ -167,7 +167,7 @@ function signup_conflicts_detail() {
 function signup_conflicts_summary() {
 
   //pull all users who have signed up for a node
-  $result = db_query('SELECT DISTINCT u.uid, u.name FROM {users} u INNER JOIN {signup_log} s on u.uid = s.uid ORDER BY u.name');
+  $result = db_query('SELECT DISTINCT u.uid, u.name FROM {users} u INNER JOIN {signup_log} s on u.uid = s.uid WHERE u.uid != 0 ORDER BY u.name');
 
   //for each user, build summary table row, and add their number of conflicts to the total
   while ($user = db_fetch_object($result)) {
@@ -199,7 +199,7 @@ function signup_conflicts_summary() {
 function _signup_conflicts_get_conflicts($uid) {
 
   $conflicts = array();
-  if (module_exist('event')) {
+  if (module_exist('event') && $uid != 0) {
 
     //pull all signup nodes for the specified user
     $signups = db_query('SELECT n.nid, n.title, e.event_start AS start, e.event_end AS end FROM {signup_log} s INNER JOIN {node} n ON s.nid = n.nid INNER JOIN {event} e ON n.nid = e.nid WHERE s.uid = %d', $uid);
