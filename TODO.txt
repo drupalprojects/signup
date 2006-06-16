@@ -22,8 +22,6 @@ features, please email signup@dwwright.net.
   relies on the email addy of a registered user for
   confirmation/reminder emails)
 
-* support for admin own signups
-
 * feature to allow event admins to email signup group
 
 * fix reminder message notification so it doesn't display on signups
