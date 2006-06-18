@@ -867,7 +867,8 @@ function signup_user_signups_form($node) {
 }
 
 /**
- * Enter description here...
+ * Validates an anonymous signup email.
+ *
  * @param $nid The node the user is signing up for.
  * @param $anon_mail The anonymous email address to validate.
  * @param $name Optional. The form element being validated.
