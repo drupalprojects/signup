@@ -299,22 +299,11 @@ function signup_form_submit($form_id, $form_values) {
  */
 function signup_form_validate($form_id, $form_values) {
 
-    //if it's an anon signup...
-    $anon_mail = $form_values['signup_anon_mail'] ? trim($form_values['signup_anon_mail']) : '';
-    if ($anon_mail) {
-      //validate the email address
-      if (!valid_email_address($anon_mail)) {
-        form_set_error('signup_anon_mail', t('Invalid email address entered for signup.'));
-      }
-      //throw an error if the email is already taken by a registered user
-      if (db_num_rows(db_query("SELECT mail FROM {users} WHERE mail = '%s'", $anon_mail))) {
-        form_set_error('signup_anon_mail', t('The email address entered belongs to a registered user.'));
-      }
-      //throw an error if the email is already taken by an anon user
-      if (db_num_rows(db_query("SELECT anon_mail FROM {signup_log} WHERE anon_mail = '%s' AND nid = %d", $anon_mail, $form_values['nid']))) {
-        form_set_error('signup_anon_mail', t('The email address entered has already been used to sign up for this event.'));
-      }
-    }
+  //if it's an anon signup...
+  $anon_mail = $form_values['signup_anon_mail'] ? trim($form_values['signup_anon_mail']) : '';
+  if ($anon_mail) {
+    signup_validate_anon_email($form_values['nid'], $anon_mail, 'signup_anon_mail');
+  }
 }
 
 /**
@@ -712,10 +701,14 @@ function signup_list_user_signups($uid) {
  *
  * $signup_form['nid'] : nid of the node to which the user will be signed up
  * $signup_form['uid'] : uid of the user to sign up
+ * $signup_form['signup_anon_mail'] : Optional. An email address of an anonymous user to sign up. Only include this if the user is not already registered with the site.  $signup_form['uid'] will automatically be set to 0 if this element is passed in. NOTE: It's highly recommended to call the signup_validate_anon_email function in the external module's validation cycle or perform that function's validation logic prior to passing in this element!
  * $signup_form['signup_form_data'] : an array of key/value pairs -- key is the data category, value is the user input
  *
  */
 function signup_sign_up_user($signup_form) {
+
+  //make sure uid = 0 if this is an anon signup.
+  $signup_form['uid'] = $signup_form['signup_anon_mail'] ? 0 : $signup_form['uid'];
 
   $user = user_load(array('uid' => $signup_form['uid']));
   $node = node_load($signup_form['nid']);
@@ -871,6 +864,41 @@ function signup_user_signups_form($node) {
   }
   $output .= theme('table', $header, $rows);
   print theme('page', $output);
+}
+
+/**
+ * Enter description here...
+ * @param $nid The node the user is signing up for.
+ * @param $anon_mail The anonymous email address to validate.
+ * @param $name Optional. The form element being validated.
+ *
+ * @return Boolean.  TRUE if the address validates, FALSE otherwise.
+ */
+function signup_validate_anon_email($nid, $anon_mail, $name = FALSE) {
+
+  //validate the email address
+  if (!valid_email_address($anon_mail)) {
+    $message = 'Invalid email address entered for signup.';
+
+  //throw an error if the email is already taken by a registered user
+  } elseif (db_num_rows(db_query("SELECT mail FROM {users} WHERE mail = '%s'", $anon_mail))) {
+    $message = 'The email address entered belongs to a registered user.';
+
+  //throw an error if the email is already taken by an anon user
+  } elseif (db_num_rows(db_query("SELECT anon_mail FROM {signup_log} WHERE anon_mail = '%s' AND nid = %d", $anon_mail, $nid))) {
+    $message = 'The email address entered has already been used to sign up for this event.';
+  }
+
+  if (isset($message)) {
+    if ($name) {
+      form_set_error($name, $message);
+    } else {
+      drupal_set_message($message, 'error');
+    }
+    return FALSE;
+  } else {
+    return TRUE;
+  }
 }
 
 /**
