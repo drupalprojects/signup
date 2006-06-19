@@ -56,10 +56,9 @@ function signup_cron() {
 
     //grab each event, construct the email header and subject, and query the signup log to pull all users who are
     //signed up for this event
-    $site_mail = variable_get('site_mail', 'noadmin@noadmin.com');
+    $from = variable_get('site_mail', 'noadmin@noadmin.com');
+    $header = "From: $from\nReply-to: $from\nX-Mailer: Drupal\nReturn-path: $from\nErrors-to: $from";
     while ($event = db_fetch_object($result)) {
-      $from = $event->forwarding_email ? $event->forwarding_email : $site_mail;
-      $header = "From: $from\nReply-to: $from\nX-Mailer: Drupal\nReturn-path: $from\nErrors-to: $from";
       $subject = t('Event reminder: %event', array('%event' => $event->title));
       $signups = db_query("SELECT u.name, u.mail FROM {signup_log} s_l INNER JOIN {users} u ON u.uid = s_l.uid
         WHERE s_l.nid = %d", $event->nid);
@@ -649,8 +648,7 @@ function signup_sign_up_user($edit = NULL) {
     $signup_data = t('SIGNUP INFORMATION') . "\n\r\n\r" . implode("\n\r", $signup_data_array);
     $trans = array("%event" => $node->title, "%time" => $starttime, "%username" => $user->name,
     "%useremail" => $user->mail, "%info" => $signup_data);
-    $site_mail = variable_get('site_mail', 'noadmin@noadmin.com');
-    $from = $event->forwarding_email ? $event->forwarding_email : $site_mail;
+    $from = variable_get('site_mail', 'noadmin@noadmin.com');
 
     //if a confirmation is to be sent, compose the mail message, translate the string substitutions, and send it
     if ($event->send_confirmation && $user->mail) {
@@ -662,7 +660,7 @@ function signup_sign_up_user($edit = NULL) {
 
     //if a forwarding email is to be sent, compose the mail message, translate the string substitutions, and send it
     if ($event->forwarding_email) {
-      $header = "From: " . t('New Event Signup') . "\nReply-to: $site_mail\nX-Mailer: Drupal\nReturn-path: $site_mail\nErrors-to: $site_mail";
+      $header = "From: " . t('New Event Signup') . "<$from>\nReply-to: $from\nX-Mailer: Drupal\nReturn-path: $from\nErrors-to: $from";
       $subject = t('Signup confirmation for event: %title', array('%title' => $node->title));
       $message = t('The following information was submitted as a signup for %title', array('%title' => $node->title)) .
       "\n\r" . t('Date/Time: %time', array('%time'=>$starttime)) . ":\n\r\n\r\n\r" . t('username:') . $user->name .
