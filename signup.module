@@ -314,7 +314,7 @@ function signup_form_validate($form_id, $form_values) {
  *
  * @ingroup signup_nodeapi
 */
-function signup_nodeapi(&$node, $op, $arg = 0) {
+function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
   global $form_values;
   switch ($op) {
     case 'insert':
@@ -385,12 +385,14 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
       }
 
       break;
-    case 'view':
 
+    case 'view':
       $suppress = module_invoke_all('signup_suppress', $node);
 
-      //if this is a signup node, start checks for what's to be printed
-      if ($node->signup && !isset($node->preview) && !in_array(TRUE, $suppress)) {
+      // If this is a signup node, start checks for what's to be printed.  
+      // Only include any of this if we're trying to view the node as
+      // a page, not during the view from comment validation, etc.
+      if ($node->signup && $page && !in_array(TRUE, $suppress)) {
         global $user;
 
         //the node has been closed for signups, and the user has signup permissions.  let them know it's closed
