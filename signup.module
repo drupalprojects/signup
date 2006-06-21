@@ -462,7 +462,11 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
               }
             }
             $form['submit'] = array('#type' => 'submit', '#value' => t('Cancel Signup'));
-            $output = theme('table', $header, $rows) . drupal_get_form('signup_form_cancel', $form);
+            $output = '';
+            if (!empty($rows)) {
+              $output .= theme('table', $header, $rows);
+            }
+            $output .= drupal_get_form('signup_form_cancel', $form);
           }
         }
 
@@ -754,11 +758,12 @@ function signup_sign_up_user($signup_form) {
     $starttime = $node->event_start ? _event_date(variable_get('signup_date_string', 'D, M jS, g:i A'),
       $node->event_start, $offset) : t('[Untimed]');
     $signup_data_array = array();
-    foreach ($signup_form['signup_form_data'] as $key => $value) {
-      $signup_data_array[] = $key . ': ' . $value;
+    if (isset($signup_form['signup_form_data'])) {
+      foreach ($signup_form['signup_form_data'] as $key => $value) {
+        $signup_data_array[] = $key . ': ' . $value;
+      }
+      $signup_data = t('SIGNUP INFORMATION') . "\n\r\n\r" . implode("\n\r", $signup_data_array);
     }
-    $signup_data = t('SIGNUP INFORMATION') . "\n\r\n\r" . implode("\n\r", $signup_data_array);
-
     //determine if this is an anon signup or not, and get the appropriate email address
     $user_mail = $signup_form['signup_anon_mail'] ? $signup_form['signup_anon_mail'] : $user->mail;
 
