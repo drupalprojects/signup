@@ -371,8 +371,11 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
                 $rows[] = array($key . ':', check_plain($value));
               }
             }
-            $output = theme('table', $header, $rows) . form($hidden . form_submit(t('Cancel Signup')), 'post',
-              url('signup', drupal_get_destination()));
+            $output = '';
+            if (!empty($rows)) {
+              $output .= theme('table', $header, $rows);
+            }
+            $output .= form($hidden . form_submit(t('Cancel Signup')), 'post', url('signup', drupal_get_destination()));
           }
         }
 
@@ -642,10 +645,12 @@ function signup_sign_up_user($edit = NULL) {
     $starttime = $node->event_start ? _event_date(variable_get('signup_date_string', 'D, M jS, g:i A'),
     $node->event_start, $offset) : t('[Untimed]');
     $signup_data_array = array();
-    foreach ($edit['signup_form_data'] as $key => $value) {
-      $signup_data_array[] = $key . ': ' . $value;
+    if (isset($edit['signup_form_data'])) {
+      foreach ($edit['signup_form_data'] as $key => $value) {
+        $signup_data_array[] = $key . ': ' . $value;
+      }
+      $signup_data = t('SIGNUP INFORMATION') . "\n\r\n\r" . implode("\n\r", $signup_data_array);
     }
-    $signup_data = t('SIGNUP INFORMATION') . "\n\r\n\r" . implode("\n\r", $signup_data_array);
     $trans = array("%event" => $node->title, "%time" => $starttime, "%username" => $user->name,
     "%useremail" => $user->mail, "%info" => $signup_data);
     $from = variable_get('site_mail', 'noadmin@noadmin.com');
