@@ -258,7 +258,7 @@ function signup_form_alter($form_id, &$form) {
       $form['signup']['signup_enable'] = array(
         '#type' => 'checkbox',
         '#default_value' => $node->signup,
-        '#title' => t('Enable signups for this %node_type', array('%node_type' => node_get_name($form['type']['#value']))),
+        '#title' => t('Enable signups for this %node_type', array('%node_type' => node_get_types('name', $form['type']['#value']))),
       );
       return $form;
     }
@@ -389,7 +389,7 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
     case 'view':
       $suppress = module_invoke_all('signup_suppress', $node);
 
-      // If this is a signup node, start checks for what's to be printed.  
+      // If this is a signup node, start checks for what's to be printed.
       // Only include any of this if we're trying to view the node as
       // a page, not during the view from comment validation, etc.
       if ($node->signup && $page && !in_array(TRUE, $suppress)) {
