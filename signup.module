@@ -76,7 +76,7 @@ function signup_cron() {
         $event->event_start, $offset), "%username" => $signup->name, "%useremail" => $mail_address);
         $message = strtr($event->reminder_email, $trans);
         user_mail($mail_address, $subject, $message, $header);
-        watchdog('signup', t('Reminder for %event sent to %useremail.', array('%event' => $event->title, '%useremail' => $mail_address)));
+        watchdog('signup', t('Reminder for %event sent to %useremail.', array('%event' => l($event->title, 'node/' . $event->nid), '%useremail' => $mail_address)));
       }
 
       //reminders for this event are all sent, so mark it in the database so they're not sent again
@@ -97,7 +97,7 @@ function signup_cron() {
       	$function = $module .'_signup_close';
       	$function($node);
       }
-      watchdog('signup', t('Signups closed for %event by cron.', array('%event' => $node->title)));
+      watchdog('signup', t('Signups closed for %event by cron.', array('%event' => l($node->title, 'node/'.$node->nid))));
     }
   }
 }
