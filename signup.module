@@ -45,7 +45,7 @@ function signup_block($op = 'list', $delta = 0) {
 function signup_cron() {
 
   //only run this function if the event module is enabled
-  if (module_exist('event')) {
+  if (module_exists('event')) {
 
     //must include this here as event module doesn't include timezone support on all page requests
     include_once(drupal_get_path('module', 'event') .'/event_timezones.inc');
@@ -60,9 +60,8 @@ function signup_cron() {
     //grab each event, construct the email header and subject, and query the signup log to pull all users who are
     //signed up for this event
     $from = variable_get('site_mail', 'noadmin@noadmin.com');
-    $header = "From: $from\nReply-to: $from\nX-Mailer: Drupal\nReturn-path: $from\nErrors-to: $from";
     while ($event = db_fetch_object($result)) {
-      $subject = t('Event reminder: %event', array('%event' => $event->title));
+      $subject = t('Event reminder: !event', array('!event' => $event->title));
       $signups = db_query("SELECT u.name, u.mail, s_l.anon_mail FROM {signup_log} s_l INNER JOIN {users} u ON u.uid = s_l.uid
         WHERE s_l.nid = %d", $event->nid);
 
@@ -75,7 +74,7 @@ function signup_cron() {
         $trans = array("%event" => $event->title, "%time" => _event_date(variable_get('signup_date_string', 'D, M jS, g:i A'),
         $event->event_start, $offset), "%username" => $signup->name, "%useremail" => $mail_address);
         $message = strtr($event->reminder_email, $trans);
-        user_mail($mail_address, $subject, $message, $header);
+        drupal_mail('signup_reminder_mail', $mail_address, $subject, $message, $from);
         watchdog('signup', t('Reminder for %event sent to %useremail.', array('%event' => l($event->title, 'node/' . $event->nid), '%useremail' => $mail_address)));
       }
 
@@ -108,9 +107,6 @@ function signup_cron() {
  */
 function signup_help($section) {
   switch ($section) {
-    case 'admin/modules#description':
-      return t('Allow users to sign up for events.');
-      break;
     case 'admin/help#signup':
       return t('<p>Signup allows users to sign up for nodes of any type.  Includes options for sending a notification email to a selected email address upon a new user signup (good for notifying event coordinators, etc.) and a confirmation email to users who sign up--these options are per node.  When used on event nodes (with event.module installed and regular cron runs), it can also send out reminder emails to all signups X days before the start of the event (per node setting) and auto-close event signups 1 hour before their start (general setting). Settings exist for resticting signups to selected roles and content types.</p><br><p>To use signup, you must enable a node type for signups in administer->settings->content types, and you must also grant the \'allow signups\' permission to any user role for which you wish to allow signups in administer->access control. Each signup node will now have a place for users to sign up, and administrators with the \'admin signups\' privilege will be able to view signups for each signup node and see an overview of signups for all nodes (the overview is located in administer/signup)</p><br><p>Default settings for notification email address, reminder emails and confirmation emails are located in administer->settings->signup. These will be the default values used for a signup node unless otherwise specified (to configure these options per node, visit \'edit\' for that node and make the adjustments in the \'Sign up settings\' section)</p><br><p>Signups can be manually closed for any node at administer->signup.</p><br><p>The user signup form is fully themable--form fields may be added or deleted.  For more details see the instructions in signup.theme, where a sample user form is included</p>');
   }
@@ -131,17 +127,20 @@ function signup_menu($may_cache) {
     //admin/settings/signup menu item
 
     $items[] = array('path' => 'admin/settings/signup', 'access' => $access,
-      'callback' => 'signup_settings_page',
+      'description' => t('Configure relevant settings for signup.'),
+      'callback' => 'drupal_get_form',
+      'callback arguments' => array('signup_settings_page'),
       'title' => user_access('administer site configuration') ?
-                               t('signup') : t('signup settings'));
+                               t('Signup') : t('Signup settings'));
 
-    //admin/signup menu item
-    $items[] = array('path' => 'admin/signup', 'access' => $access,
+    //admin/content/signup menu item
+    $items[] = array('path' => 'admin/content/signup', 'access' => $access,
+      'description' => t('Manage signups including an overview of signups, list of signups, and the ability open/close signups.'),
       'callback' => 'signup_admin_page',
       'title' => user_access('administer site configuration') ?
-                               t('signup') : t('signup overview'));
+                               t('Signup') : t('Signup overview'));
 
-    $items[] = array('path' => 'admin/signup/overview', 'title' => t('overview'),
+    $items[] = array('path' => 'admin/content/signup/overview', 'title' => t('Overview'),
         'access' => $access, 'type' => MENU_DEFAULT_LOCAL_TASK, 'weight' => -10);
 
     //close signup callback
@@ -152,15 +151,15 @@ function signup_menu($may_cache) {
 
     // open/closed tabs
       $items[] = array(
-        'path' => 'admin/signup/open',
-        'title' => t('open'),
+        'path' => 'admin/content/signup/open',
+        'title' => t('Open'),
         'type' => MENU_LOCAL_TASK,
         'access' => user_access('admin signups'),
         'weight' => -8,
       );
       $items[] = array(
-        'path' => 'admin/signup/closed',
-        'title' => t('closed'),
+        'path' => 'admin/content/signup/closed',
+        'title' => t('Closed'),
         'type' => MENU_LOCAL_TASK,
         'access' => user_access('admin signups'),
         'weight' => -6,
@@ -176,7 +175,7 @@ function signup_menu($may_cache) {
   	if (arg(0) == 'node' && is_numeric(arg(1)) && db_num_rows(db_query("SELECT nid FROM {signup} WHERE nid = %d", arg(1)))) {
   	  $node = node_load(array('nid'=>arg(1)));
   	  $access_own = user_access('admin own signups') && ($user->uid == $node->uid);
-      $items[] = array('path' => 'node/' . arg(1) . '/signups', 'title' => t('signups'),
+      $items[] = array('path' => 'node/' . arg(1) . '/signups', 'title' => t('Signups'),
           'callback' => 'signup_user_signups_form', 'callback arguments' => array($node),
           'access' => $access || $access_own, 'type' => MENU_LOCAL_TASK, 'weight' => 20);
 
@@ -219,9 +218,9 @@ function signup_user($op, &$edit, &$user, $category = NULL) {
  * @ingroup signup_core
  */
 function signup_form_alter($form_id, &$form) {
-  if (isset($form['type']) && $form['type']['#value'] .'_node_settings' == $form_id) {
-    $type = $form['type']['#value'];
-    $form['workflow']['signup_form_' . $type] = array(
+  if ($form_id == 'node_type_form') {
+    $type = $form['old_type']['#value'];
+    $form['workflow']['signup_form'] = array(
       '#type' => 'checkbox',
       '#title' => t('Allow signups'),
       '#default_value' => variable_get('signup_form_' . $type, FALSE) == 1,
@@ -258,7 +257,7 @@ function signup_form_alter($form_id, &$form) {
       $form['signup']['signup_enable'] = array(
         '#type' => 'checkbox',
         '#default_value' => $node->signup,
-        '#title' => t('Enable signups for this %node_type', array('%node_type' => node_get_types('name', $form['type']['#value']))),
+        '#title' => t('Enable signups for this !node_type', array('!node_type' => node_get_types('name', $form['type']['#value']))),
       );
       return $form;
     }
@@ -273,7 +272,6 @@ function signup_form_alter($form_id, &$form) {
  * @param $form_values The constructed form values array of the submitted form.
  */
 function signup_form_cancel_submit($form_id, $form_values) {
-
   signup_cancel_signup($form_values['uid'], $form_values['nid'], $form_values['signup_anon_mail']);
 }
 
@@ -402,26 +400,22 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
           }
         } else {
 
-          //build some initial form elements
-          $form['nid'] = array('#type' => 'value', '#value' => $node->nid);
-          $form['uid'] = array('#type' => 'value', '#value' => $user->uid);
-
           //this is an anonymous user. if they have signup permissions, then build the anon portion
           //of the sigup form.  if not, then display the login link
           if ($user->uid == 0) {
-            $login_array = array('%login' => l(t('login'), 'user/login', array(), drupal_get_destination()), '%register' => l(t('register'), 'user/register', array(), drupal_get_destination()));
+            $login_array = array('!login' => l(t('login'), 'user/login', array(), drupal_get_destination()), '!register' => l(t('register'), 'user/register', array(), drupal_get_destination()));
             if (user_access('allow signups')) {
               $needs_signup_form = TRUE;
               $anon_signup_form['signup_anon_mail'] = array('#type' => 'textfield',
                 '#title' => t('Email'),
-                '#description' => t('An e-mail address is required for users who are not registered at this site. If you are a registered user at this site, please %login to sign up for this event.', $login_array),
+                '#description' => t('An e-mail address is required for users who are not registered at this site. If you are a registered user at this site, please !login to sign up for this event.', $login_array),
                 '#size' => 40,
                 '#maxlength' => 255,
                 '#required' => TRUE,
               );
             } else {
               $needs_signup_form = FALSE;
-              $output .= '<div class="signup_anonymous_login">'. t('Please %login or %register to sign up for this event.', $login_array) .'</div>';
+              $output .= '<div class="signup_anonymous_login">'. t('Please !login or !register to sign up for this event.', $login_array) .'</div>';
                 //we break here to skip over the printout options below for the signup node,
                 //as they are not needed if this case is true.
                 break;
@@ -438,18 +432,7 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
             //user isn't signed up, so check to make sure they have signup
             //permissions.  if this is the case, then print the themed signup form
             if (user_access('allow signups')) {
-              $form['collapse'] = array('#type' => 'fieldset', '#title' => t('Sign up for %title', array('%title' => check_plain($node->title))), '#collapsible' => TRUE, '#collapsed' => TRUE);
-
-              //build the themed signup form.  if the anon signup form is present, merge it in at the end
-              //of the form.
-              $signup_themed_form = theme('signup_user_form');
-              if (isset($anon_signup_form)) {
-                $signup_themed_form = array_merge($signup_themed_form, $anon_signup_form);
-              }
-              $form['collapse']['signup_user_form'] = $signup_themed_form;
-
-              $form['collapse']['submit'] = array('#type' => 'submit', '#value' => t('Sign up'));
-              $output = drupal_get_form('signup_form', $form);
+              $output = drupal_get_form('signup_form', $node, $anon_signup_form);
             }
 
           //the user is already signed up, so print a table of their signup data, and give them the option to cancel
@@ -463,12 +446,11 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
                 $rows[] = array($key . ':', check_plain($value));
               }
             }
-            $form['submit'] = array('#type' => 'submit', '#value' => t('Cancel Signup'));
             $output = '';
             if (!empty($rows)) {
               $output .= theme('table', $header, $rows);
             }
-            $output .= drupal_get_form('signup_form_cancel', $form);
+            $output .= drupal_get_form('signup_form_cancel', $node);
           }
         }
 
@@ -478,7 +460,7 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
           $registered_signups = db_query("SELECT u.uid, u.name, s.signup_time, s.form_data FROM {signup_log} s INNER JOIN {users} u ON
     u.uid = s.uid WHERE s.nid =%d AND u.uid != 0", $node->nid);
           $anon_signups = db_num_rows(db_query("SELECT anon_mail FROM {signup_log} WHERE nid =%d AND uid = 0", $node->nid));
-          $header = array(array('data' => t('%users signed up', array('%users' => format_plural((db_num_rows($registered_signups) + $anon_signups), '1 individual', '%count individuals')))));
+          $header = array(array('data' => t('!users signed up', array('!users' => format_plural((db_num_rows($registered_signups) + $anon_signups), '1 individual', '@count individuals')))));
           $rows = array();
 
           //loop through the users
@@ -488,13 +470,16 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
             $rows[] = array(l(check_plain($signed_up_user->name), "user/$signed_up_user->uid"));
           }
           if ($anon_signups) {
-            $rows[] = array(t('%count anonymous', array('%count' => $anon_signups)));
+            $rows[] = array(t('!count anonymous', array('!count' => $anon_signups)));
           }
           $output .= theme('table', $header, $rows);
         }
         // Save output into a node property for retrieval from the theme layer.
         $node->signup_view = $output;
-        $node->body .= $output;
+        $node->content['signup'] = array(
+          '#value' => $output,
+          '#weight' => 10,
+        );
       }
       break;
   }
@@ -504,24 +489,66 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
  * @defgroup signup_callback Functions which are the menu callbacks for this module
  */
 
+ /**
+  * Builder function for the signup form
+  * @ingroup signup_callback
+  */
+function signup_form($node, $anon_signup_form = NULL) {
+  global $user;
+
+  //build some initial form elements
+  $form['nid'] = array('#type' => 'value', '#value' => $node->nid);
+  $form['uid'] = array('#type' => 'value', '#value' => $user->uid);
+
+  $form['collapse'] = array('#type' => 'fieldset', '#title' => t('Sign up for @title', array('@title' => $node->title)), '#collapsible' => TRUE, '#collapsed' => TRUE);
+
+  //build the themed signup form.  if the anon signup form is present, merge it in at the end
+  //of the form.
+  $signup_themed_form = theme('signup_user_form');
+  if (isset($anon_signup_form)) {
+    $signup_themed_form = array_merge($signup_themed_form, $anon_signup_form);
+  }
+  $form['collapse']['signup_user_form'] = $signup_themed_form;
+
+  $form['collapse']['submit'] = array('#type' => 'submit', '#value' => t('Sign up'));
+
+  return $form;
+}
+
 /**
- * Prints the admin signup overview page located at admin/signup
+ * Builder function for the cancel signup form
+ * @ingroup signup_callback
+ */
+function signup_form_cancel($node) {
+  global $user;
+
+  //build some initial form elements
+  $form['nid'] = array('#type' => 'value', '#value' => $node->nid);
+  $form['uid'] = array('#type' => 'value', '#value' => $user->uid);
+
+  $form['submit'] = array('#type' => 'submit', '#value' => t('Cancel Signup'));
+
+  return $form;
+}
+
+/**
+ * Prints the admin signup overview page located at admin/content/signup
  * @ingroup signup_callback
  */
 function signup_admin_page() {
   $output = '';
-  drupal_set_title(t('signups'));
+  drupal_set_title(t('Signups'));
 
-  // Add optional SQL to the query if the event module is enabled. 
-  $_EVENT = module_exist('event');
+  // Add optional SQL to the query if the event module is enabled.
+  $_EVENT = module_exists('event');
   $event_select = $_EVENT ? ', e.event_start, e.timezone' : '';
   $event_join = $_EVENT ? ' LEFT JOIN {event} e ON e.nid = n.nid' : '';
 
   // Limit query for open/closed tabs.
-  if (arg(2) == 'open') {
+  if (arg(3) == 'open') {
     $where = ' WHERE s.completed = 0';
   }
-  elseif (arg(2) == 'closed') {
+  elseif (arg(3) == 'closed') {
     $where = ' WHERE s.completed = 1';
   }
   else {
@@ -603,7 +630,7 @@ function signup_cancel_signup($uid, $nid, $anon_mail = NULL) {
     $function = $module .'_signup_cancel';
     $function($node);
   }
-  drupal_set_message(t('Signup to %title cancelled.', array('%title' => l($node->title, "node/$node->nid"))));
+  drupal_set_message(t('Signup to !title cancelled.', array('!title' => l($node->title, "node/$node->nid"))));
 }
 
 /**
@@ -618,17 +645,17 @@ function signup_close_signup($nid, $cron = 'no') {
       $function = $module .'_signup_close';
       $function($node);
     }
-    watchdog('signup', t('Signups closed for %link.', array('%link'=>l($node->title, 'node/'.$nid))));
+    watchdog('signup', t('Signups closed for %link.', array('%link' => l($node->title, 'node/'.$nid))));
   }
 }
-  
+
 /**
  * Callback function for opening signups via a link in the admin tables
  * @ingroup signup_callback
  */
 function signup_close_signup_admin($nid, $tab = NULL) {
   signup_close_signup($nid, $cron='no');
-  drupal_goto("admin/signup/$tab");
+  drupal_goto("admin/content/signup/$tab");
 }
 
 /**
@@ -643,7 +670,7 @@ function signup_open_signup($nid, $cron = 'no') {
       $function = $module .'_signup_open';
       $function($node);
     }
-    watchdog('signup', t('Signups reopened for %link.', array('%link'=>l($node->title, 'node/'.$nid))));
+    watchdog('signup', t('Signups reopened for %link.', array('%link' => l($node->title, 'node/'.$nid))));
   }
 }
 
@@ -653,7 +680,7 @@ function signup_open_signup($nid, $cron = 'no') {
  */
 function signup_open_signup_admin($nid, $tab = NULL) {
   signup_open_signup($nid, $cron='no');
-  drupal_goto("admin/signup/$tab");
+  drupal_goto("admin/content/signup/$tab");
 }
 
 /**
@@ -668,9 +695,8 @@ function signup_settings_page() {
   $form['title'] = array('#type' => 'markup', '#value' => '<h2>' . t('Default signup information') . '</h2><br>' . t('New signup nodes will start with these settings'));
   $form['group'] = array('#type' => 'fieldset', '#title' => t('Sign up settings'));
   $form['group']['_signup_admin_form'] = _signup_admin_form($node);
-  $form['submit'] = array('#type' => 'submit', '#value' => t('Submit'));
-  return drupal_get_form('signup_settings_page', $form);
 
+  return system_settings_form($form);
 }
 
 /**
@@ -711,7 +737,7 @@ function signup_list_user_signups($uid) {
   //we don't want to return anything for anon users...
   if ($uid != 0) {
     //tests for optional support of event.module
-    $_EVENT = module_exist('event');
+    $_EVENT = module_exists('event');
     $event_join = $_EVENT ? ' LEFT JOIN {event} e ON e.nid = n.nid' : '';
     $event_where = $_EVENT ? ' AND (e.event_start >= '. time() . ' OR e.event_start IS NULL)' : '';
     $order_by = $_EVENT ? 'e.event_start' : 'n.title';
@@ -769,15 +795,15 @@ function signup_sign_up_user($signup_form) {
     $event = db_fetch_object(db_query("SELECT * FROM {signup} WHERE nid = %d", $signup_form['nid']));
     $confirmation_email = $event->send_confirmation ? '  ' . t('You will receive a confirmation email shortly
         which contains further event information.') : '';
-    $reminder_email = $event->send_reminder ? '  ' . t('You will receive a reminder email %number %days before the event.',
-    array('%number' => $event->reminder_days_before, '%days' => format_plural($event->reminder_days_before, t('day'), t('days')))) : '';
+    $reminder_email = $event->send_reminder ? '  ' . t('You will receive a reminder email !number !days before the event.',
+    array('!number' => $event->reminder_days_before, '!days' => format_plural($event->reminder_days_before, t('day'), t('days')))) : '';
 
     //insert the user into the signup_log
     db_query("INSERT INTO {signup_log} (uid, nid, anon_mail, signup_time, form_data) VALUES
         (%d, %d, '%s', %d, '%s')", $signup_form['uid'], $signup_form['nid'], $signup_form['signup_anon_mail'], $curtime, $signup_form_data);
 
     //must include this here as event module doesn't include timezone support on all page requests
-    if (module_exist('event')) {
+    if (module_exists('event')) {
       include_once(drupal_get_path('module', 'event') .'/event_timezones.inc');
     }
 
@@ -801,22 +827,21 @@ function signup_sign_up_user($signup_form) {
 
     //if a confirmation is to be sent, compose the mail message, translate the string substitutions, and send it
     if ($event->send_confirmation && $user_mail) {
-      $header = "From: $from\nReply-to: $from\nX-Mailer: Drupal\nReturn-path: $from\nErrors-to: $from";
-      $subject = t('Signup confirmation for event: %event', array('%event' => $node->title));
+      $subject = t('Signup confirmation for event: !event', array('!event' => $node->title));
       $message = strtr($event->confirmation_email, $trans);
-      user_mail($user_mail, $subject, $message, $header);
+      drupal_mail('signup_confirmation_mail', $user_mail, $subject, $message, $from);
     }
 
     //if a forwarding email is to be sent, compose the mail message, translate the string substitutions, and send it
     if ($event->forwarding_email) {
-      $header = "From: " . t('New Event Signup') . "<$from>\nReply-to: $from\nX-Mailer: Drupal\nReturn-path: $from\nErrors-to: $from";
-      $subject = t('Signup confirmation for event: %title', array('%title' => $node->title));
-      $message = t('The following information was submitted as a signup for %title', array('%title' => $node->title)) .
-      "\n\r" . t('Date/Time: %time', array('%time'=>$starttime)) . ":\n\r\n\r\n\r" . t('username:') . $user->name .
+      $header = array('From' => t('New Event Signup') . "<$from>");
+      $subject = t('Signup confirmation for event: !title', array('!title' => $node->title));
+      $message = t('The following information was submitted as a signup for !title', array('!title' => $node->title)) .
+      "\n\r" . t('Date/Time: !time', array('!time'=>$starttime)) . ":\n\r\n\r\n\r" . t('username:') . $user->name .
       "\n\r" . t('email:') . $user_mail . "\n\r\n\r" . $signup_data;
-      user_mail($event->forwarding_email, $subject, $message, $header);
+      drupal_mail('signup_forwarding_mail', $event->forwarding_email, $subject, $message, $from, $header);
     }
-    drupal_set_message(t('Signup to %title confirmed.', array('%title' => l($node->title, "node/$node->nid"))) . $confirmation_email . $reminder_email);
+    drupal_set_message(t('Signup to !title confirmed.', array('!title' => l($node->title, "node/$node->nid"))) . $confirmation_email . $reminder_email);
   } else {
     drupal_access_denied();
   }
@@ -830,7 +855,7 @@ function signup_user_schedule() {
 
   $output = '';
   $user = user_load(array('uid' => arg(1)));
-  drupal_set_title(t('Signups for %user', array('%user' => $user->name)));
+  drupal_set_title(t('Signups for @user', array('@user' => $user->name)));
 
   $titles = signup_list_user_signups($user->uid);
 
@@ -851,16 +876,12 @@ function signup_user_signups_form($node) {
   drupal_set_title(check_plain($node->title));
 
   // Display if signups are open/closed, and print a button to toggle
-  $form = array();
-  $form['nid'] = array('#type' => 'value', '#value' => $node->nid);
   $ctrl_row = array();
   if ($node->signup_completed) {
-    $form['submit'] = array('#type' => 'submit', '#value' => t('Open Signups'));
-    $ctrl_row[] = array(t('Signups <b>closed</b> for this event'), drupal_get_form('signup_open_signups_form', $form));
+    $ctrl_row[] = array(t('Signups <b>closed</b> for this event'), drupal_get_form('signup_open_signups_form', $node->nid));
   }
   else {
-    $form['submit'] = array('#type' => 'submit', '#value' => t('Close Signups'));
-    $ctrl_row[] = array(t('Signups <b>open</b> for this event'), drupal_get_form('signup_close_signups_form', $form));
+    $ctrl_row[] = array(t('Signups <b>open</b> for this event'), drupal_get_form('signup_close_signups_form', $node->nid));
   }
   $output .= '<div class="signup-admin-row">';
   $output .= theme('table', NULL, $ctrl_row);
@@ -869,7 +890,7 @@ function signup_user_signups_form($node) {
   //pull all user signed up for this event, and start table creation
   $result = db_query("SELECT u.uid, u.name, s.anon_mail, s.signup_time, s.form_data FROM {signup_log} s INNER JOIN {users} u ON u.uid = s.uid WHERE s.nid =%d", $node->nid);
 
-  $header = array(array('data' => t('%users signed up', array('%users' => format_plural(db_num_rows($result), '1 individual', '%count individuals'))), 'colspan' => 3));
+  $header = array(array('data' => t('!users signed up', array('!users' => format_plural(db_num_rows($result), '1 individual', '@count individuals'))), 'colspan' => 3));
 
   $rows = array();
 
@@ -886,13 +907,6 @@ function signup_user_signups_form($node) {
       $table_data[] = $key . ': ' . check_plain($value);
     }
 
-    // build the form for this row
-    $form = array();
-    $form['nid'] = array('#type' => 'value', '#value' => $node->nid);
-    $form['uid'] = array('#type' => 'value', '#value' => $signed_up_user->uid);
-    $form['signup_anon_mail'] = array('#type' => 'value', '#value' => $signed_up_user->anon_mail);
-    $form['submit'] = array('#type' => 'submit', '#value' => t('Cancel Signup'));
-
     //the username and the unique form identifier are different for anon signups and registered user signups
     //for registered users, provide a link to the user profile, and use the uid as the identifier.  for anon,
     //use the site 'anonymous' setting, and the user's email address as the identifier.
@@ -907,18 +921,59 @@ function signup_user_signups_form($node) {
     //build the row for this user
     $rows[] = array($username .'<br>'.
       gmdate(variable_get('signup_date_string', 'M jS, g:i A'), $signed_up_user->signup_time + $offset),
-      implode('<br>', $table_data), drupal_get_form('signup_user_signups_form_'. $id, $form, 'signup_form_cancel'));
+      implode('<br>', $table_data), drupal_get_form('signup_user_cancel_form_'. $id, $id, $node->nid, $signed_up_user->uid, $signed_up_user->anon_mail));
   }
   $output .= theme('table', $header, $rows);
   print theme('page', $output);
+}
+
+function signup_open_signups_form($nid) {
+  $form['nid'] = array('#type' => 'value', '#value' => $nid);
+  $form['submit'] = array('#type' => 'submit', '#value' => t('Open Signups'));
+
+  return $form;
 }
 
 function signup_open_signups_form_submit($form_id, $form_values) {
   signup_open_signup($form_values['nid']);
 }
 
+function signup_close_signups_form($nid) {
+  $form['nid'] = array('#type' => 'value', '#value' => $nid);
+  $form['submit'] = array('#type' => 'submit', '#value' => t('Close Signups'));
+
+  return $form;
+}
+
 function signup_close_signups_form_submit($form_id, $form_values) {
   signup_close_signup($form_values['nid']);
+}
+
+/**
+ * Implementation of hook_forms().
+ */
+function signup_forms() {
+  $args = func_get_args();
+  $args = $args[0];
+  array_shift($args);
+  $id = array_shift($args);
+  $forms['signup_user_cancel_form_'. $id] = array(
+    'callback' => 'signup_user_cancel_form',
+    'callback arguments' => $args,
+  );
+  return $forms;
+}
+
+function signup_user_cancel_form($nid, $uid, $anon_mail) {
+  $form['#base'] = 'signup_form_cancel';
+
+  // build the form for this row
+  $form['nid'] = array('#type' => 'value', '#value' => $nid);
+  $form['uid'] = array('#type' => 'value', '#value' => $uid);
+  $form['signup_anon_mail'] = array('#type' => 'value', '#value' => $anon_mail);
+  $form['submit'] = array('#type' => 'submit', '#value' => t('Cancel Signup'));
+
+  return $form;
 }
 
 /**

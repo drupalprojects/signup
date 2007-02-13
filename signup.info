@@ -1,0 +1,7 @@
+; $Id$
+name = Sign up
+description = "Allow users to sign up for events."
+dependencies = event
+package = Event
+version = "$Name$"
+
