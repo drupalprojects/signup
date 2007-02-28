@@ -1,7 +1,4 @@
 ; $Id$
 name = Sign up
-description = "Allow users to sign up for events."
-dependencies = event
-package = Event
+description = "Allow users to sign up for content (especially events)."
 version = "$Name$"
-
