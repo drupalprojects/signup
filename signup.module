@@ -54,7 +54,7 @@ function signup_cron() {
     //is greater than the event's start date.  these are the events for which a reminder email needs to be sent
     $curtime = time();
     $result = db_query("SELECT n.title, n.nid, e.event_start, e.timezone, s.reminder_email, s.forwarding_email FROM {signup} s
-      INNER JOIN {node} n ON n.nid = s.nid INNER JOIN {event} e ON e.nid = s.nid WHERE s.completed = 0 AND
+      INNER JOIN {node} n ON n.nid = s.nid INNER JOIN {event} e ON e.nid = s.nid WHERE
       s.send_reminder = 1 AND (%d + ((s.reminder_days_before) * 86400)) > e.event_start", $curtime);
 
     //grab each event, construct the email header and subject, and query the signup log to pull all users who are
