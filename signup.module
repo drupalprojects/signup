@@ -742,9 +742,7 @@ function signup_list_user_signups($uid) {
     $order_by = $_EVENT ? 'e.event_start' : 'n.title';
 
     //pull all open signup nodes for this user
-    $result = db_query("SELECT n.title, n.nid FROM {signup_log} s_l INNER JOIN {node} n ON n.nid = s_l.nid
-      $event_join WHERE s_l.uid = '%s'$event_where ORDER BY $order_by", $uid);
-
+    $result = db_query(db_rewrite_sql("SELECT n.nid, n.title FROM {node} n INNER JOIN {signup_log} s_l ON n.nid = s_l.nid $event_join WHERE s_l.uid = '%s' $event_where ORDER BY $order_by"), $uid);
     while ($node = db_fetch_array($result)) {
       $titles[$node['nid']] = l($node['title'], 'node/'. $node['nid']);
     }
