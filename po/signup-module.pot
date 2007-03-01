@@ -1,12 +1,14 @@
+# $Id$
+#
 # LANGUAGE translation of Drupal (signup.module)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
-# Generated from file: signup.module,v 1.1.2.12 2006/01/06 03:12:06 thehunmonkgroup
+# Generated from file: signup.module,v 1.1.2.54 2007/02/28 23:52:22 dww
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2006-01-07 16:06+0100\n"
+"POT-Creation-Date: 2007-02-28 16:07-0800\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -15,215 +17,319 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: signup.module:41
+#: signup.module:23
 msgid "List of users current signups."
 msgstr ""
 
-#: signup.module:55
+#: signup.module:32;207
 msgid "Current Signups"
 msgstr ""
 
-#: signup.module:85
+#: signup.module:33;207
+msgid "view signup schedule"
+msgstr ""
+
+#: signup.module:62
 msgid "Event reminder: %event"
 msgstr ""
 
-#: signup.module:124
+#: signup.module:75
+msgid "Reminder for %event sent to %useremail."
+msgstr ""
+
+#: signup.module:75;96;524;540
+msgid "view"
+msgstr ""
+
+#: signup.module:96
+msgid "Signups closed for %title by cron."
+msgstr ""
+
+#: signup.module:108
 msgid "Allow users to sign up for events."
 msgstr ""
 
-#: signup.module:127
+#: signup.module:111
 msgid "<p>Signup allows users to sign up for nodes of any type.  Includes options for sending a notification email to a selected email address upon a new user signup (good for notifying event coordinators, etc.) and a confirmation email to users who sign up--these options are per node.  When used on event nodes (with event.module installed and regular cron runs), it can also send out reminder emails to all signups X days before the start of the event (per node setting) and auto-close event signups 1 hour before their start (general setting). Settings exist for resticting signups to selected roles and content types.</p><br><p>To use signup, you must enable a node type for signups in administer->settings->content types, and you must also grant the 'allow signups' permission to any user role for which you wish to allow signups in administer->access control. Each signup node will now have a place for users to sign up, and administrators with the 'admin signups' privilege will be able to view signups for each signup node and see an overview of signups for all nodes (the overview is located in administer/signup)</p><br><p>Default settings for notification email address, reminder emails and confirmation emails are located in administer->settings->signup. These will be the default values used for a signup node unless otherwise specified (to configure these options per node, visit 'edit' for that node and make the adjustments in the 'Sign up settings' section)</p><br><p>Signups can be manually closed for any node at administer->signup.</p><br><p>The user signup form is fully themable--form fields may be added or deleted.  For more details see the instructions in signup.theme, where a sample user form is included</p>"
 msgstr ""
 
-#: signup.module:142;147;0
+#: signup.module:132;138;75;96;524;540;0
 msgid "signup"
 msgstr ""
 
-#: signup.module:161
+#: signup.module:132
+msgid "signup settings"
+msgstr ""
+
+#: signup.module:138
+msgid "signup overview"
+msgstr ""
+
+#: signup.module:140
+msgid "overview"
+msgstr ""
+
+#: signup.module:155
+msgid "open"
+msgstr ""
+
+#: signup.module:162
+msgid "closed"
+msgstr ""
+
+#: signup.module:178;413
 msgid "signups"
 msgstr ""
 
-#: signup.module:194
-msgid "Allow signups"
-msgstr ""
-
-#: signup.module:196
-msgid "if selected, users will be allowed to do signups for this node type"
-msgstr ""
-
-#: signup.module:216
-msgid "Enable signups for this node"
-msgstr ""
-
-#: signup.module:291
-msgid "Signups closed for this event"
-msgstr ""
-
-#: signup.module:297
-msgid "<p>Please %login to sign up for this event.</p>"
-msgstr ""
-
-#: signup.module:298
-msgid "login/register"
-msgstr ""
-
-#: signup.module:312;467
-msgid "Sign up"
-msgstr ""
-
-#: signup.module:314
-msgid "Sign up for %title"
-msgstr ""
-
-#: signup.module:321
-msgid "Your signup information"
-msgstr ""
-
-#: signup.module:328;535;583
-msgid "Cancel Signup"
-msgstr ""
-
-#: signup.module:338;563
-msgid "%d individual(s) signed up"
-msgstr ""
-
-#: signup.module:375
-msgid "Event"
-msgstr ""
-
-#: signup.module:375
-msgid "Signups"
-msgstr ""
-
-#: signup.module:375
-msgid "Operations"
-msgstr ""
-
-#: signup.module:384
-msgid "View Signups"
-msgstr ""
-
-#: signup.module:385
-msgid "Close Event"
-msgstr ""
-
-#: signup.module:400
-msgid "Signup cancelled"
-msgstr ""
-
-#: signup.module:429;452
-msgid "Submit"
-msgstr ""
-
-#: signup.module:443
-msgid "Signup settings updated"
-msgstr ""
-
-#: signup.module:448
-msgid "Users can view signups"
-msgstr ""
-
-#: signup.module:449
-msgid "Selecting this option allows users with signup permissions to see who has already signed up."
-msgstr ""
-
-#: signup.module:450
-msgid "Default signup information"
-msgstr ""
-
-#: signup.module:450
-msgid "New signup nodes will start with these settings"
-msgstr ""
-
-#: signup.module:488
-msgid "You will receive a confirmation email shortly \n        which contains  further event information"
-msgstr ""
-
-#: signup.module:490
-msgid "You will receive a reminder email %d day(s) before the event"
-msgstr ""
-
-#: signup.module:496
-msgid "Signup confirmed."
-msgstr ""
-
-#: signup.module:502
-msgid "[Untimed]"
-msgstr ""
-
-#: signup.module:507
-msgid "SIGNUP INFORMATION"
-msgstr ""
-
-#: signup.module:515
-msgid "Signup confirmation for event: %event"
-msgstr ""
-
-#: signup.module:523
-msgid "New Event Signup"
-msgstr ""
-
-#: signup.module:525
-msgid "Signup confirmation for event: %title"
-msgstr ""
-
-#: signup.module:526
-msgid "The following information was submitted as a signup for %title"
-msgstr ""
-
-#: signup.module:527
-msgid "Date/Time: %time"
-msgstr ""
-
-#: signup.module:527
-msgid "username:"
-msgstr ""
-
-#: signup.module:528
-msgid "email:"
-msgstr ""
-
-#: signup.module:612
-msgid "Send signups to"
-msgstr ""
-
-#: signup.module:613
-msgid "Email address where notification of new signups will be sent. Leave blank for no notifications"
-msgstr ""
-
-#: signup.module:615
-msgid "Send confirmation"
-msgstr ""
-
-#: signup.module:617
-msgid "Confirmation email"
-msgstr ""
-
-#: signup.module:618
-msgid "Email sent to user upon signup. Supported string substitutions: %event, %time, %username, %useremail, \n    %info (user signup information)"
-msgstr ""
-
-#: signup.module:620
-msgid "Send reminder"
-msgstr ""
-
-#: signup.module:629
-msgid "Reminder email"
-msgstr ""
-
-#: signup.module:630
-msgid "Email sent to user as an event reminder. Supported string substitutions: %event, %time, %username, \n    %useremail"
-msgstr ""
-
-#: signup.module:634
+#: signup.module:210;865
 msgid "Signup information"
 msgstr ""
 
-#: signup.module:176
+#: signup.module:230
+msgid "Allow signups"
+msgstr ""
+
+#: signup.module:232
+msgid "If selected, users will be allowed to signup for this node type."
+msgstr ""
+
+#: signup.module:252
+msgid "Enable signups for this %node_type"
+msgstr ""
+
+#: signup.module:330
+msgid "Preview"
+msgstr ""
+
+#: signup.module:336
+msgid "Signups closed for this event"
+msgstr ""
+
+#: signup.module:342
+msgid "<p>Please %login to sign up for this event.</p>"
+msgstr ""
+
+#: signup.module:343
+msgid "login/register"
+msgstr ""
+
+#: signup.module:357;734
+msgid "Sign up"
+msgstr ""
+
+#: signup.module:359
+msgid "Sign up for %title"
+msgstr ""
+
+#: signup.module:366
+msgid "Your signup information"
+msgstr ""
+
+#: signup.module:377;740;815
+msgid "Cancel Signup"
+msgstr ""
+
+#: signup.module:386;794
+msgid "%users signed up"
+msgstr ""
+
+#: signup.module:432
+msgid "Event"
+msgstr ""
+
+#: signup.module:433
+msgid "Signups"
+msgstr ""
+
+#: signup.module:434
+msgid "Operations"
+msgstr ""
+
+#: signup.module:439
+msgid "Start"
+msgstr ""
+
+#: signup.module:460
+msgid "View Signups"
+msgstr ""
+
+#: signup.module:464
+msgid "Closed: "
+msgstr ""
+
+#: signup.module:466
+msgid "Open Event"
+msgstr ""
+
+#: signup.module:470
+msgid "Open: "
+msgstr ""
+
+#: signup.module:472
+msgid "Close Event"
+msgstr ""
+
+#: signup.module:498
+msgid "Signup to %title cancelled."
+msgstr ""
+
+#: signup.module:524
+msgid "Signups closed for %title."
+msgstr ""
+
+#: signup.module:540
+msgid "Signups reopened for %title."
+msgstr ""
+
+#: signup.module:563;589
+msgid "Submit"
+msgstr ""
+
+#: signup.module:578
+msgid "Signup settings updated."
+msgstr ""
+
+#: signup.module:583
+msgid "Users can view signups"
+msgstr ""
+
+#: signup.module:584
+msgid "Selecting this option allows users with signup permissions to see who has already signed up."
+msgstr ""
+
+#: signup.module:585
+msgid "Close x hours before"
+msgstr ""
+
+#: signup.module:585
+msgid "The number of hours before the event which signups will no longer be allowed. Use negative numbers to close signups after the event start (example: -12)."
+msgstr ""
+
+#: signup.module:587
+msgid "Default signup information"
+msgstr ""
+
+#: signup.module:587
+msgid "New signup nodes will start with these settings"
+msgstr ""
+
+#: signup.module:654
+msgid "You will receive a confirmation email shortly\n        which contains further event information."
+msgstr ""
+
+#: signup.module:656
+msgid "You will receive a reminder email %number %days before the event."
+msgstr ""
+
+#: signup.module:672
+msgid "SIGNUP INFORMATION"
+msgstr ""
+
+#: signup.module:681
+msgid "Signup confirmation for event: %event"
+msgstr ""
+
+#: signup.module:688
+msgid "New Event Signup"
+msgstr ""
+
+#: signup.module:689
+msgid "Signup confirmation for event: %title"
+msgstr ""
+
+#: signup.module:690
+msgid "The following information was submitted as a signup for %title"
+msgstr ""
+
+#: signup.module:691
+msgid "Date/Time: %time"
+msgstr ""
+
+#: signup.module:691
+msgid "username:"
+msgstr ""
+
+#: signup.module:692
+msgid "email:"
+msgstr ""
+
+#: signup.module:695
+msgid "Signup to %title confirmed."
+msgstr ""
+
+#: signup.module:709
+msgid "Signups for %user"
+msgstr ""
+
+#: signup.module:766;782
+msgid "Open Signups"
+msgstr ""
+
+#: signup.module:770;786
+msgid "Close Signups"
+msgstr ""
+
+#: signup.module:781
+msgid "Signups <b>closed</b> for this event"
+msgstr ""
+
+#: signup.module:785
+msgid "Signups <b>open</b> for this event"
+msgstr ""
+
+#: signup.module:844
+msgid "Send signups to"
+msgstr ""
+
+#: signup.module:845
+msgid "Email address where notification of new signups will be sent. Leave blank for no notifications."
+msgstr ""
+
+#: signup.module:847
+msgid "Send confirmation"
+msgstr ""
+
+#: signup.module:849
+msgid "Confirmation email"
+msgstr ""
+
+#: signup.module:850
+msgid "Email sent to user upon signup. Supported string substitutions: %event, %time, %username, %useremail,\n    %info (user signup information)."
+msgstr ""
+
+#: signup.module:852
+msgid "Send reminder"
+msgstr ""
+
+#: signup.module:861
+msgid "Reminder email"
+msgstr ""
+
+#: signup.module:862
+msgid "Email sent to user as an event reminder. Supported string substitutions: %event, %time, %username, %useremail."
+msgstr ""
+
+#: signup.module:386;794
+msgid "1 individual"
+msgid_plural "%count individuals"
+msgstr[0] ""
+msgstr[1] ""
+
+#: signup.module:657
+msgid "day"
+msgid_plural "days"
+msgstr[0] ""
+msgstr[1] ""
+
+#: signup.module:193
 msgid "allow signups"
 msgstr ""
 
-#: signup.module:176
+#: signup.module:193
 msgid "admin signups"
+msgstr ""
+
+#: signup.module:193
+msgid "admin own signups"
 msgstr ""
 
