@@ -204,9 +204,8 @@ function signup_user($op, &$edit, &$user, $category = NULL) {
       //grab list of events the user signed up for
       $signups = signup_list_user_signups($user->uid);
       if (count($signups)) {
-        $output = t('<h4>Current Signups -- '. l(t('view signup schedule'), "user/$user->uid/signups") .'<h4>') . theme_item_list($signups);
+        $output = '<h4>'. t('Current Signups') .' -- '. l(t('view signup schedule'), "user/$user->uid/signups") .'<h4>'. theme_item_list($signups);
       }
-
       if (isset($output)) {
         return array(t('Signup information') => array( array('value' => $output, 'class' => 'user')));
       }
@@ -796,7 +795,7 @@ function signup_sign_up_user($signup_form) {
     $confirmation_email = $event->send_confirmation ? '  ' . t('You will receive a confirmation email shortly
         which contains further event information.') : '';
     $reminder_email = $event->send_reminder ? '  ' . t('You will receive a reminder email !number !days before the event.',
-    array('!number' => $event->reminder_days_before, '!days' => format_plural($event->reminder_days_before, t('day'), t('days')))) : '';
+    array('!number' => $event->reminder_days_before, '!days' => format_plural($event->reminder_days_before, 'day', 'days'))) : '';
 
     //insert the user into the signup_log
     db_query("INSERT INTO {signup_log} (uid, nid, anon_mail, signup_time, form_data) VALUES

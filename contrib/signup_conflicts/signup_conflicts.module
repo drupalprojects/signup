@@ -28,7 +28,7 @@ function signup_conflicts_block($op = 'list', $delta = 0) {
             $titles = signup_list_user_signups($user->uid);
             $conflicts = _signup_conflicts_get_conflicts($user->uid);
             if (count($titles) && count($conflicts)) {
-              $conflict_teaser = '<br>'. l(t('%number schedule %conflict in your current signups', array('%number' => $conflicts['total'], '%conflict' => format_plural($conflicts['total'], t('conflict exists'), t('conflicts exist')))), "user/$user->uid");
+              $conflict_teaser = '<br>'. l(t('%number schedule %conflict in your current signups', array('%number' => $conflicts['total'], '%conflict' => format_plural($conflicts['total'], 'conflict exists', 'conflicts exist'))), "user/$user->uid");
               $block['subject'] = t('Schedule conflicts');
               $block['content'] = $conflict_teaser;
             }
@@ -153,9 +153,9 @@ function signup_conflicts_detail() {
 
   //list the number of conflicts at the top of the page
   if (isset($total_conflicts)) {
-    $output = t('<h2>%total total %conflict</h2>', array('%total' => $total_conflicts, '%conflict' => format_plural($total_conflicts, t('conflict'), t('conflicts')))) . $sum;
+    $output = '<h2>'. t('%total total %conflict', array('%total' => $total_conflicts, '%conflict' => format_plural($total_conflicts, 'conflict', 'conflicts'))) .'</h2>'. $sum;
   } else {
-    $output = t('<h2>No schedule conflicts</h2>');
+    $output = '<h2>'. t('No schedule conflicts') .'</h2>';
   }
   print theme('page', $output);
 }
@@ -180,10 +180,10 @@ function signup_conflicts_summary() {
   //list the number of conflicts at the top of the page
   if ($total_conflicts > 0) {
     $header = array(t('user'), t('conflicts'));
-    $output = t('<h2>%total total %conflict</h2>', array('%total' => $total_conflicts, '%conflict' => format_plural($total_conflicts, t('conflict'), t('conflicts'))));
+    $output = '<h2>'. t('%total total %conflict', array('%total' => $total_conflicts, '%conflict' => format_plural($total_conflicts, 'conflict', 'conflicts'))) .'</h2>';
     $output .= theme('table', $header, $rows);
   } else {
-    $output = t('<h2>No schedule conflicts</h2>');
+    $output = '<h2>'. t('No schedule conflicts') .'</h2>';
   }
   print theme('page', $output);
 }
@@ -278,7 +278,7 @@ function _signup_conflicts_user_conflicts($uid) {
   //if there are conflicts, pull the total from the array, and build a title section
   if (count($conflicts)) {
     $return['total'] = array_pop($conflicts);
-    $return['title'] = t('<h4>%user, %total schedule %conflict:</h4>', array('%total' => $return['total'], '%conflict' => format_plural($return['total'], t('conflict'), t('conflicts')), '%user' => l($user->name, "user/$user->uid")));
+    $return['title'] = '<h4>'. t('%user, %total schedule %conflict:', array('%total' => $return['total'], '%conflict' => format_plural($return['total'], 'conflict', 'conflicts'), '%user' => l($user->name, "user/$user->uid"))) .'</h4>';
 
     $output = '';
 
