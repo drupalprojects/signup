@@ -466,7 +466,7 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
           while ($signed_up_user = db_fetch_object($registered_signups)) {
 
             //build the row for this user
-            $rows[] = array(l(check_plain($signed_up_user->name), "user/$signed_up_user->uid"));
+            $rows[] = array(theme('username', $signed_up_user));
           }
           if ($anon_signups) {
             $rows[] = array(t('!count anonymous', array('!count' => $anon_signups)));
@@ -911,7 +911,7 @@ function signup_user_signups_form($node) {
       $username = check_plain($signed_up_user->anon_mail);
       $id = $signed_up_user->anon_mail;
     } else {
-      $username = l($signed_up_user->name, "user/$signed_up_user->uid");
+      $username = theme('username', $signed_up_user);
       $id = $signed_up_user->uid;
     }
 
