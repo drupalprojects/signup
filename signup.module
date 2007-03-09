@@ -282,7 +282,6 @@ function signup_form_cancel_submit($form_id, $form_values) {
  * @param $form_values The constructed form values array of the submitted form.
  */
 function signup_form_submit($form_id, $form_values) {
-
   signup_sign_up_user($form_values);
 }
 
@@ -952,13 +951,17 @@ function signup_close_signups_form_submit($form_id, $form_values) {
 function signup_forms() {
   $args = func_get_args();
   $args = $args[0];
-  array_shift($args);
-  $id = array_shift($args);
-  $forms['signup_user_cancel_form_'. $id] = array(
-    'callback' => 'signup_user_cancel_form',
-    'callback arguments' => $args,
-  );
-  return $forms;
+  $form_id = array_shift($args);
+  if (strpos($form_id, 'signup_user_cancel_form') !== FALSE) {
+    if ($form_id == 'signup_user_cancel_form_' . $args[0]) {
+      array_shift($args);  // get rid of the extra uid arg
+      $forms[$form_id] = array(
+        'callback' => 'signup_user_cancel_form',
+        'callback arguments' => $args,
+      );
+      return $forms;
+    }
+  }
 }
 
 function signup_user_cancel_form($nid, $uid, $anon_mail) {
