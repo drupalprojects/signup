@@ -130,8 +130,9 @@ function signup_menu($may_cache) {
       'description' => t('Configure relevant settings for signup.'),
       'callback' => 'drupal_get_form',
       'callback arguments' => array('signup_settings_page'),
-      'title' => user_access('administer site configuration') ?
-                               t('Signup') : t('Signup settings'));
+      'title' => user_access('access administration pages') ?
+                              t('Signup') : t('Signup settings'),
+    );
 
     //admin/content/signup menu item
     $items[] = array('path' => 'admin/content/signup', 'access' => $access,
