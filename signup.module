@@ -135,10 +135,10 @@ function signup_menu($may_cache) {
 
     //admin/content/signup menu item
     $items[] = array('path' => 'admin/content/signup', 'access' => $access,
-      'description' => t('Manage signups including an overview of signups, list of signups, and the ability open/close signups.'),
+      'description' => t('View all signup-enabled posts, and open or close signups on them.'),
       'callback' => 'signup_admin_page',
-      'title' => user_access('administer site configuration') ?
-                               t('Signup') : t('Signup overview'));
+      'title' => t('Signup overview'),
+    );
 
     $items[] = array('path' => 'admin/content/signup/overview', 'title' => t('Overview'),
         'access' => $access, 'type' => MENU_DEFAULT_LOCAL_TASK, 'weight' => -10);
