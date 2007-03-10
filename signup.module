@@ -595,7 +595,7 @@ function signup_admin_page() {
       $offset = $signup_event->event_start ? event_get_offset($signup_event->timezone, $signup_event->event_start) : '';
       $row[] = $signup_event->event_start ?_event_date(variable_get('signup_date_string', 'D, M jS, g:i A'), $signup_event->event_start, $offset) : '';
     }
-    $row[] = l(check_plain($signup_event->title), "node/$signup_event->nid");
+    $row[] = l($signup_event->title, "node/$signup_event->nid");
     $row[] = $signup_event->count;
     $op_links = l(t('View Signups'), "node/$signup_event->nid/signups");
     $op_links .= '<br>';

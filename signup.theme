@@ -10,7 +10,7 @@
  */
 function theme_signup_user_schedule($node) {
   $output = '';
-  $output .= '<div class="signup-user-schedule"><div class="'. $node->type. 'signup-title"><h4>'. l(check_plain($node->title), "node/$node->nid") . '</h4></div></div>';
+  $output .= '<div class="signup-user-schedule"><div class="'. $node->type. 'signup-title"><h4>'. l($node->title, "node/$node->nid") . '</h4></div></div>';
 
   // event-based data, only if it's an event node
   if (isset($node->event_start)) {
