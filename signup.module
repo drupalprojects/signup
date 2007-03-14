@@ -741,6 +741,11 @@ function signup_sign_up_user($signup_form) {
   $user = user_load(array('uid' => $signup_form['uid']));
   $node = node_load($signup_form['nid']);
 
+  if (db_num_rows(db_query("SELECT * FROM {signup_log} WHERE uid = %d AND nid = %d", $signup_form['uid'], $signup_form['nid']))) {
+    drupal_set_message(t('User !user is already signed up for %title', array('!user' => theme('username', $user), '%title' => theme('placeholder', $node->title))), 'error');
+    return FALSE;
+  }
+
   if (user_access('allow signups') && !$node->signup_completed) {
     //this check is in case a node type was enabled, and the node the user is trying to sign up for is not in
     //the signup table. this would be the case for all nodes created when signup.module was not enabled.  if
