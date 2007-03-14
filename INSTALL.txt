@@ -1,15 +1,27 @@
 $Id$
 
 It is assumed that you have Drupal up and running.  Be sure to check
-the Drupal web site if you need assistance.  If you run into problems,
-you should always read the INSTALL.txt that comes with the Drupal
-package and read the online documentation.
+the http://drupal.org web site if you need assistance.  If you run
+into problems, you should always read the INSTALL.txt that comes with
+the Drupal package and read the online documentation.
+
 
 0. Always backup your database before you enable a new contributed module!
 
+
 1. Place the signup package into your Drupal modules/ directory.
 
-2. Enable the signup module by navigating to: Administer > Site building > modules
+
+2. (Optional) Customize the form presented to users when signing up
+   for content on your site.  Unfortuantely, this is not yet a way to
+   do this from within your site, you must modify a theme function to
+   change this form.  See the comment above "theme_signup_user_form()"
+   in the signup.theme file.  You can either modify that version of
+   the function, or define your own version in your site's theme.
+
+
+3. Enable the signup module by navigating to:
+   Administer > Site building > Modules
 
    Note: if you want support for automatic closing of events and
    reminder emails you must also install and enable the event package!
@@ -17,20 +29,23 @@ package and read the online documentation.
    Click the 'Save configuration' button at the bottom to commit your
    changes.
 
-3. For the final configuration of the module, navigate to
+
+4. For the final configuration of the module, navigate to:
    Administer > Site configuration > Signup
 
    Here you can configure the options for the module.
 
-4. Enable the node types that you wish to allow signups for under
 
+5. Enable the node types that you wish to allow signups for under:
    Administer > Content management > Content types
 
    You may wish to create a new content type specifically for event
    signups using either the Flexinode module or the Content
    Construction Kit (CCK).
 
-5. Grant the proper access to user accounts under: Administer > User management > Access control
+
+6. Grant the proper access to user accounts under:
+   Administer > User management > Access control
    
    allow signups: allows the selected role to sign up for nodes
 
@@ -40,9 +55,10 @@ package and read the online documentation.
    admin signups: allows the selected role to view who has signed up
                   for nodes
    
-   Viewing the signup report under Administer > Content management > Signup, and configuring
-   Administer > Site configuration > Signup are restricted to users who have the
-   'access administration pages' privilege
+   Viewing the signup report (Administer > Content management > Signup),
+   and configuring the module (Administer > Site configuration > Signup)
+   are restricted to users who have the 'access administration pages'
+   privilege.
 
-6. Start signing up!
 
+7. Start signing up!
