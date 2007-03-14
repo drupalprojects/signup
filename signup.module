@@ -109,15 +109,17 @@ function signup_help($section) {
   switch ($section) {
     case 'admin/help#signup':
       return '<p>'. 
-        t('Signup allows users to sign up for nodes of any type.  Includes options for sending a notification email to a selected email address upon a new user signup (good for notifying event coordinators, etc.) and a confirmation email to users who sign up--these options are per node.  When used on event nodes (with event.module installed and regular cron runs), it can also send out reminder emails to all signups X days before the start of the event (per node setting) and auto-close event signups 1 hour before their start (general setting). Settings exist for resticting signups to selected roles and content types.')
+        t('Signup allows users to sign up (in other words, register) for content of any type. The most common use is for events, where users indicate they are planning to attend. This module includes options for sending a notification email to a selected email address upon a new user signup (good for notifying event coordinators, etc.) and a confirmation email to users who sign up. Each of these options are controlled per node. When used on event nodes (with event.module installed and regular cron runs), it can also send out reminder emails to all signups a configurable number of days before the start of the event (also controlled per node) and to automatically close event signups 1 hour before their start (general setting). Settings exist for resticting signups to selected roles and content types.')
         .'</p><p>'.
-        t('To use signup, you must enable a node type for signups in administer->settings->content types, and you must also grant the %allow_signups permission to any user role for which you wish to allow signups in administer->access control. Each signup node will now have a place for users to sign up, and administrators with the %admin_signups privilege will be able to view signups for each signup node and see an overview of signups for all nodes (the overview is located in administer/content/signup).', array('%allow_signups' => 'allow signups', '%admin_signups' => 'admin signups'))
+        t('To use signup, you must enable which content types should allow signups in administer->settings->content types, and you must also grant the %sign_up_for_content permission to any user role that should be able to sign up in administer->access control. Each signup-enabled node will now have a place for users to sign up.', array('%sign_up_for_content' => 'sign up for content'))
+        .'</p><p>'.
+        t('There are two ways for a user to have administrative access to the signup information about a given node: either the user has the %administer_signups_for_own_content permission and they are viewing a node they created, or the user has the global %administer_all_signups permission. Administrative access allows a user to view all the users who have signed up for the node, along with whatever information they included when they signed up.  Signup administrators can also cancel other user\'s signups for the node, and can close signups on the node entirely (meaning no one else is allowed to sign up).', array('%administer_signups_for_own_content' => 'administer signups for own content', '%administer all signups' => 'administer all signups'))
         .'</p><p>'.
         t('Default settings for notification email address, reminder emails and confirmation emails are located in administer->settings->signup. These will be the default values used for a signup node unless otherwise specified (to configure these options per node, visit \'edit\' for that node and make the adjustments in the \'Sign up settings\' section).')
         .'</p><p>'.
-        t('Signups can be manually closed for any node at the %signup_overview page', array('%signup_overview' => t('Signup overview')))
+        t('Signups can be manually closed for any node at the %signup_overview page, or on the \'signups\' tab on each node.', array('%signup_overview' => t('Signup overview')))
         .'</p><p>'.
-        t('The user signup form is fully themable -- form fields may be added or deleted.  For more details see the instructions in signup.theme, where a sample user form is included.')
+        t('The user signup form is fully themable -- form fields may be added or deleted. For more details see the instructions in signup.theme, where a sample user form is included.')
         .'</p>';
   }
 }
@@ -130,7 +132,7 @@ function signup_menu($may_cache) {
 
   global $user;
   $items = array();
-  $access = user_access('admin signups');
+  $access = user_access('administer all signups');
 
   if ($may_cache) {
 
@@ -165,14 +167,14 @@ function signup_menu($may_cache) {
         'path' => 'admin/content/signup/open',
         'title' => t('Open'),
         'type' => MENU_LOCAL_TASK,
-        'access' => user_access('admin signups'),
+        'access' => user_access('administer all signups'),
         'weight' => -8,
       );
       $items[] = array(
         'path' => 'admin/content/signup/closed',
         'title' => t('Closed'),
         'type' => MENU_LOCAL_TASK,
-        'access' => user_access('admin signups'),
+        'access' => user_access('administer all signups'),
         'weight' => -6,
       );
 
@@ -185,7 +187,7 @@ function signup_menu($may_cache) {
     //if it's a signup event, then put in a signup tab
   	if (arg(0) == 'node' && is_numeric(arg(1)) && db_num_rows(db_query("SELECT nid FROM {signup} WHERE nid = %d", arg(1)))) {
   	  $node = node_load(array('nid'=>arg(1)));
-  	  $access_own = user_access('admin own signups') && ($user->uid == $node->uid);
+  	  $access_own = user_access('administer signups for own content') && ($user->uid == $node->uid);
       $items[] = array('path' => 'node/' . arg(1) . '/signups', 'title' => t('Signups'),
           'callback' => 'signup_user_signups_form', 'callback arguments' => array($node),
           'access' => $access || $access_own, 'type' => MENU_LOCAL_TASK, 'weight' => 20);
@@ -201,7 +203,12 @@ function signup_menu($may_cache) {
  * @ingroup signup_core
  */
 function signup_perm() {
-  return array('allow signups', 'admin signups', 'admin own signups');
+  return array(
+    'sign up for content',
+    'view all signups',
+    'administer all signups',
+    'administer signups for own content',
+  );
 }
 
 /**
@@ -256,7 +263,7 @@ function signup_form_alter($form_id, &$form) {
       $form['signup']['_signup_admin_form'] = _signup_admin_form($node);
       return $form;
     }
-    elseif (user_access('admin signups')) {
+    elseif (user_access('administer all signups')) {
       $form['signup'] = array(
         '#type' => 'fieldset',
         '#title' => t('Signup settings'),
@@ -404,7 +411,7 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
 
         //the node has been closed for signups, and the user has signup permissions.  let them know it's closed
         if ($node->signup_completed) {
-          if (user_access('allow signups')) {
+          if (user_access('sign up for content')) {
             $output = '<h3>' . t('Signups closed for this event') . '</h3>';
           }
         } else {
@@ -413,7 +420,7 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
           //of the sigup form.  if not, then display the login link
           if ($user->uid == 0) {
             $login_array = array('!login' => l(t('login'), 'user/login', array(), drupal_get_destination()), '!register' => l(t('register'), 'user/register', array(), drupal_get_destination()));
-            if (user_access('allow signups')) {
+            if (user_access('sign up for content')) {
               $needs_signup_form = TRUE;
               $anon_signup_form['signup_anon_mail'] = array('#type' => 'textfield',
                 '#title' => t('Email'),
@@ -440,7 +447,7 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
 
             //user isn't signed up, so check to make sure they have signup
             //permissions.  if this is the case, then print the themed signup form
-            if (user_access('allow signups')) {
+            if (user_access('sign up for content')) {
               $output = drupal_get_form('signup_form', $node, $anon_signup_form);
             }
 
@@ -463,9 +470,9 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
           }
         }
 
-        //if user has signup perm, and signup_user_view is enabled, then display the current signups
-        //pull all user signed up for this event, and start table creation
-        if (user_access('allow signups') && variable_get('signup_user_view', 0)) {
+        // If the user has the view signups perm, display the current signups.
+        // Pull all users signed up for this event, and start table creation.
+        if (user_access('view all signups')) {
           $registered_signups = db_query("SELECT u.uid, u.name, s.signup_time, s.form_data FROM {signup_log} s INNER JOIN {users} u ON
     u.uid = s.uid WHERE s.nid =%d AND u.uid != 0", $node->nid);
           $anon_signups = db_num_rows(db_query("SELECT anon_mail FROM {signup_log} WHERE nid =%d AND uid = 0", $node->nid));
@@ -697,9 +704,6 @@ function signup_open_signup_admin($nid, $tab = NULL) {
  * @ingroup signup_callback
  */
 function signup_settings_page() {
-
-  //print the settings page
-  $form['signup_user_view'] = array('#type' => 'checkbox', '#title' => t('Users can view signups'), '#default_value' => variable_get('signup_user_view', 0), '#description' => t('Selecting this option allows users with signup permissions to see who has already signed up.'));
   $form['signup_close_early'] = array('#type' => 'textfield', '#title' => t('Close x hours before'), '#default_value' => variable_get('signup_close_early', 1), '#size' => 5, '#maxlength' => 10, '#description' => t('The number of hours before the event which signups will no longer be allowed. Use negative numbers to close signups after the event start (example: -12).'));
   $form['title'] = array('#type' => 'markup', '#value' => '<h2>' . t('Default signup information') . '</h2><br>' . t('New signup nodes will start with these settings'));
   $form['group'] = array('#type' => 'fieldset', '#title' => t('Sign up settings'));
@@ -718,7 +722,6 @@ function signup_settings_page() {
 function signup_settings_page_submit($form_id, $form_values) {
 
   //if the form has been submitted, update the data in the database
-  variable_set('signup_user_view', $form_values['signup_user_view']);
   variable_set('signup_close_early', is_numeric($form_values['signup_close_early']) ? $form_values['signup_close_early'] : 1);
   if (db_num_rows(db_query('SELECT nid FROM {signup} WHERE nid = 0'))) {
     db_query("UPDATE {signup} SET forwarding_email  = '%s', send_confirmation = %d, confirmation_email  = '%s',
@@ -782,7 +785,7 @@ function signup_sign_up_user($signup_form) {
     return FALSE;
   }
 
-  if (user_access('allow signups') && !$node->signup_completed) {
+  if (user_access('sign up for content') && !$node->signup_completed) {
     //this check is in case a node type was enabled, and the node the user is trying to sign up for is not in
     //the signup table. this would be the case for all nodes created when signup.module was not enabled.  if
     //no row exists for this node, then grab the signup defaults and create a new row before proceeding
