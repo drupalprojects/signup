@@ -445,7 +445,7 @@ function signup_admin_page() {
           FROM {signup} s INNER JOIN {node} n ON n.nid = s.nid
           LEFT JOIN {signup_log} s_l ON s.nid = s_l.nid$event_join";
   $sql .= $where;
-  $sql .= " GROUP BY n.nid, n.title, s.completed$event_select";
+  $sql .= " GROUP BY n.nid";
   $sql .= tablesort_sql($header);
   $result = pager_query($sql, 25);
 
