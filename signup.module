@@ -578,7 +578,7 @@ function signup_admin_page() {
     $row[] = l($signup_event->title, "node/$signup_event->nid");
     $row[] = $signup_event->count;
     $op_links = l(t('View Signups'), "node/$signup_event->nid/signups");
-    $op_links .= '<br>';
+    $op_links .= '<br />';
     if ($signup_event->completed) {
       if (!arg(2)) {
         $op_links .= '<em>'. t('Closed: ') .'</em>';
@@ -678,7 +678,7 @@ function signup_open_signup_admin($nid, $tab = NULL) {
  */
 function signup_settings_page() {
   $form['signup_close_early'] = array('#type' => 'textfield', '#title' => t('Close x hours before'), '#default_value' => variable_get('signup_close_early', 1), '#size' => 5, '#maxlength' => 10, '#description' => t('The number of hours before the event which signups will no longer be allowed. Use negative numbers to close signups after the event start (example: -12).'));
-  $form['title'] = array('#type' => 'markup', '#value' => '<h2>' . t('Default signup information') . '</h2><br>' . t('New signup nodes will start with these settings'));
+  $form['title'] = array('#type' => 'markup', '#value' => '<h2>' . t('Default signup information') . '</h2><br />' . t('New signup nodes will start with these settings'));
   $form['group'] = array('#type' => 'fieldset', '#title' => t('Sign up settings'));
   $form['group']['_signup_admin_form'] = _signup_admin_form($node);
   $form['submit'] = array('#type' => 'submit', '#value' => t('Submit'));
@@ -871,15 +871,15 @@ function signup_user_signups_form($node) {
   $ctrl_row = array();
   if ($node->signup_completed) {
     $form['submit'] = array('#type' => 'submit', '#value' => t('Open Signups'));
-    $ctrl_row[] = array(t('Signups <b>closed</b> for this event'), drupal_get_form('signup_open_signups_form', $form));
+    $ctrl_row[] = array(t('Signups <strong>closed</strong> for this event'), drupal_get_form('signup_open_signups_form', $form));
   }
   else {
     $form['submit'] = array('#type' => 'submit', '#value' => t('Close Signups'));
-    $ctrl_row[] = array(t('Signups <b>open</b> for this event'), drupal_get_form('signup_close_signups_form', $form));
+    $ctrl_row[] = array(t('Signups <strong>open</strong> for this event'), drupal_get_form('signup_close_signups_form', $form));
   }
   $output .= '<div class="signup-admin-row">';
   $output .= theme('table', NULL, $ctrl_row);
-  $output .= '</div><br>';
+  $output .= '</div><br />';
 
   //pull all user signed up for this event, and start table creation
   $result = db_query("SELECT u.uid, u.name, s.anon_mail, s.signup_time, s.form_data FROM {signup_log} s INNER JOIN {users} u ON u.uid = s.uid WHERE s.nid =%d", $node->nid);
@@ -920,9 +920,9 @@ function signup_user_signups_form($node) {
     }
 
     //build the row for this user
-    $rows[] = array($username .'<br>'.
+    $rows[] = array($username .'<br />'.
       gmdate(variable_get('signup_date_string', 'M jS, g:i A'), $signed_up_user->signup_time + $offset),
-      implode('<br>', $table_data), drupal_get_form('signup_user_signups_form_'. $id, $form, 'signup_form_cancel'));
+      implode('<br />', $table_data), drupal_get_form('signup_user_signups_form_'. $id, $form, 'signup_form_cancel'));
   }
   $output .= theme('table', $header, $rows);
   print theme('page', $output);
