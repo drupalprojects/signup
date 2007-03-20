@@ -2,13 +2,13 @@
 #
 # LANGUAGE translation of Drupal (contrib/signup_conflicts/signup_conflicts.module)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
-# Generated from file: signup_conflicts.module,v 1.4 2006/06/16 17:12:22 thehunmonkgroup
+# Generated from file: signup_conflicts.module,v 1.6 2007/03/01 22:22:17 dww
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2007-02-28 16:23-0800\n"
+"POT-Creation-Date: 2007-03-20 00:28-0700\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
