@@ -681,9 +681,9 @@ function signup_settings_page() {
   $form['title'] = array('#type' => 'markup', '#value' => '<h2>' . t('Default signup information') . '</h2><br />' . t('New signup nodes will start with these settings'));
   $form['group'] = array('#type' => 'fieldset', '#title' => t('Sign up settings'));
   $form['group']['_signup_admin_form'] = _signup_admin_form($node);
-  $form['submit'] = array('#type' => 'submit', '#value' => t('Submit'));
+  $form['submit'] = array('#type' => 'submit', '#value' => t('Save configuration'));
+  $form['reset'] = array('#type' => 'submit', '#value' => t('Reset to defaults'));
   return drupal_get_form('signup_settings_page', $form);
-
 }
 
 /**
@@ -694,23 +694,31 @@ function signup_settings_page() {
  * @param $form_values The constructed form values array of the submitted form.
  */
 function signup_settings_page_submit($form_id, $form_values) {
+  $op = isset($_POST['op']) ? $_POST['op'] : '';
+  if ($op == t('Save configuration') && db_num_rows(db_query('SELECT nid FROM {signup} WHERE nid = 0'))) {
+    db_query("UPDATE {signup} SET forwarding_email = '%s', send_confirmation = %d, confirmation_email = '%s', send_reminder = %d, reminder_days_before = %d, reminder_email = '%s' WHERE nid = 0",
+      $form_values['signup_forwarding_email'],
+      $form_values['signup_send_confirmation'],
+      $form_values['signup_confirmation_email'],
+      $form_values['signup_send_reminder'],
+      $form_values['signup_reminder_days_before'],
+      $form_values['signup_reminder_email']
+    );
+  }
+  else {
+    require_once 'signup.install';
+    db_query("DELETE FROM {signup} WHERE nid = 0");
+    signup_insert_default_signup_info();
+  }
 
-  //if the form has been submitted, update the data in the database
-  variable_set('signup_close_early', is_numeric($form_values['signup_close_early']) ? $form_values['signup_close_early'] : 1);
-  if (db_num_rows(db_query('SELECT nid FROM {signup} WHERE nid = 0'))) {
-    db_query("UPDATE {signup} SET forwarding_email  = '%s', send_confirmation = %d, confirmation_email  = '%s',
-            send_reminder = %d, reminder_days_before = %d, reminder_email = '%s'
-            WHERE nid = 0", $form_values['signup_forwarding_email'], $form_values['signup_send_confirmation'],
-    $form_values['signup_confirmation_email'], $form_values['signup_send_reminder'], $form_values['signup_reminder_days_before'],
-    $form_values['signup_reminder_email']);
-
-  } else {
-    db_query("INSERT INTO {signup} VALUES(0, '%s', %d, '%s', %d, %d, '%s', 0, 0, 0)", $form_values['signup_forwarding_email'],
-    $form_values['signup_send_confirmation'], $form_values['signup_confirmation_email'], $form_values['signup_send_reminder'],
-    $form_values['signup_reminder_days_before'], $form_values['signup_reminder_email']);
+  // 4.7 backport: there's no system_settings_form()
+  if ($op == t('Save configuration')) {
+    variable_set('signup_close_early', is_numeric($form_values['signup_close_early']) ? $form_values['signup_close_early'] : 1);
+  }
+  else {
+    variable_del('signup_close_early');
   }
   drupal_set_message(t('Signup settings updated'));
-
 }
 
 /**
