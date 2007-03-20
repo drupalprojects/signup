@@ -704,10 +704,6 @@ function signup_open_signup_admin($nid, $tab = NULL) {
  * @ingroup signup_callback
  */
 function signup_settings_page() {
-  // Add our own submit handler, in addition to the system-wide one.
-  $form['#submit']['signup_settings_page_submit'] = array();
-  $form['#submit']['system_settings_form_submit'] = array();
-
   $form['signup_close_early'] = array('#type' => 'textfield', '#title' => t('Close x hours before'), '#default_value' => variable_get('signup_close_early', 1), '#size' => 5, '#maxlength' => 10, '#description' => t('The number of hours before the event which signups will no longer be allowed. Use negative numbers to close signups after the event start (example: -12).'));
 
   $form['node_defaults'] = array(
@@ -718,6 +714,9 @@ function signup_settings_page() {
   );
   $form['node_defaults']['_signup_admin_form'] = _signup_admin_form($node);
 
+  // Use our own submit handler, so we can do some processing before
+  // we hand control to system_settings_form_submit.
+  $form['#submit']['signup_settings_page_submit'] = array();
   return system_settings_form($form);
 }
 
@@ -745,6 +744,26 @@ function signup_settings_page_submit($form_id, $form_values) {
     db_query("DELETE FROM {signup} WHERE nid = 0");
     signup_insert_default_signup_info();
   }
+
+  // Now, remove all the settings we just processed from our copy of
+  // $form_values, so system_settings_form_submit() doesn't see them.
+  $settings = array(
+    'signup_forwarding_email',
+    'signup_send_confirmation',
+    'signup_confirmation_email',
+    'signup_send_reminder',
+    'signup_reminder_days_before',
+    'signup_reminder_email',
+  );
+  foreach ($settings as $setting) {
+    unset($form_values[$setting]);
+  }
+  // Remove the hidden element from _signup_admin_form(), too.
+  unset($form_values['signup']);
+
+  // Finally, let system_settings_form_submit() do its magic with the
+  // rest of the settings.
+  system_settings_form_submit($form_id, $form_values);
 }
 
 /**
