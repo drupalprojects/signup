@@ -92,6 +92,19 @@ function signup_install() {
   }
 }
 
+function signup_uninstall() {
+  if (db_table_exists('signup')) {
+    db_query("DROP TABLE {signup}");
+  }
+  if (db_table_exists('signup_log')) {
+    db_query("DROP TABLE {signup_log}");
+  }
+  $variables = db_query("SELECT name FROM {variable} WHERE name LIKE 'signup%%'");
+  while ($variable = db_fetch_object($variables)) {
+    variable_del($variable->name);
+  }
+}
+
 /**
  * Helper method to insert the default signup information into the
  * {signup} table (stored in a row for nid 0).  These are the default
