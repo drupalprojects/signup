@@ -51,7 +51,7 @@ function theme_signup_user_schedule($node) {
 function theme_signup_user_form() {
   global $user;
 
-  // This line is required for this form to function -- DO NOT REMOVE.
+  // This line is required for this form to function -- DO NOT EDIT OR REMOVE.
   $form['signup_form_data']['#tree'] = TRUE;
 
   $form['signup_form_data']['Name'] = array(
