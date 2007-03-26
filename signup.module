@@ -603,7 +603,7 @@ function signup_admin_page() {
   drupal_set_title(t('signups'));
 
   // Add optional SQL to the query if the event module is enabled. 
-  $has_event = module_exists('event');
+  $has_event = module_exist('event');
   $event_select = $has_event ? ', e.event_start, e.timezone' : '';
   $event_join = $has_event ? ' LEFT JOIN {event} e ON e.nid = n.nid' : '';
 
@@ -823,7 +823,7 @@ function signup_list_user_signups($uid) {
 
   // We don't want to return anything for anon users.
   if ($uid != 0) {
-    $has_event = module_exists('event');
+    $has_event = module_exist('event');
     $event_join = $has_event ? ' LEFT JOIN {event} e ON e.nid = n.nid' : '';
     $event_where = $has_event ? ' AND (e.event_start >= '. time() . ' OR e.event_start IS NULL)' : '';
     $order_by = $has_event ? 'e.event_start' : 'n.title';
