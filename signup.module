@@ -262,51 +262,64 @@ function signup_user($op, &$edit, &$user, $category = NULL) {
  * @ingroup signup_core
  */
 function signup_form_alter($form_id, &$form) {
-  if ($form_id == 'node_type_form') {
-    $type = $form['old_type']['#value'];
-    $form['workflow']['signup_form'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Allow signups'),
-      '#default_value' => variable_get('signup_form_' . $type, FALSE) == 1,
-      '#description' => t('If selected, users will be allowed to signup for this node type.')
-    );
-
-  // Inject the appropriate signup data into the node form if the node
-  // type is signup enabled.
+  switch($form_id) {
+    case 'node_type_form':
+      signup_alter_node_type_form($form_id, $form);
+      break;
+    case $form['type']['#value'] .'_node_form':
+      signup_alter_node_form($form_id, $form);
+      break;
   }
-  else if ($form['type']['#value'] .'_node_form' == $form_id) {
-    // Load the node if it already exists.
-    if (isset($form['nid']['#value'])) {
-      $node = node_load($form['nid']['#value']);
-    }
-    else {
-      $node = NULL;
-    }
-    if (variable_get('signup_form_' . $form['type']['#value'], 0)) {
-      $form['signup'] = array(
-        '#type' => 'fieldset',
-        '#title' => t('Signup settings'),
-        '#collapsible' => TRUE,
-        '#collapsed' => TRUE,
-      );
-      $form['signup']['_signup_admin_form'] = _signup_admin_form($node);
-      return $form;
-    }
-    else if (user_access('administer all signups')) {
-      $form['signup'] = array(
-        '#type' => 'fieldset',
-        '#title' => t('Signup settings'),
-        '#collapsible' => TRUE,
-        '#collapsed' => TRUE,
-        '#weight' => 30,
-      );
-      $form['signup']['signup_enable'] = array(
-        '#type' => 'checkbox',
-        '#default_value' => $node->signup,
-        '#title' => t('Enable signups for this !node_type', array('!node_type' => node_get_types('name', $form['type']['#value']))),
-      );
-      return $form;
-    }
+}
+
+/**
+ * Alters the form for administrator settings per node type.
+ * (admin/content/types)
+ */
+function signup_alter_node_type_form($form_id, &$form) {
+  $type = $form['old_type']['#value'];
+  $form['workflow']['signup_form'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Allow signups'),
+    '#default_value' => variable_get('signup_form_' . $type, FALSE) == 1,
+    '#description' => t('If selected, users will be allowed to signup for this node type.')
+  );
+}
+
+/**
+ * Alters the node form to inject the appropriate per-node signup settings.
+ */
+function signup_alter_node_form($form_id, &$form) {
+  // Load the node if it already exists.
+  if (isset($form['nid']['#value'])) {
+    $node = node_load($form['nid']['#value']);
+  }
+  else {
+    $node = NULL;
+  }
+
+  if (variable_get('signup_form_' . $form['type']['#value'], 0)) {
+    $form['signup'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Signup settings'),
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+    );
+    $form['signup']['_signup_admin_form'] = _signup_admin_form($node);
+  }
+  else if (user_access('administer all signups')) {
+    $form['signup'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Signup settings'),
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#weight' => 30,
+    );
+    $form['signup']['signup_enable'] = array(
+      '#type' => 'checkbox',
+      '#default_value' => $node->signup,
+      '#title' => t('Enable signups for this !node_type', array('!node_type' => node_get_types('name', $form['type']['#value']))),
+    );
   }
 }
 
