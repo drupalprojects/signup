@@ -511,9 +511,7 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
             $header = array(array('data' => t('Your signup information'), 'colspan' => 2));
             $rows = array();
             if(is_array($form_data)) {
-              foreach ($form_data as $key => $value) {
-                $rows[] = array($key . ':', check_plain($value));
-              }
+              $rows += signup_build_signup_data($form_data, 'table');
             }
             $output = '';
             if (!empty($rows)) {
@@ -941,10 +939,8 @@ function signup_sign_up_user($signup_form) {
     $starttime = $node->event_start ? _event_date(variable_get('signup_date_string', 'D, M jS, g:i A'), $node->event_start, $offset) : t('[Untimed]');
     $signup_data_array = array();
     if (isset($signup_form['signup_form_data'])) {
-      foreach ($signup_form['signup_form_data'] as $key => $value) {
-        $signup_data_array[] = $key . ': ' . $value;
-      }
-      $signup_data = t('SIGNUP INFORMATION') . "\n\r\n\r" . implode("\n\r", $signup_data_array);
+      $signup_form_data = signup_build_signup_data($signup_form['signup_form_data'], 'email');
+      $signup_data = t('SIGNUP INFORMATION') . "\n\r\n\r" . $signup_form_data;
     }
     // Determine if this is an anon signup or not, and get the
     // appropriate email address to use.
@@ -1042,9 +1038,7 @@ function signup_user_signups_form($node) {
     $form_data = unserialize($signed_up_user->form_data);
 
     // Compose the user data.
-    foreach ($form_data as $key => $value) {
-      $table_data[] = $key . ': ' . check_plain($value);
-    }
+    $signup_form_data = signup_build_signup_data($form_data);
 
     // The username and the unique form identifier are different for
     // anon signups and registered user signups.  For registered users,
@@ -1063,7 +1057,7 @@ function signup_user_signups_form($node) {
     // Build the row for this user.
     $rows[] = array(
       $username .'<br />'. gmdate(variable_get('signup_date_string', 'M jS, g:i A'), $signed_up_user->signup_time + $offset),
-      implode('<br />', $table_data),
+      $signup_form_data,
       drupal_get_form('signup_user_cancel_form_'. $id, $id, $node->nid, $signed_up_user->uid, $signed_up_user->anon_mail)
     );
   }
@@ -1226,4 +1220,58 @@ function _signup_admin_form($node) {
   $form['signup'] = array('#type' => 'hidden', '#value' => 1);
 
   return $form;
+}
+
+/**
+ * Builds serialized user signup data into user-readable format.
+ *
+ * @param $data The serialized user signup data.
+ * @param $type The type of formatting -- defaults to 'output'.
+ *
+ * @return For table formatting, an array of table rows, for output formatting, raw user data in divs.
+ */
+function signup_build_signup_data($data, $type = 'output') {
+
+  switch ($type) {
+    case 'table':
+      static $rows = array();
+      // Loop through each first level element.
+      foreach ($data as $key => $value) {
+        // Element is nested, render it recursively.
+        if (is_array($value)) {
+          $rows[] = array('<div id="'. $key .'"></div>');
+          signup_build_signup_data($value, 'table');
+        }
+        else {
+          $rows[] = array($key . ':', check_plain($value));
+        }
+      }
+      return $rows;
+    case 'output':
+      $output = '';
+      // Loop through each first level element.
+      foreach ($data as $key => $value) {
+        // Element is nested, render it recursively.
+        if (is_array($value)) {
+          $output .= '<div id="'. $key .'">'. signup_build_signup_data($value) .'</div>';
+        }
+        else {
+          $output .= '<div>'. $key . ': ' . check_plain($value) . '</div>';
+        }
+      }
+      return $output;
+    case 'email':
+      $output = '';
+      // Loop through each first level element.
+      foreach ($data as $key => $value) {
+        // Element is nested, render it recursively.
+        if (is_array($value)) {
+          $output .= "\n\r". signup_build_signup_data($value, 'email') ."\n\r";
+        }
+        else {
+          $output .= $value ."\n\r";
+        }
+      }
+      return $output;
+  }
 }
