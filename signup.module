@@ -356,7 +356,7 @@ function signup_nodeapi(&$node, $op, $arg = 0) {
             if (user_access('allow signups')) {
               $form_data = theme('signup_user_form') . $hidden . form_submit(t('Sign up'));
               $form = form($form_data, 'post', url('signup', drupal_get_destination()));
-              $output = form_group(t('Sign up for %title', array('%title'=> check_plain($node->title))), $form);
+              $output = form_group(t('Sign up for %title', array('%title'=> $node->title)), $form);
             }
 
           //the user is already signed up, so print a table of their signup data, and give them the option to cancel
