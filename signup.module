@@ -285,9 +285,9 @@ function signup_alter_node_type_form($form_id, &$form) {
   $type = $form['type']['#value'];
   $form['workflow']['signup_form_' . $type] = array(
     '#type' => 'checkbox',
-    '#title' => t('Allow signups'),
+    '#title' => t('Allow signups by default'),
     '#default_value' => variable_get('signup_form_' . $type, FALSE) == 1,
-    '#description' => t('If selected, users will be allowed to signup for this node type.')
+    '#description' => t('If selected, users will be allowed to signup for this node type by default. Users with %admin_all_signups permission will be able to toggle this setting on a per-node basis.', array('%admin_all_signups' => t('administer all signups'))),
   );
 }
 
@@ -295,6 +295,8 @@ function signup_alter_node_type_form($form_id, &$form) {
  * Alters the node form to inject the appropriate per-node signup settings.
  */
 function signup_alter_node_form($form_id, &$form) {
+  global $user;
+
   // Load the node if it already exists.
   if (isset($form['nid']['#value'])) {
     $node = node_load($form['nid']['#value']);
@@ -303,16 +305,16 @@ function signup_alter_node_form($form_id, &$form) {
     $node = NULL;
   }
 
-  if (variable_get('signup_form_' . $form['type']['#value'], 0)) {
-    $form['signup'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Signup settings'),
-      '#collapsible' => TRUE,
-      '#collapsed' => TRUE,
-    );
-    $form['signup']['_signup_admin_form'] = _signup_admin_form($node);
-  }
-  else if (user_access('administer all signups')) {
+  $signup_enabled = variable_get('signup_form_'. $form['type']['#value'], 0);
+
+  // If the current user has global signup administration permissions,
+  // or if this node-type is signup-enabled and the user has permission
+  // to administer signups for their own content, add a fieldset for
+  // signup-related settings.
+  if (user_access('administer all signups') ||
+      (!empty($node) && $signup_enabled && $node->uid == $user->uid &&
+       user_access('administer signups for own content'))) {
+
     $form['signup'] = array(
       '#type' => 'fieldset',
       '#title' => t('Signup settings'),
@@ -320,11 +322,44 @@ function signup_alter_node_form($form_id, &$form) {
       '#collapsed' => TRUE,
       '#weight' => 30,
     );
-    $form['signup']['signup_enable'] = array(
-      '#type' => 'checkbox',
-      '#default_value' => $node->signup,
-      '#title' => t('Enable signups for this !node_type', array('!node_type' => node_get_name($form['type']['#value']))),
+
+    // Figure out what the options should be.  If there are already
+    // people signed-up for this node, we need a 3rd choice: disable
+    // signups and remove all signup data.
+    $has_signups = !empty($node) && db_result(db_query("SELECT COUNT(*) from {signup_log} WHERE nid = %d", $node->nid));
+    $radio_options[1] = t('Enabled');
+    if ($has_signups) {
+      $radio_options[0] = t('Disabled, but save existing signup information');
+      $radio_options[2] = t('Disabled, and remove all signup information') . ' <strong>('. t('This can not be undone, use with extreme caution!') .')</strong>';
+    }
+    else {
+      $radio_options[0] = t('Disabled');
+    }
+
+    // Figure out what the default selection for signups should be.
+    if (isset($node->signup)) {
+      $default_option = $node->signup;
+    }
+    else {
+      $default_option = $signup_enabled;
+    }
+    if ($default_option == 1 ) {
+      $hint = t('If enabled, you can control whether users may sign up by visiting the !signups tab and toggling if signups are %open or %closed for this @node_type.', array('!signups' => l(t('Signups'), 'node/'. $node->nid .'/signups'), '%open' => theme('placeholder', t('open')), '%closed' => theme('placeholder', t('closed')), '@node_type' => check_plain(strtolower(node_get_name($form['type']['#value']))))) .'<br />';
+    }
+    else {
+      $hint = '';
+    }
+
+    // Add the form element to toggle if signups are allowed.
+    $form['signup']['signup_enabled'] = array(
+      '#type' => 'radios',
+      '#options' => $radio_options,
+      '#default_value' => $default_option,
+      '#description' => $hint . t('If disabled, all of the other signup settings will be ignored.'),
     );
+
+    // Add the actual settings.
+    $form['signup']['node_settings'] = _signup_admin_form($node);
   }
 }
 
@@ -380,63 +415,79 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
   global $form_values;
   switch ($op) {
     case 'insert':
-      // If it's a signup enabled node, then insert a new row for this node.
-      if (variable_get('signup_form_' . $node->type, 0)) {
-        db_query("INSERT INTO {signup} (nid, forwarding_email, send_confirmation, confirmation_email, send_reminder, reminder_days_before, reminder_email) VALUES (%d, '%s', %d, '%s', %d, %d, '%s')",
-          $node->nid, $form_values['signup_forwarding_email'],
-          $form_values['signup_send_confirmation'],
-          $form_values['signup_confirmation_email'],
-          $form_values['signup_send_reminder'],
-          $form_values['signup_reminder_days_before'],
-          $form_values['signup_reminder_email']
-        );
+      if (isset($form_values['signup_enabled'])) {
+        if ($form_values['signup_enabled'] == 1) {
+          $values = array(
+            $node->nid,
+            $form_values['signup_forwarding_email'],
+            $form_values['signup_send_confirmation'],
+            $form_values['signup_confirmation_email'],
+            $form_values['signup_send_reminder'],
+            $form_values['signup_reminder_days_before'],
+            $form_values['signup_reminder_email'],
+          );
+        }
       }
-      else if ($form_values['signup_enable']) {
-        $defaults = db_fetch_array(db_query('SELECT * FROM {signup} WHERE nid = 0'));
-        db_query("INSERT INTO {signup} (nid, forwarding_email, send_confirmation, confirmation_email, send_reminder, reminder_days_before, reminder_email) VALUES (%d, '%s', %d, '%s', %d, %d, '%s')",
-          $node->nid, $defaults['forwarding_email'],
+      else if (variable_get('signup_form_'. $node->type, 0)) {
+        // The form doesn't include any information about signups, but
+        // the node type is signup-enabled. This would happen if a
+        // user without any signup admin permissions creates a node
+        // that has been signup-enabled based on the node type. In
+        // this case, we use the site-wide default signup settings.
+        $defaults = db_fetch_array(db_query("SELECT * from {signup} WHERE nid = 0"));
+        $values = array(
+          $node->nid,
+          $defaults['forwarding_email'],
           $defaults['send_confirmation'],
           $defaults['confirmation_email'],
           $defaults['send_reminder'],
           $defaults['reminder_days_before'],
-          $defaults['reminder_email']
+          $defaults['reminder_email'],
         );
+      }
+      if (isset($values)) {
+        db_query("INSERT INTO {signup} (nid, forwarding_email, send_confirmation, confirmation_email, send_reminder, reminder_days_before, reminder_email) VALUES (%d, '%s', %d, '%s', %d, %d, '%s')", $values);
       }
       break;
 
     case 'update':
-      // If this is a signup enabled node, then update the signup info
-      // for the node.
-      if (db_num_rows(db_query('SELECT * FROM {signup} WHERE nid = %d', $node->nid))) {
-        db_query("UPDATE {signup} SET forwarding_email  = '%s', send_confirmation = %d, confirmation_email  = '%s', send_reminder = %d, reminder_days_before = %d, reminder_email = '%s' WHERE nid = %d",
-          $node->signup_forwarding_email,
-          $node->signup_send_confirmation,
-          $node->signup_confirmation_email,
-          $node->signup_send_reminder,
-          $node->signup_reminder_days_before,
-          $node->signup_reminder_email, $node->nid
-        );
-      }
-      else if ($form_values['signup_enable']) {
-        $defaults = db_fetch_array(db_query('SELECT * FROM {signup} WHERE nid = 0'));
-        db_query("INSERT INTO {signup} (nid, forwarding_email, send_confirmation, confirmation_email, send_reminder, reminder_days_before, reminder_email) VALUES (%d, '%s', %d, '%s', %d, %d, '%s')",
-          $node->nid, $defaults['forwarding_email'],
-          $defaults['send_confirmation'],
-          $defaults['confirmation_email'],
-          $defaults['send_reminder'],
-          $defaults['reminder_days_before'],
-          $defaults['reminder_email']
-        );
-      }
-      else if (variable_get('signup_form_' . $node->type, 0)) {
-        db_query("INSERT INTO {signup} (nid, forwarding_email, send_confirmation, confirmation_email, send_reminder, reminder_days_before, reminder_email) VALUES (%d, '%s', %d, '%s', %d, %d, '%s')",
-          $node->nid, $form_values['forwarding_email'],
-          $form_values['send_confirmation'],
-          $form_values['confirmation_email'],
-          $form_values['send_reminder'],
-          $form_values['reminder_days_before'],
-          $form_values['reminder_email']
-        );
+      if (isset($form_values['signup_enabled'])) {
+        $has_signup_record = db_result(db_query('SELECT COUNT(*) FROM {signup} WHERE nid = %d', $node->nid));
+        switch ($form_values['signup_enabled']) {
+          case 1: // Enabled
+            if ($has_signup_record) {
+              db_query("UPDATE {signup} SET forwarding_email  = '%s', send_confirmation = %d, confirmation_email  = '%s', send_reminder = %d, reminder_days_before = %d, reminder_email = '%s' WHERE nid = %d",
+                $node->signup_forwarding_email,
+                $node->signup_send_confirmation,
+                $node->signup_confirmation_email,
+                $node->signup_send_reminder,
+                $node->signup_reminder_days_before,
+                $node->signup_reminder_email, $node->nid
+              );
+            }
+            else {
+              db_query("INSERT INTO {signup} (nid, forwarding_email, send_confirmation, confirmation_email, send_reminder, reminder_days_before, reminder_email) VALUES (%d, '%s', %d, '%s', %d, %d, '%s')", $node->nid,
+                $node->signup_forwarding_email,
+                $node->signup_send_confirmation,
+                $node->signup_confirmation_email,
+                $node->signup_send_reminder,
+                $node->signup_reminder_days_before,
+                $node->signup_reminder_email
+              );
+            }
+            break;
+
+          case 2: // Disabled, and delete {signup_log}, too
+            db_query("DELETE FROM {signup_log} WHERE nid = %d", $node->nid);
+            // No break, fall through and remove from {signup} too.
+
+          case 0: // Disabled, but leave {signup_log} alone
+            if ($has_signup_record) {
+              db_query("DELETE FROM {signup} WHERE nid = %d", $node->nid);
+            }
+            break;
+
+        }
       }
       break;
 
@@ -463,6 +514,9 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
         $node->signup_reminder_days_before = $signup->reminder_days_before;
         $node->signup_reminder_email = $signup->reminder_email;
         $node->signup_completed = $signup->completed;
+      }
+      else {
+        $node->signup = 0;
       }
       break;
 
@@ -1143,7 +1197,7 @@ function signup_validate_anon_email($nid, $anon_mail, $name = FALSE) {
 function _signup_admin_form($node) {
 
   // Load the default admin form data for new nodes.
-  if(!$node) {
+  if(!$node || !$node->signup) {
     $result = db_fetch_object(db_query("SELECT * FROM {signup} WHERE nid = 0"));
     $node->signup_forwarding_email = $result->forwarding_email;
     $node->signup_send_confirmation = $result->send_confirmation;
