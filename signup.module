@@ -69,7 +69,7 @@ function signup_cron() {
     $header = "From: $from\nReply-to: $from\nX-Mailer: Drupal\nReturn-path: $from\nErrors-to: $from";
     while ($event = db_fetch_object($result)) {
       $subject = t('Event reminder: %event', array('%event' => $event->title));
-      $signups = db_query("SELECT u.name, u.mail, s_l.anon_mail FROM {signup_log} s_l INNER JOIN {users} u ON u.uid = s_l.uid WHERE s_l.nid = %d", $event->nid);
+      $signups = db_query("SELECT u.name, u.mail, s_l.anon_mail, s_l.form_data FROM {signup_log} s_l INNER JOIN {users} u ON u.uid = s_l.uid WHERE s_l.nid = %d", $event->nid);
 
       // Get timezone offset.
       $offset = event_get_offset($event->timezone, $event->event_start);
@@ -78,11 +78,18 @@ function signup_cron() {
       // and sending the email.
       while ($signup = db_fetch_object($signups)) {
         $mail_address = $signup->anon_mail ? $signup->anon_mail : $signup->mail;
+        $signup_data_array = unserialize($signup->form_data);
+        if (!empty($signup_data_array)) {
+          $signup_data = signup_build_signup_data($signup_data_array, 'email');
+          $signup_info = t('SIGNUP INFORMATION') ."\n\r". $signup_data;
+        }
+
         $trans = array(
           '%event' => $event->title,
           '%time' => _event_date(variable_get('signup_date_string', 'D, M jS, g:i A'), $event->event_start, $offset),
           '%username' => $signup->name,
           '%useremail' => $mail_address,
+          '%info' => $signup_info,
         );
         $message = strtr($event->reminder_email, $trans);
         user_mail($mail_address, $subject, $message, $header);
@@ -1207,6 +1214,7 @@ function _signup_admin_form($node) {
     $node->signup_reminder_email = $result->reminder_email;
   }
 
+  $signup_token_description = t('Supported string substitutions: %event, %time, %username, %useremail, %info (user signup information).');
   $form['signup_forwarding_email'] = array(
     '#type' => 'textfield',
     '#title' => t('Send signups to'),
@@ -1224,7 +1232,7 @@ function _signup_admin_form($node) {
     '#title' => t('Confirmation email'),
     '#default_value' => $node->signup_confirmation_email,
     '#cols' => 40, '#rows' => 6,
-    '#description' => t('Email sent to user upon signup. Supported string substitutions: %event, %time, %username, %useremail, %info (user signup information).'),
+    '#description' => t('Email sent to user upon signup.') .' '. $signup_token_description,
   );
   // Define a sub-tree to wrap the next 2 form elements together in an
   // inline div for better display.
@@ -1252,7 +1260,7 @@ function _signup_admin_form($node) {
     '#title' => t('Reminder email'),
     '#default_value' => $node->signup_reminder_email,
     '#cols' => 40, '#rows' => 6,
-    '#description' => t('Email sent to user as an event reminder. Supported string substitutions: %event, %time, %username, %useremail'),
+    '#description' => t('Email sent to user as an event reminder.') .' '. $signup_token_description,
   );
   $form['signup'] = array('#type' => 'hidden', '#value' => 1);
 
