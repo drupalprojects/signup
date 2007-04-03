@@ -3,16 +3,16 @@
 # LANGUAGE translation of Drupal (general)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
 # Generated from files:
-#  signup.module,v 1.74.2.20 2007/03/20 07:25:52 dww
-#  signup.theme,v 1.7.2.2 2007/03/14 07:03:14 dww
+#  signup.module,v 1.74.2.25 2007/03/31 07:15:07 dww
+#  signup.theme,v 1.7.2.3 2007/03/25 19:08:09 dww
 #  signup.install,v 1.6.2.3 2007/03/20 07:27:21 dww
-#  signup.info,v 1.1.2.1 2007/02/28 09:21:43 dww
+#  signup.info,v 1.1.2.2 2007/03/27 16:03:27 dww
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2007-03-20 00:27-0700\n"
+"POT-Creation-Date: 2007-04-03 13:23-0700\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -21,7 +21,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: signup.module:874 signup.theme:26
+#: signup.module:1028 signup.theme:26
 msgid "[Untimed]"
 msgstr ""
 
