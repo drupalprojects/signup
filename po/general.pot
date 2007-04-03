@@ -3,15 +3,15 @@
 # LANGUAGE translation of Drupal (general)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
 # Generated from files:
-#  signup.module,v 1.45.2.27 2007/02/28 23:52:18 dww
-#  signup.theme,v 1.4.2.3 2006/06/16 17:14:19 thehunmonkgroup
-#  signup.install,v 1.2.2.4 2006/06/16 17:14:19 thehunmonkgroup
+#  signup.module,v 1.45.2.45 2007/03/31 07:15:11 dww
+#  signup.theme,v 1.4.2.6 2007/03/25 19:08:12 dww
+#  signup.install,v 1.2.2.6 2007/03/20 23:04:29 dww
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2007-02-28 16:12-0800\n"
+"POT-Creation-Date: 2007-04-03 13:23-0700\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -20,7 +20,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: signup.module:786 signup.theme:26
+#: signup.module:1006 signup.theme:26
 msgid "[Untimed]"
 msgstr ""
 
@@ -36,19 +36,35 @@ msgstr ""
 msgid "Timezone: "
 msgstr ""
 
-#: signup.theme:44
+#: signup.theme:59
 msgid "Name"
 msgstr ""
 
-#: signup.theme:45
+#: signup.theme:65
 msgid "Phone"
 msgstr ""
 
-#: signup.install:98
+#: signup.install:88
 msgid "Signup module installed successfully."
 msgstr ""
 
-#: signup.install:101
+#: signup.install:91
 msgid "Table installation for the Signup module was unsuccessful. The tables may need to be installed by hand. See the signup.install file for a list of the installation queries."
+msgstr ""
+
+#: signup.install:175
+msgid "The old %signup_user_view setting was enabled on your site, so the %view_all_signups permission has been added to the %authenticated_user role. Please consider customizing what roles have this permission on the !access_control page."
+msgstr ""
+
+#: signup.install:175;183
+msgid "Users can view signups"
+msgstr ""
+
+#: signup.install:175
+msgid "Access control"
+msgstr ""
+
+#: signup.install:183
+msgid "The %signup_user_view setting has been removed."
 msgstr ""
 
