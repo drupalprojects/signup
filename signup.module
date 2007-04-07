@@ -103,7 +103,7 @@ function signup_cron() {
     // preferred.  Query the database for all signup events which have a
     // start time less than this.
     $closing_time = $curtime + (variable_get('signup_close_early', 1) * 3600);
-    $result = db_query("SELECT s.nid FROM {signup} s INNER JOIN {event} e ON e.nid = s.nid WHERE s.completed = 0 AND e.event_start < %d", $closing_time);
+    $result = db_query("SELECT s.nid FROM {signup} s INNER JOIN {event} e ON e.nid = s.nid WHERE s.status = 1 AND e.event_start < %d", $closing_time);
 
     // Loop through the results, calling the event closing function.
     while ($signup = db_fetch_object($result)) {
@@ -528,7 +528,7 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
         $node->signup_send_reminder  = $signup->send_reminder ;
         $node->signup_reminder_days_before = $signup->reminder_days_before;
         $node->signup_reminder_email = $signup->reminder_email;
-        $node->signup_completed = $signup->completed;
+        $node->signup_status = $signup->status;
       }
       else {
         $node->signup = 0;
@@ -546,7 +546,7 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
 
         // The node has been closed for signups, and the user has
         // signup permissions.  Let them know it's closed.
-        if ($node->signup_completed) {
+        if (!$node->signup_status) {
           if (user_access('sign up for content')) {
             $output = '<h3>' . t('Signups closed for this event') . '</h3>';
           }
@@ -700,10 +700,10 @@ function signup_admin_page() {
 
   // Limit query for open/closed tabs.
   if (arg(3) == 'open') {
-    $where = ' WHERE s.completed = 0';
+    $where = ' WHERE s.status = 1';
   }
   else if (arg(3) == 'closed') {
-    $where = ' WHERE s.completed = 1';
+    $where = ' WHERE s.status = 0';
   }
   else {
     $where = '';
@@ -721,12 +721,12 @@ function signup_admin_page() {
   }
 
   // Pull all open signup nodes, and start the creation of the table.
-  $sql = "SELECT n.title, n.nid, s.completed$event_select,
+  $sql = "SELECT n.title, n.nid, s.status$event_select,
           COUNT(s_l.nid) AS count
           FROM {signup} s INNER JOIN {node} n ON n.nid = s.nid
           LEFT JOIN {signup_log} s_l ON s.nid = s_l.nid $event_join";
   $sql .= $where;
-  $sql .= " GROUP BY n.nid, n.title, s.completed$event_select";
+  $sql .= " GROUP BY n.nid, n.title, s.status$event_select";
   $sql .= tablesort_sql($header);
   $result = pager_query($sql, 25);
 
@@ -745,7 +745,7 @@ function signup_admin_page() {
     $row[] = $signup_event->count;
     $op_links = l(t('View Signups'), "node/$signup_event->nid/signups");
     $op_links .= '<br />';
-    if ($signup_event->completed) {
+    if (!$signup_event->status) {
       if (!arg(2)) {
         $op_links .= '<em>'. t('Closed: ') .'</em>';
       }
@@ -794,7 +794,7 @@ function signup_cancel_signup($uid, $nid, $anon_mail = NULL) {
  * @ingroup signup_callback
  */
 function signup_close_signup($nid, $cron = 'no') {
-  db_query("UPDATE {signup} SET completed = 1 WHERE nid = %d", $nid);
+  db_query("UPDATE {signup} SET status = 0 WHERE nid = %d", $nid);
   if ($cron == 'no') {
     $node = node_load($nid);
     foreach (module_implements('signup_close') as $module) {
@@ -819,7 +819,7 @@ function signup_close_signup_admin($nid, $tab = NULL) {
  * @ingroup signup_callback
  */
 function signup_open_signup($nid, $cron = 'no') {
-  db_query("UPDATE {signup} SET completed = 0 WHERE nid = %d", $nid);
+  db_query("UPDATE {signup} SET status = 1 WHERE nid = %d", $nid);
   if ($cron == 'no') {
     $node = node_load(array('nid'=>$nid));
     foreach (module_implements('signup_open') as $module) {
@@ -983,7 +983,7 @@ function signup_sign_up_user($signup_form) {
   // If we made it this far, we're going to need the full $user object.
   $user = user_load(array('uid' => $signup_form['uid']));
 
-  if (user_access('sign up for content') && !$node->signup_completed) {
+  if (user_access('sign up for content') && $node->signup_status) {
     // This check is in case a node type was enabled, and the node the
     // user is trying to sign up for is not in the signup table.  This
     // would be the case for all nodes created when signup.module was
@@ -1101,7 +1101,7 @@ function signup_user_signups_form($node) {
 
   // Display if signups are open/closed, and print a button to toggle
   $ctrl_row = array();
-  if ($node->signup_completed) {
+  if (!$node->signup_status) {
     $ctrl_row[] = array(t('Signups <strong>closed</strong> for this event'), drupal_get_form('signup_open_signups_form', $node->nid));
   }
   else {

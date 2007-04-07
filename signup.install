@@ -28,7 +28,7 @@ function signup_install() {
                 reminder_email longtext NOT NULL,
                 close_in_advance_time int(10) unsigned NOT NULL default '0',
                 close_signup_limit int(10) unsigned NOT NULL default '0',
-                completed int(2) NOT NULL default '0',
+                status int(2) NOT NULL default '1',
                 PRIMARY KEY  (nid)
             ) TYPE=MyISAM /*!40100 DEFAULT CHARACTER SET utf8 */;");
 
@@ -60,7 +60,7 @@ function signup_install() {
                 reminder_email text NOT NULL default '',
                 close_in_advance_time integer NOT NULL default '0',
                 close_signup_limit integer NOT NULL default '0',
-                completed integer NOT NULL default '0',
+                status integer NOT NULL default '1',
                 PRIMARY KEY (nid)
             );");
 
@@ -114,9 +114,9 @@ function signup_insert_default_signup_info() {
   return db_query("INSERT INTO {signup} (nid, forwarding_email,
     send_confirmation, confirmation_email, 
     send_reminder, reminder_days_before, reminder_email,
-    close_in_advance_time, close_signup_limit, completed) VALUES (0, '',
+    close_in_advance_time, close_signup_limit, status) VALUES (0, '',
     1, 'Enter your default confirmation email message here',
-    1, 0, 'Enter your default reminder email message here', 0, 0, 0)");
+    1, 0, 'Enter your default reminder email message here', 0, 0, 1)");
 }
 
 /**
@@ -195,5 +195,27 @@ function signup_update_4() {
   variable_del('signup_user_view');
   drupal_set_message(t('The %signup_user_view setting has been removed.', array('%signup_user_view' => t('Users can view signups'))));
 
+  return $ret;
+}
+
+/**
+ * Convert the misnamed "completed" column to "status" (and swap all
+ * the values: 0 == closed, 1 == open).
+ */
+function signup_update_5200() {
+  $ret = array();
+  switch ($GLOBALS['db_type']) {
+    case 'mysql':
+    case 'mysqli':
+      $ret[] = update_sql("ALTER TABLE {signup} ADD status int NOT NULL default '1'");
+      $ret[] = update_sql("UPDATE {signup} SET status = (! completed)");
+      $ret[] = update_sql("ALTER TABLE {signup} DROP completed");
+      break;
+    case 'pgsql':
+      db_add_column($ret, 'signup', 'status', 'integer', array('not null' => TRUE, 'default' => "'1'"));
+      $ret[] = update_sql("UPDATE {signup} SET status = CAST((NOT(CAST(completed AS bool))) AS integer)");
+      $ret[] = update_sql("ALTER TABLE {signup} DROP completed");
+      break;
+  }
   return $ret;
 }
