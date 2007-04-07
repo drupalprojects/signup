@@ -41,6 +41,12 @@ function signup_block($op = 'list', $delta = 0) {
   }
 }
 
+function signup_init() {
+  if (module_exists('views')) {
+    require './'. drupal_get_path('module', 'signup'). '/signup_views.inc';
+  }
+}
+
 /**
  * Implementation of hook_cron().
  * @ingroup signup_core
