@@ -208,14 +208,12 @@ function signup_update_5200() {
     case 'mysql':
     case 'mysqli':
       $ret[] = update_sql("ALTER TABLE {signup} ADD status int NOT NULL default '1'");
-      $ret[] = update_sql("UPDATE {signup} SET status = (! completed)");
-      $ret[] = update_sql("ALTER TABLE {signup} DROP completed");
       break;
     case 'pgsql':
       db_add_column($ret, 'signup', 'status', 'integer', array('not null' => TRUE, 'default' => "'1'"));
-      $ret[] = update_sql("UPDATE {signup} SET status = CAST((NOT(CAST(completed AS bool))) AS integer)");
-      $ret[] = update_sql("ALTER TABLE {signup} DROP completed");
       break;
   }
+  $ret[] = update_sql("UPDATE {signup} SET status = (1 - completed)");
+  $ret[] = update_sql("ALTER TABLE {signup} DROP completed");
   return $ret;
 }
