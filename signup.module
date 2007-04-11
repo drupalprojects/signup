@@ -145,6 +145,12 @@ function signup_help($section) {
         t('The user signup form is fully themable -- form fields may be added or deleted. For more details see the instructions in signup.theme, where a sample user form is included.')
         .'</p>';
   }
+
+  // If we're still here, consider the URL for help on various menu tabs.
+  if (arg(0) == 'node' && is_numeric(arg(1)) && arg(2) == 'signup-broadcast') {
+    $node = node_load(arg(1));
+    return '<p>' . t('This page allows you to send an email message to every user who signed up for this @node_type.', array('@node_type' => $node->type)) .'</p>';
+  }
 }
 
 /**
@@ -225,6 +231,8 @@ function signup_menu($may_cache) {
     if (arg(0) == 'node' && is_numeric(arg(1)) && db_num_rows(db_query("SELECT nid FROM {signup} WHERE nid = %d", arg(1)))) {
       $node = node_load(array('nid' => arg(1)));
       $access_own = user_access('administer signups for own content') && ($user->uid == $node->uid);
+      $email_own = user_access('email users signed up for own content') && ($user->uid == $node->uid);
+      $email_all = user_access('email all signed up users');
       $items[] = array(
         'path' => 'node/' . arg(1) . '/signups',
         'title' => t('Signups'),
@@ -232,7 +240,16 @@ function signup_menu($may_cache) {
         'callback arguments' => array($node),
         'access' => $access || $access_own,
         'type' => MENU_LOCAL_TASK,
-        'weight' => 20
+        'weight' => 20,
+      );
+      $items[] = array(
+        'path' => 'node/' . arg(1) . '/signup-broadcast',
+        'title' => t('Signup broadcast'),
+        'callback' => 'drupal_get_form',
+        'callback arguments' => array('signup_broadcast_form', $node),
+        'access' => $email_all || $email_own,
+        'type' => MENU_LOCAL_TASK,
+        'weight' => 21,
       );
     }
   }
@@ -249,6 +266,8 @@ function signup_perm() {
     'view all signups',
     'administer all signups',
     'administer signups for own content',
+    'email users signed up for own content',
+    'email all signed up users',
   );
 }
 
@@ -699,6 +718,9 @@ function signup_admin_page() {
   $output = '';
   drupal_set_title(t('Signups'));
 
+  // Figure out if the current user has permission to use signup broadcast.
+  $access_broadcast = user_access('email all signed up users');
+  
   // Add optional SQL to the query if the event module is enabled.
   $has_event = module_exists('event');
   $event_select = $has_event ? ', e.event_start, e.timezone' : '';
@@ -762,6 +784,11 @@ function signup_admin_page() {
         $op_links .= '<em>'. t('Open: ') .'</em>';
       }
       $op_links .= l(t('Close Event'), "closesignup/$signup_event->nid/" . arg(2));
+    }
+
+    if ($access_broadcast) {
+      $op_links .= '<br />';
+      $op_links .= l(t('Signup broadcast'), "node/$signup_event->nid/signup-broadcast", array('title' => t('Send an email message to all users who signed up.')));
     }
     $row[] = $op_links;
     $rows[] = $row;
@@ -1353,4 +1380,106 @@ function signup_build_signup_data($data, $type = 'output') {
       }
       return $output;
   }
+}
+
+/**
+ * Form builder for the signup broadcast form.
+ *
+ * @param $node
+ *   The node that the broadcast form is being attached to.
+ */
+function signup_broadcast_form($node) {
+  // Seems lame we need this here, but apparently, we do. :(
+  drupal_set_title(check_plain($node->title));
+
+  $addresses = signup_get_email_addresses($node->nid);
+  if (empty($addresses)) {
+    $form['no_users'] = array(
+      '#value' => t('No users have signup up for this @node_type.', array('@node_type' => $node->type)),
+    );
+    return $form;
+  }
+
+  $form['subject'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Subject'),
+    '#required' => true,
+  );
+  $form['message'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Message body'),
+    '#required' => true,
+    '#description' => t('Body of the email message you wish to send to all users who have signed up for this @node_type.', array('@node_type' => $node->type)) .' '. t('Supported string substitutions: %event, %time, %username, %useremail.'),
+    '#rows' => 10,
+  );
+  $form['send'] = array(
+    '#type' => 'submit',
+    '#value' => t('Send'),
+  );
+  $form['nid'] = array(
+    '#type' => 'value',
+    '#value' => $node->nid,
+  );
+  
+  global $user;
+  if (user_access('administer site configuration')) {
+    $form['from'] = array(
+      '#type' => 'textfield',
+      '#title' => t('From'),
+      '#required' => true,
+      '#default_value' => $user->mail,
+      '#weight' => '-10',
+    );
+  }
+  else {
+    $form['from'] = array(
+     '#value' => t('This message will be sent from: %from', array('%from' => $user->mail)),
+     '#pre' => '<strong>',
+     '#post' => '</strong>',
+    );
+  }
+  return $form;
+}
+
+/**
+ * Retrieve a list of all users who have signed up for an event
+ *
+ * @param $nid
+ * @return An array of objects containing signup data
+ */
+function signup_get_email_addresses($nid) {
+  $signups = db_query("SELECT u.uid, u.name, u.mail, s_l.anon_mail FROM {signup_log} s_l INNER JOIN {users} u ON u.uid = s_l.uid WHERE s_l.nid = %d", $nid);  
+  while ($signup_entry = db_fetch_object($signups)) {
+    $signup_data[] = $signup_entry;
+  } 
+  return $signup_data;
+} 
+
+/**
+ * Send an email message to all those signed up to an event. 
+ *
+ * @param $form_id
+ * @param $form_values
+ */
+function signup_broadcast_form_submit($form_id, $form_values) {
+  $addresses = signup_get_email_addresses($form_values[nid]);
+  if (is_array($addresses)) {
+    $from = $form_values['from'];
+    $subject = $form_values['subject'];
+    $event = node_load($form_values[nid]);
+    foreach ($addresses as $signup) { 
+      $mail_address = $signup->anon_mail ? $signup->anon_mail : $signup->mail;
+      $trans = array(
+        '%event' => $event->title,
+        '%time' => _event_date(variable_get('signup_date_string', 'D, M jS, g:i A'), $event->event_start, $offset),
+        '%username' => $signup->name,
+        '%useremail' => $mail_address,
+//        '%info' => $signup_info,
+      );
+      $message = strtr($form_values['message'], $trans);
+      drupal_mail('signup_broadcast_mail', $mail_address, $subject, $message, $from);
+      watchdog('signup', t('Broadcast email for %event sent to %email.', array('%event' => $event->title, '%email' => $mail_address)), WATCHDOG_NOTICE, l(t('view'), 'node/'. $event->nid));
+    }
+  }
+  drupal_set_message(t('Message sent to all users who have signed up'));
 }
