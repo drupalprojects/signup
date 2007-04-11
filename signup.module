@@ -681,7 +681,7 @@ function signup_form($node, $anon_signup_form = NULL) {
     '#type' => 'fieldset',
     '#title' => t('Sign up for @title', array('@title' => $node->title)),
     '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
+    '#collapsed' => variable_get('signup_fieldset_collapsed', 1),
   );
 
   // Build the themed signup form.  If the anon signup form is
@@ -891,6 +891,20 @@ function signup_settings_page() {
     '#collapsible' => true,
   );
   $form['node_defaults']['_signup_admin_form'] = _signup_admin_form($node);
+
+  $form['adv_settings'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Advanced settings'),
+    '#collapsible' => true,
+    '#collapsed' => true,
+  );
+  $form['adv_settings']['signup_fieldset_collapsed'] = array(
+    '#title' => t('Default fieldset behavior for per-node signup form'),
+    '#type' => 'radios',
+    '#options' => array(1 => t('Collapsed'), 0 => t('Expanded')), 
+    '#default_value' => variable_get('signup_fieldset_collapsed', 1),
+    '#description' => t('On every signup-enabled node, users with permission to sign up will be presented with a form which is encapsulated in a collapsible fieldset. This setting controls if that fieldset is expanded or collapsed by default.'),
+  );
 
   // Use our own submit handler, so we can do some processing before
   // we hand control to system_settings_form_submit.
