@@ -88,7 +88,7 @@ function signup_conflicts_form_alter($form_id, &$form) {
 function signup_conflicts_menu($may_cache) {
 
   $items = array();
-  $access = user_access('admin signups');
+  $access = user_access('administer all signups');
 
   if ($may_cache) {
 
