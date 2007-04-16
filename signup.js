@@ -12,8 +12,8 @@ Drupal.signupShowSettingsAutoAttach = function () {
 }
 
 // Global killswitch.
-$(function() {
-  if (Drupal.jsEnabled) {
+if (Drupal.jsEnabled) {
+  $(function() {
     Drupal.signupShowSettingsAutoAttach();
-  }
-});
+  });
+}
