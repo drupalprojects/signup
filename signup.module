@@ -1492,7 +1492,7 @@ function signup_broadcast_form_submit($form_id, $form_values) {
       $trans = array(
         '%event' => $event->title,
         '%time' => _event_date(variable_get('signup_date_string', 'D, M jS, g:i A'), $event->event_start, $offset),
-        '%username' => $signup->name,
+        '%username' => $signup->uid ? $signup->name : variable_get('anonymous', t('Anonymous')),
         '%useremail' => $mail_address,
 //        '%info' => $signup_info,
       );
