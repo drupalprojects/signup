@@ -19,6 +19,4 @@ For a list of future work, also see TODO.txt.
 
 This module was originally co-developed by Chad Phillips and Jeff
 Robbins, and sponsored by Jeff Robbins.  It is now being maintained
-by: Derek Wright <drupal-signup@dwwright.net>, "dww" on drupal.org
-(http://drupal.org/user/46549).
-
+by: Derek Wright (http://drupal.org/user/46549) a.k.a. "dww".
