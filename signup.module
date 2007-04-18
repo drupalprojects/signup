@@ -177,28 +177,7 @@ function signup_menu($may_cache) {
       'description' => t('View all signup-enabled posts, and open or close signups on them.'),
       'access' => $access,
       'callback' => 'signup_admin_page',
-      'title' => t('Signup overview'),
-    );
-    $items[] = array(
-      'path' => 'admin/content/signup/overview',
-      'title' => t('Overview'),
-      'access' => $access,
-      'type' => MENU_DEFAULT_LOCAL_TASK,
-      'weight' => -10
-    );
-    $items[] = array(
-      'path' => 'admin/content/signup/open',
-      'title' => t('Open'),
-      'type' => MENU_LOCAL_TASK,
-      'access' => $access,
-      'weight' => -8,
-    );
-    $items[] = array(
-      'path' => 'admin/content/signup/closed',
-      'title' => t('Closed'),
-      'type' => MENU_LOCAL_TASK,
-      'access' => $access,
-      'weight' => -6,
+      'title' => t('Signup administration'),
     );
   
     // Callbacks to open and close signups on a specific node.
@@ -715,8 +694,9 @@ function signup_form_cancel($node) {
  * @ingroup signup_callback
  */
 function signup_admin_page() {
-  $output = '';
-  drupal_set_title(t('Signups'));
+  drupal_add_css(drupal_get_path('module', 'signup') .'/signup.css');
+  $output = drupal_get_form('signup_filter_status_form');
+  $type = $_SESSION['signup_status_filter'];
 
   // Figure out if the current user has permission to use signup broadcast.
   $access_broadcast = user_access('email all signed up users');
@@ -726,11 +706,10 @@ function signup_admin_page() {
   $event_select = $has_event ? ', e.event_start, e.timezone' : '';
   $event_join = $has_event ? ' LEFT JOIN {event} e ON e.nid = n.nid' : '';
 
-  // Limit query for open/closed tabs.
-  if (arg(3) == 'open') {
+  if ($type == 'open') {
     $where = ' WHERE s.status = 1';
   }
-  else if (arg(3) == 'closed') {
+  else if ($type == 'closed') {
     $where = ' WHERE s.status = 0';
   }
   else {
@@ -801,6 +780,33 @@ function signup_admin_page() {
   return $output;
 }
 
+function signup_filter_status_form() {
+  $options = array(
+    'all' => t('All'),
+    'open' => t('Open'),
+    'closed' => t('Closed'),
+  );
+  if (empty($_SESSION['signup_status_filter'])) {
+    $_SESSION['signup_status_filter'] = 'all';
+  }
+  $form['filter'] = array(
+    '#type' => 'select',
+    '#title' => t('Filter by signup status'),
+    '#options' => $options,
+    '#default_value' => $_SESSION['signup_status_filter'],
+  );
+  $form['submit'] = array('#type' => 'submit', '#value' => t('Filter'));
+  $form['#redirect'] = FALSE;
+  return $form;
+}
+
+function theme_signup_filter_status_form($form) {
+  return '<div class="container-inline">'. drupal_render($form) .'</div>';
+}
+
+function signup_filter_status_form_submit($form_id, $form_values) {
+  $_SESSION['signup_status_filter'] = $form_values['filter'];
+}
 
 /**
  * Callback function for canceling signups
