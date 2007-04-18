@@ -3,16 +3,16 @@
 # LANGUAGE translation of Drupal (general)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
 # Generated from files:
-#  signup.module,v 1.98 2007/03/31 07:15:05 dww
+#  signup.module,v 1.105 2007/04/18 18:08:39 dww
 #  signup.theme,v 1.10 2007/03/25 19:08:08 dww
-#  signup.install,v 1.9 2007/03/20 07:27:17 dww
+#  signup.install,v 1.11 2007/04/10 22:13:21 dww
 #  signup.info,v 1.3 2007/03/27 16:03:25 dww
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2007-04-03 13:59-0700\n"
+"POT-Creation-Date: 2007-04-18 11:25-0700\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -21,7 +21,27 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: signup.module:1028 signup.theme:26
+#: signup_views.inc:32;79;274;278 signup.module:1495
+msgid "Anonymous"
+msgstr ""
+
+#: signup_views.inc:154;211 signup.module:786
+msgid "Open"
+msgstr ""
+
+#: signup_views.inc:154;211 signup.module:787
+msgid "Closed"
+msgstr ""
+
+#: signup_views.inc:164 signup.module:342
+msgid "Disabled"
+msgstr ""
+
+#: signup_views.inc:164 signup.module:336
+msgid "Enabled"
+msgstr ""
+
+#: signup.module:1064 signup.theme:26
 msgid "[Untimed]"
 msgstr ""
 

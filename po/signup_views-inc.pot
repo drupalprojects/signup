@@ -1,0 +1,171 @@
+# $Id$
+#
+# LANGUAGE translation of Drupal (signup_views.inc)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# No version information was available in the source files.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2007-04-18 11:25-0700\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: signup_views.inc:29
+msgid "Signup: User: Name"
+msgstr ""
+
+#: signup_views.inc:32
+msgid "Username of an authenticated user who signed up, or %anonymous for anonymous signups."
+msgstr ""
+
+#: signup_views.inc:35
+msgid "Signup: User: Email Address"
+msgstr ""
+
+#: signup_views.inc:40
+msgid "Email address of a user (authenticated or anonymous) who signed up."
+msgstr ""
+
+#: signup_views.inc:40
+msgid "WARNING: only expose this data in a view that is restricted to users whom you can trust with such sensitive information."
+msgstr ""
+
+#: signup_views.inc:43;58;66
+msgid "Signup: User: Signup Time"
+msgstr ""
+
+#: signup_views.inc:47
+msgid "Time when user signed up."
+msgstr ""
+
+#: signup_views.inc:50
+msgid "Signup: User: Additional Signup Info"
+msgstr ""
+
+#: signup_views.inc:53
+msgid "Enter the additional field name (from signup.theme) in the Option column."
+msgstr ""
+
+#: signup_views.inc:61
+msgid "Sorts by time of sign up."
+msgstr ""
+
+#: signup_views.inc:71
+msgid "Enter dates in the format: CCYY-MM-DD HH:MM:SS. Enter 'now' to use the current time. You may enter a delta (in seconds) to the option that will be added to the time; this is most useful when combined with now. If you have the jscalendar module from jstools installed, you can use a popup date picker here."
+msgstr ""
+
+#: signup_views.inc:74
+msgid "Signup: User: Anonymous/Authenticated"
+msgstr ""
+
+#: signup_views.inc:76
+msgid "is"
+msgstr ""
+
+#: signup_views.inc:79
+msgid "Authenticated"
+msgstr ""
+
+#: signup_views.inc:82
+msgid "Filter on if a user who signed up is anonymous, or an authenticated user on the site."
+msgstr ""
+
+#: signup_views.inc:99;144;150
+msgid "Signup: Node: Open/Closed"
+msgstr ""
+
+#: signup_views.inc:102
+msgid "Are signups open or closed for this node?"
+msgstr ""
+
+#: signup_views.inc:105
+msgid "Signup: Notification: Email Address"
+msgstr ""
+
+#: signup_views.inc:106
+msgid "Address where notification emails are sent wenever a user signs up."
+msgstr ""
+
+#: signup_views.inc:110
+msgid "Signup: Confirmation: Enabled/Disabled"
+msgstr ""
+
+#: signup_views.inc:112
+msgid "Should confirmation email be sent to each user who signs up."
+msgstr ""
+
+#: signup_views.inc:115
+msgid "Signup: Confirmation: Message"
+msgstr ""
+
+#: signup_views.inc:116
+msgid "The body of the optional confirmation email that can be sent whenever a user signs up."
+msgstr ""
+
+#: signup_views.inc:119
+msgid "Signup: Reminder: Enabled/Disabled"
+msgstr ""
+
+#: signup_views.inc:121
+msgid "Should a reminder email be automatically sent to all users who signed up. This will be false if either an administrator disabled the feature for a given event, or if the reminder was already sent."
+msgstr ""
+
+#: signup_views.inc:124
+msgid "Signup: Reminder: Days Before Event for Email"
+msgstr ""
+
+#: signup_views.inc:126
+msgid "How many days before an event will the reminder email be sent."
+msgstr ""
+
+#: signup_views.inc:129
+msgid "Signup: Reminder: Message"
+msgstr ""
+
+#: signup_views.inc:130
+msgid "The body of the optional reminder email that can be sent a configurable time before an event begins."
+msgstr ""
+
+#: signup_views.inc:145
+msgid "Sort by if signups are closed or open."
+msgstr ""
+
+#: signup_views.inc:151;161
+msgid "are"
+msgstr ""
+
+#: signup_views.inc:156
+msgid "Filter on if signups are open or closed for each node."
+msgstr ""
+
+#: signup_views.inc:159
+msgid "Signup: Node: Enabled/Disabled"
+msgstr ""
+
+#: signup_views.inc:167
+msgid "Filter on if signups are enabled or disabled."
+msgstr ""
+
+#: signup_views.inc:219
+msgid "Signup: User: UID Signup for Node"
+msgstr ""
+
+#: signup_views.inc:221
+msgid "Filter signups by signed up user."
+msgstr ""
+
+#: signup_views.inc:224
+msgid "Signed up"
+msgstr ""
+
+#: signup_views.inc:224
+msgid "Not signed up"
+msgstr ""
+
