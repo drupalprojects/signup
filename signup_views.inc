@@ -101,6 +101,11 @@ function signup_views_tables() {
         'handler' => 'views_handler_field_signup_status',
         'help' => t('Are signups open or closed for this node?'),
       ),
+      'close_signup_limit' => array(
+        'name' => t('Signup: Node: Signup Limit'),
+        'sortable' => true,
+        'help' => t('Maximum number of users who can sign up before signups are automatically closed (set to 0 for no limit).'),
+      ),
       'forwarding_email' => array(
         'name' => t('Signup: Notification: Email Address'),
         'help' => t('Address where notification emails are sent wenever a user signs up.'),
@@ -154,6 +159,11 @@ function signup_views_tables() {
           '#options' => array(1 => t('Open'), 0 => t('Closed')),
         ),
         'help' => t('Filter on if signups are open or closed for each node.'),
+      ),
+      'close_signup_limit' => array(
+        'name' => t('Signup: Node: Signup Limit'),
+        'operator' => 'views_handler_operator_gtlt',
+        'help' => t('Filter by the maximum number of users who can sign up before signups are automatically closed (set to 0 for no limit).'),
       ),
       'signup_disabled' => array(
         'name' => t('Signup: Node: Enabled/Disabled'),

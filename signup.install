@@ -217,3 +217,40 @@ function signup_update_5200() {
   $ret[] = update_sql("ALTER TABLE {signup} DROP completed");
   return $ret;
 }
+
+/**
+ * Add the close_signup_limit field to the {signup} table to allow
+ * signup limits for sites that upgraded from 4.6.x.  The original
+ * signup.install for 4.7.x accidentally included this column in the
+ * DB, but it's never been used in the code until now.  However, sites
+ * that upgraded from 4.6.x need this column for the module to work,
+ * so just to be safe, we also add that here.
+ */
+function signup_update_5201() {
+  $ret = array();
+  switch ($GLOBALS['db_type']) {
+    case 'mysql':
+    case 'mysqli':
+      if (!_signup_db_column_exists('signup', 'close_signup_limit')) {
+        $ret[] = update_sql("ALTER TABLE {signup} ADD close_signup_limit int(10) unsigned NOT NULL default '0'");
+      }
+      break;
+
+    case 'pgsql':
+      if (!_signup_db_column_exists('signup', 'close_signup_limit')) {
+        db_add_column($ret, 'signup', 'close_signup_limit', 'integer', array('not null' => TRUE, 'default' => "'0'"));
+      }
+      break;
+  }
+  return $ret;
+}
+
+function _signup_db_column_exists($table, $column) {
+  switch ($GLOBALS['db_type']) {
+    case 'mysql':
+    case 'mysqli':
+      return db_num_rows(db_query("SHOW COLUMNS FROM {%s} LIKE '%s'", $table, $column));
+    case 'pgsql':
+      return db_result(db_query("SELECT COUNT(pg_attribute.attname) FROM pg_class, pg_attribute WHERE pg_attribute.attrelid = pg_class.oid AND pg_class.relname = '{%s}' AND attname='%s'", $table, $column));
+  }
+}

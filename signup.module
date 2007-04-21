@@ -180,20 +180,6 @@ function signup_menu($may_cache) {
       'title' => t('Signup administration'),
     );
   
-    // Callbacks to open and close signups on a specific node.
-    $items[] = array(
-      'path' => 'closesignup',
-      'access' => $access,
-      'type' => MENU_CALLBACK,
-      'callback' => 'signup_close_signup_admin'
-    );
-    $items[] = array(
-      'path' => 'opensignup',
-      'access' => $access,
-      'type' => MENU_CALLBACK,
-      'callback' => 'signup_open_signup_admin'
-    );
-  
   }
   else {  // !$may_cache: dynamic menu items
   
@@ -215,7 +201,7 @@ function signup_menu($may_cache) {
       $items[] = array(
         'path' => 'node/' . arg(1) . '/signups',
         'title' => t('Signups'),
-        'callback' => 'signup_user_signups_form',
+        'callback' => 'signup_node_admin_page',
         'callback arguments' => array($node),
         'access' => $access || $access_own,
         'type' => MENU_LOCAL_TASK,
@@ -444,6 +430,7 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
             $form_values['signup_send_reminder'],
             $form_values['signup_reminder_days_before'],
             $form_values['signup_reminder_email'],
+            $form_values['signup_close_signup_limit'],
           );
         }
       }
@@ -462,10 +449,11 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
           $defaults['send_reminder'],
           $defaults['reminder_days_before'],
           $defaults['reminder_email'],
+          $defaults['close_signup_limit'],
         );
       }
       if (isset($values)) {
-        db_query("INSERT INTO {signup} (nid, forwarding_email, send_confirmation, confirmation_email, send_reminder, reminder_days_before, reminder_email) VALUES (%d, '%s', %d, '%s', %d, %d, '%s')", $values);
+        db_query("INSERT INTO {signup} (nid, forwarding_email, send_confirmation, confirmation_email, send_reminder, reminder_days_before, reminder_email, close_signup_limit) VALUES (%d, '%s', %d, '%s', %d, %d, '%s', %d)", $values);
       }
       break;
 
@@ -474,25 +462,44 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
         $has_signup_record = db_result(db_query('SELECT COUNT(*) FROM {signup} WHERE nid = %d', $node->nid));
         switch ($form_values['signup_enabled']) {
           case 1: // Enabled
+            $limit_changed = false;
             if ($has_signup_record) {
-              db_query("UPDATE {signup} SET forwarding_email  = '%s', send_confirmation = %d, confirmation_email  = '%s', send_reminder = %d, reminder_days_before = %d, reminder_email = '%s' WHERE nid = %d",
+              // See if the limit is going to change, since if it did,
+              // we might have to change the status, too.
+              $cur_limit = db_result(db_query("SELECT close_signup_limit FROM {signup} WHERE nid = %d", $node->nid));
+              $limit_changed = $cur_limit != $node->signup_close_signup_limit;
+              db_query("UPDATE {signup} SET forwarding_email  = '%s', send_confirmation = %d, confirmation_email  = '%s', send_reminder = %d, reminder_days_before = %d, reminder_email = '%s', close_signup_limit = %d WHERE nid = %d",
                 $node->signup_forwarding_email,
                 $node->signup_send_confirmation,
                 $node->signup_confirmation_email,
                 $node->signup_send_reminder,
                 $node->signup_reminder_days_before,
-                $node->signup_reminder_email, $node->nid
+                $node->signup_reminder_email,
+                $node->signup_close_signup_limit,
+                $node->nid
               );
             }
             else {
-              db_query("INSERT INTO {signup} (nid, forwarding_email, send_confirmation, confirmation_email, send_reminder, reminder_days_before, reminder_email) VALUES (%d, '%s', %d, '%s', %d, %d, '%s')", $node->nid,
+              db_query("INSERT INTO {signup} (nid, forwarding_email, send_confirmation, confirmation_email, send_reminder, reminder_days_before, reminder_email, close_signup_limit) VALUES (%d, '%s', %d, '%s', %d, %d, '%s', %d)", $node->nid,
                 $node->signup_forwarding_email,
                 $node->signup_send_confirmation,
                 $node->signup_confirmation_email,
                 $node->signup_send_reminder,
                 $node->signup_reminder_days_before,
-                $node->signup_reminder_email
+                $node->signup_reminder_email,
+                $node->signup_close_signup_limit
               );
+            }
+            if (_signup_event_completed($node) && $node->signup_status) {
+              // If this is an event, and it's already past the close
+              // in advance time, and signups are still open, close
+              // them now (and don't consider the limit for changing
+              // the status).
+              signup_close_signup($node->nid);
+              drupal_set_message(t('Event start time is already past the signup close-in-advance time, signups now closed.'));
+            }
+            else if ($limit_changed) {
+              _signup_check_limit($node, 'limit');
             }
             break;
 
@@ -532,7 +539,11 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
         $node->signup_send_reminder  = $signup->send_reminder ;
         $node->signup_reminder_days_before = $signup->reminder_days_before;
         $node->signup_reminder_email = $signup->reminder_email;
+        $node->signup_close_signup_limit = $signup->close_signup_limit;
         $node->signup_status = $signup->status;
+        if ($node->nid) {
+          $node->signup_total = db_result(db_query("SELECT COUNT(*) FROM {signup_log} WHERE nid = %d", $node->nid));
+        }
       }
       else {
         $node->signup = 0;
@@ -553,6 +564,13 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
         if (!$node->signup_status) {
           if (user_access('sign up for content')) {
             $output = '<h3>' . t('Signups closed for this event') . '</h3>';
+            // If they're already signed up, show their current signup
+            // info and give them the option to cancel.
+            $result = db_query("SELECT signup_time, form_data FROM {signup_log} WHERE uid = %d AND nid = %d", $user->uid, $node->nid);
+            if (db_num_rows($result)) {
+              $signup_info = db_fetch_object($result);
+              $output .= _signup_print_current_signup($node, $signup_info);
+            }
           }
         }
         else {
@@ -599,18 +617,8 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
           else {
             // The user is already signed up, so print a table of their
             // signup data, and give them the option to cancel.
-            $result = db_fetch_object($result);
-            $form_data = unserialize($result->form_data);
-            $header = array(array('data' => t('Your signup information'), 'colspan' => 2));
-            $rows = array();
-            if(is_array($form_data)) {
-              $rows += signup_build_signup_data($form_data, 'table');
-            }
-            $output = '';
-            if (!empty($rows)) {
-              $output .= theme('table', $header, $rows);
-            }
-            $output .= drupal_get_form('signup_form_cancel', $node);
+            $signup_info = db_fetch_object($result);
+            $output .= _signup_print_current_signup($node, $signup_info);
           }
         }
 
@@ -639,6 +647,21 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
       }
       break;
   }
+}
+
+function _signup_print_current_signup($node, $signup_info) {
+  $form_data = unserialize($signup_info->form_data);
+  $header = array(array('data' => t('Your signup information'), 'colspan' => 2));
+  $rows = array();
+  if (is_array($form_data)) {
+    $rows += signup_build_signup_data($form_data, 'table');
+  }
+  $output = '';
+  if (!empty($rows)) {
+    $output .= theme('table', $header, $rows);
+  }
+  $output .= drupal_get_form('signup_form_cancel', $node);
+  return $output;
 }
 
 /**
@@ -696,87 +719,7 @@ function signup_form_cancel($node) {
 function signup_admin_page() {
   drupal_add_css(drupal_get_path('module', 'signup') .'/signup.css');
   $output = drupal_get_form('signup_filter_status_form');
-  $type = $_SESSION['signup_status_filter'];
-
-  // Figure out if the current user has permission to use signup broadcast.
-  $access_broadcast = user_access('email all signed up users');
-  
-  // Add optional SQL to the query if the event module is enabled.
-  $has_event = module_exists('event');
-  $event_select = $has_event ? ', e.event_start, e.timezone' : '';
-  $event_join = $has_event ? ' LEFT JOIN {event} e ON e.nid = n.nid' : '';
-
-  if ($type == 'open') {
-    $where = ' WHERE s.status = 1';
-  }
-  else if ($type == 'closed') {
-    $where = ' WHERE s.status = 0';
-  }
-  else {
-    $where = '';
-  }
-
-  $header = array(
-    array('data' => t('Event'), 'field' => 'n.title', 'sort' => 'asc'),
-    array('data' => t('Signups'), 'field' => 'count'),
-    array('data' => t('Operations')),
-  );
-
-  // If event.module enabled, add event start time to table
-  if ($has_event) {
-    $header = array_merge(array(array('data' => t('Start'), 'field' => 'e.event_start')), $header);
-  }
-
-  // Pull all open signup nodes, and start the creation of the table.
-  $sql = "SELECT n.title, n.nid, s.status$event_select,
-          COUNT(s_l.nid) AS count
-          FROM {signup} s INNER JOIN {node} n ON n.nid = s.nid
-          LEFT JOIN {signup_log} s_l ON s.nid = s_l.nid $event_join";
-  $sql .= $where;
-  $sql .= " GROUP BY n.nid, n.title, s.status$event_select";
-  $sql .= tablesort_sql($header);
-  $result = pager_query($sql, 25);
-
-  // Loop through the signup nodes, pull the number of signups for
-  // each, and create the summary table.
-  while ($signup_event = db_fetch_object($result)) {
-    $row = array();
-    if ($has_event) {
-      // Must include this here as event module doesn't include timezone
-      // support on all page requests.
-      include_once(drupal_get_path('module', 'event') .'/event_timezones.inc');
-      $offset = $signup_event->event_start ? event_get_offset($signup_event->timezone, $signup_event->event_start) : '';
-      $row[] = $signup_event->event_start ?_event_date(variable_get('signup_date_string', 'D, M jS, g:i A'), $signup_event->event_start, $offset) : '';
-    }
-    $row[] = l($signup_event->title, "node/$signup_event->nid");
-    $row[] = $signup_event->count;
-    $op_links = l(t('View Signups'), "node/$signup_event->nid/signups");
-    $op_links .= '<br />';
-    if (!$signup_event->status) {
-      if (!arg(2)) {
-        $op_links .= '<em>'. t('Closed: ') .'</em>';
-      }
-      $op_links .= l(t('Open Event'), "opensignup/$signup_event->nid/" . arg(2));
-    }
-    else {
-      if (!arg(2)) {
-        $op_links .= '<em>'. t('Open: ') .'</em>';
-      }
-      $op_links .= l(t('Close Event'), "closesignup/$signup_event->nid/" . arg(2));
-    }
-
-    if ($access_broadcast) {
-      $op_links .= '<br />';
-      $op_links .= l(t('Signup broadcast'), "node/$signup_event->nid/signup-broadcast", array('title' => t('Send an email message to all users who signed up.')));
-    }
-    $row[] = $op_links;
-    $rows[] = $row;
-  }
-  $output .= theme('table', $header, $rows, array('style' => 'width:100%'));
-  $pager = theme('pager', NULL, 25, 0);
-  if (!empty($pager)) {
-    $output .= $pager;
-  }
+  $output .= drupal_get_form('signup_admin_form');
   return $output;
 }
 
@@ -808,6 +751,147 @@ function signup_filter_status_form_submit($form_id, $form_values) {
   $_SESSION['signup_status_filter'] = $form_values['filter'];
 }
 
+function signup_admin_form() {
+  // Figure out if the current user has permission to use signup broadcast.
+  $access_broadcast = user_access('email all signed up users');
+  
+  // Add optional SQL to the query if the event module is enabled.
+  $has_event = module_exists('event');
+  $event_select = $has_event ? ', e.event_start, e.timezone' : '';
+  $event_join = $has_event ? ' LEFT JOIN {event} e ON e.nid = n.nid' : '';
+
+  $type = $_SESSION['signup_status_filter'];
+  if ($type == 'open') {
+    $where = ' WHERE s.status = 1';
+  }
+  else if ($type == 'closed') {
+    $where = ' WHERE s.status = 0';
+  }
+  else {
+    $where = '';
+  }
+
+  $header = array(
+    array('data' => t('Title'), 'field' => 'n.title', 'sort' => 'asc'),
+    array('data' => t('Signups'), 'field' => 'signup_total'),
+    array('data' => t('Limit'), 'field' => 'signup_close_signup_limit'),
+    array('data' => t('Status'), 'field' => 'signup_status'),
+    array('data' => t('Operations')),
+  );
+
+  // If event.module enabled, add event start time to table
+  if ($has_event) {
+    $header = array_merge(array(array('data' => t('Start'), 'field' => 'e.event_start')), $header);
+  }
+
+  $form['header']['#value'] = $header;
+
+  // Construct SQL to get all the info for the requested signup nodes.
+  $sql = "SELECT n.title, n.nid, s.status AS signup_status$event_select,
+          COUNT(s_l.nid) AS signup_total,
+          s.close_signup_limit AS signup_close_signup_limit
+          FROM {signup} s INNER JOIN {node} n ON n.nid = s.nid
+          LEFT JOIN {signup_log} s_l ON s.nid = s_l.nid $event_join";
+  $sql .= $where;
+  $sql .= " GROUP BY n.nid, n.title, s.close_signup_limit, s.status$event_select";
+  $sql .= tablesort_sql($header);
+  $result = pager_query($sql, 25);
+
+  // Loop through the signup nodes, and generate our form elements
+  while ($signup_event = db_fetch_object($result)) {
+    $row = array();
+    if ($has_event) {
+      // Must include this here as event module doesn't include timezone
+      // support on all page requests.
+      include_once(drupal_get_path('module', 'event') .'/event_timezones.inc');
+      $offset = $signup_event->event_start ? event_get_offset($signup_event->timezone, $signup_event->event_start) : '';
+      $row['start'] = array(
+        '#type' => 'markup',
+        '#value' => $signup_event->event_start ?_event_date(variable_get('signup_date_string', 'D, M jS, g:i A'), $signup_event->event_start, $offset) : '',
+      );
+    }
+    // Instead of duplicating the logic from the node/N/signups admin
+    // form, we just call that form builder here and lift the elements
+    // we need directly from that.
+    $node_admin_form = signup_admin_node_form($signup_event);
+    $row['title'] = array(
+      '#type' => 'markup',
+      '#value' => l($signup_event->title, "node/$signup_event->nid"),
+    );     
+    $row['status'] = $node_admin_form['status'];
+    $row['total'] = array(
+      '#type' => 'markup',
+      '#value' => $signup_event->signup_total,
+      );
+    $row['limit'] = $node_admin_form['limit'];
+    $op_links = l(t('View signups'), "node/$signup_event->nid/signups");
+    if ($access_broadcast) {
+      $op_links .= '<br />';
+      $op_links .= l(t('Signup broadcast'), "node/$signup_event->nid/signup-broadcast", array('title' => t('Send an email message to all users who signed up.')));
+    }
+    $row['operations'] = array(
+      '#type' => 'markup',
+      '#value' => $op_links,
+    );     
+    $form['nids'][$signup_event->nid] = $row;
+  }
+  $form['#tree'] = true;
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Update'),
+  );
+  return $form;
+}
+
+function theme_signup_admin_form($form) {
+  if (!isset($form['nids'])) {
+    $type = $_SESSION['signup_status_filter'];
+    switch ($type) {
+      case 'open':
+        $filter = t('open');
+        break;
+      case 'closed':
+        $filter = t('closed');
+        break;
+      default:
+        $filter = t('enabled');
+        break;
+    }
+    return t('No content is currently !status for signups.', array('!status' => $filter));
+  }
+  foreach ($form['nids'] as $nid => $node_form) {
+    if (!is_numeric($nid)) {
+      continue;
+    }
+    $row = array();
+    if (isset($node_form['start'])) {
+      $row[] = drupal_render($form['nids'][$nid]['start']);
+    }
+    $row[] = drupal_render($form['nids'][$nid]['title']);
+    $row[] = drupal_render($form['nids'][$nid]['total']);
+    $row[] = drupal_render($form['nids'][$nid]['limit']);
+    $row[] = drupal_render($form['nids'][$nid]['status']);
+    $row[] = drupal_render($form['nids'][$nid]['operations']);
+    $rows[] = $row;
+  }
+  $header = $form['header']['#value'];
+  unset($form['header']);
+  $output = theme('table', $header, $rows, array('style' => 'width:100%'));
+  $output .= drupal_render($form);
+  $pager = theme('pager', NULL, 25, 0);
+  if (!empty($pager)) {
+    $output .= $pager;
+  }
+  return $output;
+}
+
+function signup_admin_form_submit($form_id, $form_values) {
+  foreach ($form_values['nids'] as $nid => $values) {
+    $values['nid'] = $nid;
+    signup_admin_node_form_submit($form_id, $values);
+  }
+}
+
 /**
  * Callback function for canceling signups
  * @ingroup signup_callback
@@ -821,11 +905,13 @@ function signup_cancel_signup($uid, $nid, $anon_mail = NULL) {
     db_query('DELETE FROM {signup_log} WHERE uid = %d AND nid = %d', $uid, $nid);
   }
   $node = node_load($nid);
+  $node->signup_total--;
   foreach (module_implements('signup_cancel') as $module) {
     $function = $module .'_signup_cancel';
     $function($node);
   }
   drupal_set_message(t('Signup to !title cancelled.', array('!title' => l($node->title, "node/$node->nid"))));
+  _signup_check_limit($node, 'total');
 }
 
 /**
@@ -845,15 +931,6 @@ function signup_close_signup($nid, $cron = 'no') {
 }
 
 /**
- * Callback function for opening signups via a link in the admin tables
- * @ingroup signup_callback
- */
-function signup_close_signup_admin($nid, $tab = NULL) {
-  signup_close_signup($nid, $cron='no');
-  drupal_goto("admin/content/signup/$tab");
-}
-
-/**
  * Callback function for reopening signups
  * @ingroup signup_callback
  */
@@ -867,15 +944,6 @@ function signup_open_signup($nid, $cron = 'no') {
     }
     watchdog('signup', t('Signups reopened for %title.', array('%title' => $node->title)), WATCHDOG_NOTICE, l(t('view'), 'node/'. $nid));
   }
-}
-
-/**
- * Callback function for opening signups via a link in the admin tables
- * @ingroup signup_callback
- */
-function signup_open_signup_admin($nid, $tab = NULL) {
-  signup_open_signup($nid, $cron='no');
-  drupal_goto("admin/content/signup/$tab");
 }
 
 /**
@@ -927,13 +995,14 @@ function signup_settings_page() {
 function signup_settings_page_submit($form_id, $form_values) {
   $op = isset($form_values['op']) ? $form_values['op'] : '';
   if ($op == t('Save configuration') && db_num_rows(db_query('SELECT nid FROM {signup} WHERE nid = 0'))) {
-    db_query("UPDATE {signup} SET forwarding_email = '%s', send_confirmation = %d, confirmation_email = '%s', send_reminder = %d, reminder_days_before = %d, reminder_email = '%s' WHERE nid = 0",
+    db_query("UPDATE {signup} SET forwarding_email = '%s', send_confirmation = %d, confirmation_email = '%s', send_reminder = %d, reminder_days_before = %d, reminder_email = '%s', close_signup_limit = %d WHERE nid = 0",
       $form_values['signup_forwarding_email'],
       $form_values['signup_send_confirmation'],
       $form_values['signup_confirmation_email'],
       $form_values['signup_send_reminder'],
       $form_values['signup_reminder_days_before'],
-      $form_values['signup_reminder_email']
+      $form_values['signup_reminder_email'],
+      $form_values['signup_close_signup_limit']
     );
   }
   else {
@@ -951,6 +1020,7 @@ function signup_settings_page_submit($form_id, $form_values) {
     'signup_send_reminder',
     'signup_reminder_days_before',
     'signup_reminder_email',
+    'signup_close_signup_limit',
   );
   foreach ($settings as $setting) {
     unset($form_values[$setting]);
@@ -1101,7 +1171,13 @@ function signup_sign_up_user($signup_form) {
       "\n\r". t('Email:') . $user_mail . "\n\r\n\r" . $signup_data;
       drupal_mail('signup_forwarding_mail', $node->signup_forwarding_email, $subject, $message, $from, $header);
     }
+
     drupal_set_message(t('Signup to !title confirmed.', array('!title' => l($node->title, "node/$node->nid"))) . $confirmation_email . $reminder_email);
+
+    $node->signup_total++;
+    if ($node->signup_close_signup_limit) {
+      _signup_check_limit($node, 'total');
+    }
   }
   else {
     drupal_access_denied();
@@ -1132,25 +1208,22 @@ function signup_user_schedule($uid) {
  * Prints the signup details for a single node when the signups tab is clicked
  * @ingroup signup_callback
  */
-function signup_user_signups_form($node) {
+function signup_node_admin_page($node) {
   drupal_set_title(check_plain($node->title));
 
-  // Display if signups are open/closed, and print a button to toggle
-  $ctrl_row = array();
-  if (!$node->signup_status) {
-    $ctrl_row[] = array(t('Signups <strong>closed</strong> for this event'), drupal_get_form('signup_open_signups_form', $node->nid));
-  }
-  else {
-    $ctrl_row[] = array(t('Signups <strong>open</strong> for this event'), drupal_get_form('signup_close_signups_form', $node->nid));
-  }
-  $output .= '<div class="signup-admin-row">';
-  $output .= theme('table', NULL, $ctrl_row);
-  $output .= '</div><br />';
+  // Administrative table to control signups for this node.
+  $output = '<h4>'. t('Signup summary') .'</h4>';
+  $output .= drupal_get_form('signup_admin_node_form', $node);
+
+  $output .= '<h4>'. t('Signup details') .'</h4>';
+  $header = array(
+    t('Name/Signup time'),
+    t('Extra information'),
+    t('Operations'),
+  );
 
   // Pull all user signed up for this event, and start table creation.
   $result = db_query("SELECT u.uid, u.name, s.anon_mail, s.signup_time, s.form_data FROM {signup_log} s INNER JOIN {users} u ON u.uid = s.uid WHERE s.nid =%d", $node->nid);
-
-  $header = array(array('data' => t('!users signed up', array('!users' => format_plural(db_num_rows($result), '1 individual', '@count individuals'))), 'colspan' => 3));
 
   $rows = array();
 
@@ -1190,24 +1263,144 @@ function signup_user_signups_form($node) {
   return $output;
 }
 
-function signup_open_signups_form($nid) {
-  $form['nid'] = array('#type' => 'value', '#value' => $nid);
-  $form['submit'] = array('#type' => 'submit', '#value' => t('Open Signups'));
+function theme_signup_admin_node_form($form) {
+  $row = array(
+    drupal_render($form['status']),
+    drupal_render($form['total']),
+    drupal_render($form['limit']),
+    drupal_render($form),
+  );
+  $header = array(
+    t('Status'),
+    t('Total'),
+    t('Limit'),
+    t('Operations'),
+  );
+  return theme('table', $header, array($row));
+}
+
+function signup_admin_node_form($node) {
+  if ($node->signup_close_signup_limit &&
+           $node->signup_total >= $node->signup_close_signup_limit) {
+    $form['status'] = array(
+      '#value' => t('Closed (limit reached)'),
+    );
+  }
+  else {
+    $form['status'] = array(
+      '#type' => 'select',
+      '#options' => array(0 => t('Closed'), 1 => t('Open')),
+      '#default_value' => $node->signup_status,
+    );
+  }
+  $form['limit'] = array(
+    '#type' => 'textfield',
+    '#default_value' => $node->signup_close_signup_limit,
+    '#size' => 4, '#maxlength' => 8,
+  );
+  $form['total'] = array(
+    '#value' => $node->signup_total,
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Update'),
+  );
+  $form['nid'] = array(
+    '#type' => 'value',
+    '#value' => $node->nid,
+  );
   return $form;
 }
 
-function signup_open_signups_form_submit($form_id, $form_values) {
-  signup_open_signup($form_values['nid']);
+function signup_admin_node_form_submit($form_id, $form_values) {
+  $nid = $form_values['nid'];
+  $node = node_load($nid);
+  $limit_status = 0;
+  if (isset($form_values['limit']) && ($form_values['limit'] != $node->signup_close_signup_limit)) {
+    db_query("UPDATE {signup} SET close_signup_limit = %d WHERE nid = %d", $form_values['limit'], $nid);
+    $node->signup_close_signup_limit = $form_values['limit'];
+    $limit_status = _signup_check_limit($node, 'limit');
+  }
+
+  // Only consider the form's status value if the signup limit didn't
+  // touch the status already.
+  if (!$limit_status && isset($form_values['status']) && ($form_values['status'] != $node->signup_status)) {
+    if ($form_values['status']) {
+      signup_open_signup($nid);
+      drupal_set_message(t('Signups opened for !title.', array('!title' => l($node->title, "node/$node->nid"))));
+    }
+    else {
+      signup_close_signup($nid);
+      drupal_set_message(t('Signups closed for !title.', array('!title' => l($node->title, "node/$node->nid"))));
+    }
+  }
 }
 
-function signup_close_signups_form($nid) {
-  $form['nid'] = array('#type' => 'value', '#value' => $nid);
-  $form['submit'] = array('#type' => 'submit', '#value' => t('Close Signups'));
-  return $form;
-}
-
-function signup_close_signups_form_submit($form_id, $form_values) {
-  signup_close_signup($form_values['nid']);
+/**
+ * Checks the signup limit for a given node, and sees if a change in
+ * either the limit or total # of signups should result in a change in
+ * signup status (open vs. closed) and prints a message indicating
+ * what happened.
+ *
+ * @param $node
+ *  The node to update, can be a full $node object or a numeric nid.
+ * @param $type
+ *  String indicating what changed -- can be either 'limit' or 'total'.
+ *
+ * @return
+ *  A flag indicating what change (if any) to the signup status was
+ *  required due to the change in limit.  0 if there was no change, -1
+ *  if signups are now closed, and 1 if signups are now open.
+ */
+function _signup_check_limit($node, $type) {
+  $status_change = 0;
+  if (is_numeric($node)) {
+    $node = node_load($node);
+  }
+  $node_link = l($node->title, "node/$node->nid");
+  $limit = $node->signup_close_signup_limit;
+  if ($limit) {
+    if ($node->signup_total >= $limit) {
+      if ($node->signup_status) {
+        signup_close_signup($node->nid);
+        $status_change = -1;
+        drupal_set_message(t('Signup limit reached for !title, signups closed.', array('!title' => $node_link)));
+      }
+      else if ($type == 'limit') {
+        // This is a weird special case, where signups are already
+        // closed, but the admin lowers the limit to the signup total
+        // or lower. We need to print a message about this, and also
+        // return -1 so that callers know signups must remain closed.
+        drupal_set_message(t('Signup limit reached.'));
+        $status_change = -1;
+      }
+    }
+    else if (($node->signup_total < $limit) && (!$node->signup_status) && (!_signup_event_completed($node))) {
+      signup_open_signup($node->nid);
+      $status_change = 1;
+      if ($type == 'limit') {
+        drupal_set_message(t('Signup limit increased for !title, signups re-opened.', array('!title' => $node_link)));
+      }
+      else {
+        drupal_set_message(t('Total signups for !title now below limit, signups re-opened.', array('!title' => $node_link)));
+      }
+    }
+    else if($type == 'limit') {
+      drupal_set_message(t('Signup limit updated for !title.', array('!title' => $node_link)));
+    }
+  }
+  else if ($type == 'limit') {
+    // These checks should only happen if the limit was just changed...
+    if (!$node->signup_status && !_signup_event_completed($node)) {
+      signup_open_signup($node->nid);
+      $status_change = 1;
+      drupal_set_message(t('Signup limit removed for !title, signups now open.', array('!title' => $node_link)));
+    }
+    else {
+      drupal_set_message(t('Signup limit removed for !title.', array('!title' => $node_link)));
+    }
+  }
+  return $status_change;
 }
 
 /**
@@ -1283,6 +1476,7 @@ function signup_validate_anon_email($nid, $anon_mail, $name = FALSE) {
  * @ingroup signup_internal
  */
 function _signup_admin_form($node) {
+  $signup_token_description = t('Supported string substitutions: %event, %time, %username, %useremail, %info (user signup information).');
 
   // Load the default admin form data for new nodes.
   if(!$node || !$node->signup) {
@@ -1293,9 +1487,9 @@ function _signup_admin_form($node) {
     $node->signup_send_reminder  = $result->send_reminder;
     $node->signup_reminder_days_before = $result->reminder_days_before;
     $node->signup_reminder_email = $result->reminder_email;
+    $node->signup_close_signup_limit = $result->close_signup_limit;
   }
 
-  $signup_token_description = t('Supported string substitutions: %event, %time, %username, %useremail, %info (user signup information).');
   $form['signup_forwarding_email'] = array(
     '#type' => 'textfield',
     '#title' => t('Send signups to'),
@@ -1342,6 +1536,13 @@ function _signup_admin_form($node) {
     '#default_value' => $node->signup_reminder_email,
     '#cols' => 40, '#rows' => 6,
     '#description' => t('Email sent to user as an event reminder.') .' '. $signup_token_description,
+  );
+  $form['signup_close_signup_limit'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Signup limit'),
+    '#default_value' => $node->signup_close_signup_limit,
+    '#size' => 4, '#maxlength' => 8,
+    '#description' => t('Maximum number of users who can sign up before signups are automatically closed. If set to 0, there is no limit.'),
   );
   $form['signup'] = array('#type' => 'hidden', '#value' => 1);
 
@@ -1502,4 +1703,23 @@ function signup_broadcast_form_submit($form_id, $form_values) {
     }
   }
   drupal_set_message(t('Message sent to all users who have signed up'));
+}
+
+/**
+ * Returns true if the given node is event-enabled, and the start time
+ * has already passed the "Close x hours before" setting.
+ */
+function _signup_event_completed($node) {
+  if (module_exists('event')) {
+    if (is_numeric($node)) {
+      $node = node_load($node);
+    }
+    if (isset($node->event_start)) {
+      $closing_time = time() + (variable_get('signup_close_early', 1) * 3600);
+      if ($node->event_start < $closing_time) {
+        return true;
+      }
+    }
+  }
+  return false;
 }
