@@ -1,8 +1,6 @@
 <?php
 // $Id$
 
-include_once(drupal_get_path('module', 'signup') . '/signup.theme');
-
 /**
  * @defgroup signup_core Core drupal hooks
  */
@@ -182,7 +180,9 @@ function signup_menu($may_cache) {
   
   }
   else {  // !$may_cache: dynamic menu items
-  
+    // Include other php code that we need when not serving cached pages:
+    include_once(drupal_get_path('module', 'signup') . '/signup.theme');
+
     // User signup schedule callback
     $items[] = array(
       'path' => 'user/'. arg(1) .'/signups',
