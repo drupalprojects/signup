@@ -1621,6 +1621,13 @@ function signup_broadcast_form($node) {
     return $form;
   }
 
+  $tokens = array('%event', '%username', '%useremail');
+  if (module_exists('event')) {
+    $tokens[] = '%time';
+  }
+  sort($tokens);
+  $token_text = t('Supported string substitutions: %tokens.', array('%tokens' => implode(', ', $tokens)));
+
   $form['subject'] = array(
     '#type' => 'textfield',
     '#title' => t('Subject'),
@@ -1630,7 +1637,7 @@ function signup_broadcast_form($node) {
     '#type' => 'textarea',
     '#title' => t('Message body'),
     '#required' => true,
-    '#description' => t('Body of the email message you wish to send to all users who have signed up for this @node_type.', array('@node_type' => $node->type)) .' '. t('Supported string substitutions: %event, %time, %username, %useremail.'),
+    '#description' => t('Body of the email message you wish to send to all users who have signed up for this @node_type.', array('@node_type' => $node->type)) .' '. $token_text,
     '#rows' => 10,
   );
   $form['send'] = array(
@@ -1692,11 +1699,16 @@ function signup_broadcast_form_submit($form_id, $form_values) {
       $mail_address = $signup->anon_mail ? $signup->anon_mail : $signup->mail;
       $trans = array(
         '%event' => $event->title,
-        '%time' => _event_date(variable_get('signup_date_string', 'D, M jS, g:i A'), $event->event_start, $offset),
         '%username' => $signup->uid ? $signup->name : variable_get('anonymous', t('Anonymous')),
         '%useremail' => $mail_address,
 //        '%info' => $signup_info,
       );
+      if (module_exists('event')) {
+        $trans['%time'] = _event_date(variable_get('signup_date_string', 'D, M jS, g:i A'), $event->event_start, $offset);
+      }
+      else {
+        $trans['%time'] = t('[Untimed]');
+      }
       $message = strtr($form_values['message'], $trans);
       drupal_mail('signup_broadcast_mail', $mail_address, $subject, $message, $from);
       watchdog('signup', t('Broadcast email for %event sent to %email.', array('%event' => $event->title, '%email' => $mail_address)), WATCHDOG_NOTICE, l(t('view'), 'node/'. $event->nid));
