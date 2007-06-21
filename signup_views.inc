@@ -1,4 +1,5 @@
 <?php
+// $Id$
 
 /**
  * @file
@@ -242,7 +243,7 @@ function signup_views_arguments() {
  * 
  */
 function views_handler_arg_signup_uid($op, &$query, $argtype, $arg = '') {
-  switch($op) {
+  switch ($op) {
     case 'summary':
       $query->add_table('signup_log', true);
       $query->add_field('uid', 'signup_log');
