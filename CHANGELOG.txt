@@ -1,6 +1,47 @@
 $Id$
 
 -------
+5.x-2.1
+-------
+There are 2 major changes since 5.x-2.0: a long-awaited new feature,
+and a critical bug fix for anonymous users:
+= #32482: Adding support for signup limits per node:
+  - New field on site-wide signup defaults and per-node edit form to
+    set or modify the signup limit.
+  - Signups auto-close when the limit is reached.
+  - Users can now cancel their own signup when signups are closed, and
+    if it's not an event-enabled node, or the event hasn't started
+    yet, signups automatically re-open.
+  - Cleanup of the node/N/signups UI.
+  - Even bigger cleanup of admin/content/signups UI.
+  - Views support updated to view and filter by signup limit.
+= #138401: Fixed a fatal PHP error on certain pages for anonymous
+  users when caching is enabled.
+
+
+-------
+5.x-2.0
+-------
+Initial official release of the 5.x-2.* new feature series.
+Enhancements since 5.x-1.0:
+= #106808: Initial views integration. At this time, all the fields
+  from all signup-related database tables are exported, and there are
+  a handful of filters, sorts, and arguments. There are no default
+  views yet.
+= #106891: Signup broadcast functionality -- sufficiently privileged
+  users now have the ability to send an email directly to all the
+  users who signed up for a given node on the site by using the
+  "signup-broadcast" tab.
+= #79332: Cleaned up the user interface for the signup administration
+  overview page. It used to be misusing tabs as a way to filter what
+  signup status (open, closed, or all) to view. Now there is a
+  drop-down selector where the administrator can choose what signup
+  status to filter the page with.
+= #134609: Added an advanced setting to control if the signup form is
+  collapsed or expanded by default.
+
+
+-------
 5.x-1.0
 -------
 The first official, stable release of the signup.module that is
@@ -44,8 +85,8 @@ Major changes since 4.7.x-1.0:
 = #91284: signup_conflicts.module doesn't respect privacy: db_rewrite_sql()
   missing
 = Major permissions, UI and usability fixes (includes a DB update):
- - #69367: Turn the "Users can view signups" setting into a permission.
- - #69283: Rename all other permissions to be more clear, consistent, etc.
+  - #69367: Turn the "Users can view signups" setting into a permission.
+  - #69283: Rename all other permissions to be more clear, consistent, etc.
 = #49007: Fix all the UI bugs and weird behavior about enabling and
   disabling signups per-node-type and per-node.
 = #102949: For consistency, allow the %info token in reminder emails, too.
@@ -63,9 +104,9 @@ Other changes since 4.7.x-1.0:
   definition of $form['signup_form_data']['#tree'] even more clear.
 = #123648: Fixing improper use of links in watchdog() messages
 = #78559: Fixing numerous bugs in signup translation:
- - Incorrect use of format_plural()
- - Badly formed t() strings with HTML and other goo inside
-   wildly stale (and sometimes missing) .pot files
+  - Incorrect use of format_plural()
+  - Badly formed t() strings with HTML and other goo inside wildly
+    stale (and sometimes missing) .pot files
 = #69372: Ported signup to use theme('username') for user links
 = In the (evil, hard-coded) HTML for displaying signup information on
   user profile pages, we were leaving an H4 open by accident.
