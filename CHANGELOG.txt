@@ -1,5 +1,32 @@
 $Id$
 
+-------
+5.x-1.0
+-------
+The first official, stable release of the signup.module that is
+compatible with the 5.x core API. This release includes all of the bug
+fixes mentioned in the 4.7.x-1.1 release, so please see those release
+notes for more details. In particular, 5.x-1.0 includes the same
+database update from 4.7.x-1.1 that renames the permissions defined by
+the signup.module. Sites upgrading to 5.x-1.0 directly from 4.7.x-1.0
+should therefore be sure to run update.php.
+
+In addition to the changes required to function properly with the 5.x
+version of Drupal core, the 5.x-1.0 release includes the following changes:
+= #49007: The fix for all the UI bugs and weird behavior about
+  enabling and disabling signups per-node-type and per-node is
+  enhanced in the 5.x-1.0 release by including singup.js to implement
+  some additional UI enhancements when JavaScript is enabled. This
+  depends on the jQuery support that is only included in 5.x core. On
+  JS-enabled browsers, when users with signup administrator permission
+  are toggling if signups are enabled or not, the other signup
+  settings will be automatically hidden when signups are disabled.
+= #118648 by Darren Oh: Send reminders after signups are closed.
+= #128287: add hook_uninstall()
+= Use 'access administration pages' not 'administer site configuration'
+  permission to decide what the signup settings menu item should be called.
+
+
 ---------
 4.7.x-1.1
 ---------
