@@ -1,5 +1,14 @@
 $Id$
 
+-----------
+5.x-2.x-dev
+-----------
+Changes since 5.x-2.1:
+= #147546 by stBorchert: Removed call to undefined _event_date() when
+  using signup broadcast if event.module is not installed.
+= Code-style fixes (thanks to the coder.module).
+
+
 -------
 5.x-2.1
 -------
