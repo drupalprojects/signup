@@ -24,7 +24,7 @@ For installation instructions, see INSTALL.txt.
 
 Send feature requests and bug reports to the issue tracking system for
 the signup module: http://drupal.org/node/add/project_issue/signup.
-For a list of future work, also see TODO.txt.
+For a list of future work, also see http://groups.drupal.org/node/5044.
 
 This module was originally co-developed by Chad Phillips and Jeff
 Robbins, and sponsored by Jeff Robbins.  It is now being maintained
