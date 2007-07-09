@@ -37,8 +37,8 @@ Other changes since 4.7.x-1.0:
 = #123648: Fixing improper use of links in watchdog() messages
 = #78559: Fixing numerous bugs in signup translation:
   - Incorrect use of format_plural()
-  - Badly formed t() strings with HTML and other goo inside
-    wildly stale (and sometimes missing) .pot files
+  - Badly formed t() strings with HTML and other goo inside wildly
+    stale (and sometimes missing) .pot files
 = #69372: Ported signup to use theme('username') for user links
 = In the (evil, hard-coded) HTML for displaying signup information on
   user profile pages, we were leaving an H4 open by accident.
