@@ -1,0 +1,85 @@
+$Id$
+
+-------
+5.x-1.0
+-------
+The first official, stable release of the signup.module that is
+compatible with the 5.x core API. This release includes all of the bug
+fixes mentioned in the 4.7.x-1.1 release, so please see those release
+notes for more details. In particular, 5.x-1.0 includes the same
+database update from 4.7.x-1.1 that renames the permissions defined by
+the signup.module. Sites upgrading to 5.x-1.0 directly from 4.7.x-1.0
+should therefore be sure to run update.php.
+
+In addition to the changes required to function properly with the 5.x
+version of Drupal core, the 5.x-1.0 release includes the following changes:
+= #49007: The fix for all the UI bugs and weird behavior about
+  enabling and disabling signups per-node-type and per-node is
+  enhanced in the 5.x-1.0 release by including singup.js to implement
+  some additional UI enhancements when JavaScript is enabled. This
+  depends on the jQuery support that is only included in 5.x core. On
+  JS-enabled browsers, when users with signup administrator permission
+  are toggling if signups are enabled or not, the other signup
+  settings will be automatically hidden when signups are disabled.
+= #118648 by Darren Oh: Send reminders after signups are closed.
+= #128287: add hook_uninstall()
+= Use 'access administration pages' not 'administer site configuration'
+  permission to decide what the signup settings menu item should be called.
+
+
+---------
+4.7.x-1.1
+---------
+After many months of unfortunate neglect, the singup.module has
+recently gotten a round of major attention and improvements.  Mostly,
+the changes below are bug fixes, but in a few small cases, some new
+functionality was added, as well. This release includes a database
+update, which renames the permissions this module uses, so be sure to
+run update.php on your site, and then visit your 'access control' page
+(at /admin/access) to ensure the signup-related permissions are valid
+for the roles defined on your site.
+
+Major changes since 4.7.x-1.0:
+= #91284: signup.module doesn't respect privacy: db_rewrite_sql() missing
+= #91284: signup_conflicts.module doesn't respect privacy: db_rewrite_sql()
+  missing
+= Major permissions, UI and usability fixes (includes a DB update):
+ - #69367: Turn the "Users can view signups" setting into a permission.
+ - #69283: Rename all other permissions to be more clear, consistent, etc.
+= #49007: Fix all the UI bugs and weird behavior about enabling and
+  disabling signups per-node-type and per-node.
+= #102949: For consistency, allow the %info token in reminder emails, too.
+
+Other changes since 4.7.x-1.0:
+= #126942: Add "Reset to defaults" on settings page.
+= #104804 by hunmonk and dww: Fieldsets are now supported in the
+  customized signup form. The code should now handle nested values
+  regardless of depth.
+= #67067: Required fields and default values on signup form. Inspired by
+  a patch from pjdevries. Also cleans up the formatting of the $form
+  array in this function, vastly improves the doxygen comment, and
+  includes a step in the INSTALL.txt file about customizing this form.
+= #125705: Make comment in signup.theme about not touching the
+  definition of $form['signup_form_data']['#tree'] even more clear.
+= #123648: Fixing improper use of links in watchdog() messages
+= #78559: Fixing numerous bugs in signup translation:
+ - Incorrect use of format_plural()
+ - Badly formed t() strings with HTML and other goo inside
+   wildly stale (and sometimes missing) .pot files
+= #69372: Ported signup to use theme('username') for user links
+= In the (evil, hard-coded) HTML for displaying signup information on
+  user profile pages, we were leaving an H4 open by accident.
+= l() calls check_plain() for you, so we were double-escaping output.
+= #107154: Fix signup_sign_up_user() to prevent the same user from
+  signing up more than once for the same node.
+= #128021 by adrinux: Convert html br to xhtml and use strong instead of b
+
+
+---------
+4.7.x-1.0
+---------
+Initial official release from the stable 4.7.x-1.* series. There have
+been no changes in the signup module since August 2006, so this should
+be the same code as any of the signup-4.7.0.tar.gz files from
+2006-08-19 and later. Additional releases of this series will only fix
+bugs in the existing functionality.
