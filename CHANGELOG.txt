@@ -1,5 +1,12 @@
 $Id$
 
+-----------
+5.x-1.x-dev
+-----------
+Changes since 5.x-1.0:
+= #142402 by cpisto: Fixed SQL bug on PgSQL when event.module is enabled.
+
+
 -------
 5.x-1.0
 -------
