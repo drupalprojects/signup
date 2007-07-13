@@ -5,6 +5,7 @@ $Id$
 -----------
 Changes since 5.x-1.0:
 = #142402 by cpisto: Fixed SQL bug on PgSQL when event.module is enabled.
+= #158688 by m3avrck: fix JS to work with aggregator.
 
 
 -------
