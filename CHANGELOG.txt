@@ -8,6 +8,7 @@ Changes since 5.x-2.1:
   using signup broadcast if event.module is not installed.
 = Code-style fixes (thanks to the coder.module).
 = #142402 by cpisto: Fixed SQL bug on PgSQL when event.module is enabled.
+= #158688 by m3avrck: fix JS to work with aggregator.
 
 
 -------
