@@ -181,5 +181,5 @@ function _signup_ecommerce_is_autosignup($node) {
 */
 function _signup_ecommerce_watchdog_message($uid, $node) {
   $user = user_load(array('uid' => $uid));
-  watchdog('signup_ecommerce', t('%user auto-signed up to %node', array('%user' => l(check_plain($user->name), "user/$user->uid"), '%node' => l(check_plain($node->title), "node/$node->nid"))));
+  watchdog('signup_ecommerce', t('%user (%user_url) auto-signed up to %node', array('%user' => theme('placeholder', $user->name), '%user_url' => url("user/$user->uid"), '%node' => theme('placeholder', $node->title))), WATCHDOG_NOTICE, l(t('view'), "node/$node->nid"));
 }
