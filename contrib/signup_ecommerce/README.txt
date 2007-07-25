@@ -5,6 +5,8 @@
 NOTE: this module requires both the ecommerce and signup modules to be
 installed and properly configured.
 
+NOTE: This code is currently only ported to the 4.7.x core API.
+
 signup_ecommerce provides basic integration between the ecommerce
 module and the signup module, specifically allowing automatic user
 signup upon purchase of an enabled product type.
