@@ -13,7 +13,7 @@
 function signup_ecommerce_help($section) {
   switch ($section) {
     case 'admin/modules#description':
-      return t('Integrates signup module and ecommerce module');
+      return t('Integrates the signup and e-commerce modules.');
 
     case 'admin/help#signup_ecommerce':
       return '<p>'. t('signup_ecommerce provides basic integration between the ecommerce module and the signup module, specifically allowing automatic user signup upon purchase of an enabled product type.') .'</p>'.
