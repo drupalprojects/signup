@@ -18,32 +18,41 @@ function signup_ecommerce_help($section) {
     case 'admin/modules#description':
       return t('Integrates signup module and ecommerce module');
       break;
-    case 'admin/help#signup':
+    case 'admin/help#signup_ecommerce':
       return t('<p>signup_ecommerce provides basic integration between the ecommerce module and the signup module, specifically allowing automatic user signup upon purchase of an enabled product type.</p><br><p>To enable the feature, go to administer->content->configure->content types, and click \'configure\' for the node type you wish to enable. Make sure that the \'Allow signups\' and \'Signup/Ecommerce Integration\' checkboxes are checked, and save the settings.</p><br><p>For the node type you just enabled, any time somebody purchases a product of that node type, they will automatically be signed up for that node.  The signup information will include the transaction ID for reference</p>');
   }
 }
 
 /**
- * @defgroup signup_nodeapi Functions for nodeapi integration
+ * @defgroup signup_form_alter Functions for form_alter integration
  */
 
  /**
- * hook_nodeapi implementation
+ * hook_form_alter implementation
  *
- * @ingroup signup_ecommerce_nodeapi
+ * @ingroup signup_ecommerce_form_alter
 */
-function signup_ecommerce_nodeapi(&$node, $op, $arg = 0) {
-  switch ($op) {
-    case 'settings':
-
-      //inject this setting for all nodes types.  checking enables auto-signups for the specified node type
-      $group = form_checkbox(t('Enabled'), 'signup_ecommerce_nodeapi_' . $node->type, $value = 1,
-        variable_get('signup_ecommerce_nodeapi_' . $node->type, FALSE) == 1,
-        t('If selected, users will be automatically signed up for any products of this node type that they purchase.'), $attributes = NULL,
-        $required = FALSE);
-      $group .= form_radios(t('Workflow'), 'signup_ecommerce_workflow_' . $node->type, variable_get('signup_ecommerce_workflow_' . $node->type, 0), array(1 => t('Order completion'), 2 => t('Payment completion')), $description = t('Determines when the autosignup action occurs for products of this node type.'));
-      return form_group(t('Signup/Ecommerce Integration'), $group);
-        break;
+function signup_ecommerce_form_alter($form_id, &$form) {
+  if (isset($form['type']) && $form['type']['#value'] .'_node_settings' == $form_id) {
+    $type = $form['type']['#value'];
+    $form['workflow']['signup_ecommerce'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Signup Ecommerce Integration'),
+    );
+    $form['workflow']['signup_ecommerce']['signup_ecommerce_'. $type] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Enabled'),
+      '#return_value' => 1,
+      '#default_value' => variable_get('signup_ecommerce_'. $type, FALSE) == 1,
+      '#description' => t('If selected, users will be automatically signed up for any products of this node type that they purchase.'),
+    );
+    $form['workflow']['signup_ecommerce']['signup_ecommerce_workflow_'. $type] = array(
+      '#type' => 'radios',
+      '#title' => t('Workflow'),
+      '#default_value' => variable_get('signup_ecommerce_workflow_'. $type, 0),
+      '#options' => array(1 => t('Order completion'), 2 => t('Payment completion')),
+      '#description' => t('Determines when the autosignup action occurs for products of this node type.'),
+    );
   }
 }
 
@@ -87,9 +96,9 @@ function signup_ecommerce_ecommerceapi($t, $op) {
         if (is_array($t['items'])) {
           // loop through each item. if it's an autosignup node, and user hasn't already signed up, then sign 'em up
           foreach ($t['items'] as $item) {
-            $node = node_load(array('nid' => $item->nid));
+            $node = node_load($item->nid);
             $signed_up = db_num_rows(db_query('SELECT nid FROM {signup_log} WHERE nid = %d AND uid = %d', $node->nid, $t['uid']));
-            if (_signup_ecommerce_is_autosignup($node) && !$signed_up && variable_get('signup_ecommerce_workflow_' . $node->type, 0) == 2) {
+            if (_signup_ecommerce_is_autosignup($node) && !$signed_up && variable_get('signup_ecommerce_workflow_'. $node->type, 0) == 2) {
               $edit['nid'] = $node->nid;
               $edit['uid'] = $t['uid'];
               $edit['signup_form_data']['TransactionID'] = $t['txnid'];
@@ -123,9 +132,9 @@ function signup_ecommerce_ec_transactionapi(&$txn, $op) {
         if (is_array($t->items)) {
           // loop through each item. if it's an autosignup node, and user hasn't already signed up, then sign 'em up
           foreach ($t->items as $item) {
-            $node = node_load(array('nid' => $item->nid));
+            $node = node_load($item->nid);
             $signed_up = db_num_rows(db_query('SELECT nid FROM {signup_log} WHERE nid = %d AND uid = %d', $node->nid, $t->uid));
-            if (_signup_ecommerce_is_autosignup($node) && !$signed_up && variable_get('signup_ecommerce_workflow_' . $node->type, 0) == 1) {
+            if (_signup_ecommerce_is_autosignup($node) && !$signed_up && variable_get('signup_ecommerce_workflow_'. $node->type, 0) == 1) {
               $edit['nid'] = $node->nid;
               $edit['uid'] = $t->uid;
               $edit['signup_form_data']['TransactionID'] = $txn->txnid;
@@ -151,7 +160,7 @@ function signup_ecommerce_ec_transactionapi(&$txn, $op) {
  *   The node to verify.
 */
 function _signup_ecommerce_is_autosignup($node) {
-  return variable_get('signup_nodeapi_'. $node->type, FALSE) && variable_get('signup_ecommerce_nodeapi_'. $node->type, FALSE) && product_load($node);
+  return variable_get('signup_form_'. $node->type, FALSE) && variable_get('signup_ecommerce_'. $node->type, FALSE) && product_load($node);
 }
 
 /**
@@ -167,5 +176,3 @@ function _signup_ecommerce_watchdog_message($uid, $node) {
   $user = user_load(array('uid' => $uid));
   watchdog('signup_ecommerce', t('%user auto-signed up to %node', array('%user' => l(check_plain($user->name), "user/$user->uid"), '%node' => l(check_plain($node->title), "node/$node->nid"))));
 }
-
-?>
