@@ -1697,11 +1697,11 @@ function signup_get_email_addresses($nid) {
  * @param $form_values
  */
 function signup_broadcast_form_submit($form_id, $form_values) {
-  $addresses = signup_get_email_addresses($form_values[nid]);
+  $addresses = signup_get_email_addresses($form_values['nid']);
   if (is_array($addresses)) {
     $from = $form_values['from'];
     $subject = $form_values['subject'];
-    $event = node_load($form_values[nid]);
+    $event = node_load($form_values['nid']);
     foreach ($addresses as $signup) { 
       $mail_address = $signup->anon_mail ? $signup->anon_mail : $signup->mail;
       $trans = array(
