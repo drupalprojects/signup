@@ -787,7 +787,7 @@ function signup_admin_form() {
   $form['header']['#value'] = $header;
 
   // Construct SQL to get all the info for the requested signup nodes.
-  $sql = "SELECT n.title, n.nid, s.status AS signup_status$event_select,
+  $sql = "SELECT n.nid, n.title, s.status AS signup_status$event_select,
           COUNT(s_l.nid) AS signup_total,
           s.close_signup_limit AS signup_close_signup_limit
           FROM {signup} s INNER JOIN {node} n ON n.nid = s.nid
@@ -795,7 +795,13 @@ function signup_admin_form() {
   $sql .= $where;
   $sql .= " GROUP BY n.nid, n.title, s.close_signup_limit, s.status$event_select";
   $sql .= tablesort_sql($header);
-  $result = pager_query($sql, 25);
+  $sql = db_rewrite_sql($sql);
+  
+  $sql_count = "SELECT COUNT(nid) FROM {signup} s";
+  $sql_count .= $where;
+  $sql_count = db_rewrite_sql($sql_count, 's');
+  
+  $result = pager_query($sql, 25, 0, $sql_count);
 
   // Loop through the signup nodes, and generate our form elements
   while ($signup_event = db_fetch_object($result)) {
