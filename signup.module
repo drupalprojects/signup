@@ -700,14 +700,20 @@ function signup_admin_page() {
   }
 
   // Pull all open signup nodes, and start the creation of the table.
-  $sql = "SELECT n.title, n.nid, s.completed$event_select,
+  $sql = "SELECT n.nid, n.title, s.completed$event_select,
           COUNT(s_l.nid) AS count
           FROM {signup} s INNER JOIN {node} n ON n.nid = s.nid
           LEFT JOIN {signup_log} s_l ON s.nid = s_l.nid $event_join";
   $sql .= $where;
   $sql .= " GROUP BY n.nid, n.title, s.completed$event_select";
   $sql .= tablesort_sql($header);
-  $result = pager_query($sql, 25);
+  $sql = db_rewrite_sql($sql);
+  
+  $sql_count = "SELECT COUNT(nid) FROM {signup} s";
+  $sql_count .= $where;
+  $sql_count = db_rewrite_sql($sql_count, 's');
+  
+  $result = pager_query($sql, 25, 0, $sql_count);
 
   // Loop through the signup nodes, pull the number of signups for
   // each, and create the summary table.
