@@ -9,6 +9,9 @@ Changes since 5.x-2.1:
 = Code-style fixes (thanks to the coder.module).
 = #142402 by cpisto: Fixed SQL bug on PgSQL when event.module is enabled.
 = #158688 by m3avrck: fix JS to work with aggregator.
+= #154580 by killes and dww: Refactored code to support different
+  event and date backend modules. Currently, only event 5.x-1.x is
+  supported, but event 5.x-2.x and date.module will be easy.
 
 
 -------

@@ -50,75 +50,119 @@ function signup_init() {
  * @ingroup signup_core
  */
 function signup_cron() {
-  // Only run this function if the event module is enabled.
-  if (module_exists('event')) {
-    // We must manually include this here as the event module doesn't
-    // include timezone support on all page requests.
-    include_once(drupal_get_path('module', 'event') .'/event_timezones.inc');
+  // Get the current time, and pull all of the nodes for which the
+  // current time + the reminder_days_before time is greater than
+  // the event's start date.  These are the events for which a
+  // reminder email needs to be sent.
+  $fields = array('n.title', 'n.nid', 's.reminder_email', 's.forwarding_email');
+  if (function_exists('signup_reminder_sql_fields') && $reminder_sql_fields = signup_reminder_sql_fields()) {
+    $fields = array_merge($fields, $reminder_sql_fields);
+  }
 
-    // Get the current time, and pull all of the nodes for which the
-    // current time + the reminder_days_before time is greater than
-    // the event's start date.  These are the events for which a
-    // reminder email needs to be sent.
-    $curtime = time();
-    $result = db_query("SELECT n.title, n.nid, e.event_start, e.timezone, s.reminder_email, s.forwarding_email FROM {signup} s
-      INNER JOIN {node} n ON n.nid = s.nid INNER JOIN {event} e ON e.nid = s.nid WHERE
-      s.send_reminder = 1 AND (%d + ((s.reminder_days_before) * 86400)) > e.event_start", $curtime);
+  $group_by = array();
+  if (function_exists('signup_reminder_sql_group_by') && $reminder_sql_group_by = signup_reminder_sql_group_by()) {
+    $group_by = array_merge($group_by, $reminder_sql_group_by);
+  }
 
-    // Grab each event, construct the email header and subject, and query
-    // the signup log to pull all users who are signed up for this event.
-    $from = variable_get('site_mail', 'noadmin@noadmin.com');
-    while ($event = db_fetch_object($result)) {
-      $subject = t('Event reminder: !event', array('!event' => $event->title));
-      $signups = db_query("SELECT u.name, u.mail, s_l.anon_mail, s_l.form_data FROM {signup_log} s_l INNER JOIN {users} u ON u.uid = s_l.uid WHERE s_l.nid = %d", $event->nid);
+  $joins = array('INNER JOIN {node} n ON n.nid = s.nid');
+  if (function_exists('signup_reminder_sql_joins') && $reminder_sql_joins = signup_reminder_sql_joins()) {
+    $joins = array_merge($joins, $reminder_sql_joins);
+  }
 
-      // Get timezone offset.
-      $offset = event_get_offset($event->timezone, $event->event_start);
+  $where = array('s.send_reminder = 1');
+  if (function_exists('signup_reminder_sql_where') && $reminder_sql_where = signup_reminder_sql_where()) {
+    $where = array_merge($where, $reminder_sql_where);
+  }
 
-      // Loop through the users, composing their customized message
-      // and sending the email.
-      while ($signup = db_fetch_object($signups)) {
-        $mail_address = $signup->anon_mail ? $signup->anon_mail : $signup->mail;
-        $signup_data_array = unserialize($signup->form_data);
-        if (!empty($signup_data_array)) {
-          $signup_data = signup_build_signup_data($signup_data_array, 'email');
-          $signup_info = t('SIGNUP INFORMATION') ."\n\r". $signup_data;
-        }
+  $sql = 'SELECT '. implode(', ', $fields) . ' FROM {signup} s ';
+  $sql .= implode(' ', $joins);
+  if (!empty($where)) {
+    $sql .= ' WHERE '. implode(' AND ', $where);
+  }
+  if (!empty($group_by)) {
+    $sql .= ' GROUP BY '. implode(', ', $group_by);
+  }
 
-        $trans = array(
-          '%event' => $event->title,
-          '%time' => _event_date(variable_get('signup_date_string', 'D, M jS, g:i A'), $event->event_start, $offset),
-          '%username' => $signup->name,
-          '%useremail' => $mail_address,
-          '%info' => $signup_info,
+  $result = db_query($sql);
+
+  // Grab each event, construct the email header and subject, and query
+  // the signup log to pull all users who are signed up for this event.
+  $from = variable_get('site_mail', 'noadmin@noadmin.com');
+  while ($event = db_fetch_object($result)) {
+    $subject = t('Event reminder: !event', array('!event' => $event->title));
+    $signups = db_query("SELECT u.name, u.mail, s_l.anon_mail, s_l.form_data FROM {signup_log} s_l INNER JOIN {users} u ON u.uid = s_l.uid WHERE s_l.nid = %d", $event->nid);
+
+    // Loop through the users, composing their customized message
+    // and sending the email.
+    while ($signup = db_fetch_object($signups)) {
+      $mail_address = $signup->anon_mail ? $signup->anon_mail : $signup->mail;
+      $signup_data_array = unserialize($signup->form_data);
+      if (!empty($signup_data_array)) {
+        $signup_data = signup_build_signup_data($signup_data_array, 'email');
+        $signup_info = t('SIGNUP INFORMATION') ."\n\r". $signup_data;
+      }
+
+      $trans = array(
+        '%event' => $event->title,
+        '%time' => signup_format_date($event),
+        '%username' => $signup->name,
+        '%useremail' => $mail_address,
+        '%info' => $signup_info,
         );
-        $message = strtr($event->reminder_email, $trans);
-        drupal_mail('signup_reminder_mail', $mail_address, $subject, $message, $from);
-        watchdog('signup', t('Reminder for %event sent to %useremail.', array('%event' => $event->title, '%useremail' => $mail_address)), WATCHDOG_NOTICE, l(t('view'), 'node/'. $event->nid));
-      }
-
-      // Reminders for this event are all sent, so mark it in the
-      // database so they're not sent again.
-      db_query("UPDATE {signup} SET send_reminder = 0 WHERE nid = %d", $event->nid);
+      $message = strtr($event->reminder_email, $trans);
+      drupal_mail('signup_reminder_mail', $mail_address, $subject, $message, $from);
+      watchdog('signup', t('Reminder for %event sent to %useremail.', array('%event' => $event->title, '%useremail' => $mail_address)), WATCHDOG_NOTICE, l(t('view'), 'node/'. $event->nid));
     }
 
-    // Calculate the closing time for the event, which is the current
-    // time + the number of hours before the event start when closing is
-    // preferred.  Query the database for all signup events which have a
-    // start time less than this.
-    $closing_time = $curtime + (variable_get('signup_close_early', 1) * 3600);
-    $result = db_query("SELECT s.nid FROM {signup} s INNER JOIN {event} e ON e.nid = s.nid WHERE s.status = 1 AND e.event_start < %d", $closing_time);
+    // Reminders for this event are all sent, so mark it in the
+    // database so they're not sent again.
+    db_query("UPDATE {signup} SET send_reminder = 0 WHERE nid = %d", $event->nid);
+  }
 
-    // Loop through the results, calling the event closing function.
-    while ($signup = db_fetch_object($result)) {
-      signup_close_signup($signup->nid, $cron = 'yes');
-      $node = node_load($signup->nid);
-      foreach (module_implements('signup_close') as $module) {
-        $function = $module .'_signup_close';
-        $function($node);
-      }
-      watchdog('signup', t('Signups closed for %event by cron.', array('%event' => $node->title)), WATCHDOG_NOTICE, l(t('view'), 'node/'. $node->nid));
+  // Calculate the closing time for the event, which is the current
+  // time + the number of hours before the event start when closing is
+  // preferred.  Query the database for all signup events which have a
+  // start time less than this.
+  $fields = array('s.nid');
+  if (function_exists('signup_autoclose_sql_fields') && $autoclose_sql_fields = signup_autoclose_sql_fields()) {
+    $fields = array_merge($fields, $autoclose_sql_fields);
+  }
+
+  $group_by = array();
+  if (function_exists('signup_autoclose_sql_group_by') && $autoclose_sql_group_by = signup_autoclose_sql_group_by()) {
+    $group_by = array_merge($group_by, $autoclose_sql_group_by);
+  }
+
+  $joins = array();
+  if (function_exists('signup_autoclose_sql_joins') && $autoclose_sql_joins = signup_autoclose_sql_joins()) {
+    $joins = array_merge($joins, $autoclose_sql_joins);
+  }
+
+  $where = array('s.status = 1');
+  if (function_exists('signup_autoclose_sql_where') && $autoclose_sql_where = signup_autoclose_sql_where()) {
+    $where = array_merge($where, $autoclose_sql_where);
+  }
+
+  $sql = 'SELECT '. implode(', ', $fields) . ' FROM {signup} s ';
+  $sql .= implode(' ', $joins);
+  if (!empty($where)) {
+    $sql .= ' WHERE '. implode(' AND ', $where);
+  }
+  if (!empty($group_by)) {
+    $sql .= ' GROUP BY '. implode(', ', $group_by);
+  }
+
+  $result = db_query($sql);
+
+  // Loop through the results, calling the event closing function.
+  while ($signup = db_fetch_object($result)) {
+    signup_close_signup($signup->nid, $cron = 'yes');
+    $node = node_load($signup->nid);
+    foreach (module_implements('signup_close') as $module) {
+      $function = $module .'_signup_close';
+      $function($node);
     }
+    watchdog('signup', t('Signups closed for %event by cron.', array('%event' => $node->title)), WATCHDOG_NOTICE, l(t('view'), 'node/'. $node->nid));
   }
 }
 
@@ -177,11 +221,23 @@ function signup_menu($may_cache) {
       'callback' => 'signup_admin_page',
       'title' => t('Signup administration'),
     );
-  
   }
   else {  // !$may_cache: dynamic menu items
-    // Include other php code that we need when not serving cached pages:
-    include_once(drupal_get_path('module', 'signup') .'/signup.theme');
+    define('SIGNUP_PATH', drupal_get_path('module', 'signup'));
+    if (defined('EVENT_API') && EVENT_API == '5.2') {
+      include(SIGNUP_PATH .'/signup_event_5.x-2.inc');
+    }
+    else if (module_exists('event')) {
+      include(SIGNUP_PATH .'/signup_event_5.x-1.inc');
+    }
+    else if (module_exists('date')) {
+      // include(SIGNUP_PATH .'/signup_date.inc');
+      // Until date.module support exists, fall back to the no event case.
+      include(SIGNUP_PATH .'/signup_event_none.inc');
+    }
+    else {
+      include(SIGNUP_PATH .'/signup_event_none.inc');
+    }
 
     // User signup schedule callback
     $items[] = array(
@@ -675,6 +731,7 @@ function _signup_print_current_signup($node, $signup_info) {
  */
 function signup_form($node, $anon_signup_form = NULL) {
   global $user;
+  include(SIGNUP_PATH .'/signup.theme');
 
   $form['nid'] = array('#type' => 'value', '#value' => $node->nid);
   $form['uid'] = array('#type' => 'value', '#value' => $user->uid);
@@ -754,22 +811,6 @@ function signup_filter_status_form_submit($form_id, $form_values) {
 function signup_admin_form() {
   // Figure out if the current user has permission to use signup broadcast.
   $access_broadcast = user_access('email all signed up users');
-  
-  // Add optional SQL to the query if the event module is enabled.
-  $has_event = module_exists('event');
-  $event_select = $has_event ? ', e.event_start, e.timezone' : '';
-  $event_join = $has_event ? ' LEFT JOIN {event} e ON e.nid = n.nid' : '';
-
-  $type = $_SESSION['signup_status_filter'];
-  if ($type == 'open') {
-    $where = ' WHERE s.status = 1';
-  }
-  else if ($type == 'closed') {
-    $where = ' WHERE s.status = 0';
-  }
-  else {
-    $where = '';
-  }
 
   $header = array(
     array('data' => t('Title'), 'field' => 'n.title', 'sort' => 'asc'),
@@ -779,43 +820,25 @@ function signup_admin_form() {
     array('data' => t('Operations')),
   );
 
-  // If event.module enabled, add event start time to table
-  if ($has_event) {
-    $header = array_merge(array(array('data' => t('Start'), 'field' => 'e.event_start')), $header);
+  if (function_exists('signup_admin_form_header') && is_array($extra_header = signup_admin_form_header())) {
+    array_unshift($header, $extra_header);
   }
+
+  list($sql, $sql_count) = signup_admin_form_sql();
 
   $form['header']['#value'] = $header;
 
-  // Construct SQL to get all the info for the requested signup nodes.
-  $sql = "SELECT n.nid, n.title, s.status AS signup_status$event_select,
-          COUNT(s_l.nid) AS signup_total,
-          s.close_signup_limit AS signup_close_signup_limit
-          FROM {signup} s INNER JOIN {node} n ON n.nid = s.nid
-          LEFT JOIN {signup_log} s_l ON s.nid = s_l.nid $event_join";
-  $sql .= $where;
-  $sql .= " GROUP BY n.nid, n.title, s.close_signup_limit, s.status$event_select";
   $sql .= tablesort_sql($header);
-  $sql = db_rewrite_sql($sql);
-  
-  $sql_count = "SELECT COUNT(nid) FROM {signup} s";
-  $sql_count .= $where;
-  $sql_count = db_rewrite_sql($sql_count, 's');
   
   $result = pager_query($sql, 25, 0, $sql_count);
 
   // Loop through the signup nodes, and generate our form elements
   while ($signup_event = db_fetch_object($result)) {
     $row = array();
-    if ($has_event) {
-      // Must include this here as event module doesn't include timezone
-      // support on all page requests.
-      include_once(drupal_get_path('module', 'event') .'/event_timezones.inc');
-      $offset = $signup_event->event_start ? event_get_offset($signup_event->timezone, $signup_event->event_start) : '';
-      $row['start'] = array(
-        '#type' => 'markup',
-        '#value' => $signup_event->event_start ?_event_date(variable_get('signup_date_string', 'D, M jS, g:i A'), $signup_event->event_start, $offset) : '',
-      );
+    if (function_exists('signup_admin_form_extra')) {
+      $row['start'] = signup_admin_form_extra($signup_event);
     }
+
     // Instead of duplicating the logic from the node/N/signups admin
     // form, we just call that form builder here and lift the elements
     // we need directly from that.
@@ -847,6 +870,58 @@ function signup_admin_form() {
     '#value' => t('Update'),
   );
   return $form;
+}
+
+function signup_admin_form_sql() {
+  $fields = array(
+    'n.nid',
+    'n.title',
+    's.status AS signup_status',
+    'COUNT(s_l.nid) AS signup_total',
+    's.close_signup_limit AS signup_close_signup_limit',
+  );
+  if (function_exists('signup_admin_sql_fields') && $admin_sql_fields = signup_admin_sql_fields()) {
+    $fields = array_merge($fields, $admin_sql_fields);
+  }
+
+  $group_by = array(
+    'n.nid',
+    'n.title',
+    'signup_status',
+    'signup_close_signup_limit',
+  );
+  if (function_exists('signup_admin_sql_group_by') && $admin_sql_group_by = signup_admin_sql_group_by()) {
+    $group_by = array_merge($group_by, $admin_sql_group_by);
+  }
+
+  $joins = array(
+    'INNER JOIN {node} n ON n.nid = s.nid',
+    'LEFT JOIN {signup_log} s_l ON s.nid = s_l.nid',
+  );
+  if (function_exists('signup_admin_sql_joins') && $admin_sql_joins = signup_admin_sql_joins()) {
+    $joins = array_merge($joins, $admin_sql_joins);
+  }
+
+  $type = $_SESSION['signup_status_filter'];
+  if ($type == 'open') {
+    $where = array('s.status = 1');
+  }
+  else if ($type == 'closed') {
+    $where = array('s.status = 0');
+  }
+  if (function_exists('signup_admin_sql_where') && $admin_sql_where = signup_admin_sql_where()) {
+    $where = array_merge($where, $admin_sql_where);
+  }
+
+  $sql = 'SELECT '. implode(', ', $fields) . ' FROM {signup} s ';
+  $sql_count = "SELECT COUNT(nid) FROM {signup} s";
+  $sql .= implode(' ', $joins);
+  if (!empty($where)) {
+    $sql .= ' WHERE '. implode(' AND ', $where);
+    $sql_count .= ' WHERE '. implode(' AND ', $where);
+  }
+  $sql .= ' GROUP BY '. implode(', ', $group_by);
+  return array(db_rewrite_sql($sql), db_rewrite_sql($sql_count, 's'));
 }
 
 function theme_signup_admin_form($form) {
@@ -1048,14 +1123,9 @@ function signup_list_user_signups($uid) {
 
   // We don't want to return anything for anon users.
   if ($uid != 0) {
-    $has_event = module_exists('event');
-    $event_join = $has_event ? ' LEFT JOIN {event} e ON e.nid = n.nid' : '';
-    $event_where = $has_event ? ' AND (e.event_start >= '. time() .' OR e.event_start IS NULL)' : '';
-    $order_by = $has_event ? 'e.event_start' : 'n.title';
-    $event_col = $has_event ? ', e.event_start' : '';
-
+    $sql = signup_list_user_signups_sql();
     // Pull all open signup nodes for this user.
-    $result = db_query(db_rewrite_sql("SELECT n.nid, n.title$event_col FROM {node} n INNER JOIN {signup_log} s_l ON n.nid = s_l.nid $event_join WHERE s_l.uid = '%s' $event_where ORDER BY $order_by"), $uid);
+    $result = db_query(db_rewrite_sql($sql), $uid);
     while ($node = db_fetch_array($result)) {
       $titles[$node['nid']] = l($node['title'], 'node/'. $node['nid']);
     }
@@ -1129,16 +1199,9 @@ function signup_sign_up_user($signup_form) {
     // Insert the user into the signup_log.
     db_query("INSERT INTO {signup_log} (uid, nid, anon_mail, signup_time, form_data) VALUES (%d, %d, '%s', %d, '%s')", $signup_form['uid'], $signup_form['nid'], $signup_form['signup_anon_mail'], $curtime, $signup_form_data);
 
-    // Must include this here as event module doesn't include timezone
-    // support on all page requests.
-    if (module_exists('event')) {
-      include_once(drupal_get_path('module', 'event') .'/event_timezones.inc');
-    }
-
     // Format the start time, and compose the user's signup data for
     // later use in the emails.
-    $offset = $node->event_start ? event_get_offset($node->timezone, $node->event_start) : '';
-    $starttime = $node->event_start ? _event_date(variable_get('signup_date_string', 'D, M jS, g:i A'), $node->event_start, $offset) : t('[Untimed]');
+    $starttime = signup_format_date($node);
     $signup_data_array = array();
     if (isset($signup_form['signup_form_data'])) {
       $signup_form_data = signup_build_signup_data($signup_form['signup_form_data'], 'email');
@@ -1202,6 +1265,7 @@ function signup_user_schedule($uid) {
     drupal_not_found();
     return;
   }
+  include(SIGNUP_PATH .'/signup.theme');
   drupal_set_title(t('Signups for @user', array('@user' => $user->name)));
   $titles = signup_list_user_signups($user->uid);
   foreach ($titles as $nid => $title) {
@@ -1629,8 +1693,8 @@ function signup_broadcast_form($node) {
   }
 
   $tokens = array('%event', '%username', '%useremail');
-  if (module_exists('event')) {
-    $tokens[] = '%time';
+  if (function_exists('signup_extra_tokens')) {
+    $tokens = array_merge($tokens, signup_extra_tokens());
   }
   sort($tokens);
   $token_text = t('Supported string substitutions: %tokens.', array('%tokens' => implode(', ', $tokens)));
@@ -1710,35 +1774,13 @@ function signup_broadcast_form_submit($form_id, $form_values) {
         '%useremail' => $mail_address,
 //        '%info' => $signup_info,
       );
-      if (module_exists('event')) {
-        $trans['%time'] = _event_date(variable_get('signup_date_string', 'D, M jS, g:i A'), $event->event_start, $offset);
-      }
-      else {
-        $trans['%time'] = t('[Untimed]');
-      }
+
+      $trans['%time'] = signup_format_date($event);
+
       $message = strtr($form_values['message'], $trans);
       drupal_mail('signup_broadcast_mail', $mail_address, $subject, $message, $from);
       watchdog('signup', t('Broadcast email for %event sent to %email.', array('%event' => $event->title, '%email' => $mail_address)), WATCHDOG_NOTICE, l(t('view'), 'node/'. $event->nid));
     }
   }
   drupal_set_message(t('Message sent to all users who have signed up'));
-}
-
-/**
- * Returns true if the given node is event-enabled, and the start time
- * has already passed the "Close x hours before" setting.
- */
-function _signup_event_completed($node) {
-  if (module_exists('event')) {
-    if (is_numeric($node)) {
-      $node = node_load($node);
-    }
-    if (isset($node->event_start)) {
-      $closing_time = time() + (variable_get('signup_close_early', 1) * 3600);
-      if ($node->event_start < $closing_time) {
-        return true;
-      }
-    }
-  }
-  return false;
 }
