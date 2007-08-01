@@ -620,12 +620,14 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
         if (!$node->signup_status) {
           if (user_access('sign up for content')) {
             $output = '<h3>'. t('Signups closed for this event') .'</h3>';
-            // If they're already signed up, show their current signup
-            // info and give them the option to cancel.
-            $result = db_query("SELECT signup_time, form_data FROM {signup_log} WHERE uid = %d AND nid = %d", $user->uid, $node->nid);
-            if (db_num_rows($result)) {
-              $signup_info = db_fetch_object($result);
-              $output .= _signup_print_current_signup($node, $signup_info);
+            // If they're logged in and already signed up, show their current
+            // signup info and give them the option to cancel.
+            if ($user->uid) {
+              $result = db_query("SELECT signup_time, form_data FROM {signup_log} WHERE uid = %d AND nid = %d", $user->uid, $node->nid);
+              if (db_num_rows($result)) {
+                $signup_info = db_fetch_object($result);
+                $output .= _signup_print_current_signup($node, $signup_info);
+              }
             }
           }
         }

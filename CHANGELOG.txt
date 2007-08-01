@@ -3,15 +3,20 @@ $Id$
 -----------
 5.x-2.x-dev
 -----------
-Changes since 5.x-2.1:
+Bug fixes since 5.x-2.1:
+= #163257 by dww: Anonymous users could cancel all anonymous signups
+  once the signup limit is reached or signups are otherwise closed.
+  This bug was introduced in version 5.x-2.1.
+= #142402 by cpisto: Fixed SQL bug on PgSQL when event.module is enabled.
 = #147546 by stBorchert: Removed call to undefined _event_date() when
   using signup broadcast if event.module is not installed.
+= #158688 by m3avrck: fixed JS to work with aggregator.
 = Code-style fixes (thanks to the coder.module).
-= #142402 by cpisto: Fixed SQL bug on PgSQL when event.module is enabled.
-= #158688 by m3avrck: fix JS to work with aggregator.
+
+Other changes since 5.x-2.1:
 = #154580 by killes and dww: Refactored code to support different
-  event and date backend modules. Currently, only event 5.x-1.x is
-  supported, but event 5.x-2.x and date.module will be easy.
+  event-related backend modules. Currently, only event 5.x-1.x is
+  supported, but event 5.x-2.x and date.module will now be easy.
 
 
 -------
