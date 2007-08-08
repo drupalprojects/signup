@@ -4,6 +4,8 @@ $Id$
 5.x-1.x-dev
 -----------
 Changes since 5.x-1.0:
+= #160862 by adrinux and dww: Fixed paging on signup administration form
+  (admin/content/signup) due to missing count query.
 = #142402 by cpisto: Fixed SQL bug on PgSQL when event.module is enabled.
 = #158688 by m3avrck: fix JS to work with aggregator.
 
