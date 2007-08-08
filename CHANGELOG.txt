@@ -7,6 +7,8 @@ Bug fixes since 5.x-2.1:
 = #163257 by dww: Anonymous users could cancel all anonymous signups
   once the signup limit is reached or signups are otherwise closed.
   This bug was introduced in version 5.x-2.1.
+= #160862 by adrinux and dww: Fixed paging on signup administration form
+  (admin/content/signup) due to missing count query.
 = #142402 by cpisto: Fixed SQL bug on PgSQL when event.module is enabled.
 = #147546 by stBorchert: Removed call to undefined _event_date() when
   using signup broadcast if event.module is not installed.
