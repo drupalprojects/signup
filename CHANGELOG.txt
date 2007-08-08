@@ -4,6 +4,8 @@ $Id$
 4.7.x-1.x-dev
 -------------
 Changes since 4.7.x-1.1:
+= #160862 by adrinux and dww: Fixed paging on signup administration form
+  (admin/content/signup) due to missing count query.
 = #142402 by cpisto: Fixed SQL bug on PgSQL when event.module is enabled.
 
 
