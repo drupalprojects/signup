@@ -1,51 +1,48 @@
 <?php
 // $Id$
 
+/**
+ * @return Array of SQL clauses for cron reminder email query builder.
+ */
+function signup_reminder_sql() {
+  // We must manually include this here as the event module doesn't
+  // include timezone support on all page requests.
+  include_once(drupal_get_path('module', 'event') .'/event_timezones.inc');
+  return array(
+    'fields' => array('e.event_start', 'e.timezone'),
+    'joins' => array('INNER JOIN {event} e ON e.nid = n.nid'),
+    'where' => array('('. time() .' + ((s.reminder_days_before) * 86400)) > e.event_start'),
+  );
+}
+
+/**
+ * @return Array of SQL clauses for cron auto-close query builder.
+ */
+function signup_autoclose_sql() {
+  // We must manually include this here as the event module doesn't
+  // include timezone support on all page requests.
+  include_once(drupal_get_path('module', 'event') .'/event_timezones.inc');
+  return array(
+    'fields' => array('e.event_start', 'e.timezone'),
+    'joins' => array('INNER JOIN {event} e ON e.nid = s.nid'),
+    'where' => array('e.event_start < '. (time() + (variable_get('signup_close_early', 1) * 3600))),
+  );
+}
+
+/**
+ * @return Array of SQL clauses for admin overview page query builder.
+ */
+function signup_admin_sql() {
+  return array(
+    'fields' => array('e.event_start', 'e.timezone'),
+    // All of the fields should go directly into GROUP BY.
+    'group_by' => $sql['fields'],
+    'joins' => array('LEFT JOIN {event} e ON e.nid = n.nid'),
+  );
+}
+
 function signup_admin_form_header() {
   return array('data' => t('Start'), 'field' => 'e.event_start');
-}
-
-function signup_reminder_sql_fields() {
-  // We must manually include this here as the event module doesn't
-  // include timezone support on all page requests.
-  include_once(drupal_get_path('module', 'event') .'/event_timezones.inc');
-  return array('e.event_start', 'e.timezone');
-}
-
-function signup_reminder_sql_joins() {
-  return array('INNER JOIN {event} e ON e.nid = n.nid');
-}
-
-function signup_reminder_sql_where() {
-  return array('('. time() .' + ((s.reminder_days_before) * 86400)) > e.event_start');
-}
-
-function signup_autoclose_sql_fields() {
-  // We must manually include this here as the event module doesn't
-  // include timezone support on all page requests.
-  include_once(drupal_get_path('module', 'event') .'/event_timezones.inc');
-  return array('e.event_start', 'e.timezone');
-}
-
-function signup_autoclose_sql_joins() {
-  return array('INNER JOIN {event} e ON e.nid = s.nid');
-}
-
-function signup_autoclose_sql_where() {
-  return array('e.event_start < '. time() + variable_get('signup_close_early', 1) * 3600);
-}
-
-function signup_admin_sql_fields() {
-  return array('e.event_start', 'e.timezone');
-}
-
-function signup_admin_sql_group_by() {
-  // All of the fields should go directly into GROUP BY, so reuse the function.
-  return signup_admin_sql_fields();
-}
-
-function signup_admin_sql_joins() {
-  return array('LEFT JOIN {event} e ON e.nid = n.nid');
 }
 
 function signup_admin_form_extra($signup_event) {

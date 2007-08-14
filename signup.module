@@ -47,42 +47,53 @@ function signup_init() {
 
 /**
  * Implementation of hook_cron().
+ *
+ * There are two cron-based tasks that can be performed by the signup module:
+ * sending reminder emails to events that will begin soon, and auto-closing
+ * signup on events that have already started (depending on settings). Each of
+ * these tasks is rather complicated and depends on the specific date-based
+ * backend module that's currently installed (if any), so each one is handled
+ * in a separate helper function.
+ *
  * @ingroup signup_core
+ * @see _signup_cron_send_reminders()
+ * @see _signup_cron_autoclose()
  */
 function signup_cron() {
-  // Get the current time, and pull all of the nodes for which the
-  // current time + the reminder_days_before time is greater than
-  // the event's start date.  These are the events for which a
-  // reminder email needs to be sent.
-  $fields = array('n.title', 'n.nid', 's.reminder_email', 's.forwarding_email');
-  if (function_exists('signup_reminder_sql_fields') && $reminder_sql_fields = signup_reminder_sql_fields()) {
-    $fields = array_merge($fields, $reminder_sql_fields);
+  _signup_initialize_event_backend();
+  _signup_cron_send_reminders();
+  _signup_cron_autoclose();
+}
+
+/**
+ * Helper function that sends cron-based reminder e-mails.
+ *
+ * Invokes the method for the installed event/date backend module to get the
+ * right query fragments, and builds a query to find all events that need a
+ * reminder email. For each one, it loops over the users signed up for that
+ * event and send off the emails.
+ *
+ * @see signup_cron()
+ * @see signup_reminder_sql()
+ * @see _signup_build_query()
+ */
+function _signup_cron_send_reminders() {
+  if (function_exists('signup_reminder_sql')) {
+    $reminder_sql = signup_reminder_sql();
+  }
+  if (empty($reminder_sql)) {
+    // The backend doesn't support reminder emails, so bail out now.
+    return;
   }
 
-  $group_by = array();
-  if (function_exists('signup_reminder_sql_group_by') && $reminder_sql_group_by = signup_reminder_sql_group_by()) {
-    $group_by = array_merge($group_by, $reminder_sql_group_by);
-  }
+  $reminder_common_sql = array(
+    'primary' => '{signup} s',
+    'fields' => array('n.title', 'n.nid', 's.reminder_email', 's.forwarding_email'),
+    'where' => array('s.send_reminder = 1'),
+    'joins' => array('INNER JOIN {node} n ON n.nid = s.nid'),
+  );
 
-  $joins = array('INNER JOIN {node} n ON n.nid = s.nid');
-  if (function_exists('signup_reminder_sql_joins') && $reminder_sql_joins = signup_reminder_sql_joins()) {
-    $joins = array_merge($joins, $reminder_sql_joins);
-  }
-
-  $where = array('s.send_reminder = 1');
-  if (function_exists('signup_reminder_sql_where') && $reminder_sql_where = signup_reminder_sql_where()) {
-    $where = array_merge($where, $reminder_sql_where);
-  }
-
-  $sql = 'SELECT '. implode(', ', $fields) . ' FROM {signup} s ';
-  $sql .= implode(' ', $joins);
-  if (!empty($where)) {
-    $sql .= ' WHERE '. implode(' AND ', $where);
-  }
-  if (!empty($group_by)) {
-    $sql .= ' GROUP BY '. implode(', ', $group_by);
-  }
-
+  $sql = _signup_build_query($reminder_common_sql, $reminder_sql);
   $result = db_query($sql);
 
   // Grab each event, construct the email header and subject, and query
@@ -118,40 +129,35 @@ function signup_cron() {
     // database so they're not sent again.
     db_query("UPDATE {signup} SET send_reminder = 0 WHERE nid = %d", $event->nid);
   }
+}
 
-  // Calculate the closing time for the event, which is the current
-  // time + the number of hours before the event start when closing is
-  // preferred.  Query the database for all signup events which have a
-  // start time less than this.
-  $fields = array('s.nid');
-  if (function_exists('signup_autoclose_sql_fields') && $autoclose_sql_fields = signup_autoclose_sql_fields()) {
-    $fields = array_merge($fields, $autoclose_sql_fields);
+/**
+ * Helper function that handles auto-closing events during cron.
+ *
+ * Invokes the method for the installed event/date backend module to get the
+ * right query fragments, and builds a query to find all events where signups 
+ * should be closed (e.g. events that already started, etc).
+ *
+ * @see signup_cron()
+ * @see signup_autoclose_sql()
+ * @see _signup_build_query()
+ */
+function _signup_cron_autoclose() {
+  if (function_exists('signup_autoclose_sql')) {
+    $autoclose_sql = signup_autoclose_sql();
+  }
+  if (empty($autoclose_sql)) {
+    // The backend doesn't support auto-closing events, so bail out now.
+    return;
   }
 
-  $group_by = array();
-  if (function_exists('signup_autoclose_sql_group_by') && $autoclose_sql_group_by = signup_autoclose_sql_group_by()) {
-    $group_by = array_merge($group_by, $autoclose_sql_group_by);
-  }
+  $autoclose_common_sql = array(
+    'primary' => '{signup} s',
+    'fields' => array('s.nid'),
+    'where' => array('s.status = 1'),
+  );
 
-  $joins = array();
-  if (function_exists('signup_autoclose_sql_joins') && $autoclose_sql_joins = signup_autoclose_sql_joins()) {
-    $joins = array_merge($joins, $autoclose_sql_joins);
-  }
-
-  $where = array('s.status = 1');
-  if (function_exists('signup_autoclose_sql_where') && $autoclose_sql_where = signup_autoclose_sql_where()) {
-    $where = array_merge($where, $autoclose_sql_where);
-  }
-
-  $sql = 'SELECT '. implode(', ', $fields) . ' FROM {signup} s ';
-  $sql .= implode(' ', $joins);
-  if (!empty($where)) {
-    $sql .= ' WHERE '. implode(' AND ', $where);
-  }
-  if (!empty($group_by)) {
-    $sql .= ' GROUP BY '. implode(', ', $group_by);
-  }
-
+  $sql = _signup_build_query($autoclose_common_sql, $autoclose_sql);
   $result = db_query($sql);
 
   // Loop through the results, calling the event closing function.
@@ -164,6 +170,58 @@ function signup_cron() {
     }
     watchdog('signup', t('Signups closed for %event by cron.', array('%event' => $node->title)), WATCHDOG_NOTICE, l(t('view'), 'node/'. $node->nid));
   }
+}
+
+/**
+ * Private query builder helper function.
+ *
+ * @param $common_sql
+ *   Nested array of shared query fragments that are common to all date-based
+ *   backends. The supported keys are:
+ *   'primary': the query's primary table and its alias (required).
+ *   'fields': array of fields to SELECT.
+ *   'joins': array of JOIN statements for other tables.
+ *   'where': array of WHERE clauses.
+ *   'group_by': array of GROUP BY fields.
+ *
+ * @param $backend_sql
+ *   Similar nested array provided by the date-based backend include file,
+ *   except that 'primary' is not allowed.
+ *
+ * @return
+ *   Complete SQL statement based on the given query fragments.
+ */
+function _signup_build_query($common_sql, $backend_sql) {
+
+  $fields = array_merge(
+    (!empty($common_sql['fields']) ? $common_sql['fields'] : array()),
+    (!empty($backend_sql['fields']) ? $backend_sql['fields'] : array())
+  );
+  $joins = array_merge(
+    (!empty($common_sql['joins']) ? $common_sql['joins'] : array()),
+    (!empty($backend_sql['joins']) ? $backend_sql['joins'] : array())
+  );
+  $where = array_merge(
+    (!empty($common_sql['where']) ? $common_sql['where'] : array()),
+    (!empty($backend_sql['where']) ? $backend_sql['where'] : array())
+  );
+  $group_by = array_merge(
+    (!empty($common_sql['group_by']) ? $common_sql['group_by'] : array()),
+    (!empty($backend_sql['group_by']) ? $backend_sql['group_by'] : array())
+  );
+
+  $sql = 'SELECT '. implode(', ', $fields);
+  $sql .= ' FROM '. $common_sql['primary'] .' ';
+  if (!empty($joins)) {
+    $sql .= implode(' ', $joins);
+  }
+  if (!empty($where)) {
+    $sql .= ' WHERE '. implode(' AND ', $where);
+  }
+  if (!empty($group_by)) {
+    $sql .= ' GROUP BY '. implode(', ', $group_by);
+  }
+  return $sql;
 }
 
 /**
@@ -223,21 +281,7 @@ function signup_menu($may_cache) {
     );
   }
   else {  // !$may_cache: dynamic menu items
-    define('SIGNUP_PATH', drupal_get_path('module', 'signup'));
-    if (defined('EVENT_API') && EVENT_API == '5.2') {
-      include(SIGNUP_PATH .'/signup_event_5.x-2.inc');
-    }
-    else if (module_exists('event')) {
-      include(SIGNUP_PATH .'/signup_event_5.x-1.inc');
-    }
-    else if (module_exists('date')) {
-      // include(SIGNUP_PATH .'/signup_date.inc');
-      // Until date.module support exists, fall back to the no event case.
-      include(SIGNUP_PATH .'/signup_event_none.inc');
-    }
-    else {
-      include(SIGNUP_PATH .'/signup_event_none.inc');
-    }
+    _signup_initialize_event_backend();
 
     // User signup schedule callback
     $items[] = array(
@@ -275,6 +319,24 @@ function signup_menu($may_cache) {
     }
   }
   return $items;
+}
+
+function _signup_initialize_event_backend() {
+  define('SIGNUP_PATH', drupal_get_path('module', 'signup'));
+  if (defined('EVENT_API') && EVENT_API == '5.2') {
+    include(SIGNUP_PATH .'/signup_event_5.x-2.inc');
+  }
+  else if (module_exists('event')) {
+    include(SIGNUP_PATH .'/signup_event_5.x-1.inc');
+  }
+  else if (module_exists('date')) {
+    // include(SIGNUP_PATH .'/signup_date.inc');
+    // Until date.module support exists, fall back to the no event case.
+    include(SIGNUP_PATH .'/signup_event_none.inc');
+  }
+  else {
+    include(SIGNUP_PATH .'/signup_event_none.inc');
+  }
 }
 
 /**
@@ -875,54 +937,59 @@ function signup_admin_form() {
 }
 
 function signup_admin_form_sql() {
-  $fields = array(
-    'n.nid',
-    'n.title',
-    's.status AS signup_status',
-    'COUNT(s_l.nid) AS signup_total',
-    's.close_signup_limit AS signup_close_signup_limit',
+  $admin_common_sql = array(
+    'primary' => '{signup} s',
+    'fields' => array(
+      'n.nid',
+      'n.title',
+      's.status AS signup_status',
+      'COUNT(s_l.nid) AS signup_total',
+      's.close_signup_limit AS signup_close_signup_limit',
+    ),
+    'group_by' => array(
+      'n.nid',
+      'n.title',
+      'signup_status',
+      'signup_close_signup_limit',
+    ),
+    'joins' => array(
+      'INNER JOIN {node} n ON n.nid = s.nid',
+      'LEFT JOIN {signup_log} s_l ON s.nid = s_l.nid',
+    ),
   );
-  if (function_exists('signup_admin_sql_fields') && $admin_sql_fields = signup_admin_sql_fields()) {
-    $fields = array_merge($fields, $admin_sql_fields);
-  }
-
-  $group_by = array(
-    'n.nid',
-    'n.title',
-    'signup_status',
-    'signup_close_signup_limit',
-  );
-  if (function_exists('signup_admin_sql_group_by') && $admin_sql_group_by = signup_admin_sql_group_by()) {
-    $group_by = array_merge($group_by, $admin_sql_group_by);
-  }
-
-  $joins = array(
-    'INNER JOIN {node} n ON n.nid = s.nid',
-    'LEFT JOIN {signup_log} s_l ON s.nid = s_l.nid',
-  );
-  if (function_exists('signup_admin_sql_joins') && $admin_sql_joins = signup_admin_sql_joins()) {
-    $joins = array_merge($joins, $admin_sql_joins);
-  }
 
   $type = $_SESSION['signup_status_filter'];
   if ($type == 'open') {
-    $where = array('s.status = 1');
+    $filter_status = 1;
   }
   else if ($type == 'closed') {
-    $where = array('s.status = 0');
+    $filter_status = 0;
   }
-  if (function_exists('signup_admin_sql_where') && $admin_sql_where = signup_admin_sql_where()) {
-    $where = array_merge($where, $admin_sql_where);
+  if (isset($filter_status)) {
+    $admin_common_sql['where'] = array("s.status = $filter_status");
   }
 
-  $sql = 'SELECT '. implode(', ', $fields) . ' FROM {signup} s ';
+  // Get the right query elements from the currently installed backend
+  if (function_exists('signup_admin_sql')) {
+    $admin_sql = signup_admin_sql();
+  }
+  else {
+    $admin_sql = array();
+  }
+
+  // Build the main query.
+  $sql = _signup_build_query($admin_common_sql, $admin_sql);
+
+  // Construct the proper pager query using just the WHERE clauses (if any).
+  $where = array_merge(
+    (!empty($admin_common_sql['where']) ? $admin_common_sql['where'] : array()),
+    (!empty($admin_sql['where']) ? $admin_sql['where'] : array())
+  );
   $sql_count = "SELECT COUNT(nid) FROM {signup} s";
-  $sql .= implode(' ', $joins);
   if (!empty($where)) {
-    $sql .= ' WHERE '. implode(' AND ', $where);
     $sql_count .= ' WHERE '. implode(' AND ', $where);
   }
-  $sql .= ' GROUP BY '. implode(', ', $group_by);
+
   return array(db_rewrite_sql($sql), db_rewrite_sql($sql_count, 's'));
 }
 
