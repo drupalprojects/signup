@@ -15,10 +15,10 @@ Bug fixes since 5.x-2.1:
 = #158688 by m3avrck: fixed JS to work with aggregator.
 = Code-style fixes (thanks to the coder.module).
 
-Other changes since 5.x-2.1:
+New features since 5.x-2.1:
 = #154580 by killes and dww: Refactored code to support different
-  event-related backend modules. Currently, only event 5.x-1.x is
-  supported, but event 5.x-2.x and date.module will now be easy.
+  event-related backend modules. Both event 5.x-1.x and event 5.x-2.x
+  are supported, and adding date.module support will now be easy.
 
 
 -------
