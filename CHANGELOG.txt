@@ -1,7 +1,7 @@
 $Id$
 
 -----------
-5.x-2.x-dev
+5.x-2.2
 -----------
 Bug fixes since 5.x-2.1:
 = #163257 by dww: Anonymous users could cancel all anonymous signups
