@@ -9,9 +9,10 @@ function signup_reminder_sql() {
   switch ($db_type) {
     case 'mysql':
     case 'mysqli':
-      $where = array('('. date('Y-m-d H:i:s') .' + INTERVAL s.reminder_days_before DAY ) > '. event_where_utc());
+      $where = array("('". date('Y-m-d H:i:s') ."' + INTERVAL s.reminder_days_before DAY ) > ". event_where_utc());
+      break;
     case 'pgsql':
-      $where = array('('. date('Y-m-d H:i:s') ." + INTERVAL 's.reminder_days_before days' ) > ". event_where_utc());
+      $where = array("('". date('Y-m-d H:i:s') ."' + INTERVAL 's.reminder_days_before days' ) > ". event_where_utc());
   }
   return array(
     'fields' => array(event_select(), 'e.timezone'),
@@ -26,8 +27,8 @@ function signup_reminder_sql() {
 function signup_autoclose_sql() {
   return array(
     'fields' => array(event_select(), 'e.timezone'),
-    'joins' => array(event_join()),
-    'where' => array(event_where_utc() .' < '. date('Y-m-d H:i:s', time() + variable_get('signup_close_early', 1) * 3600)),
+    'joins' => array(event_join('s')),
+    'where' => array(event_where_utc() ." < '". date('Y-m-d H:i:s', time() + variable_get('signup_close_early', 1) * 3600) ."'"),
   );
 }
 
