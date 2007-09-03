@@ -324,18 +324,18 @@ function signup_menu($may_cache) {
 function _signup_initialize_event_backend() {
   define('SIGNUP_PATH', drupal_get_path('module', 'signup'));
   if (defined('EVENT_API') && EVENT_API == '5.2') {
-    include(SIGNUP_PATH .'/signup_event_5.x-2.inc');
+    include_once(SIGNUP_PATH .'/signup_event_5.x-2.inc');
   }
   else if (module_exists('event')) {
-    include(SIGNUP_PATH .'/signup_event_5.x-1.inc');
+    include_once(SIGNUP_PATH .'/signup_event_5.x-1.inc');
   }
   else if (module_exists('date')) {
-    // include(SIGNUP_PATH .'/signup_date.inc');
+    // include_once(SIGNUP_PATH .'/signup_date.inc');
     // Until date.module support exists, fall back to the no event case.
-    include(SIGNUP_PATH .'/signup_event_none.inc');
+    include_once(SIGNUP_PATH .'/signup_event_none.inc');
   }
   else {
-    include(SIGNUP_PATH .'/signup_event_none.inc');
+    include_once(SIGNUP_PATH .'/signup_event_none.inc');
   }
 }
 
@@ -795,7 +795,7 @@ function _signup_print_current_signup($node, $signup_info) {
  */
 function signup_form($node, $anon_signup_form = NULL) {
   global $user;
-  include(SIGNUP_PATH .'/signup.theme');
+  include_once(SIGNUP_PATH .'/signup.theme');
 
   $form['nid'] = array('#type' => 'value', '#value' => $node->nid);
   $form['uid'] = array('#type' => 'value', '#value' => $user->uid);
@@ -1334,7 +1334,7 @@ function signup_user_schedule($uid) {
     drupal_not_found();
     return;
   }
-  include(SIGNUP_PATH .'/signup.theme');
+  include_once(SIGNUP_PATH .'/signup.theme');
   drupal_set_title(t('Signups for @user', array('@user' => $user->name)));
   $titles = signup_list_user_signups($user->uid);
   foreach ($titles as $nid => $title) {
