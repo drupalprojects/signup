@@ -3,7 +3,7 @@
 // $Id$
 
 /**
- * Format a user signup for diplay in a schedule list.
+ * Format a user signup for display in a schedule list.
  *
  * @param node
  *   The node which needs theming
