@@ -1,6 +1,13 @@
 $Id$
 
 -----------
+5.x-2.x-dev
+-----------
+= #169372 and #171363: Fixed bugs with redeclaring functions caused by
+  using include() instead of include_once().
+
+
+-----------
 5.x-2.2
 -----------
 Bug fixes since 5.x-2.1:
