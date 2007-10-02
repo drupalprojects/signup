@@ -5,6 +5,7 @@ $Id$
 -----------
 = #169372 and #171363: Fixed bugs with redeclaring functions caused by
   using include() instead of include_once().
+= #180233 by stenjo: Added a Norwegian Bokmal translation.
 
 
 -----------
