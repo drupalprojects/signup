@@ -82,6 +82,14 @@ function signup_views_tables() {
         'handler' => 'views_handler_filter_signup_uid',
         'help' => t('Filter on if a user who signed up is anonymous, or an authenticated user on the site.'),
       ),
+      'signup_user_current' => array(
+        'field' => 'uid',
+        'name' => t('Signup: User: Current User'),
+        'operator' => 'views_handler_operator_eqneq',
+        'list' => 'views_handler_filter_usercurrent',
+        'list-type' => 'select',
+        'help' => t('This allows you to filter by whether or not the node was signed up by the logged in user of the view.'),
+      ),
     )
   );
   $tables['signup'] = array(
