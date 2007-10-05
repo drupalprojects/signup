@@ -3,7 +3,7 @@
 
 /**
  * @file
- * Provides support for Views integration.  
+ * Provides support for Views integration.
  *
  * Currently, this only exposes signup-related data, but does not
  * define any default views.
@@ -25,7 +25,7 @@ function signup_views_tables() {
         'field' => 'nid'
       ),
     ),
-    'fields' => array(     
+    'fields' => array(
       'uid' => array(
         'name' => t('Signup: User: Name'),
         'handler' => 'views_handler_field_uid',
@@ -37,7 +37,7 @@ function signup_views_tables() {
         'handler' => 'views_handler_field_signup_email',
         'sortable' => true,
         'field' => 'uid',
-        'addlfields' => array('anon_mail'), 
+        'addlfields' => array('anon_mail'),
         'help' => t('Email address of a user (authenticated or anonymous) who signed up.') .' <strong>'. t('WARNING: only expose this data in a view that is restricted to users whom you can trust with such sensitive information.') .'</strong>',
       ),
       'signup_time' => array(
@@ -95,7 +95,7 @@ function signup_views_tables() {
         'field' => 'nid'
       ),
     ),
-    'fields' => array(     
+    'fields' => array(
       'status' => array(
         'name' => t('Signup: Node: Open/Closed'),
         'sortable' => true,
@@ -232,7 +232,7 @@ function signup_views_arguments() {
     'help' => t('Filter signups by signed up user.'),
     'option' => array(
       '#type' => 'select',
-      '#options' => array(1 => t('Signed up'), 0 => t('Not signed up')), 
+      '#options' => array(1 => t('Signed up'), 0 => t('Not signed up')),
     ),
   );
   return $arguments;
@@ -240,7 +240,7 @@ function signup_views_arguments() {
 
 /**
  * An argument handler for signup_uid
- * 
+ *
  */
 function views_handler_arg_signup_uid($op, &$query, $argtype, $arg = '') {
   switch ($op) {
