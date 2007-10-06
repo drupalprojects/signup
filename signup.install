@@ -245,6 +245,26 @@ function signup_update_5201() {
   return $ret;
 }
 
+/**
+ * Add "cancel own signups" permission to all roles that have "sign up
+ * for content" permission. 
+ */
+function signup_update_5202() {
+  $ret = array();
+  switch ($GLOBALS['db_type']) {
+    case 'mysql':
+    case 'mysqli':
+      $ret[] = update_sql("UPDATE {permission} SET perm = CONCAT(perm, ', cancel own signups') WHERE CONCAT(perm, ', ') LIKE '%%sign up for content, %%'");
+      break;
+
+    case 'pgsql':
+      $ret[] = update_sql("UPDATE {permission} SET perm = perm || ', cancel own signups' WHERE perm || ', ' LIKE '%%sign up for content, %%'");
+      break;
+  }
+  drupal_set_message(t("Added the 'cancel own signups' permission to all roles that have the 'sign up for content' permission.") .'<br />'. t('If you do not want your users to cancel their own signups, go to the <a href="@access_url">Access control</a> page and unset this permission.', array('@access_url' => url('/admin/user/access'))));
+  return $ret;
+}
+
 function _signup_db_column_exists($table, $column) {
   switch ($GLOBALS['db_type']) {
     case 'mysql':

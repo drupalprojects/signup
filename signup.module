@@ -346,6 +346,7 @@ function _signup_initialize_event_backend() {
 function signup_perm() {
   return array(
     'sign up for content',
+    'cancel own signups',
     'view all signups',
     'administer all signups',
     'administer signups for own content',
@@ -780,7 +781,9 @@ function _signup_print_current_signup($node, $signup_info) {
   if (!empty($rows)) {
     $output .= theme('table', $header, $rows);
   }
-  $output .= drupal_get_form('signup_form_cancel', $node);
+  if (user_access('cancel own signups')) {
+    $output .= drupal_get_form('signup_form_cancel', $node);
+  }
   return $output;
 }
 

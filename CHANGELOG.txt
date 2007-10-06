@@ -3,11 +3,18 @@ $Id$
 -----------
 5.x-2.x-dev
 -----------
+Bug fixes since 5.x-2.2:
 = #169372 and #171363: Fixed bugs with redeclaring functions caused by
   using include() instead of include_once().
-= #180233 by stenjo: Added a Norwegian Bokmal translation.
+
+New features since 5.x-2.2:
 = #180154 by KarenS and dww: Added a views filter for if the current
   user is signed up.
+= #178021 by stBorchert: Added a new "cancel own signups" permission.
+  NOTE: After updating the module and running update.php, all roles
+  that previously had the "sign up for content" permission will have
+  "cancel own signups", too.
+= #180233 by stenjo: Added a Norwegian Bokmal translation.
 
 
 -----------
