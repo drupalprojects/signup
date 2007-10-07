@@ -6,6 +6,8 @@ $Id$
 Bug fixes since 5.x-2.2:
 = #169372 and #171363: Fixed bugs with redeclaring functions caused by
   using include() instead of include_once().
+= #179540 by dragonwize and dww: Restored the login/register links for
+  anonymous users when viewing a signup-enabled node.
 
 New features since 5.x-2.2:
 = #180154 by KarenS and dww: Added a views filter for if the current

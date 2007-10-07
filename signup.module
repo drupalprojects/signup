@@ -717,9 +717,6 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
             else {
               $needs_signup_form = FALSE;
               $output .= '<div class="signup_anonymous_login">'. t('Please !login or !register to sign up for this event.', $login_array) .'</div>';
-              // We break here to skip over the printout options below
-              // for the signup node, as they are not needed in this case.
-              break;
             }
           }
           else {
@@ -735,9 +732,9 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
               $output = drupal_get_form('signup_form', $node, $anon_signup_form);
             }
           }
-          else {
-            // The user is already signed up, so print a table of their
-            // signup data, and give them the option to cancel.
+          else if ($user->uid !== 0 && isset($result)) {
+            // The authenticated user is already signed up, so print a table
+            // of their signup data, and give them the option to cancel.
             $signup_info = db_fetch_object($result);
             $output .= _signup_print_current_signup($node, $signup_info);
           }
