@@ -72,4 +72,14 @@ the Drupal package and read the online documentation.
    privilege.
 
 
-7. Start signing up!
+7. (Optional) If you have enabled the views module on your site
+   (http://drupal.org/project/views), be sure you are running views
+   version 5.x-1.6 or later.  Once you have everything installed and
+   working, you should consider customizing any of the signup-related
+   views to better suit the needs of your site.  For example, if you
+   are using the event module, you might want to add a filter to the
+   'current signups' view to restrict it to events that have not
+   started yet.
+
+
+8. Start signing up!

@@ -10,6 +10,10 @@ Bug fixes since 5.x-2.2:
   anonymous users when viewing a signup-enabled node.
 
 New features since 5.x-2.2:
+= #137911 by dww: Added signup_no_views.inc and moved all hard-coded
+  UI functionality there. This allows more flexibility for sites using
+  views, since the default views for these things can be customized
+  without conflicting with the non-views UI.
 = #180154 by KarenS and dww: Added a views filter for if the current
   user is signed up.
 = #178021 by stBorchert: Added a new "cancel own signups" permission.

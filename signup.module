@@ -5,43 +5,10 @@
  * @defgroup signup_core Core drupal hooks
  */
 
-/**
- * Implementation of hook_block().
- * @ingroup signup_core
- * @param $op
- *   The operation that is being requested. This defaults to 'list', which 
- *   indicates that the method should return which blocks are available.
- * @param $delta
- *   The specific block to display (the offset into an array).
- * @return
- *   One of two possibilities. The first is an array of available blocks.
- *   The other is an array containing a block.
- */
-function signup_block($op = 'list', $delta = 0) {
-  global $user;
-  switch ($op) {
-    case 'list' :
-      $blocks[0]['info'] = t('List of users current signups.');
-      return $blocks;
-      break;
-    case 'view' :
-      if (user_access('access content')) {
-        switch ($delta) {
-          case 0:
-            $titles = signup_list_user_signups($user->uid);
-            if (count($titles)) {
-              $block['subject'] = t('Current Signups');
-              $block['content'] = theme_item_list($titles) . l(t('View signup schedule'), "user/$user->uid/signups");
-            }
-            return $block;
-        }
-      }
-  }
-}
-
 function signup_init() {
   if (module_exists('views')) {
-    require './'. drupal_get_path('module', 'signup') .'/signup_views.inc';
+    $signup_path = './'. drupal_get_path('module', 'signup');
+    require_once($signup_path .'/signup_views.inc');
   }
 }
 
@@ -283,15 +250,14 @@ function signup_menu($may_cache) {
   else {  // !$may_cache: dynamic menu items
     _signup_initialize_event_backend();
 
-    // User signup schedule callback
-    $items[] = array(
-      'path' => 'user/'. arg(1) .'/signups',
-      'access' => ($access || ($user->uid == arg(1))),
-      'type' => MENU_CALLBACK,
-      'callback' => 'signup_user_schedule',
-      'callback arguments' => array($uid => arg(1)),
-    );
-  
+    // Conditionally load either the views support, or the code that
+    // only should happen if views is not enabled.
+    $signup_path = './'. drupal_get_path('module', 'signup');
+    if (!module_exists('views')) {
+      require_once($signup_path .'/signup_no_views.inc');
+      signup_no_views_menu($items, $may_cache);
+    }
+
     // If it's a signup-enabled node, then put in a signup tab for admins.
     if (arg(0) == 'node' && is_numeric(arg(1)) && db_num_rows(db_query("SELECT nid FROM {signup} WHERE nid = %d", arg(1)))) {
       $node = node_load(array('nid' => arg(1)));
@@ -353,24 +319,6 @@ function signup_perm() {
     'email users signed up for own content',
     'email all signed up users',
   );
-}
-
-/**
- * Implementation of hook_user().
- * @ingroup signup_core
- */
-function signup_user($op, &$edit, &$user, $category = NULL) {
-  switch ($op) {
-    case 'view':
-      // grab list of events the user signed up for.
-      $signups = signup_list_user_signups($user->uid);
-      if (count($signups)) {
-        $output = '<h4>'. t('Current Signups') .' -- '. l(t('view signup schedule'), "user/$user->uid/signups") .'</h4>'. theme_item_list($signups);
-      }
-      if (isset($output)) {
-        return array(t('Signup information') => array(array('value' => $output, 'class' => 'user')));
-      }
-  }
 }
 
 /**
@@ -1321,27 +1269,6 @@ function signup_sign_up_user($signup_form) {
   else {
     drupal_access_denied();
   }
-}
-
-/**
- * Prints a schedule of the given user's signups.
- * @ingroup signup_callback
- */
-function signup_user_schedule($uid) {
-  $output = '';
-  $user = user_load(array('uid' => $uid));
-  if (!$user) {
-    drupal_not_found();
-    return;
-  }
-  include_once(SIGNUP_PATH .'/signup.theme');
-  drupal_set_title(t('Signups for @user', array('@user' => $user->name)));
-  $titles = signup_list_user_signups($user->uid);
-  foreach ($titles as $nid => $title) {
-    $node = node_load(array('nid' => $nid));
-    $output .= theme('signup_user_schedule', $node);
-  }
-  return $output;
 }
 
 /**
