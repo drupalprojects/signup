@@ -8,6 +8,9 @@ Bug fixes since 5.x-2.2:
   using include() instead of include_once().
 = #179540 by dragonwize and dww: Restored the login/register links for
   anonymous users when viewing a signup-enabled node.
+= #181627 by stBorchert and dww: Removed an inappropriate WHERE clause
+  in the signup UID views argument handler that restricted the query to
+  nodes where signups where open. That should be handled via a filter.
 
 New features since 5.x-2.2:
 = #137911 by dww: Added signup_no_views.inc and moved all hard-coded

@@ -268,8 +268,6 @@ function views_handler_arg_signup_uid($op, &$query, $argtype, $arg = '') {
     case 'filter':
       $option = $argtype['options'];
       $uid = intval($arg);
-      $query->ensure_table('signup');
-      $query->add_where("signup.status = 1");
       if ($option) {
         $query->ensure_table('signup_log');
         $query->add_where("signup_log.uid = $uid");
