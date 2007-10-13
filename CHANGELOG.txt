@@ -13,10 +13,15 @@ Bug fixes since 5.x-2.2:
   nodes where signups where open. That should be handled via a filter.
 
 New features since 5.x-2.2:
-= #137911 by dww: Added signup_no_views.inc and moved all hard-coded
-  UI functionality there. This allows more flexibility for sites using
-  views, since the default views for these things can be customized
-  without conflicting with the non-views UI.
+= #137911 by dww: Added signup_no_views.inc, moved all hard-coded
+  UI functionality there, and provided a default view to list the
+  users's current signups (both at their profile and via a block).
+  This allows more flexibility for sites using views, since the
+  default views for these things can be customized without conflicting
+  with the non-views UI.
+= #48267 by dww: Added a default view of available signups (events
+  without a reply) which is a subtab at user/%uid/signups/available
+  and also provided as a block.
 = #180154 by KarenS and dww: Added a views filter for if the current
   user is signed up.
 = #178021 by stBorchert: Added a new "cancel own signups" permission.
