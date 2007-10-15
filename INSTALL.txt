@@ -46,22 +46,37 @@ the Drupal package and read the online documentation.
 
 6. Grant the proper access to user accounts under:
    Administer > User management > Access control
-   
+
    'sign up for content':
      Allows users to sign up for any content types that are signup-enabled.
      NOTE: Enabling 'sign up for content' for the anonymous user will
      allow anonymous users to sign up by entering an email address.
 
+   'cancel own signups':
+     Allows users to cancel their own signups. Without this permission,
+     only users with 'administer all signups' or 'administer signups for
+     own content' permission are allowed to cancel signups.
+     NOTE: Anonymous users aren't allowed cancel their signups even if
+     this permission is granted to the role 'anonymous user'.
+
    'view all signups':
      Allows users to view all of the users who have signed up for any
      signup-enabled content on the site.
 
+   'email all signed up users':
+     Allows users to send an email to everyone who has signed up for
+     any signup-enabled content on the site.
+
+   'email users signed up for own content':
+     Allows a user to send an email to everyone who has signed up for
+     content owned by the user.
+
    'admininister all signups':
-     Implies 'view all signups' permission.  Allows users to view who
-     has signed up for nodes, to cancel signups of other users, to
-     close signups for specific nodes, and to configure system-wide
-     settings related to this module.
-   
+     Implies 'view all signups' and 'cancel own signups' permissions.
+     Allows users to view who has signed up for nodes, to cancel
+     signups of other users, to close signups for specific nodes, and
+     to configure system-wide settings related to this module.
+
    'administer signups for own content':
      Allows users to view who has signed up, to cancel signups of
      other users, and to close signups for any nodes that the user owns.
