@@ -5,13 +5,6 @@
  * @defgroup signup_core Core drupal hooks
  */
 
-function signup_init() {
-  if (module_exists('views')) {
-    $signup_path = './'. drupal_get_path('module', 'signup');
-    require_once($signup_path .'/signup_views.inc');
-  }
-}
-
 /**
  * Implementation of hook_cron().
  *
@@ -253,7 +246,10 @@ function signup_menu($may_cache) {
     // Conditionally load either the views support, or the code that
     // only should happen if views is not enabled.
     $signup_path = './'. drupal_get_path('module', 'signup');
-    if (!module_exists('views')) {
+    if (module_exists('views')) {
+      require_once($signup_path .'/signup_views.inc');
+    }
+    else {
       require_once($signup_path .'/signup_no_views.inc');
       signup_no_views_menu($items, $may_cache);
     }
@@ -1779,4 +1775,38 @@ function signup_broadcast_form_submit($form_id, $form_values) {
     }
   }
   drupal_set_message(t('Message sent to all users who have signed up'));
+}
+
+/**
+ * @defgroup signup_views Views-integration hooks
+ */
+
+/**
+ * Implementation of hook_views_tables.
+ * @ingroup signup_views
+ * @see _signup_views_tables
+ */
+function signup_views_tables() {
+  require_once(drupal_get_path('module', 'signup') .'/signup_views.inc');
+  return _signup_views_tables();
+}
+
+/**
+ * Implementation of hook_views_arguments.
+ * @ingroup signup_views
+ * @see _signup_views_arguments
+ */
+function signup_views_arguments() {
+  require_once(drupal_get_path('module', 'signup') .'/signup_views.inc');
+  return _signup_views_arguments();
+}
+
+/**
+ * Implementation of hook_views_default_views.
+ * @ingroup signup_views
+ * @see _signup_views_default_views
+ */
+function signup_views_default_views() {
+  require_once(drupal_get_path('module', 'signup') .'/signup_views.inc');
+  return _signup_views_default_views();
 }

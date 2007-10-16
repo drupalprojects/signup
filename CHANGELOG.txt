@@ -11,6 +11,10 @@ Bug fixes since 5.x-2.2:
 = #181627 by stBorchert and dww: Removed an inappropriate WHERE clause
   in the signup UID views argument handler that restricted the query to
   nodes where signups where open. That should be handled via a filter.
+= #183417 by dww: Switched to a better method for conditionally
+  including views support code. This no longer uses signup_init(),
+  which wasn't necessary and made this module listed as incompatible
+  with aggressive caching for no good reason.
 
 New features since 5.x-2.2:
 = #137911 by dww: Added signup_no_views.inc, moved all hard-coded

@@ -14,9 +14,9 @@
  */
 
 /**
- * Implementation of hook_views_tables
+ * Private implementation of hook_views_tables.
  */
-function signup_views_tables() {
+function _signup_views_tables() {
   $tables['signup_log'] = array(
     'name' => 'signup_log',
     'join' => array(
@@ -235,9 +235,9 @@ function views_handler_field_signup_status($fieldinfo, $fielddata, $value, $data
 }
 
 /**
- * Implementation of hook_views_arguments
+ * Private implementation of hook_views_arguments.
  */
-function signup_views_arguments() {
+function _signup_views_arguments() {
   $arguments['signup_uid'] = array(
     'name' => t('Signup: User: UID Signup for Node'),
     'handler' => 'views_handler_arg_signup_uid',
@@ -351,7 +351,7 @@ function views_handler_filter_signup_uid($op, $filter, $filterinfo, &$query) {
  * Default views for core features of the signup UI that should always
  * be enabled and available.
  */
-function signup_views_default_views() {
+function _signup_views_default_views() {
 
   // Signup schedule at user/N/signups and the "Current signups" block.
   $view = new stdClass();
