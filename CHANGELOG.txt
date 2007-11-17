@@ -1,7 +1,7 @@
 $Id$
 
 -----------
-5.x-2.x-dev
+5.x-2.3
 -----------
 Bug fixes since 5.x-2.2:
 = #169372 and #171363: Fixed bugs with redeclaring functions caused by
