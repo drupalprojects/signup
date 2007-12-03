@@ -255,29 +255,42 @@ function signup_menu($may_cache) {
     }
 
     // If it's a signup-enabled node, then put in a signup tab for admins.
-    if (arg(0) == 'node' && is_numeric(arg(1)) && db_num_rows(db_query("SELECT nid FROM {signup} WHERE nid = %d", arg(1)))) {
+    if (arg(0) == 'node' && is_numeric(arg(1))) {
       $node = node_load(array('nid' => arg(1)));
-      $access_own = user_access('administer signups for own content') && ($user->uid == $node->uid);
-      $email_own = user_access('email users signed up for own content') && ($user->uid == $node->uid);
-      $email_all = user_access('email all signed up users');
-      $items[] = array(
-        'path' => 'node/'. arg(1) .'/signups',
-        'title' => t('Signups'),
-        'callback' => 'signup_node_admin_page',
-        'callback arguments' => array($node),
-        'access' => $access || $access_own,
-        'type' => MENU_LOCAL_TASK,
-        'weight' => 20,
-      );
-      $items[] = array(
-        'path' => 'node/'. arg(1) .'/signup-broadcast',
-        'title' => t('Signup broadcast'),
-        'callback' => 'drupal_get_form',
-        'callback arguments' => array('signup_broadcast_form', $node),
-        'access' => $email_all || $email_own,
-        'type' => MENU_LOCAL_TASK,
-        'weight' => 21,
-      );
+      if (!empty($node->signup)) {
+        $access_own = user_access('administer signups for own content') && ($user->uid == $node->uid);
+        $email_own = user_access('email users signed up for own content') && ($user->uid == $node->uid);
+        $email_all = user_access('email all signed up users');
+        if (variable_get('signup_form_location', 'node') == 'tab'
+            && _signup_needs_output($node)) {
+          $items[] = array(
+            'path' => 'node/'. arg(1) .'/signup',
+            'title' => t('Sign up'),
+            'callback' => 'signup_node_tab',
+            'callback arguments' => array($node),
+            'type' => MENU_LOCAL_TASK,
+            'weight' => 19,
+          );
+        }
+        $items[] = array(
+          'path' => 'node/'. arg(1) .'/signups',
+          'title' => t('Signups'),
+          'callback' => 'signup_node_admin_page',
+          'callback arguments' => array($node),
+          'access' => $access || $access_own,
+          'type' => MENU_LOCAL_TASK,
+          'weight' => 20,
+        );
+        $items[] = array(
+          'path' => 'node/'. arg(1) .'/signup-broadcast',
+          'title' => t('Signup broadcast'),
+          'callback' => 'drupal_get_form',
+          'callback arguments' => array('signup_broadcast_form', $node),
+          'access' => $email_all || $email_own,
+          'type' => MENU_LOCAL_TASK,
+          'weight' => 21,
+        );
+      }
     }
   }
   return $items;
@@ -614,101 +627,156 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
       break;
 
     case 'view':
-      $suppress = module_invoke_all('signup_suppress', $node);
-
-      // If this is a signup node, start checks for what's to be printed.
+      // If this is a signup node, figure out what (if anything) to print.
       // Only include any of this if we're trying to view the node as
       // a page, not during the view from comment validation, etc.
-      if ($node->signup && $page && !in_array(TRUE, $suppress)) {
-        global $user;
-
-        // The node has been closed for signups, and the user has
-        // signup permissions.  Let them know it's closed.
-        if (!$node->signup_status) {
-          if (user_access('sign up for content')) {
-            $output = '<h3>'. t('Signups closed for this event') .'</h3>';
-            // If they're logged in and already signed up, show their current
-            // signup info and give them the option to cancel.
-            if ($user->uid) {
-              $result = db_query("SELECT signup_time, form_data FROM {signup_log} WHERE uid = %d AND nid = %d", $user->uid, $node->nid);
-              if (db_num_rows($result)) {
-                $signup_info = db_fetch_object($result);
-                $output .= _signup_print_current_signup($node, $signup_info);
-              }
-            }
-          }
+      if ($page && _signup_needs_output($node) &&
+          variable_get('signup_form_location', 'node') == 'node') {
+        $output = _signup_node_output($node);
+        if (!empty($output)) {
+          // Save into a node property for retrieval from the theme layer.
+          $node->signup_view = $output;
+          // Store the data into the content array, for default display.
+          $node->content['signup'] = array(
+            '#value' => $output,
+            '#weight' => 10,
+          );
         }
-        else {
-          if ($user->uid == 0) {
-            // This is an anonymous user. If they have signup permissions,
-            // then build the anon portion of the sigup form.  If not, then
-            // display the login link.
-            $login_array = array(
-              '!login' => l(t('login'), 'user/login', array(), drupal_get_destination()),
-              '!register' => l(t('register'), 'user/register', array(), drupal_get_destination()),
-            );
-            if (user_access('sign up for content')) {
-              $needs_signup_form = TRUE;
-              $anon_signup_form['signup_anon_mail'] = array(
-                '#type' => 'textfield',
-                '#title' => t('Email'),
-                '#description' => t('An e-mail address is required for users who are not registered at this site. If you are a registered user at this site, please !login to sign up for this event.', $login_array),
-                '#size' => 40,
-                '#maxlength' => 255,
-                '#required' => TRUE,
-              );
-            }
-            else {
-              $needs_signup_form = FALSE;
-              $output .= '<div class="signup_anonymous_login">'. t('Please !login or !register to sign up for this event.', $login_array) .'</div>';
-            }
-          }
-          else {
-            // See if the user is already signed up for this node.
-            $result = db_query("SELECT signup_time, form_data FROM {signup_log} WHERE uid = %d AND nid = %d", $user->uid, $node->nid);
-            $needs_signup_form = db_num_rows($result) == 0;
-          }
-
-          if ($needs_signup_form) {
-            // User isn't signed up, so check to make sure they have signup
-            // permissions, and if so, print the themed signup form.
-            if (user_access('sign up for content')) {
-              $output = drupal_get_form('signup_form', $node, $anon_signup_form);
-            }
-          }
-          else if ($user->uid !== 0 && isset($result)) {
-            // The authenticated user is already signed up, so print a table
-            // of their signup data, and give them the option to cancel.
-            $signup_info = db_fetch_object($result);
-            $output .= _signup_print_current_signup($node, $signup_info);
-          }
-        }
-
-        // If the user has the view signups perm, display the current signups.
-        // Pull all users signed up for this event, and start table creation.
-        if (user_access('view all signups')) {
-          $registered_signups = db_query("SELECT u.uid, u.name, s.signup_time, s.form_data FROM {signup_log} s INNER JOIN {users} u ON u.uid = s.uid WHERE s.nid = %d AND u.uid != 0", $node->nid);
-          $anon_signups = db_num_rows(db_query("SELECT anon_mail FROM {signup_log} WHERE nid = %d AND uid = 0", $node->nid));
-          $header = array(array('data' => t('!users signed up', array('!users' => format_plural((db_num_rows($registered_signups) + $anon_signups), '1 individual', '@count individuals')))));
-          $rows = array();
-          while ($signed_up_user = db_fetch_object($registered_signups)) {
-            $rows[] = array(theme('username', $signed_up_user));
-          }
-          if ($anon_signups) {
-            $rows[] = array(t('!count anonymous', array('!count' => $anon_signups)));
-          }
-          $output .= theme('table', $header, $rows);
-        }
-        // Save output into a node property for retrieval from the theme layer.
-        $node->signup_view = $output;
-        // Store the data directly into the content array, for default display.
-        $node->content['signup'] = array(
-          '#value' => $output,
-          '#weight' => 10,
-        );
       }
       break;
   }
+}
+
+/**
+ * Generate all the signup-related output for a given node.
+ *
+ * Because of the global setting to control if the signup details and form
+ * appear at the bottom of the node or on a separate tab, this function is
+ * shared by multiple callers.
+ *
+ * @param $node
+ *   The fully loaded node object.
+ * @param $type
+ *   The kind of output would we render: can be either 'node' or 'tab'.
+ *
+ * @return
+ *   The fully rendered HTML for all signup-related forms and info.
+ *
+ * @see signup_nodeapi()
+ * @see signup_node_tab()
+ *
+ * @todo This needs to be much more theme-friendly.
+ *
+ */
+function _signup_node_output($node, $type = 'node') {
+  global $user;
+  $output = '';
+  // The node has been closed for signups, and the user has
+  // signup permissions.  Let them know it's closed.
+  if (!$node->signup_status) {
+    if (user_access('sign up for content')) {
+      $output = '<h3>'. t('Signups closed for this event') .'</h3>';
+      // If they're logged in and already signed up, show their current
+      // signup info and give them the option to cancel.
+      if ($user->uid) {
+        $result = db_query("SELECT signup_time, form_data FROM {signup_log} WHERE uid = %d AND nid = %d", $user->uid, $node->nid);
+        if (db_num_rows($result)) {
+          $signup_info = db_fetch_object($result);
+          $output .= _signup_print_current_signup($node, $signup_info);
+        }
+      }
+    }
+  }
+  else {
+    if ($user->uid == 0) {
+      // This is an anonymous user. If they have signup permissions,
+      // then build the anon portion of the sigup form.  If not, then
+      // display the login link.
+      $login_array = array(
+        '!login' => l(t('login'), 'user/login', array(), drupal_get_destination()),
+        '!register' => l(t('register'), 'user/register', array(), drupal_get_destination()),
+        );
+      if (user_access('sign up for content')) {
+        $needs_signup_form = TRUE;
+        $anon_signup_form['signup_anon_mail'] = array(
+          '#type' => 'textfield',
+          '#title' => t('Email'),
+          '#description' => t('An e-mail address is required for users who are not registered at this site. If you are a registered user at this site, please !login to sign up for this event.', $login_array),
+          '#size' => 40,
+          '#maxlength' => 255,
+          '#required' => TRUE,
+          );
+      }
+      else {
+        $needs_signup_form = FALSE;
+        $output .= '<div class="signup_anonymous_login">'. t('Please !login or !register to sign up for this event.', $login_array) .'</div>';
+      }
+    }
+    else {
+      // See if the user is already signed up for this node.
+      $result = db_query("SELECT signup_time, form_data FROM {signup_log} WHERE uid = %d AND nid = %d", $user->uid, $node->nid);
+      $needs_signup_form = db_num_rows($result) == 0;
+    }
+
+    if ($needs_signup_form) {
+      // User isn't signed up, so check to make sure they have signup
+      // permissions, and if so, print the themed signup form.
+      if (user_access('sign up for content')) {
+        $fieldset = $type == 'node' ? TRUE : FALSE;
+        $output = drupal_get_form('signup_form', $node, $anon_signup_form, $fieldset);
+      }
+    }
+    else if ($user->uid !== 0 && isset($result)) {
+      // The authenticated user is already signed up, so print a table
+      // of their signup data, and give them the option to cancel.
+      $signup_info = db_fetch_object($result);
+      $output .= _signup_print_current_signup($node, $signup_info);
+    }
+  }
+
+  // If the user has the view signups perm, display the current signups.
+  // Pull all users signed up for this event, and start table creation.
+  if (user_access('view all signups')) {
+    $registered_signups = db_query("SELECT u.uid, u.name, s.signup_time, s.form_data FROM {signup_log} s INNER JOIN {users} u ON u.uid = s.uid WHERE s.nid = %d AND u.uid != 0", $node->nid);
+    $anon_signups = db_num_rows(db_query("SELECT anon_mail FROM {signup_log} WHERE nid = %d AND uid = 0", $node->nid));
+    $header = array(array('data' => t('!users signed up', array('!users' => format_plural((db_num_rows($registered_signups) + $anon_signups), '1 individual', '@count individuals')))));
+    $rows = array();
+    while ($signed_up_user = db_fetch_object($registered_signups)) {
+      $rows[] = array(theme('username', $signed_up_user));
+    }
+    if ($anon_signups) {
+      $rows[] = array(t('!count anonymous', array('!count' => $anon_signups)));
+    }
+    $output .= theme('table', $header, $rows);
+  }
+  return $output;
+}
+
+/**
+ * Helper function that determines if a given node should have any
+ * signup-related output.
+ *
+ * @param $node A fully loaded node object.
+ * @return TRUE if this node should have signup output, FALSE if not.
+ *
+ * @see signup_nodeapi()
+ */
+function _signup_needs_output($node) {
+  if (!$node->signup) {
+    // Not signup enabled at all.
+    return FALSE;
+  }
+  $suppress = module_invoke_all('signup_suppress', $node);
+  if (in_array(TRUE, $suppress)) {
+    // Someone doesn't want signup details printed.
+    return FALSE;
+  }
+  return TRUE;
+}
+
+function signup_node_tab($node) {
+  drupal_set_title(check_plain($node->title));
+  return _signup_node_output($node, 'tab');
 }
 
 function _signup_print_current_signup($node, $signup_info) {
@@ -736,20 +804,33 @@ function _signup_print_current_signup($node, $signup_info) {
 /**
  * Builder function for the signup form
  * @ingroup signup_callback
+ *
+ * @param $node
+ *   The fully loaded node object.
+ * @param $anon_signup_form
+ *   Any elements for anonymous signups to include in the form array.
+ * @param $fieldset
+ *   Boolean that indicates if the signup form should be in a fieldset.
  */
-function signup_form($node, $anon_signup_form = NULL) {
+function signup_form($node, $anon_signup_form = NULL, $fieldset = TRUE) {
   global $user;
   include_once(SIGNUP_PATH .'/signup.theme');
 
+  $form = array();
   $form['nid'] = array('#type' => 'value', '#value' => $node->nid);
   $form['uid'] = array('#type' => 'value', '#value' => $user->uid);
 
-  $form['collapse'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Sign up for @title', array('@title' => $node->title)),
-    '#collapsible' => TRUE,
-    '#collapsed' => variable_get('signup_fieldset_collapsed', 1),
-  );
+  if ($fieldset) {
+    $form['collapse'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Sign up for @title', array('@title' => $node->title)),
+      '#collapsible' => TRUE,
+      '#collapsed' => variable_get('signup_fieldset_collapsed', 1),
+    );
+  }
+  else {
+    $form['collapse'] = array();
+  }
 
   // Build the themed signup form.  If the anon signup form is
   // present, merge it in at the end of the form.
@@ -1066,12 +1147,23 @@ function signup_settings_page() {
     '#collapsible' => true,
     '#collapsed' => true,
   );
+  $form['adv_settings']['signup_form_location'] = array(
+    '#title' => t('Location of the signup form and related information'),
+    '#type' => 'radios',
+    '#options' => array(
+      'node' => t('At the bottom of each node'),
+      'tab' => t('On a separate %sign_up tab', array('%sign_up' => t('Sign up'))),
+    ),
+    '#default_value' => variable_get('signup_form_location', 'node'),
+    '#description' => t('On every signup-enabled node, users with permission to
+ sign up will be presented with a form. Additionally, users the %view_signups permission will see a list of all users who have signed up. This setting controls where this information should be displayed: either directly on the node itself, or on a separate tab.', array('%view_signups' => t('view all signups'))),
+  );
   $form['adv_settings']['signup_fieldset_collapsed'] = array(
     '#title' => t('Default fieldset behavior for per-node signup form'),
     '#type' => 'radios',
     '#options' => array(1 => t('Collapsed'), 0 => t('Expanded')), 
     '#default_value' => variable_get('signup_fieldset_collapsed', 1),
-    '#description' => t('On every signup-enabled node, users with permission to sign up will be presented with a form which is encapsulated in a collapsible fieldset. This setting controls if that fieldset is expanded or collapsed by default.'),
+    '#description' => t('If the signup form is included at the bottom of each node, the signup form will be encapsulated in a collapsible fieldset. This setting controls if that fieldset is expanded or collapsed by default.'),
   );
 
   // Use our own submit handler, so we can do some processing before
