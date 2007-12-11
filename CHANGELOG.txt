@@ -3,6 +3,10 @@ $Id$
 -----------
 5.x-2.4-dev
 -----------
+Bug fixes since 5.x-2.3:
+= #199383 by deviantintegral and dww: Fixed bug that could cause signup
+  to invoke node_load() with invalid parameters on the node add form.
+
 New features since 5.x-2.3:
 = #190553 by dww: Added a global setting to move the signup form from
   a fieldset on the node to a separate "Sign up" tab.  This feature
