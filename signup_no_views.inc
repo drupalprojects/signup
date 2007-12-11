@@ -13,7 +13,7 @@
  * Implementation of hook_block().
  * @ingroup signup_core
  * @param $op
- *   The operation that is being requested. This defaults to 'list', which 
+ *   The operation that is being requested. This defaults to 'list', which
  *   indicates that the method should return which blocks are available.
  * @param $delta
  *   The specific block to display (the offset into an array).

@@ -95,7 +95,7 @@ function _signup_cron_send_reminders() {
  * Helper function that handles auto-closing events during cron.
  *
  * Invokes the method for the installed event/date backend module to get the
- * right query fragments, and builds a query to find all events where signups 
+ * right query fragments, and builds a query to find all events where signups
  * should be closed (e.g. events that already started, etc).
  *
  * @see signup_cron()
@@ -940,7 +940,7 @@ function signup_admin_form() {
     $row['title'] = array(
       '#type' => 'markup',
       '#value' => l($signup_event->title, "node/$signup_event->nid"),
-    );     
+    );
     $row['status'] = $node_admin_form['status'];
     $row['total'] = array(
       '#type' => 'markup',
@@ -955,7 +955,7 @@ function signup_admin_form() {
     $row['operations'] = array(
       '#type' => 'markup',
       '#value' => $op_links,
-    );     
+    );
     $form['nids'][$signup_event->nid] = $row;
   }
   $form['#tree'] = true;
@@ -1166,7 +1166,7 @@ function signup_settings_page() {
   $form['adv_settings']['signup_fieldset_collapsed'] = array(
     '#title' => t('Default fieldset behavior for per-node signup form'),
     '#type' => 'radios',
-    '#options' => array(1 => t('Collapsed'), 0 => t('Expanded')), 
+    '#options' => array(1 => t('Collapsed'), 0 => t('Expanded')),
     '#default_value' => variable_get('signup_fieldset_collapsed', 1),
     '#description' => t('If the signup form is included at the bottom of each node, the signup form will be encapsulated in a collapsible fieldset. This setting controls if that fieldset is expanded or collapsed by default.'),
   );
@@ -1257,9 +1257,9 @@ function signup_list_user_signups($uid) {
  *   automatically be set to 0 if this element is passed in. NOTE: It's
  *   highly recommended to call the signup_validate_anon_email
  *   function in the external module's validation cycle or perform
- *   that function's validation logic prior to passing in this element! 
+ *   that function's validation logic prior to passing in this element!
  * $signup_form['signup_form_data'] : an array of key/value pairs --
- *   key is the data category, value is the user input 
+ *   key is the data category, value is the user input
  */
 function signup_sign_up_user($signup_form) {
   $node = node_load($signup_form['nid']);
@@ -1271,7 +1271,7 @@ function signup_sign_up_user($signup_form) {
   // authenticated signups.
   if (!empty($signup_form['signup_anon_mail'])) {
     // Ensure the uid is 0 for anonymous signups, even if it's not duplicate.
-    $signup_form['uid'] = 0;  
+    $signup_form['uid'] = 0;
     // Now, see if this email is already signed-up.
     if (db_num_rows(db_query("SELECT anon_mail FROM {signup_log} WHERE anon_mail = '%s' AND nid = %d", $signup_form['signup_anon_mail'], $node->nid))) {
       drupal_set_message(t('Anonymous user %email is already signed up for %title', array('%email' => $signup_form['signup_anon_mail'], '%title' => $node->title), 'error'));
@@ -1836,15 +1836,15 @@ function signup_broadcast_form($node) {
  * @return An array of objects containing signup data
  */
 function signup_get_email_addresses($nid) {
-  $signups = db_query("SELECT u.uid, u.name, u.mail, s_l.anon_mail FROM {signup_log} s_l INNER JOIN {users} u ON u.uid = s_l.uid WHERE s_l.nid = %d", $nid);  
+  $signups = db_query("SELECT u.uid, u.name, u.mail, s_l.anon_mail FROM {signup_log} s_l INNER JOIN {users} u ON u.uid = s_l.uid WHERE s_l.nid = %d", $nid);
   while ($signup_entry = db_fetch_object($signups)) {
     $signup_data[] = $signup_entry;
-  } 
+  }
   return $signup_data;
-} 
+}
 
 /**
- * Send an email message to all those signed up to an event. 
+ * Send an email message to all those signed up to an event.
  *
  * @param $form_id
  * @param $form_values
@@ -1855,7 +1855,7 @@ function signup_broadcast_form_submit($form_id, $form_values) {
     $from = $form_values['from'];
     $subject = $form_values['subject'];
     $event = node_load($form_values['nid']);
-    foreach ($addresses as $signup) { 
+    foreach ($addresses as $signup) {
       $mail_address = $signup->anon_mail ? $signup->anon_mail : $signup->mail;
       $trans = array(
         '%event' => $event->title,
