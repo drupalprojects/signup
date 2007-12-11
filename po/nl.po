@@ -108,7 +108,7 @@ msgid "Your signup information"
 msgstr "Uw inschrijfinformatie"
 
 #: signup.module:303;483;531
-msgid "Cancel Signup"
+msgid "Cancel signup"
 msgstr "Inschrijving Annuleren"
 
 #: signup.module:333

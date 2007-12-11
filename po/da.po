@@ -82,7 +82,7 @@ msgstr "Din tilmelding"
 
 #: signup.module:303
 #: ;483;531
-msgid "Cancel Signup"
+msgid "Cancel signup"
 msgstr "Fortryd tilmelding"
 
 #: signup.module:333

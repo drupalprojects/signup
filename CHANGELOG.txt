@@ -11,8 +11,8 @@ Changes since 4.7.x-1.1:
   anonymous users when viewing a signup-enabled node.
 = #199383 by deviantintegral and dww: Fixed bug that could cause signup
   to invoke node_load() with invalid parameters on the node add form.
-= #79331: Fixed inconsistent UI: Use 'Current signups' instead of
-  'Current Signups' since we don't capitalize individual words.
+= #79331: Fixed inconsistent UI: don't capitalize individual words
+  (for example, the UI now uses 'Current signups' and 'Cancel signups').
 
 
 ---------

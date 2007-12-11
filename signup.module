@@ -596,7 +596,7 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
             $form['uid'] = array('#type' => 'value', '#value' => $user->uid);
             $form['submit'] = array(
               '#type' => 'submit',
-              '#value' => t('Cancel Signup'),
+              '#value' => t('Cancel signup'),
             );
             $output = '';
             if (!empty($rows)) {
@@ -1108,7 +1108,7 @@ function signup_user_signups_form($node) {
     );
     $form['submit'] = array(
       '#type' => 'submit',
-      '#value' => t('Cancel Signup'),
+      '#value' => t('Cancel signup'),
     );
 
     // The username and the unique form identifier are different for
