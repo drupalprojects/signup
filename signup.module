@@ -30,7 +30,7 @@ function signup_block($op = 'list', $delta = 0) {
           case 0:
             $titles = signup_list_user_signups($user->uid);
             if (count($titles)) {
-              $block['subject'] = t('Current Signups');
+              $block['subject'] = t('Current signups');
               $block['content'] = theme_item_list($titles) . l(t('View signup schedule'), "user/$user->uid/signups");
             }
             return $block;
@@ -235,7 +235,7 @@ function signup_user($op, &$edit, &$user, $category = NULL) {
       // grab list of events the user signed up for.
       $signups = signup_list_user_signups($user->uid);
       if (count($signups)) {
-        $output = '<h4>'. t('Current Signups') .' -- '. l(t('view signup schedule'), "user/$user->uid/signups") .'</h4>'. theme_item_list($signups);
+        $output = '<h4>'. t('Current signups') .' -- '. l(t('view signup schedule'), "user/$user->uid/signups") .'</h4>'. theme_item_list($signups);
       }
       if (isset($output)) {
         return array(t('Signup information') => array(array('value' => $output, 'class' => 'user')));
