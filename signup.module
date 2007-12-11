@@ -9,7 +9,7 @@
  * Implementation of hook_block().
  * @ingroup signup_core
  * @param $op
- *   The operation that is being requested. This defaults to 'list', which 
+ *   The operation that is being requested. This defaults to 'list', which
  *   indicates that the method should return which blocks are available.
  * @param $delta
  *   The specific block to display (the offset into an array).
@@ -530,7 +530,7 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
     case 'view':
       $suppress = module_invoke_all('signup_suppress', $node);
 
-      // If this is a signup node, start checks for what's to be printed.  
+      // If this is a signup node, start checks for what's to be printed.
       // Only include any of this if we're trying to view the node as
       // a page, not during the view from comment validation, etc.
       if ($node->signup && $page && !in_array(TRUE, $suppress)) {
@@ -673,7 +673,7 @@ function signup_admin_page() {
   $output = '';
   drupal_set_title(t('signups'));
 
-  // Add optional SQL to the query if the event module is enabled. 
+  // Add optional SQL to the query if the event module is enabled.
   $has_event = module_exist('event');
   $event_select = $has_event ? ', e.event_start, e.timezone' : '';
   $event_join = $has_event ? ' LEFT JOIN {event} e ON e.nid = n.nid' : '';
@@ -929,9 +929,9 @@ function signup_list_user_signups($uid) {
  *   automatically be set to 0 if this element is passed in. NOTE: It's
  *   highly recommended to call the signup_validate_anon_email
  *   function in the external module's validation cycle or perform
- *   that function's validation logic prior to passing in this element! 
+ *   that function's validation logic prior to passing in this element!
  * $signup_form['signup_form_data'] : an array of key/value pairs --
- *   key is the data category, value is the user input 
+ *   key is the data category, value is the user input
  */
 function signup_sign_up_user($signup_form) {
   $node = node_load($signup_form['nid']);
@@ -943,7 +943,7 @@ function signup_sign_up_user($signup_form) {
   // authenticated signups.
   if (!empty($signup_form['signup_anon_mail'])) {
     // Ensure the uid is 0 for anonymous signups, even if it's not duplicate.
-    $signup_form['uid'] = 0;  
+    $signup_form['uid'] = 0;
     // Now, see if this email is already signed-up.
     if (db_num_rows(db_query("SELECT anon_mail FROM {signup_log} WHERE anon_mail = '%s' AND nid = %d", $signup_form['signup_anon_mail'], $node->nid))) {
       drupal_set_message(t('Anonymous user %email is already signed up for %title', array('%email' => theme('placeholder', $signup_form['signup_anon_mail']), '%title' => theme('placeholder', $node->title)), 'error'));
