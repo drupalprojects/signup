@@ -10,6 +10,8 @@ Changes since 5.x-1.0:
 = #158688 by m3avrck: fix JS to work with aggregator.
 = #179540 by dragonwize and dww: Restored the login/register links for
   anonymous users when viewing a signup-enabled node.
+= #199383 by deviantintegral and dww: Fixed bug that could cause signup 
+  to invoke node_load() with invalid parameters on the node add form.
 
 
 -------
