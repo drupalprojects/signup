@@ -40,8 +40,9 @@ the Drupal package and read the online documentation.
    Administer > Content management > Content types
 
    You may wish to create a new content type specifically for event
-   signups using either the Flexinode module or the Content
-   Construction Kit (CCK).
+   signups (which you can customize via the Content Construction Kit
+   from http://drupal.org/project/cck), or install the Event module
+   (http://drupal.org/project/event).
 
 
 6. Grant the proper access to user accounts under:
