@@ -305,7 +305,7 @@ function signup_alter_node_form($form_id, &$form) {
   global $user;
 
   // Load the node if it already exists.
-  if (isset($form['nid']['#value'])) {
+  if (!empty($form['nid']['#value'])) {
     $node = node_load($form['nid']['#value']);
   }
   else {

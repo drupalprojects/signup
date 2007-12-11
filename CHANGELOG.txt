@@ -9,6 +9,8 @@ Changes since 4.7.x-1.1:
 = #142402 by cpisto: Fixed SQL bug on PgSQL when event.module is enabled.
 = #179540 by dragonwize and dww: Restored the login/register links for
   anonymous users when viewing a signup-enabled node.
+= #199383 by deviantintegral and dww: Fixed bug that could cause signup
+  to invoke node_load() with invalid parameters on the node add form.
 
 
 ---------
