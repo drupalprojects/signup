@@ -112,7 +112,7 @@ function signup_uninstall() {
  */
 function signup_insert_default_signup_info() {
   return db_query("INSERT INTO {signup} (nid, forwarding_email,
-    send_confirmation, confirmation_email, 
+    send_confirmation, confirmation_email,
     send_reminder, reminder_days_before, reminder_email,
     close_in_advance_time, close_signup_limit, completed) VALUES (0, '',
     1, 'Enter your default confirmation email message here',
@@ -164,16 +164,16 @@ function signup_update_4() {
   $ret = array();
 
   // Setup arrays holding regexps to match and the corresponding
-  // strings to replace them with, for use with preg_replace(). 
+  // strings to replace them with, for use with preg_replace().
   $old_perms = array(
-    '/allow signups/', 
-    '/admin signups/', 
-    '/admin own signups/', 
+    '/allow signups/',
+    '/admin signups/',
+    '/admin own signups/',
   );
   $new_perms = array(
-    'sign up for content', 
-    'administer all signups', 
-    'administer signups for own content', 
+    'sign up for content',
+    'administer all signups',
+    'administer signups for own content',
   );
 
   // Now, loop over all the roles, and do the necessary transformations.
