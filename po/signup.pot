@@ -235,7 +235,7 @@ msgid "List of users current signups."
 msgstr ""
 
 #: signup.module:33;367
-msgid "Current Signups"
+msgid "Current signups"
 msgstr ""
 
 #: signup.module:34
@@ -419,7 +419,7 @@ msgid "Sign up"
 msgstr ""
 
 #: signup.module:832;1570
-msgid "Cancel Signup"
+msgid "Cancel signup"
 msgstr ""
 
 #: signup.module:849

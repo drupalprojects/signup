@@ -238,7 +238,7 @@ msgstr "Liste over påmeldte brukere."
 
 #: signup.module:33
 #: ;367
-msgid "Current Signups"
+msgid "Current signups"
 msgstr "Påmeldte brukere"
 
 #: signup.module:34
@@ -434,7 +434,7 @@ msgstr "Meld deg på"
 
 #: signup.module:832
 #: ;1570
-msgid "Cancel Signup"
+msgid "Cancel signup"
 msgstr "Kansellér påmeldingen"
 
 #: signup.module:849

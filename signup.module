@@ -854,7 +854,7 @@ function signup_form_cancel($node) {
   global $user;
   $form['nid'] = array('#type' => 'value', '#value' => $node->nid);
   $form['uid'] = array('#type' => 'value', '#value' => $user->uid);
-  $form['submit'] = array('#type' => 'submit', '#value' => t('Cancel Signup'));
+  $form['submit'] = array('#type' => 'submit', '#value' => t('Cancel signup'));
   return $form;
 }
 
@@ -1582,7 +1582,7 @@ function signup_user_cancel_form($nid, $uid, $anon_mail) {
   $form['nid'] = array('#type' => 'value', '#value' => $nid);
   $form['uid'] = array('#type' => 'value', '#value' => $uid);
   $form['signup_anon_mail'] = array('#type' => 'value', '#value' => $anon_mail);
-  $form['submit'] = array('#type' => 'submit', '#value' => t('Cancel Signup'));
+  $form['submit'] = array('#type' => 'submit', '#value' => t('Cancel signup'));
   return $form;
 }
 

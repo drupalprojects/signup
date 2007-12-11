@@ -6,8 +6,8 @@ $Id$
 Bug fixes since 5.x-2.3:
 = #199383 by deviantintegral and dww: Fixed bug that could cause signup
   to invoke node_load() with invalid parameters on the node add form.
-= #79331: Fixed inconsistent UI: Use 'Current signups' instead of
-  'Current Signups' since we don't capitalize individual words.
+= #79331: Fixed inconsistent UI: don't capitalize individual words
+  (for example, the UI now uses 'Current signups' and 'Cancel signups').
 
 New features since 5.x-2.3:
 = #190553 by dww: Added a global setting to move the signup form from
