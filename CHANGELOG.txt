@@ -13,6 +13,15 @@ New features since 5.x-2.3:
 = #190553 by dww: Added a global setting to move the signup form from
   a fieldset on the node to a separate "Sign up" tab.  This feature
   was sponsored by esquaredworkshops.com.
+= #195276 by jrbeeman and dww: Enhanced per-node-type signup settings
+  to allow admins to completely disable signups on certain node types.
+  There are now 3 signup options on the content type settings page:
+  - "Disabled": completely prevents signups, even users with
+     'administer all signups' cannot signup-enable nodes of this type.
+  - "Allowed (off by default)": admins get a "Signup settings"
+     fieldset, but signups are disabled by default.
+  - "Enabled (on by default)": Signups are enabled by default, but
+     admins can disable signups on specific nodes of this type.
 
 
 -----------

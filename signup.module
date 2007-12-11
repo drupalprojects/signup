@@ -351,11 +351,16 @@ function signup_form_alter($form_id, &$form) {
  */
 function signup_alter_node_type_form($form_id, &$form) {
   $type = $form['old_type']['#value'];
-  $form['workflow']['signup_form'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Allow signups by default'),
-    '#default_value' => variable_get('signup_form_'. $type, FALSE) == 1,
-    '#description' => t('If selected, users will be allowed to signup for this node type by default. Users with %admin_all_signups permission will be able to toggle this setting on a per-node basis.', array('%admin_all_signups' => t('administer all signups'))),
+  $form['workflow']['signup_node_default_state'] = array(
+    '#type' => 'radios',
+    '#title' => t('Signup options'),
+    '#options' => array(
+      'disabled' => t('Disabled'),
+      'allowed_off' => t('Allowed (off by default)'),
+      'enabled_on' => t('Enabled (on by default)'),
+    ),
+    '#default_value' => variable_get('signup_node_default_state_'. $type, 'disabled'),
+    '#description' => t('If %disabled is selected, signups will not be possible for this content type. If %allowed_off is selected, signups will be off by default, but users with the %admin_all_signups permission will be able to allow signups for specific posts of this content type. If %enabled_on is selected, users will be allowed to signup for this content type unless an administrator disbles signups on specific posts.', array('%disabled' => t('Disabled'), '%allowed_off' => t('Allowed (off by default)'), '%enabled_on' => t('Enabled (on by default)'), '%admin_all_signups' => t('administer all signups'))),
   );
 }
 
@@ -372,17 +377,15 @@ function signup_alter_node_form($form_id, &$form) {
   else {
     $node = NULL;
   }
+  
+  $signup_type_default = variable_get('signup_node_default_state_'. $form['type']['#value'], 'disabled');
 
-  $signup_enabled = variable_get('signup_form_'. $form['type']['#value'], 0);
-
-  // If the current user has global signup administration permissions,
-  // or if this node-type is signup-enabled and the user has permission
-  // to administer signups for their own content, add a fieldset for
-  // signup-related settings.
-  if (user_access('administer all signups') ||
-      (!empty($node) && $signup_enabled && $node->uid == $user->uid &&
-       user_access('administer signups for own content'))) {
-
+  // If the current user has the global 'administer all signups' permission
+  // and signups are not explicitly disallowed, or if this node-type is
+  // signup-enabled and the user has permission to administer signups for
+  // their own content, add a fieldset for signup-related settings.
+  if ( (($signup_type_default != 'disabled' || (!empty($node) && !empty($node->signup))) && user_access('administer all signups'))
+       || (!empty($node) && $signup_type_default == 'enabled_on' && $node->uid == $user->uid && user_access('administer signups for own content')) ) {
     $form['signup'] = array(
       '#type' => 'fieldset',
       '#title' => t('Signup settings'),
@@ -409,7 +412,7 @@ function signup_alter_node_form($form_id, &$form) {
       $default_option = $node->signup;
     }
     else {
-      $default_option = $signup_enabled;
+      $default_option = $signup_type_default == 'enabled_on' ? 1 : 0;
     }
     if ($default_option == 1 ) {
       $hint = t('If enabled, you can control whether users may sign up by visiting the !signups tab and toggling if signups are %open or %closed for this @node_type.', array('!signups' => l(t('Signups'), 'node/'. $node->nid .'/signups'), '%open' => t('open'), '%closed' => t('closed'), '@node_type' => strtolower(node_get_types('name', $form['type']['#value']))));
@@ -494,6 +497,8 @@ function signup_form_validate($form_id, $form_values) {
  */
 function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
   global $form_values;
+  $signup_type_default = variable_get('signup_node_default_state_'. $node->type, 'disabled');
+  
   switch ($op) {
     case 'insert':
       if (isset($form_values['signup_enabled'])) {
@@ -510,7 +515,7 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
           );
         }
       }
-      else if (variable_get('signup_form_'. $node->type, 0)) {
+      else if ($signup_type_default == 'enabled_on') {
         // The form doesn't include any information about signups, but
         // the node type is signup-enabled. This would happen if a
         // user without any signup admin permissions creates a node
@@ -606,7 +611,7 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
 
       // Load signup data for both new nodes w/ enabled node types,
       // and any existing nodes that are already signup enabled.
-      if ((!$node->nid && variable_get('signup_form_'. $node->type, 0)) || ($node->nid && db_num_rows($result))) {
+      if ((!$node->nid && $signup_type_default == 'enabled_on') || ($node->nid && db_num_rows($result))) {
         $signup = db_fetch_object($result);
         $node->signup = 1;
         $node->signup_forwarding_email = $signup->forwarding_email;

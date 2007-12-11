@@ -265,6 +265,25 @@ function signup_update_5202() {
   return $ret;
 }
 
+/**
+ * Migrate signup settings per content type so that signups can be disabled
+ * completely for a content type.
+ */
+function signup_update_5203() {
+  $old_prefix = 'signup_form_';
+  $result = db_query("SELECT name FROM {variable} WHERE name LIKE '$old_prefix%%'");
+  while ($row = db_fetch_object($result)) {
+    $old_name = $row->name;
+    $new_name = 'signup_node_default_state_'. substr($old_name, strlen($old_prefix));
+    $new_value = variable_get($old_name, 0) == 1 ? 'enabled_on' : 'disabled';
+    variable_del($old_name);
+    variable_set($new_name, $new_value);
+  }
+  drupal_set_message(t('Migrated signup settings per content type.'));
+  return array();
+}
+
+
 function _signup_db_column_exists($table, $column) {
   switch ($GLOBALS['db_type']) {
     case 'mysql':
