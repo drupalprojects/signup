@@ -14,6 +14,8 @@ Changes since 5.x-1.0:
   to invoke node_load() with invalid parameters on the node add form.
 = #79331: Fixed inconsistent UI: don't capitalize individual words
   (for example, the UI now uses 'Current signups' and 'Cancel signups').
+= #107136: Added $uid parameter to _signup_cancel hook (so it can be
+  useful for something) and converted to use module_invoke_all().
 
 
 -------

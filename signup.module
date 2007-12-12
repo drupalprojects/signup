@@ -791,10 +791,7 @@ function signup_cancel_signup($uid, $nid, $anon_mail = NULL) {
     db_query('DELETE FROM {signup_log} WHERE uid = %d AND nid = %d', $uid, $nid);
   }
   $node = node_load($nid);
-  foreach (module_implements('signup_cancel') as $module) {
-    $function = $module .'_signup_cancel';
-    $function($node);
-  }
+  module_invoke_all('signup_cancel', $node, $uid);
   drupal_set_message(t('Signup to !title cancelled.', array('!title' => l($node->title, "node/$node->nid"))));
 }
 
