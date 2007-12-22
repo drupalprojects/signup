@@ -1015,7 +1015,7 @@ function signup_admin_form_sql() {
     (!empty($admin_common_sql['where']) ? $admin_common_sql['where'] : array()),
     (!empty($admin_sql['where']) ? $admin_sql['where'] : array())
   );
-  $sql_count = "SELECT COUNT(nid) FROM {signup} s";
+  $sql_count = "SELECT COUNT(s.nid) FROM {signup} s";
   if (!empty($where)) {
     $sql_count .= ' WHERE '. implode(' AND ', $where);
   }
