@@ -12,6 +12,7 @@ Bug fixes since 5.x-2.3:
   useful for something) and converted to use module_invoke_all().
 = #202913 by westwesterson: Fixed ambiguous SQL query on the
   admin/content/signup page when using certain node access modules.
+= Fixed signup_install() not to force tables on MySQL to be MyISAM.
 
 New features since 5.x-2.3:
 = #190553 by dww: Added a global setting to move the signup form from
