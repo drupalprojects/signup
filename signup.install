@@ -30,7 +30,7 @@ function signup_install() {
                 close_signup_limit int(10) unsigned NOT NULL default '0',
                 completed int(2) NOT NULL default '0',
                 PRIMARY KEY  (nid)
-            ) TYPE=MyISAM /*!40100 DEFAULT CHARACTER SET utf8 */;");
+            ) /*!40100 DEFAULT CHARACTER SET utf8 */;");
 
       $q2 = db_query("CREATE TABLE IF NOT EXISTS {signup_log} (
                 uid int(10) unsigned NOT NULL default '0',
@@ -40,7 +40,7 @@ function signup_install() {
                 form_data longtext NOT NULL,
                 KEY uid (uid),
                 KEY nid (nid)
-            ) TYPE=MyISAM /*!40100 DEFAULT CHARACTER SET utf8 */;");
+            ) /*!40100 DEFAULT CHARACTER SET utf8 */;");
 
       $q3 = signup_insert_default_signup_info();
 
