@@ -706,7 +706,7 @@ function signup_admin_page() {
   $sql .= tablesort_sql($header);
   $sql = db_rewrite_sql($sql);
   
-  $sql_count = "SELECT COUNT(nid) FROM {signup} s";
+  $sql_count = "SELECT COUNT(s.nid) FROM {signup} s";
   $sql_count .= $where;
   $sql_count = db_rewrite_sql($sql_count, 's');
   

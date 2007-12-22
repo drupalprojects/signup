@@ -16,6 +16,8 @@ Changes since 5.x-1.0:
   (for example, the UI now uses 'Current signups' and 'Cancel signups').
 = #107136: Added $uid parameter to _signup_cancel hook (so it can be
   useful for something) and converted to use module_invoke_all().
+= #202913 by westwesterson: Fixed ambiguous SQL query on the
+  admin/content/signup page when using certain node access modules.
 
 
 -------
