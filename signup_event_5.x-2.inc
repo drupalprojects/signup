@@ -6,6 +6,7 @@
  */
 function signup_reminder_sql() {
   global $db_type;
+  event_include_files();
   switch ($db_type) {
     case 'mysql':
     case 'mysqli':
@@ -25,6 +26,7 @@ function signup_reminder_sql() {
  * @return Array of SQL clauses for cron auto-close query builder.
  */
 function signup_autoclose_sql() {
+  event_include_files();
   return array(
     'fields' => array(event_select(), 'e.timezone'),
     'joins' => array(event_join('s')),
