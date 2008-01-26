@@ -589,7 +589,7 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
         // If the user has the view signups perm, display the current signups.
         // Pull all users signed up for this event, and start table creation.
         if (user_access('view all signups')) {
-          $registered_signups = db_query("SELECT u.uid, u.name, s.signup_time, s.form_data FROM {signup_log} s INNER JOIN {users} u ON u.uid = s.uid WHERE s.nid = %d AND u.uid != 0", $node->nid);
+          $registered_signups = db_query("SELECT u.uid, u.name, s.signup_time, s.form_data FROM {signup_log} s INNER JOIN {users} u ON u.uid = s.uid WHERE s.nid = %d AND u.uid <> 0", $node->nid);
           $anon_signups = db_num_rows(db_query("SELECT anon_mail FROM {signup_log} WHERE nid = %d AND uid = 0", $node->nid));
           $header = array(array('data' => t('!users signed up', array('!users' => format_plural((db_num_rows($registered_signups) + $anon_signups), '1 individual', '@count individuals')))));
           $rows = array();
