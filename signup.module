@@ -760,7 +760,7 @@ function _signup_node_output($node, $type = 'node') {
   // If the user has the view signups perm, display the current signups.
   // Pull all users signed up for this event, and start table creation.
   if (user_access('view all signups')) {
-    $registered_signups = db_query("SELECT u.uid, u.name, s.signup_time, s.form_data FROM {signup_log} s INNER JOIN {users} u ON u.uid = s.uid WHERE s.nid = %d AND u.uid != 0", $node->nid);
+    $registered_signups = db_query("SELECT u.uid, u.name, s.signup_time, s.form_data FROM {signup_log} s INNER JOIN {users} u ON u.uid = s.uid WHERE s.nid = %d AND u.uid <> 0", $node->nid);
     $anon_signups = db_num_rows(db_query("SELECT anon_mail FROM {signup_log} WHERE nid = %d AND uid = 0", $node->nid));
     $header = array(array('data' => t('!users signed up', array('!users' => format_plural((db_num_rows($registered_signups) + $anon_signups), '1 individual', '@count individuals')))));
     $rows = array();
@@ -1503,7 +1503,7 @@ function theme_signup_admin_node_form($form) {
 
 function signup_admin_node_form($node) {
   if ($node->signup_close_signup_limit &&
-           $node->signup_total >= $node->signup_close_signup_limit) {
+      $node->signup_total >= $node->signup_close_signup_limit) {
     $form['status'] = array(
       '#value' => t('Closed (limit reached)'),
     );
@@ -1943,7 +1943,7 @@ function signup_broadcast_form_submit($form_id, $form_values) {
 /**
  * Implementation of hook_views_tables.
  * @ingroup signup_views
- * @see _signup_views_tables
+ * @see _signup_views_tables()
  */
 function signup_views_tables() {
   require_once(drupal_get_path('module', 'signup') .'/signup_views.inc');
@@ -1953,7 +1953,7 @@ function signup_views_tables() {
 /**
  * Implementation of hook_views_arguments.
  * @ingroup signup_views
- * @see _signup_views_arguments
+ * @see _signup_views_arguments()
  */
 function signup_views_arguments() {
   require_once(drupal_get_path('module', 'signup') .'/signup_views.inc');
@@ -1963,7 +1963,7 @@ function signup_views_arguments() {
 /**
  * Implementation of hook_views_default_views.
  * @ingroup signup_views
- * @see _signup_views_default_views
+ * @see _signup_views_default_views()
  */
 function signup_views_default_views() {
   require_once(drupal_get_path('module', 'signup') .'/signup_views.inc');

@@ -91,17 +91,17 @@ function theme_signup_event_dates($node) {
   // Event-based data, only if it's an event node.
   $output = '';
   if (isset($node->event_start)) {
-    $output .= '<div class="signup-user-schedule"><div class="'. $node->type. 'signup-start"><label>'. t('Start: ') .'</label>'. $node->start_format .'</div></div>';
+    $output .= '<div class="signup-user-schedule"><div class="'. $node->type .'signup-start"><label>'. t('Start: ') .'</label>'. $node->start_format .'</div></div>';
     if ($node->event_start != $node->event_end) {
-      $output .= '<div class="signup-user-schedule"><div class="'. $node->type. 'signup-end"><label>'. t('End: ') .'</label>'. $node->end_format .'</div></div>';
+      $output .= '<div class="signup-user-schedule"><div class="'. $node->type .'signup-end"><label>'. t('End: ') .'</label>'. $node->end_format .'</div></div>';
     }
     if (variable_get('configurable_timezones', 1)) {
       $zones = event_zonelist();
-      $output .= '<div class="signup-user-schedule"><div class="'. $node->type. 'signup-tz"><label>'. t('Timezone: ') .'</label>'. $zones[$node->timezone] .'</div></div>';
+      $output .= '<div class="signup-user-schedule"><div class="'. $node->type .'signup-tz"><label>'. t('Timezone: ') .'</label>'. $zones[$node->timezone] .'</div></div>';
     }
   }
   else {
-    $output .= '<div class="signup-user-schedule"><div class="'. $node->type. 'signup-untimed">'. t('[Untimed]') . '</div></div>';
+    $output .= '<div class="signup-user-schedule"><div class="'. $node->type .'signup-untimed">'. t('[Untimed]') .'</div></div>';
   }
   return $output;
 }
