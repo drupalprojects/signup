@@ -468,21 +468,45 @@ function signup_form_cancel_submit($form_id, $form_values) {
  * @param $form_values The constructed form values array of the submitted form.
  */
 function signup_form_submit($form_id, $form_values) {
+  if (isset($form_values['signup_username'])) {
+    $account = user_load(array('name' => $form_values['signup_username']));
+    $form_values['uid'] = $account->uid;
+  }
   signup_sign_up_user($form_values);
 }
 
 /**
- * Validates the user signup form
+ * Validates the email address on the anonymous user signup form.
  *
- * @ingroup signup_core
- * @param $form_id The ID of the form being submitted.
- * @param $form_values The constructed form values array of the submitted form.
+ * @param $form
+ *   Form array for the anonymous user email field.
+ * @param $nid
+ *   Node id of the node the user is trying to signup for.
  */
-function signup_form_validate($form_id, $form_values) {
-  // If it's an anonymous signup...
-  $anon_mail = $form_values['signup_anon_mail'] ? trim($form_values['signup_anon_mail']) : '';
-  if ($anon_mail) {
-    signup_validate_anon_email($form_values['nid'], $anon_mail, 'signup_anon_mail');
+function signup_form_validate_anon($form, $nid) {
+  signup_validate_anon_email($nid, $form['#value'], 'signup_anon_mail');
+}
+
+/**
+ * Validates the username on the admin form to signup another user.
+ *
+ * @param $form
+ *   Form array for the username field.
+ * @param $nid
+ *   Node id of the node the user is being signed up for.
+ */
+function signup_form_validate_username($form, $nid) {
+  $username = $form['#value'];
+  $account = user_load(array('name' => $username));
+  if (empty($account)) {
+    form_error($form, t('User %username does not exist.', array('%username' => $username)));
+  }
+  elseif (!user_access('sign up for content', $account)) {
+    form_error($form, t('User !user does not have permission to sign up.', array('!user' => theme('username', $account))));
+  }
+  elseif (db_result(db_query("SELECT COUNT(*) FROM {signup_log} WHERE uid = %d AND nid = %d", $account->uid, $nid)) > 0) {
+    $node = node_load($nid);
+    form_error($form, t('User !user is already signed up for %title', array('!user' => theme('username', $account), '%title' => $node->title)));
   }
 }
 
@@ -693,6 +717,7 @@ function _signup_node_output($node, $type = 'node') {
     }
   }
   else {
+    $signup_type = 'auth';
     if ($user->uid == 0) {
       // This is an anonymous user. If they have signup permissions,
       // then build the anon portion of the sigup form.  If not, then
@@ -703,14 +728,7 @@ function _signup_node_output($node, $type = 'node') {
         );
       if (user_access('sign up for content')) {
         $needs_signup_form = TRUE;
-        $anon_signup_form['signup_anon_mail'] = array(
-          '#type' => 'textfield',
-          '#title' => t('Email'),
-          '#description' => t('An e-mail address is required for users who are not registered at this site. If you are a registered user at this site, please !login to sign up for this event.', $login_array),
-          '#size' => 40,
-          '#maxlength' => 255,
-          '#required' => TRUE,
-          );
+        $signup_type = 'anon';
       }
       else {
         $needs_signup_form = FALSE;
@@ -728,7 +746,7 @@ function _signup_node_output($node, $type = 'node') {
       // permissions, and if so, print the themed signup form.
       if (user_access('sign up for content')) {
         $fieldset = $type == 'node' ? TRUE : FALSE;
-        $output = drupal_get_form('signup_form', $node, $anon_signup_form, $fieldset);
+        $output = drupal_get_form('signup_form', $node, $signup_type, $fieldset);
       }
     }
     else if ($user->uid !== 0 && isset($result)) {
@@ -812,12 +830,15 @@ function _signup_print_current_signup($node, $signup_info) {
  *
  * @param $node
  *   The fully loaded node object.
- * @param $anon_signup_form
- *   Any elements for anonymous signups to include in the form array.
+ * @param $signup_type
+ *   Determines what kind of signup to generate a form for. Possible values:
+ *    'auth' -- regular authenticated user signup form
+ *    'anon' -- anonymous user signup form (includes required email field).
+ *    'admin' -- admin form to signup another user (includes user selector).
  * @param $fieldset
  *   Boolean that indicates if the signup form should be in a fieldset.
  */
-function signup_form($node, $anon_signup_form = NULL, $fieldset = TRUE) {
+function signup_form($node, $signup_type = 'auth', $fieldset = TRUE) {
   global $user;
   include_once(SIGNUP_PATH .'/signup.theme');
 
@@ -828,22 +849,62 @@ function signup_form($node, $anon_signup_form = NULL, $fieldset = TRUE) {
   if ($fieldset) {
     $form['collapse'] = array(
       '#type' => 'fieldset',
-      '#title' => t('Sign up for @title', array('@title' => $node->title)),
       '#collapsible' => TRUE,
       '#collapsed' => variable_get('signup_fieldset_collapsed', 1),
     );
+    if ($signup_type == 'admin') {
+      $form['collapse']['#title'] = t('Sign up another user');
+    }
+    else {
+      $form['collapse']['#title'] = t('Sign up for @title', array('@title' => $node->title));
+    }
   }
   else {
     $form['collapse'] = array();
   }
 
-  // Build the themed signup form.  If the anon signup form is
-  // present, merge it in at the end of the form.
-  $signup_themed_form = theme('signup_user_form');
-  if (isset($anon_signup_form)) {
-    $signup_themed_form = array_merge($signup_themed_form, $anon_signup_form);
+  $signup_form = array();
+  if ($signup_type == 'anon') {
+    $anon_form = array();
+    $anon_form['signup_anon_mail'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Email'),
+      '#description' => t('An e-mail address is required for users who are not registered at this site. If you are a registered user at this site, please !login to sign up for this event.', $login_array),
+      '#size' => 40,
+      '#validate' => array('signup_form_validate_anon' => array($node->nid)),
+      '#maxlength' => 255,
+      '#required' => TRUE,
+    );
+    $signup_form += $anon_form;
   }
-  $form['collapse']['signup_user_form'] = $signup_themed_form;
+  elseif ($signup_type == 'admin') {
+    $admin_form = array();
+    $admin_form['signup_username'] = array(
+      '#title' => t('Username'),
+      '#type' => 'textfield',
+      '#autocomplete_path' => 'user/autocomplete',
+      '#maxlength' => USERNAME_MAX_LENGTH,
+      '#validate' => array('signup_form_validate_username' => array($node->nid)),
+      '#size' => 40,
+      '#weight' => -1,
+      '#required' => TRUE,
+    );
+    $signup_form += $admin_form;
+  }
+
+  // Build the themed signup form for this site and include that.
+  $signup_themed_form = theme('signup_user_form');
+
+  if ($signup_type == 'admin') {
+    // Special case hack for the default signup form, where the current
+    // username is being filled in as the default for the 'Name' field.
+    if (!empty($signup_themed_form['signup_form_data']['Name']['#default_value'])) {
+      unset($signup_themed_form['signup_form_data']['Name']['#default_value']);
+    }
+  }
+  $signup_form += $signup_themed_form;
+  
+  $form['collapse']['signup_user_form'] = $signup_form;
   $form['collapse']['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Sign up'),
@@ -1417,6 +1478,10 @@ function signup_node_admin_page($node) {
     );
   }
   $output .= theme('table', $header, $rows);
+
+  // Add a form to allow the administrator to signup other users.
+  $output .= drupal_get_form('signup_form', $node, 'admin');
+
   return $output;
 }
 
