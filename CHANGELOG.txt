@@ -30,6 +30,7 @@ New features since 5.x-2.3:
   - "Enabled (on by default)": Signups are enabled by default, but
      admins can disable signups on specific nodes of this type.
 = #174715 by dww: Signup administrators can now signup other users.
+= #145749 by schittli: Added German (de) translation.
 
 
 -----------
