@@ -33,10 +33,11 @@ function signup_autoclose_sql() {
  * @return Array of SQL clauses for admin overview page query builder.
  */
 function signup_admin_sql() {
+  $fields = array('e.event_start', 'e.timezone');
   return array(
-    'fields' => array('e.event_start', 'e.timezone'),
+    'fields' => $fields,
     // All of the fields should go directly into GROUP BY.
-    'group_by' => $sql['fields'],
+    'group_by' => $fields,
     'joins' => array('LEFT JOIN {event} e ON e.nid = n.nid'),
   );
 }

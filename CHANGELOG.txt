@@ -15,6 +15,8 @@ Bug fixes since 5.x-2.3:
   useful for something) and converted to use module_invoke_all().
 = #202913 by westwesterson: Fixed ambiguous SQL query on the
   admin/content/signup page when using certain node access modules.
+= #212790 by dww: Fixed an SQL 'GROUP BY' bug on the admin/content/signup
+  page when PgSQL and the 5.x-1.* series of event.module are used.
 
 New features since 5.x-2.3:
 = #190553 by dww: Added a global setting to move the signup form from
