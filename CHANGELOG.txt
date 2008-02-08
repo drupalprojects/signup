@@ -1,7 +1,7 @@
 $Id$
 
 -----------
-5.x-2.4-dev
+5.x-2.4
 -----------
 Bug fixes since 5.x-2.3:
 = #193068 by bkat and dww: Fixed fatal bug during cron.php with event
