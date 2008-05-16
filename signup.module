@@ -1357,7 +1357,14 @@ function signup_sign_up_user($signup_form) {
 
     // Allow other modules to inject data into the user's signup data.
     $extra = module_invoke_all('signup_sign_up', $node);
-    $signup_form_data = serialize(array_merge($signup_form['signup_form_data'], $extra));
+    $signup_info = array();
+    if (!empty($signup_form['signup_form_data'])) {
+      $signup_info = $signup_form['signup_form_data'];
+    }
+    if (!empty($extra)) {
+      $signup_info = array_merge($signup_info, $extra);
+    }
+    $signup_form_data = serialize($signup_info);
 
     // Figure out if confirmation or reminder emails will be sent and
     // inform the user.

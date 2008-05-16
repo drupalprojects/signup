@@ -19,9 +19,10 @@ function theme_signup_user_schedule($node) {
 }
 
 /**
- * You can alter this user signup form to suit your needs -- feel free
- * to alter any elements in this section, remove them, or add any
- * others.
+ * Returns any site-specific custom fields for the signup user form.
+ *
+ * Feel free to alter any elements in this section, remove them, or
+ * add any others.
  *
  * In order for the form to be rendered properly, the name of the form
  * element must be $form['signup_form_data']['NameOfDataField'], where
@@ -35,13 +36,18 @@ function theme_signup_user_schedule($node) {
  * presented to the user.  Any field marked '#required' must be filled
  * in before the user can sign up.
  *
+ * If you do not want any additional fields, the function can simply
+ * return an empty array: "return array();"
+ *
  * @return
  *   Array defining the form to present to the user to signup for a node.
  */
 function theme_signup_user_form() {
   global $user;
+  $form = array();
 
-  // This line is required for this form to function -- DO NOT EDIT OR REMOVE.
+  // If this function is providing any extra fields at all, the following
+  // line is required for form form to work -- DO NOT EDIT OR REMOVE. 
   $form['signup_form_data']['#tree'] = TRUE;
 
   $form['signup_form_data']['Name'] = array(
