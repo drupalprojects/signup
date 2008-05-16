@@ -19,6 +19,9 @@ Changes since 5.x-1.0:
 = #202913 by westwesterson: Fixed ambiguous SQL query on the
   admin/content/signup page when using certain node access modules.
 = Fixed signup_install() not to force tables on MySQL to be MyISAM.
+= #259301 by dww: Fixed bug where the code assumes you want additional
+  fields in your signup form. Signup now handles an empty return value
+  from theme_signup_user_form().
 = #145749 by schittli: Added German (de) translation.
 
 
