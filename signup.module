@@ -995,7 +995,7 @@ function signup_sign_up_user($signup_form) {
     $curtime = time();
 
     // Allow other modules to inject data into the user's signup data.
-    $extra = module_invoke_all('signup_sign_up', $node);
+    $extra = module_invoke_all('signup_sign_up', $node, $user);
     $signup_info = array();
     if (!empty($signup_form['signup_form_data'])) {
       $signup_info = $signup_form['signup_form_data'];
