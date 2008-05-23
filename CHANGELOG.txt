@@ -7,6 +7,8 @@ Bug fixes since 5.x-2.4:
 = #259301 by dww: Fixed bug where the code assumes you want additional
   fields in your signup form. Signup now handles an empty return value
   from theme_signup_user_form().
+= #249155 by joshk: Added the $user object as another argument when
+  invoking hook_signup_sign_up().
 
 
 -----------
