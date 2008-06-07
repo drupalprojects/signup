@@ -9,6 +9,8 @@ Bug fixes since 5.x-2.4:
   from theme_signup_user_form().
 = #249155 by joshk: Added the $user object as another argument when
   invoking hook_signup_sign_up().
+= Removed the deprecated (4.7.x) signup_ecommerce code since it now
+  lives in a new project: http://drupal.org/project/signup_ecommerce
 
 
 -----------
