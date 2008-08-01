@@ -45,10 +45,10 @@ function signup_block($op = 'list', $delta = 0) {
 }
 
 /**
- * Implementation of hook_user().
- * @ingroup signup_core
+ * Private helper as a partial implementation of hook_user().
+ * @see signup_user()
  */
-function signup_user($op, &$edit, &$user, $category = NULL) {
+function _signup_user_no_views($op, &$edit, &$user, $category = NULL) {
   switch ($op) {
     case 'view':
       // grab list of events the user signed up for.

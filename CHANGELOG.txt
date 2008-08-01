@@ -11,7 +11,10 @@ Bug fixes since 5.x-2.4:
   invoking hook_signup_sign_up().
 = Removed the deprecated (4.7.x) signup_ecommerce code since it now
   lives in a new project: http://drupal.org/project/signup_ecommerce
-= #224162 by dww: Fixed bug where all broadcasts were sent as the site owner.
+= #224162 by dww: Fixed bug where all broadcasts were sent as the site
+  owner.
+= #233512 by dww and tcocca: Added code to cancel all signups of users
+  that are deleted from the site.
 
 
 -----------

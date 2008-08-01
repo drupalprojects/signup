@@ -331,6 +331,47 @@ function signup_perm() {
 }
 
 /**
+ * Implementatiion of hook_user().
+ *
+ * When a user is deleted, cancel all of that user's signups to remove all
+ * instances of that user from the {signup_log} table, free up space in events
+ * with signup limits, etc.
+ *
+ * @ingroup signup_core
+ */
+function signup_user($type, &$edit, &$user, $category = NULL) {
+  switch ($type) {
+    case 'delete':
+      $uids = array();
+      if (is_array($edit['accounts'])) {
+        // A multi-user delete from Admin > User management > Users.
+        $uids = $edit['accounts'];
+      }
+      else {
+        // A single-user delete from the edit tab on the user's profile.
+        $uids[] = $edit['uid'];
+      }
+      foreach ($uids as $uid) {
+        $nids = db_query("SELECT nid FROM {signup_log} WHERE uid = %d", $uid);
+        while ($data = db_fetch_object($nids)) {
+          signup_cancel_signup($uid, $data->nid);
+        }
+      }
+      break;
+  }
+
+  // If we're not using views, we need to support additional user
+  // operations, for example, to add the user's current signup
+  // schedule to their user profile page.
+  if (!module_exists('views')) {
+    $signup_path = './'. drupal_get_path('module', 'signup');
+    require_once($signup_path .'/signup_no_views.inc');
+    return _signup_user_no_views($type, $edit, $user, $category);
+  }
+}
+
+
+/**
  * Implementation of hook_form_alter().
  * @ingroup signup_core
  */
