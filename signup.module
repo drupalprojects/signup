@@ -580,7 +580,13 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
             }
             else {
               $needs_signup_form = FALSE;
-              $output .= '<div class="signup_anonymous_login">'. t('Please !login or !register to sign up for this event.', $login_array) .'</div>';
+              if (variable_get('user_register', 1) == 0) {
+                $anon_login_text = t('Please !login to sign up for this event.', $login_array); 
+              }
+              else {
+                $anon_login_text = t('Please !login or !register to sign up for this event.', $login_array);
+              }
+              $output .= '<div class="signup_anonymous_login">'. $anon_login_text .'</div>';
             }
           }
           else {
