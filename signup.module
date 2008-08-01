@@ -227,6 +227,13 @@ function signup_perm() {
 
 /**
  * Implementation of hook_user().
+ *
+ * When viewing a user profile page, display their current signup schedule.
+ *
+ * When a user is deleted, cancel all of that user's signups to remove all
+ * instances of that user from the {signup_log} table, free up space in events
+ * with signup limits, etc.
+ *
  * @ingroup signup_core
  */
 function signup_user($op, &$edit, &$user, $category = NULL) {
@@ -240,8 +247,29 @@ function signup_user($op, &$edit, &$user, $category = NULL) {
       if (isset($output)) {
         return array(t('Signup information') => array(array('value' => $output, 'class' => 'user')));
       }
+      break;
+
+    case 'delete':
+      $uids = array();
+      if (is_array($edit['accounts'])) {
+        // A multi-user delete from Admin > User management > Users.
+        $uids = $edit['accounts'];
+      }
+      else {
+        // A single-user delete from the edit tab on the user's profile.
+        $uids[] = $edit['uid'];
+      }
+      foreach ($uids as $uid) {
+        $nids = db_query("SELECT nid FROM {signup_log} WHERE uid = %d", $uid);
+        while ($data = db_fetch_object($nids)) {
+          signup_cancel_signup($uid, $data->nid);
+        }
+      }
+      break;
+
   }
 }
+
 
 /**
  * Implementation of hook_form_alter().
