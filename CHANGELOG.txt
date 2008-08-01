@@ -17,6 +17,8 @@ Bug fixes since 5.x-2.4:
   printed even on sites that have user registration disabled.
 = #243051 by dww: Fixed bugs and simplified logic for deciding if the
   "Signup settings" fieldset should be added to node forms or not.
+= #219678 by dww: Changed email notification to event owner to omit
+  "Date/Time: [Untimed]" if the event has no time.
 
 Other changes since 5.x-2.4:
 = Removed the deprecated (4.7.x) signup_ecommerce code since it now

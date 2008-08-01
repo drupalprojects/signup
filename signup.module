@@ -1464,8 +1464,11 @@ function signup_sign_up_user($signup_form) {
     if ($node->signup_forwarding_email) {
       $header = array('From' => t('New Event Signup') ."<$from>");
       $subject = t('Signup confirmation for event: !title', array('!title' => $node->title));
-      $message = t('The following information was submitted as a signup for !title', array('!title' => $node->title)) .
-      "\n\r". t('Date/Time: !time', array('!time' => $starttime)) .":\n\r\n\r".
+      $message = t('The following information was submitted as a signup for !title', array('!title' => $node->title));
+      if (signup_node_has_date($node)) {
+        $message .= "\n\r". t('Date/Time: !time', array('!time' => $starttime));
+      }
+      $message .= ":\n\r".
       "\n\r". t('Username:') . $user->name .
       "\n\r". t('Email:') . $user_mail ."\n\r\n\r". $signup_data;
       drupal_mail('signup_forwarding_mail', $node->signup_forwarding_email, $subject, $message, $from, $header);
