@@ -421,12 +421,19 @@ function signup_alter_node_form($form_id, &$form) {
   
   $signup_type_default = variable_get('signup_node_default_state_'. $form['type']['#value'], 'disabled');
 
-  // If the current user has the global 'administer all signups' permission
-  // and signups are not explicitly disallowed, or if this node-type is
-  // signup-enabled and the user has permission to administer signups for
+  // If signups are possible, and the current user either has the global
+  // 'administer all signups' permission or has the 'administer signups
+  // for own content' permission and is creating new content or editing
   // their own content, add a fieldset for signup-related settings.
-  if ( (($signup_type_default != 'disabled' || (!empty($node) && !empty($node->signup))) && user_access('administer all signups'))
-       || (!empty($node) && $signup_type_default == 'enabled_on' && $node->uid == $user->uid && user_access('administer signups for own content')) ) {
+
+  // Signups are possible if they're not explicitly disallowed for this
+  // node type, or if this node is already signup-enabled (in case an
+  // admin erroneously marks a node-type to disallow signups when there
+  // are already nodes of that type with signups enabled).
+  $signups_possible = $signup_type_default != 'disabled' || (!empty($node) && !empty($node->signup));
+  $admin_all = user_access('administer all signups');
+  $admin_own = user_access('administer signups for own content') && (empty($node) || ($node->uid == $user->uid));
+  if ($signups_possible && ($admin_all || $admin_own)) {
     $form['signup'] = array(
       '#type' => 'fieldset',
       '#title' => t('Signup settings'),

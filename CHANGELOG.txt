@@ -17,6 +17,8 @@ Bug fixes since 5.x-2.4:
   that are deleted from the site.
 = #247618 by selmanj and dww: Fixed bug where "... or register ..." was
   printed even on sites that have user registration disabled.
+= #243051 by dww: Fixed bugs and simplified logic for deciding if the
+  "Signup settings" fieldset should be added to node forms or not.
 
 
 -----------
