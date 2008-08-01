@@ -26,3 +26,21 @@ function _signup_event_completed($node) {
 function signup_format_date($node) {
   return t('[Untimed]');
 }
+
+/**
+ * Is this node type date-enabled?
+ *
+ * @return Bool: Always return FALSE in this backend
+ */
+function signup_node_type_has_date($type) {
+  return FALSE;
+}
+
+/**
+ * Is this specific node date-enabled?
+ *
+ * @return Bool: Always return FALSE in this backend
+ */
+function signup_node_has_date($node) {
+  return FALSE;
+}

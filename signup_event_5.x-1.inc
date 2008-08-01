@@ -106,3 +106,17 @@ function theme_signup_event_dates($node) {
   }
   return $output;
 }
+
+/**
+ * @return Bool: Is this node type date-enabled?
+ */
+function signup_node_type_has_date($type) {
+  return variable_get('event_nodeapi_'. $type, 'never') != 'never';
+}
+
+/**
+ * @return Bool: Is this specific node date-enabled?
+ */
+function signup_node_has_date($node) {
+  return isset($node->event_start);
+}

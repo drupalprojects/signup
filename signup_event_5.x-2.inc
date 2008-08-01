@@ -84,3 +84,17 @@ function signup_extra_tokens() {
 function signup_format_date($node) {
   return $node->event['start'] ? event_format_date(event_explode_date($node->event['start']), 'custom', variable_get('signup_date_string', 'D, M jS, g:i A')) : t('[Untimed]');
 }
+
+/**
+ * @return Bool: Is this node type date-enabled?
+ */
+function signup_node_type_has_date($type) {
+  return variable_get('event_nodeapi_'. $type, 'never') != 'never';
+}
+
+/**
+ * @return Bool: Is this specific node date-enabled?
+ */
+function signup_node_has_date($node) {
+  return isset($node->event) && isset($node->event['start']);
+}
