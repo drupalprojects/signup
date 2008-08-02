@@ -75,6 +75,7 @@ function _signup_cron_send_reminders() {
 
       $trans = array(
         '%event' => $event->title,
+        '%eventurl' => url('node/' . $event->nid, NULL, NULL, TRUE),
         '%time' => signup_format_date($event),
         '%username' => $signup->name,
         '%useremail' => $mail_address,
@@ -1447,6 +1448,7 @@ function signup_sign_up_user($signup_form) {
     // not being sanitized and linked as we would for web output.
     $trans = array(
       "%event" => $node->title,
+      '%eventurl' => url('node/' . $node->nid, NULL, NULL, TRUE),
       "%time" => $starttime,
       "%username" => $user->name,
       "%useremail" => $user_mail,
@@ -1769,10 +1771,10 @@ function signup_validate_anon_email($nid, $anon_mail, $name = FALSE) {
  */
 function _signup_admin_form($node) {
   if (module_exists('token')) {
-    $signup_token_description = t('Supported string substitutions: %event, %time, %username, %useremail, %info (user signup information), and any tokens in the %replacement_tokens list.', array('%replacement_tokens' => t('Replacement tokens')));
+    $signup_token_description = t('Supported string substitutions: %event, %eventurl, %time, %username, %useremail, %info (user signup information), and any tokens in the %replacement_tokens list.', array('%replacement_tokens' => t('Replacement tokens')));
   }
   else {
-    $signup_token_description = t('Supported string substitutions: %event, %time, %username, %useremail, %info (user signup information).');
+    $signup_token_description = t('Supported string substitutions: %event, %eventurl, %time, %username, %useremail, %info (user signup information).');
   }
 
   // Load the default admin form data for new nodes.
@@ -1926,7 +1928,7 @@ function signup_broadcast_form($node) {
     return $form;
   }
 
-  $tokens = array('%event', '%username', '%useremail');
+  $tokens = array('%event', '%eventurl', '%username', '%useremail');
   if (function_exists('signup_extra_tokens')) {
     $tokens = array_merge($tokens, signup_extra_tokens());
   }
@@ -2020,6 +2022,7 @@ function signup_broadcast_form_submit($form_id, $form_values) {
       $mail_address = $signup->anon_mail ? $signup->anon_mail : $signup->mail;
       $trans = array(
         '%event' => $event->title,
+        '%eventurl' => url('node/' . $event->nid, NULL, NULL, TRUE),
         '%username' => $signup->uid ? $signup->name : variable_get('anonymous', t('Anonymous')),
         '%useremail' => $mail_address,
 //        '%info' => $signup_info,
