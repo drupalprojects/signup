@@ -81,6 +81,9 @@ function _signup_cron_send_reminders() {
         '%info' => $signup_info,
         );
       $message = strtr($event->reminder_email, $trans);
+      if (module_exists('token')) {
+        $message = token_replace($message, 'node', node_load($event->nid));
+      }
       drupal_mail('signup_reminder_mail', $mail_address, $subject, $message, $from);
       watchdog('signup', t('Reminder for %event sent to %useremail.', array('%event' => $event->title, '%useremail' => $mail_address)), WATCHDOG_NOTICE, l(t('view'), 'node/'. $event->nid));
     }
@@ -1456,6 +1459,9 @@ function signup_sign_up_user($signup_form) {
     if ($node->signup_send_confirmation && $user_mail) {
       $subject = t('Signup confirmation for event: !event', array('!event' => $node->title));
       $message = strtr($node->signup_confirmation_email, $trans);
+      if (module_exists('token')) {
+        $message = token_replace($message, 'node', $node);
+      }
       drupal_mail('signup_confirmation_mail', $user_mail, $subject, $message, $from);
     }
 
@@ -1762,7 +1768,12 @@ function signup_validate_anon_email($nid, $anon_mail, $name = FALSE) {
  * @ingroup signup_internal
  */
 function _signup_admin_form($node) {
-  $signup_token_description = t('Supported string substitutions: %event, %time, %username, %useremail, %info (user signup information).');
+  if (module_exists('token')) {
+    $signup_token_description = t('Supported string substitutions: %event, %time, %username, %useremail, %info (user signup information), and any tokens in the %replacement_tokens list.', array('%replacement_tokens' => t('Replacement tokens')));
+  }
+  else {
+    $signup_token_description = t('Supported string substitutions: %event, %time, %username, %useremail, %info (user signup information).');
+  }
 
   // Load the default admin form data for new nodes.
   if (!$node || !$node->signup) {
@@ -1793,8 +1804,12 @@ function _signup_admin_form($node) {
     '#title' => t('Confirmation email'),
     '#default_value' => $node->signup_confirmation_email,
     '#cols' => 40, '#rows' => 6,
-    '#description' => t('Email sent to user upon signup.') .' '. $signup_token_description,
+    '#description' => t('Email sent to user upon signup. !token_description', array('!token_description' => $signup_token_description)),
   );
+  if (module_exists('token')) {
+    _signup_token_help($form, 'signup_confirmation_token_fieldset');
+  }
+  
   // Define a sub-tree to wrap the next 2 form elements together in an
   // inline div for better display.
   $form['signup_reminder'] = array(
@@ -1821,8 +1836,12 @@ function _signup_admin_form($node) {
     '#title' => t('Reminder email'),
     '#default_value' => $node->signup_reminder_email,
     '#cols' => 40, '#rows' => 6,
-    '#description' => t('Email sent to user as an event reminder.') .' '. $signup_token_description,
+    '#description' => t('Email sent to user as an event reminder. !token_description', array('!token_description' => $signup_token_description)),
   );
+  if (module_exists('token')) {
+    _signup_token_help($form, 'signup_reminder_token_fieldset');
+  }
+  
   $form['signup_close_signup_limit'] = array(
     '#type' => 'textfield',
     '#title' => t('Signup limit'),
@@ -1912,7 +1931,12 @@ function signup_broadcast_form($node) {
     $tokens = array_merge($tokens, signup_extra_tokens());
   }
   sort($tokens);
-  $token_text = t('Supported string substitutions: %tokens.', array('%tokens' => implode(', ', $tokens)));
+  if (module_exists('token')) {
+    $token_text = t('Supported string substitutions: %tokens, and any tokens in the %replacement_tokens list.', array('%tokens' => implode(', ', $tokens), '%replacement_tokens' => t('Replacement tokens')));
+  }
+  else {
+    $token_text = t('Supported string substitutions: %tokens.', array('%tokens' => implode(', ', $tokens)));
+  }
 
   $form['subject'] = array(
     '#type' => 'textfield',
@@ -1923,9 +1947,14 @@ function signup_broadcast_form($node) {
     '#type' => 'textarea',
     '#title' => t('Message body'),
     '#required' => true,
-    '#description' => t('Body of the email message you wish to send to all users who have signed up for this @node_type.', array('@node_type' => $node->type)) .' '. $token_text,
+    '#description' => t('Body of the email message you wish to send to all users who have signed up for this @node_type. !token_description', array('@node_type' => $node->type, '!token_description' => $token_text)),
     '#rows' => 10,
   );
+  
+  if (module_exists('token')) {
+    _signup_token_help($form, 'message_tokens_fieldset');
+  }
+  
   $form['send'] = array(
     '#type' => 'submit',
     '#value' => t('Send'),
@@ -1999,6 +2028,9 @@ function signup_broadcast_form_submit($form_id, $form_values) {
       $trans['%time'] = signup_format_date($event);
 
       $message = strtr($form_values['message'], $trans);
+      if (module_exists('token')) {
+        $message = token_replace($message, 'node', $event);
+      }
       drupal_mail('signup_broadcast_mail', $mail_address, $subject, $message, $from);
       watchdog('signup', t('Broadcast email for %event sent to %email.', array('%event' => $event->title, '%email' => $mail_address)), WATCHDOG_NOTICE, l(t('view'), 'node/'. $event->nid));
     }
@@ -2038,4 +2070,62 @@ function signup_views_arguments() {
 function signup_views_default_views() {
   require_once(drupal_get_path('module', 'signup') .'/signup_views.inc');
   return _signup_views_default_views();
+}
+
+/**
+ * Private function to generate HTML for showing the available tokens.
+ * 
+ * @param $form
+ *   Reference to the form array to include the help fieldset in.
+ * @param $element_name
+ *   Name of the form element to use for the help fieldset.
+ */
+function _signup_token_help(&$form, $element_name) {
+  $form[$element_name] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Replacement tokens'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $form[$element_name]['help_text'] = array(
+    '#value' => _signup_build_token_help(),
+  );
+}
+
+/**
+ * Private function to generate HTML for showing the available tokens
+ * 
+ * @return The themed representation of the available tokens.
+ */
+function _signup_build_token_help() {
+  static $help_html = '';
+  if (empty($help_html)) {
+    $patterns = token_get_list('node');
+    foreach ($patterns as $type => $pattern_set) {
+      foreach ($pattern_set as $pattern => $description) {
+        $tokens[$pattern] = $description;
+      }
+    }
+    $help_html = theme('signup_token_help', $tokens);
+  }
+  return $help_html;
+}
+
+/**
+ * theme_signup_token_help()
+ *
+ * @param $tokens
+ *   An array of token patterns mapping to their description
+ * 
+ * @return The themed representation of the tokens.
+ */
+function theme_signup_token_help($tokens) {
+  $tokens_html = "<dl>\n";
+  foreach ($tokens as $name => $description) {
+    $tokens_html .= '<dt>['. $name .']</dt>';
+    $tokens_html .= '<dd>'. $description ."</dd>\n";
+  }
+  $tokens_html .= "</dl>\n";
+  
+  return $tokens_html;
 }

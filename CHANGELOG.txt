@@ -3,6 +3,10 @@ $Id$
 -----------
 5.x-2.x-dev
 -----------
+New features since 5.x-2.4:
+= #285626 by deviantintegral and dww: Added optional support for using
+  token.module tokens in the various email message templates.
+
 Bug fixes since 5.x-2.4:
 = #259301 by dww: Fixed bug where the code assumes you want additional
   fields in your signup form. Signup now handles an empty return value
