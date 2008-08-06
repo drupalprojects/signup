@@ -424,6 +424,12 @@ function signup_alter_node_form($form_id, &$form) {
   }
   
   $signup_type_default = variable_get('signup_node_default_state_'. $form['type']['#value'], 'disabled');
+  if (!empty($node)) {
+    $node_has_date = signup_node_has_date($node);
+  }
+  else {
+    $node_has_date = signup_node_type_has_date($form['type']['#value']);
+  }
 
   // If signups are possible, and the current user either has the global
   // 'administer all signups' permission or has the 'administer signups
@@ -497,7 +503,7 @@ function signup_alter_node_form($form_id, &$form) {
       '#prefix' => '<div class="'. $settings_class .'">',
       '#suffix' => '</div>',
     );
-    $form['signup']['node_settings']['settings'] = _signup_admin_form($node);
+    $form['signup']['node_settings']['settings'] = _signup_admin_form($node, $node_has_date);
   }
 }
 
@@ -1246,21 +1252,22 @@ function signup_open_signup($nid, $cron = 'no') {
  * Form builder for the settings page under admin/setttings/signup
  */
 function signup_settings_page() {
-  $form['signup_close_early'] = array(
-    '#title' => t('Close x hours before'),
-    '#type' => 'textfield',
-    '#default_value' => variable_get('signup_close_early', 1),
-    '#size' => 5, '#maxlength' => 10,
-    '#description' => t('The number of hours before the event which signups will no longer be allowed. Use negative numbers to close signups after the event start (example: -12).'),
-  );
-
+  if (signup_site_has_dates()) {
+    $form['signup_close_early'] = array(
+      '#title' => t('Close x hours before'),
+      '#type' => 'textfield',
+      '#default_value' => variable_get('signup_close_early', 1),
+      '#size' => 5, '#maxlength' => 10,
+      '#description' => t('The number of hours before the event which signups will no longer be allowed. Use negative numbers to close signups after the event start (example: -12).'),
+    );
+  };
   $form['node_defaults'] = array(
     '#type' => 'fieldset',
     '#title' => t('Default signup information'),
     '#description' => t('New signup-enabled nodes will start with these settings.'),
     '#collapsible' => true,
   );
-  $form['node_defaults']['_signup_admin_form'] = _signup_admin_form($node);
+  $form['node_defaults']['_signup_admin_form'] = _signup_admin_form($node, signup_site_has_dates());
 
   $form['adv_settings'] = array(
     '#type' => 'fieldset',
@@ -1765,11 +1772,23 @@ function signup_validate_anon_email($nid, $anon_mail, $name = FALSE) {
  */
 
 /**
- * Returns the form for the per-node signup settings. This is shared
- * by the settings page and the node edit page.
+ * Returns the form for the per-node signup settings.
+ *
+ * This is shared by the settings page and the node edit page.
+ *
+ * @param $node
+ *   The fully loaded node object if we've got it.
+ * @param $has_date
+ *   Boolean flag indicating if this node (or site) has signup-aware
+ *   date functionality, which is required for reminder emails to be in
+ *   the form.
+ *
+ * @return
+ *   The form array for the per-node signup settings.
+ *
  * @ingroup signup_internal
  */
-function _signup_admin_form($node) {
+function _signup_admin_form($node = NULL, $has_date = FALSE) {
   if (module_exists('token')) {
     $signup_token_description = t('Supported string substitutions: %event, %eventurl, %time, %username, %useremail, %info (user signup information), and any tokens in the %replacement_tokens list.', array('%replacement_tokens' => t('Replacement tokens')));
   }
@@ -1812,36 +1831,38 @@ function _signup_admin_form($node) {
     _signup_token_help($form, 'signup_confirmation_token_fieldset');
   }
   
-  // Define a sub-tree to wrap the next 2 form elements together in an
-  // inline div for better display.
-  $form['signup_reminder'] = array(
-    '#prefix' => '<div class="container-inline">',
-    '#suffix' => '</div>',
-  );
-  $form['signup_reminder']['signup_send_reminder'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Send reminder'),
-    '#default_value' => $node->signup_send_reminder,
-  );
-  $options = array();
-  for ($i = 1; $i <= 60; $i++) {
-    $options[$i] = $i;
-  }
-  $form['signup_reminder']['signup_reminder_days_before'] = array(
-    '#type' => 'select',
-    '#default_value' => $node->signup_reminder_days_before,
-    '#options' => $options,
-    '#suffix' => t('day(s) before event'),
-  );
-  $form['signup_reminder_email'] = array(
-    '#type' => 'textarea',
-    '#title' => t('Reminder email'),
-    '#default_value' => $node->signup_reminder_email,
-    '#cols' => 40, '#rows' => 6,
-    '#description' => t('Email sent to user as an event reminder. !token_description', array('!token_description' => $signup_token_description)),
-  );
-  if (module_exists('token')) {
-    _signup_token_help($form, 'signup_reminder_token_fieldset');
+  if ($has_date) {
+    // Define a sub-tree to wrap the next 2 form elements together in an
+    // inline div for better display.
+    $form['signup_reminder'] = array(
+      '#prefix' => '<div class="container-inline">',
+      '#suffix' => '</div>',
+    );
+    $form['signup_reminder']['signup_send_reminder'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Send reminder'),
+      '#default_value' => $node->signup_send_reminder,
+    );
+    $options = array();
+    for ($i = 1; $i <= 60; $i++) {
+      $options[$i] = $i;
+    }
+    $form['signup_reminder']['signup_reminder_days_before'] = array(
+      '#type' => 'select',
+      '#default_value' => $node->signup_reminder_days_before,
+      '#options' => $options,
+      '#suffix' => t('day(s) before event'),
+    );
+    $form['signup_reminder_email'] = array(
+      '#type' => 'textarea',
+      '#title' => t('Reminder email'),
+      '#default_value' => $node->signup_reminder_email,
+      '#cols' => 40, '#rows' => 6,
+      '#description' => t('Email sent to user as an event reminder. !token_description', array('!token_description' => $signup_token_description)),
+    );
+    if (module_exists('token')) {
+      _signup_token_help($form, 'signup_reminder_token_fieldset');
+    }
   }
   
   $form['signup_close_signup_limit'] = array(

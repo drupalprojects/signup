@@ -27,6 +27,8 @@ Bug fixes since 5.x-2.4:
   "Date/Time: [Untimed]" if the event has no time.
 = #290740 by deviantintegral: If 'site_mail' is undefined, fixed
   fallback From: address to use 'example.com' instead of 'noadmin.com'.
+= #213239 by dww: Fixed UI bug where event-specific features (e.g.
+  reminder email) were shown on nodes that don't have a start time.
 
 Other changes since 5.x-2.4:
 = Removed the deprecated (4.7.x) signup_ecommerce code since it now

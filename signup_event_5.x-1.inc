@@ -108,6 +108,15 @@ function theme_signup_event_dates($node) {
 }
 
 /**
+ * Does this site have any date-enabled content?
+ *
+ * @return Bool: Always return TRUE in this backend
+ */
+function signup_site_has_dates() {
+  return TRUE;
+}
+
+/**
  * @return Bool: Is this node type date-enabled?
  */
 function signup_node_type_has_date($type) {

@@ -28,6 +28,15 @@ function signup_format_date($node) {
 }
 
 /**
+ * Does this site have any date-enabled content?
+ *
+ * @return Bool: Always return FALSE in this backend
+ */
+function signup_site_has_dates() {
+  return FALSE;
+}
+
+/**
  * Is this node type date-enabled?
  *
  * @return Bool: Always return FALSE in this backend
