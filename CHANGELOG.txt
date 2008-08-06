@@ -28,6 +28,8 @@ Changes since 5.x-1.0:
   that are deleted from the site.
 = #247618 by selmanj and dww: Fixed bug where "... or register ..." was
   printed even on sites that have user registration disabled.
+= #290740 by deviantintegral: If 'site_mail' is undefined, fixed
+  fallback From: address to use 'example.com' instead of 'noadmin.com'.
 = #145749 by schittli: Added German (de) translation.
 
 
