@@ -58,7 +58,7 @@ function _signup_cron_send_reminders() {
 
   // Grab each event, construct the email header and subject, and query
   // the signup log to pull all users who are signed up for this event.
-  $from = variable_get('site_mail', 'noadmin@example.com');
+  $from = variable_get('site_mail', ini_get('sendmail_from'));
   while ($event = db_fetch_object($result)) {
     $subject = t('Event reminder: !event', array('!event' => $event->title));
     $signups = db_query("SELECT u.name, u.mail, s_l.anon_mail, s_l.form_data FROM {signup_log} s_l INNER JOIN {users} u ON u.uid = s_l.uid WHERE s_l.nid = %d", $event->nid);
@@ -1461,7 +1461,7 @@ function signup_sign_up_user($signup_form) {
       "%useremail" => $user_mail,
       "%info" => $signup_data
     );
-    $from = variable_get('site_mail', 'noadmin@example.com');
+    $from = variable_get('site_mail', ini_get('sendmail_from'));
 
     // If a confirmation is to be sent, compose the mail message,
     // translate the string substitutions, and send it.
