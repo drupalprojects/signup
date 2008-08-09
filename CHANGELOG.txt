@@ -29,6 +29,9 @@ Bug fixes since 5.x-2.4:
   use the 'sendmail_from' PHP ini setting as the fall-back value.
 = #213239 by dww: Fixed UI bug where event-specific features (e.g.
   reminder email) were shown on nodes that don't have a start time.
+= #293157 by dww: Fixed bug where the '!login' placeholder was not
+  expanded in the help text for the e-mail field when anonymous users
+  can signup. This bug was introduced in version 5.x-2.4 via #174715.
 
 Other changes since 5.x-2.4:
 = Removed the deprecated (4.7.x) signup_ecommerce code since it now

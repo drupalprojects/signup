@@ -933,7 +933,7 @@ function signup_form($node, $signup_type = 'auth', $fieldset = TRUE) {
     $anon_form['signup_anon_mail'] = array(
       '#type' => 'textfield',
       '#title' => t('Email'),
-      '#description' => t('An e-mail address is required for users who are not registered at this site. If you are a registered user at this site, please !login to sign up for this event.', $login_array),
+      '#description' => t('An e-mail address is required for users who are not registered at this site. If you are a registered user at this site, please !login to sign up for this event.', array('!login' => l(t('login'), 'user/login', array(), drupal_get_destination()))),
       '#size' => 40,
       '#validate' => array('signup_form_validate_anon' => array($node->nid)),
       '#maxlength' => 255,
