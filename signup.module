@@ -1092,8 +1092,16 @@ function signup_sign_up_user($signup_form) {
       $subject = t('Signup confirmation for event: !title', array('!title' => $node->title));
       $message = t('The following information was submitted as a signup for !title', array('!title' => $node->title)) .
       "\n\r". t('Date/Time: !time', array('!time' => $starttime)) .":\n\r\n\r".
-      "\n\r". t('Username:') . $user->name .
-      "\n\r". t('Email:') . $user_mail ."\n\r\n\r". $signup_data;
+      "\n\r". t('Username:') . $user->name;
+      if (!empty($user->uid)) {
+        // For authenticated users, just include a link to their profile page.
+        $message .= "\n\r". t('Profile page:') . url('user/'. $user->uid, NULL, NULL, TRUE);
+      }
+      else {
+        // For anonymous users, their email is all we've got, so disclose it.
+        $message .= "\n\r". t('E-mail:') . $user_mail;
+      }
+      $message .= "\n\r\n\r". $signup_data;
       drupal_mail('signup_forwarding_mail', $node->signup_forwarding_email, $subject, $message, $from, $header);
     }
     drupal_set_message(t('Signup to !title confirmed.', array('!title' => l($node->title, "node/$node->nid"))) . $confirmation_email . $reminder_email);

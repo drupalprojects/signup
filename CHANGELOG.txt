@@ -30,6 +30,10 @@ Changes since 5.x-1.0:
   printed even on sites that have user registration disabled.
 = #290740 by deviantintegral and dww: If 'site_mail' is undefined, 
   use the 'sendmail_from' PHP ini setting as the fall-back value.
+= #219680 by dww: Fixed bug where the email address of users who signup
+  was being sent in the notification emails to event owners, which is an
+  inadvertent disclosure of personal information.  Now, only a link to
+  the user's profile is included.
 = #145749 by schittli: Added German (de) translation.
 
 
