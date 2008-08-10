@@ -36,6 +36,8 @@ Bug fixes since 5.x-2.4:
   was being sent in the notification emails to event owners, which is an
   inadvertent disclosure of personal information.  Now, only a link to
   the user's profile is included.
+= #247573 by dww: Fixed UI bug where the form for administrators to
+  signup other users was shown even if signups were closed on that node.
 
 Other changes since 5.x-2.4:
 = Removed the deprecated (4.7.x) signup_ecommerce code since it now

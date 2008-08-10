@@ -1565,8 +1565,10 @@ function signup_node_admin_page($node) {
   }
   $output .= theme('table', $header, $rows);
 
-  // Add a form to allow the administrator to signup other users.
-  $output .= drupal_get_form('signup_form', $node, 'admin');
+  if ($node->signup_status) {
+    // Add a form to allow the administrator to signup other users.
+    $output .= drupal_get_form('signup_form', $node, 'admin');
+  }
 
   return $output;
 }
