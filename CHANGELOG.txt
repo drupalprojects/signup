@@ -44,6 +44,7 @@ Other changes since 5.x-2.4:
   lives in a new project: http://drupal.org/project/signup_ecommerce
 = #289326 by starbow and dww: Added two new functions to the event
   backend API for knowing if a node type or a node has a start time.
+= #309668 by slybud: Added a French (fr) translation.
 
 
 -----------
