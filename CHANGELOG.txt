@@ -38,6 +38,8 @@ Bug fixes since 5.x-2.4:
   the user's profile is included.
 = #247573 by dww: Fixed UI bug where the form for administrators to
   signup other users was shown even if signups were closed on that node.
+= #310307 by dww: Added a filter for published nodes to the default
+  views for the 'Signups' tab on user profile pages.
 
 Other changes since 5.x-2.4:
 = Removed the deprecated (4.7.x) signup_ecommerce code since it now

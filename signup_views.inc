@@ -423,6 +423,13 @@ print l(t("View signup schedule"), "user/$user->uid/signups");
     ),
   );
   $view->filter = array(
+    array (
+      'tablename' => 'node',
+      'field' => 'status',
+      'operator' => '=',
+      'options' => '',
+      'value' => '1',
+    ),
     array(
       'tablename' => 'signup',
       'field' => 'status',
@@ -502,6 +509,13 @@ print l(t("View signup schedule"), "user/$user->uid/signups");
     ),
   );
   $view->filter = array(
+    array (
+      'tablename' => 'node',
+      'field' => 'status',
+      'operator' => '=',
+      'options' => '',
+      'value' => '1',
+    ),
     array(
       'tablename' => 'signup',
       'field' => 'status',
