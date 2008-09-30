@@ -24,6 +24,10 @@ function theme_signup_user_schedule($node) {
  * Feel free to alter any elements in this section, remove them, or
  * add any others.
  *
+ * WARNING: If your site allows anonymous signups and you alter the
+ * 'Name' field in this function, you will probably have to implement a
+ * version of theme_signup_email_token_anonymous_username() for your site.
+ *
  * In order for the form to be rendered properly, the name of the form
  * element must be $form['signup_form_data']['NameOfDataField'], where
  * NameOfDataField is replaced with the actual name of the data field.
@@ -41,6 +45,8 @@ function theme_signup_user_schedule($node) {
  *
  * @return
  *   Array defining the form to present to the user to signup for a node.
+ *
+ * @see theme_signup_email_token_anonymous_username()
  */
 function theme_signup_user_form() {
   global $user;
@@ -68,4 +74,37 @@ function theme_signup_user_form() {
   }
 
   return $form;
+}
+
+/**
+ * Returns the value to use for the %username email token for anonymous users.
+ *
+ * WARNING: If you implemented your own version of theme_signup_form_data()
+ * that changed or removed the custom 'Name' field and your site
+ * allows anonymous signups, you will need to modify this, too.
+ *
+ * @param $form_data
+ *   Array of custom signup form values for the current signup.
+ * @param $email
+ *   E-mail address of the anonymous user who signed up.
+ * @return
+ *   A string with the proper 
+ *
+ * @see theme_signup_user_form()
+ */
+function theme_signup_email_token_anonymous_username($form_data, $email) {
+  // In some cases, the best you can do is to use the anonymous user's
+  // supplied email address, in which case, you should uncomment this:
+  //return $email;
+
+  // WARNING: This line is only valid if you left the 'Name' field in
+  // your site's version of theme_signup_user_form().
+  return $form_data['Name'];
+}
+
+/**
+ * Returns the value to use for the %info email token for custom signup data.
+ */
+function theme_signup_email_token_custom_data($signup_data) {
+  return t('SIGNUP INFORMATION') . "\n\r" . $signup_data;
 }
