@@ -8,6 +8,7 @@ New features since 5.x-2.4:
   token.module tokens in the various email message templates.
 = #265222 by dww: Added support for an "%eventurl" token for all e-mail
   messages which contains the full URL to the node in question.
+= #316276 by deviantintegral: Added an option to hide the signup form.
 
 Bug fixes since 5.x-2.4:
 = #259301 by dww: Fixed bug where the code assumes you want additional

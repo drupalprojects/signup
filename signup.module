@@ -1270,6 +1270,7 @@ function signup_settings_page() {
     '#options' => array(
       'node' => t('At the bottom of each node'),
       'tab' => t('On a separate %sign_up tab', array('%sign_up' => t('Sign up'))),
+      'none' => t('Do not display signup form'),
     ),
     '#default_value' => variable_get('signup_form_location', 'node'),
     '#description' => t('On every signup-enabled node, users with permission to
