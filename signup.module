@@ -1516,6 +1516,7 @@ function signup_node_admin_page($node) {
   $sql = "SELECT u.uid, u.name, s.anon_mail, s.signup_time, s.form_data FROM {signup_log} s INNER JOIN {users} u ON u.uid = s.uid WHERE s.nid = %d";
   $sql .= tablesort_sql($header);
   $result = db_query($sql, $node->nid);
+  $rows = array();
 
   // Get default timezone offset for the site.
   $offset = intval(variable_get('date_default_timezone', 0));
