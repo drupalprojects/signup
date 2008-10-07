@@ -1504,16 +1504,18 @@ function signup_node_admin_page($node) {
   $output .= drupal_get_form('signup_admin_node_form', $node);
 
   $output .= '<h4>'. t('Signup details') .'</h4>';
+
+  // Prepare a table header that allows sorting on name and signup time.
   $header = array(
-    t('Name/Signup time'),
-    t('Extra information'),
-    t('Operations'),
+    array('data' => t('Name'), 'field' => 'u.name', 'sort' => 'asc'),
+    array('data' => t('Signup time'), 'field' => 's.signup_time'),
+    array('data' => t('Extra information')),
+    array('data' => t('Operations')),
   );
 
-  // Pull all user signed up for this event, and start table creation.
-  $result = db_query("SELECT u.uid, u.name, s.anon_mail, s.signup_time, s.form_data FROM {signup_log} s INNER JOIN {users} u ON u.uid = s.uid WHERE s.nid =%d", $node->nid);
-
-  $rows = array();
+  $sql = "SELECT u.uid, u.name, s.anon_mail, s.signup_time, s.form_data FROM {signup_log} s INNER JOIN {users} u ON u.uid = s.uid WHERE s.nid = %d";
+  $sql .= tablesort_sql($header);
+  $result = db_query($sql, $node->nid);
 
   // Get default timezone offset for the site.
   $offset = intval(variable_get('date_default_timezone', 0));
@@ -1542,7 +1544,8 @@ function signup_node_admin_page($node) {
 
     // Build the row for this user.
     $rows[] = array(
-      $username .'<br />'. gmdate(variable_get('signup_date_string', 'M jS, g:i A'), $signed_up_user->signup_time + $offset),
+      $username,
+      gmdate(variable_get('signup_date_string', 'M jS, g:i A'), $signed_up_user->signup_time + $offset),
       $signup_form_data,
       drupal_get_form('signup_user_cancel_form_'. $id, $id, $node->nid, $signed_up_user->uid, $signed_up_user->anon_mail)
     );
