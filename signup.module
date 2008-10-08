@@ -1975,6 +1975,11 @@ function signup_broadcast_form($node) {
     _signup_token_help($form, 'message_tokens_fieldset');
   }
   
+  $form['copy'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Send yourself a copy.'), 
+  );
+  
   $form['send'] = array(
     '#type' => 'submit',
     '#value' => t('Send'),
@@ -2025,13 +2030,13 @@ function signup_get_email_addresses($nid) {
  * @param $form_values
  */
 function signup_broadcast_form_submit($form_id, $form_values) {
+  global $user;
   $addresses = signup_get_email_addresses($form_values['nid']);
   if (is_array($addresses)) {
     if (user_access('administer site configuration')) {
       $from = $form_values['from'];
     }
     else {
-      global $user;
       $from = $user->mail;
     }
     $subject = $form_values['subject'];
@@ -2050,8 +2055,45 @@ function signup_broadcast_form_submit($form_id, $form_values) {
       drupal_mail('signup_broadcast_mail', $user_email, $subject, $message, $from);
       watchdog('signup', t('Broadcast email for %event sent to %email.', array('%event' => $event->title, '%email' => $user_email)), WATCHDOG_NOTICE, l(t('view'), 'node/'. $event->nid));
     }
+    if ($form_values['copy']) {
+      $signup_tokens = _signup_get_email_tokens($event, $user);
+      $sender_email = $signup_tokens['%useremail'];
+      $message = strtr($form_values['message'], $signup_tokens);
+      if (module_exists('token')) {
+        // If the token.module is enabled, also handle any tokens it provides.
+        $message = token_replace($message, 'node', $event);
+      }
+      $final_text = theme('signup_broadcast_sender_copy', $form_values['message'], $message);
+      drupal_mail('signup_broadcast_mail', $sender_email, $subject, $final_text, $from);
+      watchdog('signup', t('Broadcast email copy for %event sent to %email.', array('%event' => $event->title, '%email' => $sender_email)), WATCHDOG_NOTICE, l(t('view'), 'node/'. $event->nid));
+      drupal_set_message(t('Sent a copy of this message to %email', array('%email' => $sender_email)));
+    }
   }
   drupal_set_message(t('Message sent to all users who have signed up'));
+}
+
+/**
+ * Controls the body of the copy of the broadcast message sent to the sender.
+ *
+ * @param $raw_message
+ *   The raw message typed in by the sender with no tokens replaced.
+ * @param $cooked_message
+ *   The message after all the tokens have been replaced.
+ *
+ * @return
+ *   The final text to put in the email body sent to the broadcast sender.
+ */
+function theme_signup_broadcast_sender_copy($raw_message, $cooked_message) {
+  $output = t('This is a copy of the signup broadcast you just sent.') . "\n";
+  $output .= wordwrap(t('Here is the original text you entered, with none of the tokens replaced:'), 72) . "\n";
+  $output .= "----------\n";
+  $output .= $raw_message;
+  $output .= "\n----------\n\n";
+  $output .= wordwrap(t('Here is how the message that was sent to each user looked, with all of the tokens replaced (using your account for the user-related tokens):'), 72) . "\n";
+  $output .= "----------\n";
+  $output .= $cooked_message;
+  $output .= "\n----------\n\n";
+  return $output;
 }
 
 /**
