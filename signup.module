@@ -1462,7 +1462,7 @@ function signup_sign_up_user($signup_form) {
       $subject = t('Signup confirmation for event: !title', array('!title' => $node->title));
       $message = t('The following information was submitted as a signup for !title', array('!title' => $node->title));
       if (signup_node_has_date($node)) {
-        $message .= "\n\r". t('Date/Time: !time', array('!time' => $starttime));
+        $message .= "\n\r". t('Date/Time: !time', array('!time' => $signup_tokens['%time']));
       }
 
       $message .= "\n\r\n\r". t('Username: !name', array('!name' => empty($user->uid) ? variable_get('anonymous', t('Anonymous')) : $user->name));
