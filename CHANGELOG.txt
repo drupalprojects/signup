@@ -13,6 +13,9 @@ New features since 5.x-2.4:
   sortable by username or signup time.
 = #310677 by stBorchert and dww: Added the ability for the sender of a
   broadcast message to send themselves a copy.
+= #273072 by dww: Added a theme function for the node/N/signups signup
+  administration tab (theme_signup_node_admin_page()), and changed the
+  default appearance of that page to be more visually consistent.
 
 Bug fixes since 5.x-2.4:
 = #259301 by dww: Fixed bug where the code assumes you want additional
