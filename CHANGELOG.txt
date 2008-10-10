@@ -60,6 +60,8 @@ Bug fixes since 5.x-2.4:
   user, the signup administrator, and in the email messages.  This also
   fixes a bug (#178441) where the labels for the custom fields were not
   included in the email messages.
+= #278739 by dww: Fixed incorrect start date on signup administration
+  page (admin/content/signup) when using event 5.x-2.*.
 
 Other changes since 5.x-2.4:
 = Removed the deprecated (4.7.x) signup_ecommerce code since it now

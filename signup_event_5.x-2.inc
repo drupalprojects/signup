@@ -52,7 +52,7 @@ function signup_admin_form_header() {
 function signup_admin_form_extra($signup_event) {
   return array(
     '#type' => 'markup',
-    '#value' => event_format_date(event_explode_date($signup_event->event['start']), variable_get('signup_date_format', 'medium')),
+    '#value' => event_format_date($signup_event->event_start, variable_get('signup_date_format', 'medium')),
   );
 }
 
