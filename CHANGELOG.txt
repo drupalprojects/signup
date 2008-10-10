@@ -52,6 +52,11 @@ Bug fixes since 5.x-2.4:
   hard-coded signup email tokens.  In particular, %username is now
   properly handled for anonymous signups by means of a new theme
   function: theme_signup_email_token_anonymous_username().
+= #137609 by dww and stBorchert: Added a lot more themeability for how
+  the site-specific custom signup data is displayed for the signed up
+  user, the signup administrator, and in the email messages.  This also
+  fixes a bug (#178441) where the labels for the custom fields were not
+  included in the email messages.
 
 Other changes since 5.x-2.4:
 = Removed the deprecated (4.7.x) signup_ecommerce code since it now

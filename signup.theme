@@ -101,10 +101,3 @@ function theme_signup_email_token_anonymous_username($form_data, $email) {
   // your site's version of theme_signup_user_form().
   return $form_data['Name'];
 }
-
-/**
- * Returns the value to use for the %info email token for custom signup data.
- */
-function theme_signup_email_token_custom_data($signup_data) {
-  return t('SIGNUP INFORMATION') . "\n\r" . $signup_data;
-}
