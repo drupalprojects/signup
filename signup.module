@@ -1257,6 +1257,17 @@ function signup_settings_page() {
     '#collapsible' => true,
     '#collapsed' => true,
   );
+  $form['adv_settings']['signup_date_format'] = array(
+    '#title' => t('Format string for displaying signup-related dates'),
+    '#type' => 'select',
+    '#options' => array(
+      'small' => t('Small'),
+      'medium' => t('Medium'),
+      'large' => t('Large'),
+    ),
+    '#default_value' => variable_get('signup_date_format', 'small'),
+    '#description' => t('Whenever this module needs to print a date (both in the administrative interface, and in the various e-mail messages it can send), this setting controls which date format string to use. The format strings are defined at the <a href="!settings_url">Date and time settings page</a>.', array('!settings_url' => url('admin/settings/date-time'))),
+  );
   $form['adv_settings']['signup_form_location'] = array(
     '#title' => t('Location of the signup form and related information'),
     '#type' => 'radios',
@@ -1505,9 +1516,6 @@ function signup_node_admin_page($node) {
   $result = db_query($sql, $node->nid);
   $rows = array();
 
-  // Get default timezone offset for the site.
-  $offset = intval(variable_get('date_default_timezone', 0));
-
   // Loop through the users, unserializing their user data.
   while ($signed_up_user = db_fetch_object($result)) {
     $table_data = array();
@@ -1533,7 +1541,7 @@ function signup_node_admin_page($node) {
     // Build the row for this user.
     $rows[] = array(
       'username' => $username,
-      'signup_date' => gmdate(variable_get('signup_date_string', 'M jS, g:i A'), $signed_up_user->signup_time + $offset),
+      'signup_date' => format_date($signed_up_user->signup_time, variable_get('signup_date_format', 'small')),
       'signup_form_data' => $signup_form_data,
       'cancel_signup_form' => drupal_get_form('signup_user_cancel_form_'. $id, $id, $node->nid, $signed_up_user->uid, $signed_up_user->anon_mail)
     );

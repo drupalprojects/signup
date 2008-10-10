@@ -52,7 +52,7 @@ function signup_admin_form_header() {
 function signup_admin_form_extra($signup_event) {
   return array(
     '#type' => 'markup',
-    '#value' => event_format_date(event_explode_date($signup_event->event['start']), 'custom', variable_get('signup_date_string', 'D, M jS, g:i A')),
+    '#value' => event_format_date(event_explode_date($signup_event->event['start']), variable_get('signup_date_format', 'medium')),
   );
 }
 
@@ -82,7 +82,7 @@ function signup_extra_tokens() {
 }
 
 function signup_format_date($node) {
-  return $node->event['start'] ? event_format_date(event_explode_date($node->event['start']), 'custom', variable_get('signup_date_string', 'D, M jS, g:i A')) : t('[Untimed]');
+  return $node->event['start'] ? event_format_date(event_explode_date($node->event['start']), variable_get('signup_date_format', 'medium')) : t('[Untimed]');
 }
 
 /**

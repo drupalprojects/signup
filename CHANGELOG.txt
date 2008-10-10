@@ -16,6 +16,9 @@ New features since 5.x-2.4:
 = #273072 by dww: Added a theme function for the node/N/signups signup
   administration tab (theme_signup_node_admin_page()), and changed the
   default appearance of that page to be more visually consistent.
+= #132142 by dww: Added a setting to control which site-wide date
+  format string to use for rendering dates in the administrative UI
+  and in the email messages.
 
 Bug fixes since 5.x-2.4:
 = #259301 by dww: Fixed bug where the code assumes you want additional

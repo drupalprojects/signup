@@ -81,7 +81,7 @@ function signup_extra_tokens() {
 function signup_format_date($node) {
   include_once(drupal_get_path('module', 'event') .'/event_timezones.inc');
   $offset = intval(variable_get('date_default_timezone', 0));
-  return $node->event_start ? _event_date(variable_get('signup_date_string', 'D, M jS, g:i A'), $node->event_start, $offset) : t('[Untimed]');
+  return $node->event_start ? _event_date(variable_get('signup_date_format', 'small'), $node->event_start, $offset) : t('[Untimed]');
 }
 
 /**
