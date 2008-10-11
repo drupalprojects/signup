@@ -528,5 +528,98 @@ print l(t("View signup schedule"), "user/$user->uid/signups");
   $view->requires = array(node, signup);
   $views[$view->name] = $view;
 
+  $view = new stdClass();
+  $view->name = 'signup_user_list';
+  $view->description = 'List all users signed up for a node';
+  $view->disabled = TRUE;
+  $view->access = array ();
+  $view->view_args_php = '';
+  $view->page = TRUE;
+  $view->page_title = '';
+  $view->page_header = '';
+  $view->page_header_format = '1';
+  $view->page_footer = '';
+  $view->page_footer_format = '1';
+  $view->page_empty = '';
+  $view->page_empty_format = '1';
+  $view->page_type = 'table';
+  $view->url = 'node/$signup/signup-list';
+  $view->use_pager = TRUE;
+  $view->nodes_per_page = '200';
+  $view->menu = TRUE;
+  $view->menu_title = 'Signup list';
+  $view->menu_tab = TRUE;
+  $view->menu_tab_weight = '0';
+  $view->menu_tab_default = FALSE;
+  $view->menu_tab_default_parent = NULL;
+  $view->menu_tab_default_parent_type = 'tab';
+  $view->menu_parent_tab_weight = '0';
+  $view->menu_parent_title = '';
+  $view->sort = array ();
+  $view->argument = array (
+    array (
+      'type' => 'nid',
+      'argdefault' => '1',
+      'title' => '%1',
+      'options' => '0',
+      'wildcard' => '',
+      'wildcard_substitution' => '',
+    ),
+  );
+  $view->field = array (
+    array (
+      'tablename' => 'signup_log',
+      'field' => 'uid',
+      'label' => 'Username',
+      'sortable' => '1',
+    ),
+    array (
+      'tablename' => 'signup_log',
+      'field' => 'signup_time',
+      'label' => 'Time signed up',
+      'handler' => 'views_handler_field_since',
+      'sortable' => '1',
+      'defaultsort' => 'DESC',
+    ),
+  );
+  $view->filter = array ();
+  $view->exposed_filter = array ();
+  $view->requires = array(signup_log);
+  $views[$view->name] = $view;
+
   return $views;
+}
+
+/**
+ * Implementation of hook_views_url_tokens().
+ */
+function signup_views_url_tokens() {
+  return array(
+    '$signup' => 'signup_url_node',
+  );
+}
+
+/**
+ * Views URL token handler for $signup that works for signup-enabled nodes.
+ *
+ * @param $token
+ *   Ignored.
+ * @param $argument
+ *   Ignored.
+ * @param $arg
+ *   The corresponding element of the URL that the token is holding.
+ *
+ * @return
+ *   TRUE if the path element this token represents is the node ID (nid) of a
+ *   signup-enabled node, otherwise FALSE.
+ */
+function signup_url_node($token, $argument, $arg) {
+  if (!is_numeric($arg)) {
+    return FALSE;
+  }
+  $node = node_load($arg);
+  if (!$node) {
+    return FALSE;
+  }
+  return $node->signup ? TRUE : FALSE;
 }

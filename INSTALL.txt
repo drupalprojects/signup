@@ -88,8 +88,8 @@ the Drupal package and read the online documentation.
    privilege.
 
 
-7. (Optional) If you have enabled the views module on your site
-   (http://drupal.org/project/views), be sure you are running views
+7. (Optional) If you have enabled the Views module on your site
+   (http://drupal.org/project/views), be sure you are running Views
    version 5.x-1.6 or later.  Once you have everything installed and
    working, you should consider customizing any of the signup-related
    views to better suit the needs of your site.  For example, if you
@@ -97,5 +97,34 @@ the Drupal package and read the online documentation.
    'current signups' view to restrict it to events that have not
    started yet.
 
+8. (Optional) Configure if and how you want a list of users signed up
+   for each node to appear.  Under the 'Advanced settings' at
+   admin/settings/signup, if the signup form and related information
+   is being displayed on the node itself or on a separate tab, you
+   will find a setting to control how you want the list of signed up
+   users to appear.  You can either use the built-in listing, no
+   listing at all, or if you have enabled the Views module on your
+   site (see step #7 above), you can also embed a view for this.
 
-8. Start signing up!
+   There is a default view included called 'signup_user_list' which is
+   disabled by default.  If you enable this view to customize it at
+   all, you should be careful about two things:
+
+   A) Be sure to restrict access to this view to roles that have the
+      'view all signups' permission to avoid information disclosure.
+
+   B) If you continue to embed the view on the signup nodes, be sure
+      to disable the menu items for the view, so that you don't get a
+      duplicate tab with the same information.
+
+   Note that if you just use it in its default (disabled) form, it
+   will still work as an embedded view under the signup form, and you
+   do not need to worry about these two things.
+
+   Of course, instead of embedding the view under the signup form, you
+   can also disable the setting entirely, then enable the default
+   'signup_user_list' view to provide the information on a separate
+   tab or in a block.
+
+
+9. Start signing up!

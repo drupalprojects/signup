@@ -4,6 +4,12 @@ $Id$
 5.x-2.x-dev
 -----------
 New features since 5.x-2.4:
+= #243035 by dww, deviantintegral and stBorchert: Added a default view
+  for the users signed up for a node ('signup_user_list'), a theme
+  function for the hard-coded listing (theme_signup_user_list()), a
+  setting to control what user listing appears under the signup form
+  (the old hard-coded listing, an embedded view, or nothing at all),
+  and some jQuery to hide/reveal these advanced settings as needed.
 = #285626 by deviantintegral and dww: Added optional support for using
   token.module tokens in the various email message templates.
 = #265222 by dww: Added support for an "%eventurl" token for all e-mail
