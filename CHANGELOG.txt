@@ -39,6 +39,10 @@ Changes since 5.x-1.0:
   user, the signup administrator, and in the email messages.  This also
   fixes a bug (#178441) where the labels for the custom fields were not
   included in the email messages.
+= #321653 by shane_jordan: Fixed bug where if a signup administrator
+  canceled an anonymous signup on a given node, all of that anonymous
+  user's signups were also canceled.  This bug was from the original
+  implementation of anonymous signup support (#68497).
 = #145749 by schittli: Added German (de) translation.
 
 
