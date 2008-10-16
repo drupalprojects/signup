@@ -724,6 +724,41 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
 }
 
 /**
+ * Controls the output displayed if this node is closed for signups.
+ *
+ * @param $node
+ *   The fully loaded node object.
+ * @param $current_signup
+ *   If the user already signed up, an HTML representation of their current
+ *   signup information, otherwise an empty string.
+ *
+ * @return
+ *   Themed output to display for a node with closed signups.
+ *
+ * @see _signup_node_output()
+ * @see _signup_print_current_signup()
+ */
+function theme_signup_signups_closed($node, $current_signup = '') {
+  $output = '<h3>'. t('Signups closed for this event') .'</h3>';
+  $output .= $current_signup;
+  return $output;
+}
+
+/**
+ * Controls the output for anonymous users who can't signup.
+ *
+ * @param $anon_login_text
+ *   The translated HTML help text telling users to login (and if allowed on
+ *   this site, register) so they can signup, including login/register links.
+ *
+ * @return
+ *   The themed HTML to display the login (and maybe register) help text.
+ */
+function theme_signup_anonymous_user_login_text($anon_login_text) {
+  return '<div class="signup_anonymous_login">' . $anon_login_text . '</div>';
+}
+
+/**
  * Generate all the signup-related output for a given node.
  *
  * Because of the global setting to control if the signup details and form
@@ -751,62 +786,60 @@ function _signup_node_output($node, $type = 'node') {
   // signup permissions.  Let them know it's closed.
   if (!$node->signup_status) {
     if (user_access('sign up for content')) {
-      $output = '<h3>'. t('Signups closed for this event') .'</h3>';
+      $current_signup = '';
       // If they're logged in and already signed up, show their current
       // signup info and give them the option to cancel.
       if ($user->uid) {
         $result = db_query("SELECT signup_time, form_data FROM {signup_log} WHERE uid = %d AND nid = %d", $user->uid, $node->nid);
         if (db_num_rows($result)) {
           $signup_info = db_fetch_object($result);
-          $output .= _signup_print_current_signup($node, $signup_info);
+          $current_signup = _signup_print_current_signup($node, $signup_info);
         }
       }
+      $output .= theme('signup_signups_closed', $node, $current_signup);
     }
   }
   else {
-    $signup_type = 'auth';
+    $fieldset = $type == 'node' ? TRUE : FALSE;
     if ($user->uid == 0) {
-      // This is an anonymous user. If they have signup permissions,
-      // then build the anon portion of the sigup form.  If not, then
-      // display the login link.
-      $login_array = array(
-        '!login' => l(t('login'), 'user/login', array(), drupal_get_destination()),
-        '!register' => l(t('register'), 'user/register', array(), drupal_get_destination()),
-        );
+      // This is an anonymous user.
       if (user_access('sign up for content')) {
-        $needs_signup_form = TRUE;
-        $signup_type = 'anon';
+        // If they can signup, render the anonymous sigup form.
+        $output .= drupal_get_form('signup_form', $node, 'anon', $fieldset);
       }
       else {
-        $needs_signup_form = FALSE;
+        // If not, then display the appropriate login/register link.
+        $login_array = array(
+          '!login' => l(t('login'), 'user/login', array(), drupal_get_destination()),
+          '!register' => l(t('register'), 'user/register', array(), drupal_get_destination()),
+        );
         if (variable_get('user_register', 1) == 0) {
           $anon_login_text = t('Please !login to sign up for this event.', $login_array); 
         }
         else {
           $anon_login_text = t('Please !login or !register to sign up for this event.', $login_array);
         }
-        $output .= '<div class="signup_anonymous_login">'. $anon_login_text .'</div>';
+        $output .= theme('signup_anonymous_user_login_text', $anon_login_text);
       }
     }
     else {
+      // An authenticated user.
+
       // See if the user is already signed up for this node.
       $result = db_query("SELECT signup_time, form_data FROM {signup_log} WHERE uid = %d AND nid = %d", $user->uid, $node->nid);
-      $needs_signup_form = db_num_rows($result) == 0;
-    }
-
-    if ($needs_signup_form) {
-      // User isn't signed up, so check to make sure they have signup
-      // permissions, and if so, print the themed signup form.
-      if (user_access('sign up for content')) {
-        $fieldset = $type == 'node' ? TRUE : FALSE;
-        $output = drupal_get_form('signup_form', $node, $signup_type, $fieldset);
+      $signup_info = NULL;
+      if (db_num_rows($result) == 0) {
+        // Not yet signed up
+        if (user_access('sign up for content')) {
+          // User has permission to do so, so give them the form.
+          $output .= drupal_get_form('signup_form', $node, 'auth', $fieldset);
+        }
       }
-    }
-    else if ($user->uid !== 0 && isset($result)) {
-      // The authenticated user is already signed up, so print a table
-      // of their signup data, and give them the option to cancel.
-      $signup_info = db_fetch_object($result);
-      $output .= _signup_print_current_signup($node, $signup_info);
+      else {
+        // Already signed up, display their info.
+        $signup_info = db_fetch_object($result);
+        $output .= _signup_print_current_signup($node, $signup_info);
+      }
     }
   }
 
@@ -892,14 +925,55 @@ function signup_node_tab($node) {
   return _signup_node_output($node, 'tab');
 }
 
-function _signup_print_current_signup($node, $signup_info) {
-  $form_data = unserialize($signup_info->form_data);
-  $output = '';
-  $output .= theme('signup_custom_data_table', $form_data);
-  if (user_access('cancel own signups')) {
-    $output .= drupal_get_form('signup_form_cancel', $node);
-  }
+/**
+ * Controls the output of the users signup data and optional cancel button.
+ *
+ * @param $signup_data
+ *   Array containing information about the user's signup.  Contains:
+ *   'signup_timestamp' - Integer timestamp when the user signed up.
+ *   'custom_data' - Array containing the user's custom signup data.
+ * @param $cancel_signup_form
+ *   Optional HTML for a "Cancel signup" button if the user is allowed.
+ * @return
+ *   Themed output containing the user's current signup information.
+ */
+function theme_signup_current_signup($signup_data, $cancel_signup_form = '') {
+  $output = theme('signup_custom_data_table', $signup_data['custom_data']);
+  $output .= $cancel_signup_form;
   return $output;
+}
+
+/**
+ * Helper function to display the current user's signup information.
+ *
+ * Contains the logic to determine what should be displayed, then invokes the
+ * appropriate form builder and theme functions.
+ *
+ * @param $node
+ *   The fully-loaded node object to display signup data about.
+ * @param $signup_info
+ *   Database object with information about the signup to display.
+ *
+ * @return
+ *   Themed HTML to output for the given node and signup.
+ *
+ * @see theme_signup_current_signup()
+ */
+function _signup_print_current_signup($node, $signup_info) {
+  // Generate an array of data about the current signup for the theme function.
+  $signup_data = array();
+  $signup_data['custom_data'] = unserialize($signup_info->form_data);
+  $signup_data['signup_timestamp'] = $signup_info->signup_time;
+
+  // See if the current user is allowed to cancel their signup, and if so,
+  // render the HTML for the cancel form (which is just a single button).
+  $cancel_signup_form = '';
+  if (user_access('cancel own signups')) {
+    $cancel_signup_form = drupal_get_form('signup_form_cancel', $node);
+  }
+
+  // Hand off everything to the theme function for actual HTML generation.
+  return theme('signup_current_signup', $signup_data, $cancel_signup_form);
 }
 
 /**
@@ -1008,14 +1082,37 @@ function signup_form_cancel($node) {
 }
 
 /**
+ * Controls the output of the signup administration overview page.
+ *
+ * This page is located at admin/content/signup, and allows site-wide signup
+ * administrators to view signup-related information, close/open signups, etc,
+ * for all signup-enabled nodes on the site.  There's a form to filter the
+ * results by signup status, which is rendered at the top of the page by
+ * default.
+ *
+ * @param $filter_status_form
+ *   HTML representation of the signup status filter form.
+ * @param $signup_admin_form
+ *   HTML representation of the main signup administration form.
+ *
+ * @return
+ *   Themed output for the signup administration overview page.
+ */
+function theme_signup_admin_page($filter_status_form, $signup_admin_form) {
+  $output = $filter_status_form;
+  $output .= $signup_admin_form;
+  return $output;
+}
+
+/**
  * Prints the admin signup overview page located at admin/content/signup
  * @ingroup signup_callback
  */
 function signup_admin_page() {
   drupal_add_css(drupal_get_path('module', 'signup') .'/signup.css');
-  $output = drupal_get_form('signup_filter_status_form');
-  $output .= drupal_get_form('signup_admin_form');
-  return $output;
+  $filter_status_form = drupal_get_form('signup_filter_status_form');
+  $signup_admin_form = drupal_get_form('signup_admin_form');
+  return theme('signup_admin_page', $filter_status_form, $signup_admin_form);
 }
 
 function signup_filter_status_form() {
