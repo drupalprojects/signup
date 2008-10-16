@@ -68,6 +68,10 @@ Bug fixes since 5.x-2.4:
   included in the email messages.
 = #278739 by dww: Fixed incorrect start date on signup administration
   page (admin/content/signup) when using event 5.x-2.*.
+= #321653 by shane_jordan: Fixed bug where if a signup administrator
+  canceled an anonymous signup on a given node, all of that anonymous
+  user's signups were also canceled.  This bug was from the original
+  implementation of anonymous signup support (#68497).
 
 Other changes since 5.x-2.4:
 = Removed the deprecated (4.7.x) signup_ecommerce code since it now
