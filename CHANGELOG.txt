@@ -79,6 +79,22 @@ Bug fixes since 5.x-2.4:
   signup' help text was printed even if regular authenticated users
   couldn't signup.
 
+New theme functions (see the comments in the code for more info):
+= #47913: theme_signup_current_signup()
+= #47913: theme_signup_signups_closed()
+= #47913: theme_signup_anonymous_user_login_text()
+= #47913: theme_signup_admin_page()
+= #137609: theme_signup_custom_data()
+= #137609: theme_signup_custom_data_email()
+= #137609: theme_signup_custom_data_table()
+= #137609: theme_signup_custom_data_rows()
+= #137609: theme_signup_email_token_custom_data()
+= #290734: theme_signup_email_token_anonymous_username()
+= #243035: theme_signup_user_list()
+= #273072: theme_signup_node_admin_page()
+= #285626: theme_signup_token_help()
+= #310677: theme_signup_broadcast_sender_copy()
+
 Other changes since 5.x-2.4:
 = Removed the deprecated (4.7.x) signup_ecommerce code since it now
   lives in a new project: http://drupal.org/project/signup_ecommerce
