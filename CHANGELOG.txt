@@ -75,6 +75,9 @@ Bug fixes since 5.x-2.4:
   canceled an anonymous signup on a given node, all of that anonymous
   user's signups were also canceled.  This bug was from the original
   implementation of anonymous signup support (#68497).
+= #321463 by dww: Fixed UI bug where the 'Please login or register to
+  signup' help text was printed even if regular authenticated users
+  couldn't signup.
 
 Other changes since 5.x-2.4:
 = Removed the deprecated (4.7.x) signup_ecommerce code since it now
