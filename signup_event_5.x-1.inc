@@ -81,7 +81,41 @@ function signup_extra_tokens() {
 function signup_format_date($node) {
   include_once(drupal_get_path('module', 'event') .'/event_timezones.inc');
   $offset = intval(variable_get('date_default_timezone', 0));
-  return $node->event_start ? _event_date(variable_get('signup_date_format', 'small'), $node->event_start, $offset) : t('[Untimed]');
+  $format = _signup_get_date_format();
+  return $node->event_start ? _event_date($format, $node->event_start, $offset) : t('[Untimed]');
+}
+
+/**
+ * Helper function to get the date format string to use based on settings.
+ *
+ * Sadly, there's nothing in core to provide this info based on the
+ * core format settings (small, medium, large), so this code is lifted
+ * from format_date() from includes/common.inc in core.  This is
+ * necessary for the event module 5.x-1.* backend, since event uses
+ * its own proprietary _event_date() function instead of
+ * format_date().
+ *
+ * @return
+ *   The date format string to used based on the current value of the
+ *   'signup_date_format' setting and the core format strings.
+ */
+function _signup_get_date_format() {
+  $format = '';
+  switch (variable_get('signup_date_format', 'small')) {
+    case 'small':
+      $format = variable_get('date_format_short', 'm/d/Y - H:i');
+      break;
+    case 'large':
+      $format = variable_get('date_format_long', 'l, F j, Y - H:i');
+      break;
+    case 'custom':
+      // No change to format
+      break;
+    case 'medium':
+    default:
+      $format = variable_get('date_format_medium', 'D, m/d/Y - H:i');
+  }
+  return $format;
 }
 
 /**
