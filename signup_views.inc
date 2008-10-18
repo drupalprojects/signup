@@ -446,7 +446,7 @@ print l(t("View signup schedule"), "user/$user->uid/signups");
   // user hasn't replied to and the "Available signups" block.
   $view = new stdClass();
   $view->name = 'signup_available_signups';
-  $view->description = t('A view of all available signups (signup-enabled content the user has not replied to).');
+  $view->description = t('A view of all open signups the user has not replied to.');
   $view->access = array();
   $view->view_args_php = 'if ($type == \'block\') {
   global $user;
