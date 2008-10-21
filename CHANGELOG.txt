@@ -46,6 +46,8 @@ Changes since 5.x-1.0:
 = #321463 by dww: Fixed UI bug where the 'Please login or register to
   signup' help text was printed even if regular authenticated users
   couldn't signup.
+= #322924 by dww: Fixed potential PHP error when generating the signup
+  form resulting from an uninitialized variable.
 = #145749 by schittli: Added German (de) translation.
 
 

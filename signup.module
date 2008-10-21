@@ -549,6 +549,7 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
       // a page, not during the view from comment validation, etc.
       if ($node->signup && $page && !in_array(TRUE, $suppress)) {
         global $user;
+        $anon_signup_form = array();
 
         // The node has been closed for signups, and the user has
         // signup permissions.  Let them know it's closed.
@@ -652,7 +653,7 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
  * Builder function for the signup form
  * @ingroup signup_callback
  */
-function signup_form($node, $anon_signup_form = NULL) {
+function signup_form($node, $anon_signup_form = array()) {
   global $user;
 
   $form['nid'] = array('#type' => 'value', '#value' => $node->nid);
@@ -668,7 +669,7 @@ function signup_form($node, $anon_signup_form = NULL) {
   // Build the themed signup form.  If the anon signup form is
   // present, merge it in at the end of the form.
   $signup_themed_form = theme('signup_user_form');
-  if (isset($anon_signup_form)) {
+  if (!empty($anon_signup_form)) {
     $signup_themed_form = array_merge($signup_themed_form, $anon_signup_form);
   }
   $form['collapse']['signup_user_form'] = $signup_themed_form;
