@@ -1,7 +1,7 @@
 $Id$
 
 -----------
-5.x-2.x-dev
+5.x-2.5
 -----------
 New features since 5.x-2.4:
 = #243035 by dww, deviantintegral and stBorchert: Added a default view
