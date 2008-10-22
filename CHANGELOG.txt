@@ -3,6 +3,14 @@ $Id$
 -----------
 5.x-2.5
 -----------
+Potential information disclosure bugs fixed with this release:
+= #219680 by dww: Fixed bug where the email address of users who signup
+  was being sent in the notification emails to event owners, which is an
+  inadvertent disclosure of personal information.  Now, only a link to
+  the user's profile is included.
+= #310307 by dww: Added a filter for published nodes to the default
+  views for the 'Signups' tab on user profile pages.
+
 New features since 5.x-2.4:
 = #243035 by dww, deviantintegral and stBorchert: Added a default view
   for the users signed up for a node ('signup_user_list'), a theme
@@ -19,17 +27,23 @@ New features since 5.x-2.4:
   sortable by username or signup time.
 = #310677 by stBorchert and dww: Added the ability for the sender of a
   broadcast message to send themselves a copy.
-= #273072 by dww: Added a theme function for the node/N/signups signup
-  administration tab (theme_signup_node_admin_page()), and changed the
-  default appearance of that page to be more visually consistent.
 = #132142 by dww: Added a setting to control which site-wide date
   format string to use for rendering dates in the administrative UI
   and in the email messages.
+= #273072 by dww: Added a theme function for the node/N/signups signup
+  administration tab (theme_signup_node_admin_page()), and changed the
+  default appearance of that page to be more visually consistent.
 = #47913 by dww and stBorchert: Added significantly more themeability
   for what appears on signup-enabled nodes and for the the signup
   administration overview page.
 
 Bug fixes since 5.x-2.4:
+= #321653 by shane_jordan: Fixed bug where if a signup administrator
+  canceled an anonymous signup on a given node, all of that anonymous
+  user's signups were also canceled.  This bug was from the original
+  implementation of anonymous signup support (#68497).
+= #233512 by dww and tcocca: Added code to cancel all signups of users
+  that are deleted from the site.
 = #259301 by dww: Fixed bug where the code assumes you want additional
   fields in your signup form. Signup now handles an empty return value
   from theme_signup_user_form().
@@ -37,29 +51,28 @@ Bug fixes since 5.x-2.4:
   invoking hook_signup_sign_up().
 = #224162 by dww: Fixed bug where all broadcasts were sent as the site
   owner.
-= #233512 by dww and tcocca: Added code to cancel all signups of users
-  that are deleted from the site.
 = #247618 by selmanj and dww: Fixed bug where "... or register ..." was
   printed even on sites that have user registration disabled.
+= #321463 by dww: Fixed UI bug where the 'Please login or register to
+  signup' help text was printed even if regular authenticated users
+  couldn't signup.
 = #243051 by dww: Fixed bugs and simplified logic for deciding if the
   "Signup settings" fieldset should be added to node forms or not.
 = #219678 by dww: Changed email notification to event owner to omit
   "Date/Time: [Untimed]" if the event has no time.
 = #290740 by deviantintegral and dww: If 'site_mail' is undefined, 
-  use the 'sendmail_from' PHP ini setting as the fall-back value.
+  use the 'sendmail_from' PHP ini setting as the fall-back value for
+  the From address in e-mails sent by this module.
+= #278739 by dww: Fixed incorrect start date on signup administration
+  page (admin/content/signup) when using event 5.x-2.*.
 = #213239 by dww: Fixed UI bug where event-specific features (e.g.
   reminder email) were shown on nodes that don't have a start time.
+= #247573 by dww: Fixed UI bug where the form for administrators to
+  signup other users (#174715) was shown even if signups were closed
+  on that node.
 = #293157 by dww: Fixed bug where the '!login' placeholder was not
   expanded in the help text for the e-mail field when anonymous users
   can signup. This bug was introduced in version 5.x-2.4 via #174715.
-= #219680 by dww: Fixed bug where the email address of users who signup
-  was being sent in the notification emails to event owners, which is an
-  inadvertent disclosure of personal information.  Now, only a link to
-  the user's profile is included.
-= #247573 by dww: Fixed UI bug where the form for administrators to
-  signup other users was shown even if signups were closed on that node.
-= #310307 by dww: Added a filter for published nodes to the default
-  views for the 'Signups' tab on user profile pages.
 = #290734 by dww: Cleaned up, unified, and fixed handling of the
   hard-coded signup email tokens.  In particular, %username is now
   properly handled for anonymous signups by means of a new theme
@@ -69,15 +82,6 @@ Bug fixes since 5.x-2.4:
   user, the signup administrator, and in the email messages.  This also
   fixes a bug (#178441) where the labels for the custom fields were not
   included in the email messages.
-= #278739 by dww: Fixed incorrect start date on signup administration
-  page (admin/content/signup) when using event 5.x-2.*.
-= #321653 by shane_jordan: Fixed bug where if a signup administrator
-  canceled an anonymous signup on a given node, all of that anonymous
-  user's signups were also canceled.  This bug was from the original
-  implementation of anonymous signup support (#68497).
-= #321463 by dww: Fixed UI bug where the 'Please login or register to
-  signup' help text was printed even if regular authenticated users
-  couldn't signup.
 
 New theme functions (see the comments in the code for more info):
 = #47913: theme_signup_current_signup()
@@ -98,9 +102,10 @@ New theme functions (see the comments in the code for more info):
 Other changes since 5.x-2.4:
 = Removed the deprecated (4.7.x) signup_ecommerce code since it now
   lives in a new project: http://drupal.org/project/signup_ecommerce
+= #309668 by slybud: Added a French (fr) translation.
 = #289326 by starbow and dww: Added two new functions to the event
   backend API for knowing if a node type or a node has a start time.
-= #309668 by slybud: Added a French (fr) translation.
+= #322528: Simplified the description of the signup_available_signups view.
 
 
 -----------
