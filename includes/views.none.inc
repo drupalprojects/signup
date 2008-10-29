@@ -6,7 +6,7 @@
  * Provides all the code for required UI elements for sites that do
  * not have views.module enabled. If views is enabled, there are
  * default views for all of these things (which are therefore
- * customizable and more powerful) in signup_views.inc.
+ * customizable and more powerful) in signup/views/views.inc.
  *
  */
 

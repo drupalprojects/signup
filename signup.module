@@ -240,10 +240,10 @@ function signup_menu($may_cache) {
     // only should happen if views is not enabled.
     $signup_path = './'. drupal_get_path('module', 'signup');
     if (module_exists('views')) {
-      require_once($signup_path .'/signup_views.inc');
+      require_once($signup_path .'/views/views.inc');
     }
     else {
-      require_once($signup_path .'/signup_no_views.inc');
+      require_once($signup_path .'/includes/views.none.inc');
       signup_no_views_menu($items, $may_cache);
     }
 
@@ -292,18 +292,18 @@ function signup_menu($may_cache) {
 function _signup_initialize_event_backend() {
   define('SIGNUP_PATH', drupal_get_path('module', 'signup'));
   if (defined('EVENT_API') && EVENT_API == '5.2') {
-    include_once(SIGNUP_PATH .'/signup_event_5.x-2.inc');
+    require_once(SIGNUP_PATH .'/includes/event.5x-2.inc');
   }
   else if (module_exists('event')) {
-    include_once(SIGNUP_PATH .'/signup_event_5.x-1.inc');
+    require_once(SIGNUP_PATH .'/includes/event.5x-1.inc');
   }
   else if (module_exists('date')) {
-    // include_once(SIGNUP_PATH .'/signup_date.inc');
+    // require_once(SIGNUP_PATH .'/signup_date.inc');
     // Until date.module support exists, fall back to the no event case.
-    include_once(SIGNUP_PATH .'/signup_event_none.inc');
+    require_once(SIGNUP_PATH .'/includes/event.none.inc');
   }
   else {
-    include_once(SIGNUP_PATH .'/signup_event_none.inc');
+    require_once(SIGNUP_PATH .'/includes/event.none.inc');
   }
 }
 
@@ -358,7 +358,7 @@ function signup_user($type, &$edit, &$user, $category = NULL) {
   // schedule to their user profile page.
   if (!module_exists('views')) {
     $signup_path = './'. drupal_get_path('module', 'signup');
-    require_once($signup_path .'/signup_no_views.inc');
+    require_once($signup_path .'/includes/views.none.inc');
     return _signup_user_no_views($type, $edit, $user, $category);
   }
 }
@@ -486,7 +486,7 @@ function signup_alter_node_form($form_id, &$form) {
 
     // Add the actual settings.  We wrap this in a div to make it easy
     // to use jQuery to hide these settings when signups are disabled.
-    drupal_add_js(drupal_get_path('module', 'signup') .'/signup.js');
+    drupal_add_js(drupal_get_path('module', 'signup') .'/js/node_form.js');
     drupal_add_css(drupal_get_path('module', 'signup') .'/signup.css');
     $form['signup']['node_settings'] = array(
       '#prefix' => '<div class="'. $settings_class .'">',
@@ -1004,7 +1004,7 @@ function _signup_print_current_signup($node, $signup_info) {
  */
 function signup_form($node, $signup_type = 'auth', $fieldset = TRUE) {
   global $user;
-  include_once(SIGNUP_PATH .'/signup.theme');
+  require_once(SIGNUP_PATH .'/theme/signup.theme');
 
   $form = array();
   $form['nid'] = array('#type' => 'value', '#value' => $node->nid);
@@ -1427,7 +1427,7 @@ function signup_settings_page() {
   // The rest of the advanced settings are conditional on if/where the signup
   // form is being displayed.  We use jQuery to hide settings when they're not
   // relevant.
-  drupal_add_js(SIGNUP_PATH . '/signup.settings.js');
+  drupal_add_js(SIGNUP_PATH . '/js/admin.settings.js');
   drupal_add_css(SIGNUP_PATH . '/signup.css');
 
   // For each setting that should be hidden, signup.css will hide all the
@@ -2508,7 +2508,7 @@ function theme_signup_broadcast_sender_copy($raw_message, $cooked_message) {
  * @see _signup_views_tables()
  */
 function signup_views_tables() {
-  require_once(drupal_get_path('module', 'signup') .'/signup_views.inc');
+  require_once(drupal_get_path('module', 'signup') .'/views/views.inc');
   return _signup_views_tables();
 }
 
@@ -2518,7 +2518,7 @@ function signup_views_tables() {
  * @see _signup_views_arguments()
  */
 function signup_views_arguments() {
-  require_once(drupal_get_path('module', 'signup') .'/signup_views.inc');
+  require_once(drupal_get_path('module', 'signup') .'/views/views.inc');
   return _signup_views_arguments();
 }
 
@@ -2528,7 +2528,7 @@ function signup_views_arguments() {
  * @see _signup_views_default_views()
  */
 function signup_views_default_views() {
-  require_once(drupal_get_path('module', 'signup') .'/signup_views.inc');
+  require_once(drupal_get_path('module', 'signup') .'/views/views.inc');
   return _signup_views_default_views();
 }
 

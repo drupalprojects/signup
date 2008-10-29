@@ -10,7 +10,7 @@
  *
  * Additionally, default views for standard parts of the signup UI are
  * defined here.  If views is not enabled, these UI elements are
- * implemented in signup_no_views.inc.
+ * implemented in signup/includes/views.none.inc.
  */
 
 /**
