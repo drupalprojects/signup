@@ -4,6 +4,7 @@ $Id$
 5.x-2.x-dev
 -----------
 Changes since 5.x-2.5:
+= #327726: Reorganized the directory layout of the code.
 
 
 -----------
