@@ -11,6 +11,10 @@ New features since 5.x-2.5:
   CCK date functionality if event.module is still enabled.
 = #321531 by stBorchert and dww: Exposed the signup form as a panel pane.
 
+Bugs fixed since 5.x-2.5:
+= #327417 by dww: Fixed bug where reminder emails always used
+  '[Untimed]' for the %time token with event 5.x-2.*.
+
 Other changes since 5.x-2.5:
 = #327726 by dww: Reorganized the directory layout of the code.
 

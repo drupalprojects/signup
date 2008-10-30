@@ -82,7 +82,14 @@ function signup_extra_tokens() {
 }
 
 function signup_format_date($node) {
-  return $node->event['start'] ? event_format_date(event_explode_date($node->event['start']), variable_get('signup_date_format', 'medium')) : t('[Untimed]');
+  $event_date = array();
+  if (!empty($node->event['start'])) {
+    $event_date = event_explode_date($node->event['start']);
+  }
+  elseif (!empty($node->event_start)) {
+    $event_date = event_explode_date($node->event_start);
+  }
+  return !empty($event_date) ? event_format_date($event_date, variable_get('signup_date_format', 'medium')) : t('[Untimed]');
 }
 
 /**
