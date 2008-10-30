@@ -4,7 +4,7 @@
 /**
  * @return Array of SQL clauses for cron reminder email query builder.
  */
-function signup_reminder_sql() {
+function signup_reminder_sql($content_type = NULL) {
   // We must manually include this here as the event module doesn't
   // include timezone support on all page requests.
   include_once(drupal_get_path('module', 'event') .'/event_timezones.inc');
@@ -18,7 +18,7 @@ function signup_reminder_sql() {
 /**
  * @return Array of SQL clauses for cron auto-close query builder.
  */
-function signup_autoclose_sql() {
+function signup_autoclose_sql($content_type = NULL) {
   // We must manually include this here as the event module doesn't
   // include timezone support on all page requests.
   include_once(drupal_get_path('module', 'event') .'/event_timezones.inc');
@@ -32,7 +32,7 @@ function signup_autoclose_sql() {
 /**
  * @return Array of SQL clauses for admin overview page query builder.
  */
-function signup_admin_sql() {
+function signup_admin_sql($content_type = NULL) {
   $fields = array('e.event_start', 'e.timezone');
   return array(
     'fields' => $fields,
@@ -53,7 +53,7 @@ function signup_admin_form_extra($signup_event) {
   );
 }
 
-function signup_list_user_signups_sql() {
+function signup_list_user_signups_sql($content_type = NULL) {
   return "SELECT n.nid, n.title, e.event_start FROM {node} n INNER JOIN {signup_log} s_l ON n.nid = s_l.nid LEFT JOIN {event} e ON e.nid = n.nid WHERE s_l.uid = %d AND (e.event_start >= ". time() ." OR e.event_start IS NULL) ORDER BY e.event_start";
 }
 
@@ -139,6 +139,17 @@ function theme_signup_event_dates($node) {
     $output .= '<div class="signup-user-schedule"><div class="'. $node->type .'signup-untimed">'. t('[Untimed]') .'</div></div>';
   }
   return $output;
+}
+
+/**
+ * Return a list of fields used for signup functionality.
+ *
+ * For the event* backends, this just returns the name 'Event' so that we
+ * invoke the event backend with something, but the field names and content
+ * types are ignored since we're just using the event module, not CCK.
+ */
+function signup_content_type_fields() {
+  return array('Event');
 }
 
 /**

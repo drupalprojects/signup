@@ -4,7 +4,7 @@
 /**
  * @return Array of SQL clauses for cron reminder email query builder.
  */
-function signup_reminder_sql() {
+function signup_reminder_sql($content_type = NULL) {
   global $db_type;
   event_include_files();
   switch ($db_type) {
@@ -25,7 +25,7 @@ function signup_reminder_sql() {
 /**
  * @return Array of SQL clauses for cron auto-close query builder.
  */
-function signup_autoclose_sql() {
+function signup_autoclose_sql($content_type = NULL) {
   event_include_files();
   return array(
     'fields' => array(event_select(), 'e.timezone'),
@@ -37,7 +37,7 @@ function signup_autoclose_sql() {
 /**
  * @return Array of SQL clauses for admin overview page query builder.
  */
-function signup_admin_sql() {
+function signup_admin_sql($content_type = NULL) {
   return array(
     'fields' => array(event_select(), 'e.timezone'),
     'group_by' => array('event_start', 'e.timezone'),
@@ -56,7 +56,7 @@ function signup_admin_form_extra($signup_event) {
   );
 }
 
-function signup_list_user_signups_sql() {
+function signup_list_user_signups_sql($content_type = NULL) {
   return 'SELECT n.nid, n.title, '. event_select() .' FROM {node} n INNER JOIN {signup_log} s_l ON n.nid = s_l.nid '. event_join('n', 'LEFT') .' WHERE s_l.uid = %d AND ('. event_where() ." >= '". event_implode_date(_event_user_time()) ."' OR e.event_start IS NULL) ORDER BY event_start";
 }
 
@@ -83,6 +83,17 @@ function signup_extra_tokens() {
 
 function signup_format_date($node) {
   return $node->event['start'] ? event_format_date(event_explode_date($node->event['start']), variable_get('signup_date_format', 'medium')) : t('[Untimed]');
+}
+
+/**
+ * Return a list of fields used for signup functionality.
+ *
+ * For the event* backends, this just returns the name 'Event' so that we
+ * invoke the event backend with something, but the field names and content
+ * types are ignored since we're just using the event module, not CCK.
+ */
+function signup_content_type_fields() {
+  return array('Event');
 }
 
 /**

@@ -3,8 +3,15 @@ $Id$
 -----------
 5.x-2.x-dev
 -----------
-Changes since 5.x-2.5:
+New features since 5.x-2.5:
+= #86462 by KarenS, dww, duellj, shane_jordan, and stBorchert: Added
+  support to use CCK date fields to control time-based functionality
+  (auto-closing signups and reminder emails). Currently works with
+  date.module versions 5.x-1.* and 5.x-2.*, though you can not use the
+  CCK date functionality if event.module is still enabled.
 = #321531 by stBorchert and dww: Exposed the signup form as a panel pane.
+
+Other changes since 5.x-2.5:
 = #327726 by dww: Reorganized the directory layout of the code.
 
 
