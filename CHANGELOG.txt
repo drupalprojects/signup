@@ -5,7 +5,7 @@ $Id$
 -----------
 Changes since 5.x-2.5:
 = #321531 by stBorchert and dww: Exposed the signup form as a panel pane.
-= #327726: Reorganized the directory layout of the code.
+= #327726 by dww: Reorganized the directory layout of the code.
 
 
 -----------

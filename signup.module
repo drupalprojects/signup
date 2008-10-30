@@ -2528,7 +2528,7 @@ function signup_views_arguments() {
  * @see _signup_views_default_views()
  */
 function signup_views_default_views() {
-  require_once(drupal_get_path('module', 'signup') .'/views/views.inc');
+  require_once(drupal_get_path('module', 'signup') .'/views/views_default.inc');
   return _signup_views_default_views();
 }
 
