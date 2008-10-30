@@ -2637,3 +2637,19 @@ function _signup_get_email_tokens($node, $signup) {
   }
   return $tokens;
 }
+
+/**
+ * Implementation of hook_panels_include_directory()
+ *
+ * @param $plugin_type
+ *   The plugin type for which the Panels engine is currently requesting the
+ *   location of an include directory.
+ * @return
+ *   The location of the include directory for plugin type being requested,
+ *   relative to the base directory of the module implementing this hook.
+ */
+function signup_panels_include_directory($plugin_type) {
+  if ($plugin_type == 'content_types') {
+    return 'panels/' . $plugin_type;
+  }
+}
