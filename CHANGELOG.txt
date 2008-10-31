@@ -13,6 +13,9 @@ New features since 5.x-2.5:
 Bugs fixed since 5.x-2.5:
 = #327417 by dww: Fixed bug where reminder emails always used
   '[Untimed]' for the %time token with event 5.x-2.*.
+= #327417 by dww: Fixed bugs regarding timezones and other date logic
+  for auto-close and reminder emails with event 5.x-2.*.  Also cleaned
+  up the same date logic for the event 5.x-1.* support.
 = #328637 by dww: Fixed bug where error messages generated while
   validating an anonymous user's email address weren't translatable.
 

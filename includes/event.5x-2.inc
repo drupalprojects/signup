@@ -10,10 +10,10 @@ function _signup_event_reminder_sql($content_type) {
   switch ($db_type) {
     case 'mysql':
     case 'mysqli':
-      $where = array("('". date('Y-m-d H:i:s') ."' + INTERVAL s.reminder_days_before DAY ) > ". event_where_utc());
+      $where = array("('". gmdate('Y-m-d H:i:s') ."' > (". event_where_utc() ." - INTERVAL s.reminder_days_before DAY))");
       break;
     case 'pgsql':
-      $where = array("('". date('Y-m-d H:i:s') ."' + INTERVAL 's.reminder_days_before days' ) > ". event_where_utc());
+      $where = array("('". gmdate('Y-m-d H:i:s') ."' > (". event_where_utc() ." - INTERVAL 's.reminder_days_before days'))");
   }
   return array(
     'fields' => array(event_select(), 'e.timezone'),
@@ -30,7 +30,7 @@ function _signup_event_autoclose_sql($content_type) {
   return array(
     'fields' => array(event_select(), 'e.timezone'),
     'joins' => array(event_join('s')),
-    'where' => array(event_where_utc() ." < '". date('Y-m-d H:i:s', time() + variable_get('signup_close_early', 1) * 3600) ."'"),
+    'where' => array(event_where_utc() ." < '". gmdate('Y-m-d H:i:s', time() + (variable_get('signup_close_early', 1) * 3600)) ."'"),
   );
 }
 
@@ -51,8 +51,8 @@ function _signup_event_admin_sql($content_type = NULL) {
  */
 function _signup_event_node_completed($node) {
   if (isset($node->event)) {
-    $closing_time = date('Y-m-d H:i:s', time() + (variable_get('signup_close_early', 1) * 3600));
-    if (event_is_later($closing_time, $node->event['start_utc'], 'string')) {
+    $closing_time = gmdate('Y-m-d H:i:s', time() - (variable_get('signup_close_early', 1) * 3600));
+    if (event_is_later($node->event['start_utc'], $closing_time, 'string')) {
       return TRUE;
     }
   }

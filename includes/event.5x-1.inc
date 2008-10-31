@@ -11,7 +11,7 @@ function _signup_event_reminder_sql($content_type) {
   return array(
     'fields' => array('e.event_start', 'e.timezone'),
     'joins' => array('INNER JOIN {event} e ON e.nid = n.nid'),
-    'where' => array('('. time() .' + ((s.reminder_days_before) * 86400)) > e.event_start'),
+    'where' => array('(' . time() . ' > (e.event_start - ((s.reminder_days_before) * 86400)))'),
   );
 }
 
@@ -25,7 +25,7 @@ function _signup_event_autoclose_sql($content_type) {
   return array(
     'fields' => array('e.event_start', 'e.timezone'),
     'joins' => array('INNER JOIN {event} e ON e.nid = s.nid'),
-    'where' => array('e.event_start < '. (time() + (variable_get('signup_close_early', 1) * 3600))),
+    'where' => array('(' . time() . ' > (e.event_start - ' . (variable_get('signup_close_early', 1) * 3600) . '))'),
   );
 }
 
@@ -48,8 +48,8 @@ function _signup_event_admin_sql($content_type = NULL) {
  */
 function _signup_event_node_completed($node) {
   if (isset($node->event_start)) {
-    $closing_time = time() + (variable_get('signup_close_early', 1) * 3600);
-    if ($node->event_start < $closing_time) {
+    $closing_time = $node->event_start - (variable_get('signup_close_early', 1) * 3600);
+    if (time() > $closing_time) {
       return TRUE;
     }
   }
