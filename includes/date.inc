@@ -1,6 +1,7 @@
 <?php
 // $Id$
 
+
 /**
  * @file
  * Shared code required for any site using CCK date fields, regardless of the
@@ -8,6 +9,7 @@
  */
 
 /**
+ *
  * @return Array of SQL clauses for admin overview page query builder.
  */
 function _signup_date_admin_sql($content_type) {
@@ -218,7 +220,7 @@ function signup_date_field_check_config($type, $name) {
     $signup_date_field = signup_date_field($type);
     if ($signup_date_field != 'none') {
       // Administrator hasn't specifically turned off date support...
-      if (signup_field_names($type)) { 
+      if (signup_field_names($type)) {
         // Node type has some date fields...
         if ($signup_date_field == 0) {
           drupal_set_message(t('You have enabled the %node_type content type for signups, and have added one or more date fields, but have not selected a date field for use with signup.', array('%node_type' => $name)), 'warning');
@@ -255,3 +257,4 @@ function _signup_get_date_field_options($type) {
   $options += array('none' => t('<None>'));
   return $options;
 }
+

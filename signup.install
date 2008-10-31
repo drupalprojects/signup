@@ -1,6 +1,7 @@
 <?php
 // $Id$
 
+
 /**
  * Implementation of hook_install()
  *
@@ -141,15 +142,14 @@ function signup_update_3() {
       $ret[] = update_sql("ALTER TABLE {signup_log} DROP INDEX uid_nid;");
       $ret[] = update_sql("ALTER TABLE {signup_log} ADD INDEX (uid);");
       $ret[] = update_sql("ALTER TABLE {signup_log} ADD INDEX (nid);");
-    break;
+      break;
 
     case 'pgsql':
       db_add_column($ret, 'signup_log', 'anon_mail', 'text', array('not null' => TRUE, 'default' => "''"));
       $ret[] = update_sql("DROP INDEX {signup_log}_uid_nid_idx;");
       $ret[] = update_sql("CREATE INDEX {signup_log}_uid_idx ON {signup_log}(uid);");
       $ret[] = update_sql("CREATE INDEX {signup_log}_nid_idx ON {signup_log}(nid);");
-    break;
-
+      break;
   }
   return $ret;
 }
@@ -209,6 +209,7 @@ function signup_update_5200() {
     case 'mysqli':
       $ret[] = update_sql("ALTER TABLE {signup} ADD status int NOT NULL default '1'");
       break;
+
     case 'pgsql':
       db_add_column($ret, 'signup', 'status', 'integer', array('not null' => TRUE, 'default' => "'1'"));
       break;
@@ -283,13 +284,14 @@ function signup_update_5203() {
   return array();
 }
 
-
 function _signup_db_column_exists($table, $column) {
   switch ($GLOBALS['db_type']) {
     case 'mysql':
     case 'mysqli':
       return db_num_rows(db_query("SHOW COLUMNS FROM {%s} LIKE '%s'", $table, $column));
+
     case 'pgsql':
       return db_result(db_query("SELECT COUNT(pg_attribute.attname) FROM pg_class, pg_attribute WHERE pg_attribute.attrelid = pg_class.oid AND pg_class.relname = '{%s}' AND attname='%s'", $table, $column));
   }
 }
+

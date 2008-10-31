@@ -1,6 +1,7 @@
 <?php
 // $Id$
 
+
 /**
  * Define the default views provided by the signup module.
  *

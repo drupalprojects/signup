@@ -1,7 +1,9 @@
 <?php
 // $Id$
 
+
 /**
+ *
  * @return Array of SQL clauses for cron reminder email query builder.
  */
 function _signup_date_reminder_sql($content_type) {
@@ -12,6 +14,7 @@ function _signup_date_reminder_sql($content_type) {
     case 'mysqli':
       $where = array("NOW() + INTERVAL s.reminder_days_before DAY > ". date_sql('DATE', $field['database']['columns']['value']['column'], 'iso'));
       break;
+
     case 'pgsql':
       $where = array("NOW() + INTERVAL s.reminder_days_before days > ". date_sql('DATE', $field['database']['columns']['value']['column'], 'iso'));
       break;
@@ -24,6 +27,7 @@ function _signup_date_reminder_sql($content_type) {
 }
 
 /**
+ *
  * @return Array of SQL clauses for cron auto-close query builder.
  */
 function _signup_date_autoclose_sql($content_type) {
@@ -32,8 +36,8 @@ function _signup_date_autoclose_sql($content_type) {
     'fields' => array($field['database']['columns']['value']['column']),
     'joins' => array(
       'LEFT JOIN {'. $field['database']['table'] .'} ON {'. $field['database']['table'] .'}.vid = n.vid',
-    ),    
-    'where' => array( date_sql('DATE', $field['database']['columns']['value']['column'], 'iso') ." < '". date('Y-m-d H:i:s', time() + variable_get('signup_close_early', 1) * 3600) ."'"),
+    ),
+    'where' => array(date_sql('DATE', $field['database']['columns']['value']['column'], 'iso') ." < '". date('Y-m-d H:i:s', time() + variable_get('signup_close_early', 1) * 3600) ."'"),
   );
 }
 
@@ -60,8 +64,8 @@ function _signup_date_format_date($node, $include_to_date = FALSE) {
   if (isset($node->{$field['field_name']})) {
     $date_value = $node->{$field['field_name']}[0]['value'];
   }
-  else if (isset($node->{$field['field_name'] . '_value'})) {
-    $date_value = $node->{$field['field_name'] . '_value'};
+  else if (isset($node->{$field['field_name'] .'_value'})) {
+    $date_value = $node->{$field['field_name'] .'_value'};
   }
   else {
     $date_value = $node->{$field['database']['columns']['value']['column']};
@@ -82,3 +86,4 @@ function _signup_date_format_date($node, $include_to_date = FALSE) {
 
   return $date;
 }
+

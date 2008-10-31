@@ -1,7 +1,9 @@
 <?php
 // $Id$
 
+
 /**
+ *
  * @return Array of SQL clauses for cron reminder email query builder.
  */
 function _signup_event_reminder_sql($content_type) {
@@ -12,6 +14,7 @@ function _signup_event_reminder_sql($content_type) {
     case 'mysqli':
       $where = array("('". gmdate('Y-m-d H:i:s') ."' > (". event_where_utc() ." - INTERVAL s.reminder_days_before DAY))");
       break;
+
     case 'pgsql':
       $where = array("('". gmdate('Y-m-d H:i:s') ."' > (". event_where_utc() ." - INTERVAL 's.reminder_days_before days'))");
   }
@@ -23,6 +26,7 @@ function _signup_event_reminder_sql($content_type) {
 }
 
 /**
+ *
  * @return Array of SQL clauses for cron auto-close query builder.
  */
 function _signup_event_autoclose_sql($content_type) {
@@ -35,6 +39,7 @@ function _signup_event_autoclose_sql($content_type) {
 }
 
 /**
+ *
  * @return Array of SQL clauses for admin overview page query builder.
  */
 function _signup_event_admin_sql($content_type = NULL) {
@@ -87,3 +92,4 @@ function _signup_event_get_node_scheduler($node) {
   }
   return isset($node->event_start) ? 'event' : 'none';
 }
+

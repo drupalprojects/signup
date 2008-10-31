@@ -1,6 +1,7 @@
 <?php
 // $Id$
 
+
 /**
  * Supply a list of panels content types.
  */
@@ -42,7 +43,7 @@ function signup_panels_content_signup_form($conf, $panel_args, &$context) {
   $node = isset($context->data) ? drupal_clone($context->data) : NULL;
   $block = new stdClass();
   $block->module = 'signup';
-  $block->delta  = $node->nid;
+  $block->delta = $node->nid;
   $block->subject = '';
   if (empty($node)) {
     $block->content = '';
@@ -71,3 +72,4 @@ function signup_panels_title_signup_form($conf, $context) {
   $choices = signup_panels_content_types_signup_form();
   return t('"@s" @type', array('@s' => $context->identifier, '@type' => drupal_strtolower($choices[$conf['id']]['title'])));
 }
+

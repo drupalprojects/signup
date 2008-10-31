@@ -1,6 +1,7 @@
 <?php
 // $Id$
 
+
 /**
  * @file
  * Provides support for Views integration.
@@ -23,10 +24,10 @@ function _signup_views_tables() {
       'type' => 'inner',
       'left' => array(
         'table' => 'node',
-        'field' => 'nid'
+        'field' => 'nid',
       ),
       'right' => array(
-        'field' => 'nid'
+        'field' => 'nid',
       ),
     ),
     'fields' => array(
@@ -64,7 +65,7 @@ function _signup_views_tables() {
         'handler' => 'views_handler_sort_date',
         'option' => views_handler_sort_date_options(),
         'help' => t('Sorts by time of sign up.'),
-      )
+      ),
     ),
     'filters' => array(
       'signup_time' => array(
@@ -94,17 +95,17 @@ function _signup_views_tables() {
         'list-type' => 'select',
         'help' => t('This allows you to filter by whether or not the node was signed up by the logged in user of the view.'),
       ),
-    )
+    ),
   );
   $tables['signup'] = array(
     'name' => 'signup',
     'join' => array(
       'left' => array(
         'table' => 'node',
-        'field' => 'nid'
+        'field' => 'nid',
       ),
       'right' => array(
-        'field' => 'nid'
+        'field' => 'nid',
       ),
     ),
     'fields' => array(
@@ -122,7 +123,6 @@ function _signup_views_tables() {
       'forwarding_email' => array(
         'name' => t('Signup: Notification: Email Address'),
         'help' => t('Address where notification emails are sent wenever a user signs up.'),
-
       ),
       'send_confirmation' => array(
         'name' => t('Signup: Confirmation: Enabled/Disabled'),
@@ -136,7 +136,7 @@ function _signup_views_tables() {
       'send_reminder' => array(
         'name' => t('Signup: Reminder: Enabled/Disabled'),
         'sortable' => true,
-        'help' => t('Should a reminder email be automatically sent to all users who signed up. This will be false if either an administrator disabled the feature for a given event, or if the reminder was already sent.')
+        'help' => t('Should a reminder email be automatically sent to all users who signed up. This will be false if either an administrator disabled the feature for a given event, or if the reminder was already sent.'),
       ),
       'reminder_days_before' => array(
         'name' => t('Signup: Reminder: Days Before Event for Email'),
@@ -189,7 +189,7 @@ function _signup_views_tables() {
         'handler' => 'views_handler_filter_is_null',
         'help' => t('Filter on if signups are enabled or disabled.'),
       ),
-    )
+    ),
   );
   return $tables;
 }
@@ -261,10 +261,11 @@ function views_handler_arg_signup_uid($op, &$query, $argtype, $arg = '') {
       $query->add_field('uid', 'signup_log');
       $fieldinfo['field'] = "signup_log.uid";
       return $fieldinfo;
-      break;
+
     case 'sort':
       $query->add_orderby('users', 'name', $argtype);
       break;
+
     case 'filter':
       $option = $argtype['options'];
       $uid = intval($arg);
@@ -277,13 +278,13 @@ function views_handler_arg_signup_uid($op, &$query, $argtype, $arg = '') {
           'type' => 'LEFT',
           'left' => array(
             'table' => 'node',
-            'field' => 'nid'
+            'field' => 'nid',
           ),
           'right' => array(
-            'field' => 'nid'
+            'field' => 'nid',
           ),
           'extra' => array(
-            'uid' => $uid
+            'uid' => $uid,
           ),
         );
         $num = $query->add_table('signup_log', true, 1, $joininfo);
@@ -291,9 +292,11 @@ function views_handler_arg_signup_uid($op, &$query, $argtype, $arg = '') {
         $query->add_where("$tablename.uid IS NULL");
       }
       break;
+
     case 'link':
       $name = ($query->name ? $query->name : variable_get('anonymous', t('Anonymous')));
-      return l($name, "$arg/" . intval($query->uid));
+      return l($name, "$arg/". intval($query->uid));
+
     case 'title':
       if (!$query) {
         return variable_get('anonymous', t('Anonymous'));
@@ -380,3 +383,4 @@ function signup_url_node($token, $argument, $arg) {
   }
   return $node->signup ? TRUE : FALSE;
 }
+

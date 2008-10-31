@@ -1,35 +1,39 @@
 <?php
 // $Id$
 
+
 /**
+ *
  * @return Array of SQL clauses for cron reminder email query builder.
  */
 function _signup_event_reminder_sql($content_type) {
   // We must manually include this here as the event module doesn't
   // include timezone support on all page requests.
-  include_once(drupal_get_path('module', 'event') .'/event_timezones.inc');
+  include_once (drupal_get_path('module', 'event') .'/event_timezones.inc');
   return array(
     'fields' => array('e.event_start', 'e.timezone'),
     'joins' => array('INNER JOIN {event} e ON e.nid = n.nid'),
-    'where' => array('(' . time() . ' > (e.event_start - ((s.reminder_days_before) * 86400)))'),
+    'where' => array('('. time() .' > (e.event_start - ((s.reminder_days_before) * 86400)))'),
   );
 }
 
 /**
+ *
  * @return Array of SQL clauses for cron auto-close query builder.
  */
 function _signup_event_autoclose_sql($content_type) {
   // We must manually include this here as the event module doesn't
   // include timezone support on all page requests.
-  include_once(drupal_get_path('module', 'event') .'/event_timezones.inc');
+  include_once (drupal_get_path('module', 'event') .'/event_timezones.inc');
   return array(
     'fields' => array('e.event_start', 'e.timezone'),
     'joins' => array('INNER JOIN {event} e ON e.nid = s.nid'),
-    'where' => array('(' . time() . ' > (e.event_start - ' . (variable_get('signup_close_early', 1) * 3600) . '))'),
+    'where' => array('('. time() .' > (e.event_start - '. (variable_get('signup_close_early', 1) * 3600) .'))'),
   );
 }
 
 /**
+ *
  * @return Array of SQL clauses for admin overview page query builder.
  */
 function _signup_event_admin_sql($content_type = NULL) {
@@ -57,7 +61,7 @@ function _signup_event_node_completed($node) {
 }
 
 function signup_event_format_date($node) {
-  include_once(drupal_get_path('module', 'event') .'/event_timezones.inc');
+  include_once (drupal_get_path('module', 'event') .'/event_timezones.inc');
   $offset = intval(variable_get('date_default_timezone', 0));
   $format = _signup_get_date_format();
   return $node->event_start ? _event_date($format, $node->event_start, $offset) : t('[Untimed]');
@@ -83,12 +87,15 @@ function _signup_get_date_format() {
     case 'small':
       $format = variable_get('date_format_short', 'm/d/Y - H:i');
       break;
+
     case 'large':
       $format = variable_get('date_format_long', 'l, F j, Y - H:i');
       break;
+
     case 'custom':
       // No change to format
       break;
+
     case 'medium':
     default:
       $format = variable_get('date_format_medium', 'D, m/d/Y - H:i');
@@ -110,3 +117,4 @@ function _signup_get_date_format() {
 function _signup_event_get_node_scheduler($node) {
   return isset($node->event_start) ? 'event' : 'none';
 }
+

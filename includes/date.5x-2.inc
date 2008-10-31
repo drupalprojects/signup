@@ -1,19 +1,22 @@
 <?php
 // $Id$
 
+
 /**
+ *
  * @return Array of SQL clauses for cron reminder email query builder.
  */
 function _signup_date_reminder_sql($content_type) {
   $field = signup_date_field($content_type);
   global $db_type;
-  include_once('./'. drupal_get_path('module', 'date_api') .'/date_api_sql.inc');
+  include_once ('./'. drupal_get_path('module', 'date_api') .'/date_api_sql.inc');
   $handler = new date_sql_handler();
   switch ($db_type) {
     case 'mysql':
     case 'mysqli':
       $where = array("NOW() + INTERVAL s.reminder_days_before DAY > ". $handler->sql_extract('DATE', $field['database']['columns']['value']['column']));
       break;
+
     case 'pgsql':
       $where = array("NOW() + INTERVAL s.reminder_days_before days > ". $handler->sql_extract('DATE', $field['database']['columns']['value']['column']));
       break;
@@ -26,18 +29,19 @@ function _signup_date_reminder_sql($content_type) {
 }
 
 /**
+ *
  * @return Array of SQL clauses for cron auto-close query builder.
  */
 function _signup_date_autoclose_sql($content_type) {
   $field = signup_date_field($content_type);
-  require_once(drupal_get_path('module', 'date_api') .'/date_api_sql.inc');
+  require_once (drupal_get_path('module', 'date_api') .'/date_api_sql.inc');
   $handler = new date_sql_handler();
   return array(
     'fields' => array($field['database']['columns']['value']['column']),
     'joins' => array(
       'LEFT JOIN {'. $field['database']['table'] .'} ON {'. $field['database']['table'] .'}.vid = n.vid',
     ),
-    'where' => array( $handler->sql_extract('DATE', $field['database']['columns']['value']['column']) ." < '". date('Y-m-d\TH:i:s', time() + variable_get('signup_close_early', 1) * 3600) ."'"),
+    'where' => array($handler->sql_extract('DATE', $field['database']['columns']['value']['column']) ." < '". date('Y-m-d\TH:i:s', time() + variable_get('signup_close_early', 1) * 3600) ."'"),
   );
 }
 
@@ -69,7 +73,7 @@ function _signup_date_format_date($node, $include_to_date = FALSE) {
   }
   $display_tz = date_get_timezone($field['tz_handling'], $tz);
   $db_tz = date_get_timezone_db($field['tz_handling'], $tz);
-  
+
   if (isset($node->{$field['field_name']})) {
     $date_value = $node->{$field['field_name']}[0]['value'];
   }
@@ -81,7 +85,7 @@ function _signup_date_format_date($node, $include_to_date = FALSE) {
     date_timezone_set($date, timezone_open($display_tz));
   }
   $date_out = date_format_date($date, 'custom', $field['output_format_date']);
-  
+
   if ($include_to_date) {
     if (isset($node->{$field['field_name']})) {
       $date_value = $node->{$field['field_name']}[0]['value2'];
@@ -101,3 +105,4 @@ function _signup_date_format_date($node, $include_to_date = FALSE) {
 
   return $date_out;
 }
+

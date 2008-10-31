@@ -1,6 +1,7 @@
 <?php
 // $Id$
 
+
 /**
  * @file
  * Provides all the code for required UI elements for sites that do
@@ -13,11 +14,13 @@
 /**
  * Implementation of hook_block().
  * @ingroup signup_core
+ *
  * @param $op
  *   The operation that is being requested. This defaults to 'list', which
  *   indicates that the method should return which blocks are available.
  * @param $delta
  *   The specific block to display (the offset into an array).
+ *
  * @return
  *   One of two possibilities. The first is an array of available blocks.
  *   The other is an array containing a block.

@@ -1,6 +1,7 @@
 <?php
 // $Id$
 
+
 /**
  * @file
  * Code necessary to determine which scheduler backend(s) to use.
@@ -14,19 +15,19 @@
  */
 function _signup_load_scheduler_includes() {
   if (defined('EVENT_API') && EVENT_API == '5.2') {
-    require_once(SIGNUP_PATH .'/includes/event.5x-2.inc');
+    require_once (SIGNUP_PATH .'/includes/event.5x-2.inc');
   }
   else if (module_exists('event')) {
-    require_once(SIGNUP_PATH .'/includes/event.5x-1.inc');
+    require_once (SIGNUP_PATH .'/includes/event.5x-1.inc');
   }
 
   if (variable_get('date_api_version', 0) == '5.2') {
-    require_once(SIGNUP_PATH .'/includes/date.inc');
-    require_once(SIGNUP_PATH .'/includes/date.5x-2.inc');
+    require_once (SIGNUP_PATH .'/includes/date.inc');
+    require_once (SIGNUP_PATH .'/includes/date.5x-2.inc');
   }
   else if (module_exists('date')) {
-    require_once(SIGNUP_PATH .'/includes/date.inc');
-    require_once(SIGNUP_PATH .'/includes/date.5x-1.inc');
+    require_once (SIGNUP_PATH .'/includes/date.inc');
+    require_once (SIGNUP_PATH .'/includes/date.5x-1.inc');
   }
 }
 
@@ -55,8 +56,10 @@ function _signup_get_node_scheduler($node) {
   switch (_signup_get_node_type_scheduler($node->type)) {
     case 'event':
       return _signup_event_get_node_scheduler($node);
+
     case 'date':
       return _signup_date_get_node_scheduler($node);
+
     default:
       return 'none';
   }
@@ -95,8 +98,10 @@ function _signup_node_completed($node) {
   switch (_signup_get_node_scheduler($node)) {
     case 'event':
       return _signup_event_node_completed($node);
+
     case 'date':
       return _signup_date_node_completed($node);
+
     default:
       return FALSE;
   }
@@ -106,8 +111,10 @@ function signup_format_date($node) {
   switch (_signup_get_node_scheduler($node)) {
     case 'event':
       return _signup_event_format_date($node);
+
     case 'date':
       return _signup_date_format_date($node);
+
     default:
       return t('[Untimed]');
   }
@@ -117,8 +124,10 @@ function signup_reminder_sql($node_type) {
   switch (_signup_get_node_type_scheduler($node_type)) {
     case 'event':
       return _signup_event_reminder_sql($node_type);
+
     case 'date':
       return _signup_date_reminder_sql($node_type);
+
     default:
       return array();
   }
@@ -128,8 +137,10 @@ function signup_autoclose_sql($node_type) {
   switch (_signup_get_node_type_scheduler($node_type)) {
     case 'event':
       return _signup_event_autoclose_sql($node_type);
+
     case 'date':
       return _signup_date_autoclose_sql($node_type);
+
     default:
       return array();
   }
@@ -139,9 +150,12 @@ function signup_admin_sql($node_type) {
   switch (_signup_get_node_type_scheduler($node_type)) {
     case 'event':
       return _signup_event_admin_sql($node_type);
+
     case 'date':
       return _signup_date_admin_sql($node_type);
+
     default:
       return array();
   }
 }
+
