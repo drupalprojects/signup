@@ -13,6 +13,7 @@
 
 /**
  * Implementation of hook_block().
+ *
  * @ingroup signup_core
  *
  * @param $op
@@ -28,11 +29,11 @@
 function signup_block($op = 'list', $delta = 0) {
   global $user;
   switch ($op) {
-    case 'list' :
+    case 'list':
       $blocks[0]['info'] = t('Current signups');
       return $blocks;
       break;
-    case 'view' :
+    case 'view':
       if (user_access('access content')) {
         switch ($delta) {
           case 0:
@@ -49,6 +50,7 @@ function signup_block($op = 'list', $delta = 0) {
 
 /**
  * Private helper as a partial implementation of hook_user().
+ *
  * @see signup_user()
  */
 function _signup_user_no_views($op, &$edit, &$user, $category = NULL) {
@@ -62,11 +64,12 @@ function _signup_user_no_views($op, &$edit, &$user, $category = NULL) {
       if (isset($output)) {
         return array(t('Signup information') => array(array('value' => $output, 'class' => 'user')));
       }
+      break;
   }
 }
 
 /**
- * Menu items we only need to define if views is not enabled.
+ * Add menu items we only need to define if views is not enabled.
  */
 function signup_no_views_menu(&$items, $may_cache) {
   global $user;
@@ -84,17 +87,17 @@ function signup_no_views_menu(&$items, $may_cache) {
 }
 
 /**
- * Prints a schedule of the given user's signups.
+ * Print a schedule of the given user's signups.
+ *
  * @ingroup signup_callback
  */
 function signup_user_schedule($uid) {
   $output = '';
   $user = user_load(array('uid' => $uid));
   if (!$user) {
-    drupal_not_found();
-    return;
+    return drupal_not_found();
   }
-  include_once(SIGNUP_PATH .'/theme/signup.theme');
+  require_once (SIGNUP_PATH .'/theme/signup.theme');
   drupal_set_title(t('Signups for @user', array('@user' => $user->name)));
   $titles = signup_list_user_signups($user->uid);
   foreach ($titles as $nid => $title) {
@@ -105,8 +108,14 @@ function signup_user_schedule($uid) {
 }
 
 /**
- * Returns an array of node titles with links for all nodes the
- * specified user has signed up for.
+ * Return an array of all nodes the specified user has signed up for.
+ *
+ * @param $uid
+ *   The ID of the user to generate a list of signups for.
+ *
+ * @return
+ *   Array of all nodes the given user has signed up for. The array is indexed
+ *   by node ID, and contains titles as links to each node.
  */
 function signup_list_user_signups($uid) {
   $titles = array();
