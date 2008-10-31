@@ -1,6 +1,7 @@
 <?php
 // $Id$
 
+
 /**
  * @defgroup signup_core Core drupal hooks
  */
@@ -210,8 +211,9 @@ function signup_help($section) {
   // doesn't contain 'help#' since hook_help() is invoked twice on admin
   // pages.
   if (arg(0) == 'admin' && arg(1) == 'content' && arg(2) == 'types'
-      && !preg_match('/.*help#.*/', $section)
-      && function_exists('signup_date_check_node_types')) {
+    && !preg_match('/.*help#.*/', $section)
+    && function_exists('signup_date_check_node_types')
+  ) {
     $type = arg(3);
     signup_date_check_node_types($type);
   }
@@ -251,10 +253,10 @@ function signup_menu($may_cache) {
     // only should happen if views is not enabled.
     $signup_path = './'. drupal_get_path('module', 'signup');
     if (module_exists('views')) {
-      require_once($signup_path .'/views/views.inc');
+      require_once $signup_path .'/views/views.inc';
     }
     else {
-      require_once($signup_path .'/includes/views.none.inc');
+      require_once $signup_path .'/includes/views.none.inc';
       signup_no_views_menu($items, $may_cache);
     }
 
@@ -266,7 +268,8 @@ function signup_menu($may_cache) {
         $email_own = user_access('email users signed up for own content') && ($user->uid == $node->uid);
         $email_all = user_access('email all signed up users');
         if (variable_get('signup_form_location', 'node') == 'tab'
-            && _signup_needs_output($node)) {
+          && _signup_needs_output($node)
+        ) {
           $items[] = array(
             'path' => 'node/'. arg(1) .'/signup',
             'title' => t('Sign up'),
@@ -305,7 +308,7 @@ function signup_menu($may_cache) {
  */
 function _signup_initialize_scheduler_backend() {
   define('SIGNUP_PATH', drupal_get_path('module', 'signup'));
-  require_once(SIGNUP_PATH .'/includes/scheduler.inc');
+  require_once SIGNUP_PATH .'/includes/scheduler.inc';
   _signup_load_scheduler_includes();
 }
 
@@ -360,7 +363,7 @@ function signup_user($type, &$edit, &$user, $category = NULL) {
   // schedule to their user profile page.
   if (!module_exists('views')) {
     $signup_path = './'. drupal_get_path('module', 'signup');
-    require_once($signup_path .'/includes/views.none.inc');
+    require_once $signup_path .'/includes/views.none.inc';
     return _signup_user_no_views($type, $edit, $user, $category);
   }
 }
@@ -374,9 +377,11 @@ function signup_form_alter($form_id, &$form) {
     case 'node_type_form':
       signup_alter_node_type_form($form_id, $form);
       break;
+
     case $form['type']['#value'] .'_node_form':
       signup_alter_node_form($form_id, $form);
       break;
+
     case '_content_admin_field':
       if (function_exists('_signup_date_field_form_alter')) {
         _signup_date_field_form_alter($form_id, $form);
@@ -421,7 +426,7 @@ function signup_alter_node_form($form_id, &$form) {
   else {
     $node = NULL;
   }
-  
+
   $signup_type_default = variable_get('signup_node_default_state_'. $form['type']['#value'], 'disabled');
   if (!empty($node)) {
     $node_scheduler = _signup_get_node_scheduler($node);
@@ -472,7 +477,7 @@ function signup_alter_node_form($form_id, &$form) {
     else {
       $default_option = $signup_type_default == 'enabled_on' ? 1 : 0;
     }
-    if ($default_option == 1 ) {
+    if ($default_option == 1) {
       $hint = t('If enabled, you can control whether users may sign up by visiting the !signups tab and toggling if signups are %open or %closed for this @node_type.', array('!signups' => l(t('Signups'), 'node/'. $node->nid .'/signups'), '%open' => t('open'), '%closed' => t('closed'), '@node_type' => strtolower(node_get_types('name', $form['type']['#value']))));
     }
     else {
@@ -491,7 +496,7 @@ function signup_alter_node_form($form_id, &$form) {
     // If JS is enabled, signup.css will hide all the settings on page
     // load if signups aren't enabled on this node.
     $settings_class = "signup-node-settings";
-    if ($default_option != 1 ) {
+    if ($default_option != 1) {
       $settings_class .= " js-hide";
     }
 
@@ -511,6 +516,7 @@ function signup_alter_node_form($form_id, &$form) {
  * Submits the cancel signup form
  *
  * @ingroup signup_core
+ *
  * @param $form_id The ID of the form being submitted.
  * @param $form_values The constructed form values array of the submitted form.
  */
@@ -522,6 +528,7 @@ function signup_form_cancel_submit($form_id, $form_values) {
  * Executes the user signup form
  *
  * @ingroup signup_core
+ *
  * @param $form_id The ID of the form being submitted.
  * @param $form_values The constructed form values array of the submitted form.
  */
@@ -580,7 +587,7 @@ function signup_form_validate_username($form, $nid) {
 function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
   global $form_values;
   $signup_type_default = variable_get('signup_node_default_state_'. $node->type, 'disabled');
-  
+
   switch ($op) {
     case 'insert':
       if (isset($form_values['signup_enabled'])) {
@@ -766,7 +773,7 @@ function theme_signup_signups_closed($node, $current_signup = '') {
  */
 function theme_signup_anonymous_user_login_text($anon_login_text) {
   if (!empty($anon_login_text)) {
-    return '<div class="signup_anonymous_login">' . $anon_login_text . '</div>';
+    return '<div class="signup_anonymous_login">'. $anon_login_text .'</div>';
   }
 }
 
@@ -831,7 +838,7 @@ function _signup_node_output($node, $type = 'node') {
             '%node_type' => node_get_types('name', $node->type),
           );
           if (variable_get('user_register', 1) == 0) {
-            $anon_login_text = t('Please !login to sign up for this %node_type.', $token_array); 
+            $anon_login_text = t('Please !login to sign up for this %node_type.', $token_array);
           }
           else {
             $anon_login_text = t('Please !login or !register to sign up for this %node_type.', $token_array);
@@ -863,7 +870,7 @@ function _signup_node_output($node, $type = 'node') {
 
   // How should the list of signed-up users be displayed, if at all?
   $display_list = variable_get('signup_display_signup_user_list', 'signup');
-  
+
   // If the user has the view signups perm and the admin decides to display
   // the list at the bottom of the page, display the current signups.
   if (user_access('view all signups')) {
@@ -921,6 +928,7 @@ function theme_signup_user_list($node, $registered_signups, $anon_signups) {
  * signup-related output.
  *
  * @param $node A fully loaded node object.
+ *
  * @return TRUE if this node should have signup output, FALSE if not.
  *
  * @see signup_nodeapi()
@@ -952,6 +960,7 @@ function signup_node_tab($node) {
  *   'custom_data' - Array containing the user's custom signup data.
  * @param $cancel_signup_form
  *   Optional HTML for a "Cancel signup" button if the user is allowed.
+ *
  * @return
  *   Themed output containing the user's current signup information.
  */
@@ -1015,7 +1024,7 @@ function _signup_print_current_signup($node, $signup_info) {
  */
 function signup_form($node, $signup_type = 'auth', $fieldset = TRUE) {
   global $user;
-  require_once(SIGNUP_PATH .'/theme/signup.theme');
+  require_once SIGNUP_PATH .'/theme/signup.theme';
 
   $form = array();
   $form['nid'] = array('#type' => 'value', '#value' => $node->nid);
@@ -1078,7 +1087,7 @@ function signup_form($node, $signup_type = 'auth', $fieldset = TRUE) {
     }
   }
   $signup_form += $signup_themed_form;
-  
+
   $form['collapse']['signup_user_form'] = $signup_form;
   $form['collapse']['submit'] = array(
     '#type' => 'submit',
@@ -1183,7 +1192,7 @@ function signup_admin_form() {
   $form['header']['#value'] = $header;
 
   $sql .= tablesort_sql($header);
-  
+
   $result = pager_query($sql, 25, 0, $sql_count);
 
   // Loop through the signup nodes, and generate our form elements
@@ -1205,7 +1214,7 @@ function signup_admin_form() {
     $row['total'] = array(
       '#type' => 'markup',
       '#value' => $signup_node->signup_total,
-      );
+    );
     $row['limit'] = $node_admin_form['limit'];
     $op_links = l(t('View signups'), "node/$signup_node->nid/signups");
     if ($access_broadcast) {
@@ -1243,7 +1252,7 @@ function signup_admin_form_header() {
 function signup_admin_form_extra($signup_node) {
   return array(
     '#type' => 'markup',
-    '#value' => signup_format_date($signup_node)
+    '#value' => signup_format_date($signup_node),
   );
 }
 
@@ -1307,9 +1316,11 @@ function theme_signup_admin_form($form) {
       case 'open':
         $filter = t('open');
         break;
+
       case 'closed':
         $filter = t('closed');
         break;
+
       default:
         $filter = t('enabled');
         break;
@@ -1456,8 +1467,8 @@ function signup_settings_page() {
   // The rest of the advanced settings are conditional on if/where the signup
   // form is being displayed.  We use jQuery to hide settings when they're not
   // relevant.
-  drupal_add_js(SIGNUP_PATH . '/js/admin.settings.js');
-  drupal_add_css(SIGNUP_PATH . '/signup.css');
+  drupal_add_js(SIGNUP_PATH .'/js/admin.settings.js');
+  drupal_add_css(SIGNUP_PATH .'/signup.css');
 
   // For each setting that should be hidden, signup.css will hide all the
   // settings on page load if.
@@ -1472,11 +1483,11 @@ function signup_settings_page() {
     '#options' => array(1 => t('Collapsed'), 0 => t('Expanded')),
     '#default_value' => variable_get('signup_fieldset_collapsed', 1),
     '#description' => t('If the signup form is included at the bottom of each node, the signup form will be encapsulated in a collapsible fieldset. This setting controls if that fieldset is expanded or collapsed by default.'),
-    '#prefix' => '<div class="' . $class . '">',
-    '#suffix' => '</div>'
+    '#prefix' => '<div class="'. $class .'">',
+    '#suffix' => '</div>',
   );
 
-  // If views.module is enabled provide the option to display the list 
+  // If views.module is enabled provide the option to display the list
   // of signed-up users in a tab and/or at the bottom of the node.
   $display_options = array();
   $display_options['signup'] = t('Use the built-in listing');
@@ -1500,18 +1511,18 @@ function signup_settings_page() {
     '#options' => $display_options,
     '#default_value' => variable_get('signup_display_signup_user_list', 'signup'),
     '#description' => t('If the signup form is being displayed, users with the %view_signups permission can see a list of all users who have signed up. This setting controls if and how that list should be generated. !views_help_text', array('%view_signups' => t('view all signups'), '!views_help_text' => $views_help_text)),
-    '#prefix' => '<div class="' . $class . '">',
-    '#suffix' => '</div>'
+    '#prefix' => '<div class="'. $class .'">',
+    '#suffix' => '</div>',
   );
- 
+
   if (module_exists('views')) {
     $class = 'signup-user-list-view-settings';
     if (variable_get('signup_form_location', 'node') == 'none' || variable_get('signup_display_signup_user_list', 'signup') != 'embed-view') {
       $class .= ' js-hide';
     }
     $form['adv_settings']['view_settings'] = array(
-      '#prefix' => '<div class="' . $class . '">',
-      '#suffix' => '</div>'
+      '#prefix' => '<div class="'. $class .'">',
+      '#suffix' => '</div>',
     );
 
     $views = array();
@@ -1574,8 +1585,8 @@ function theme_signup_view_label($view) {
   if (!empty($view->block)) {
     $display_types[] = t('Block');
   }
-  $label = check_plain($view->name . ': ' . $view->description);
-  $label .= ' [' . implode(', ', $display_types) . ']';
+  $label = check_plain($view->name .': '. $view->description);
+  $label .= ' ['. implode(', ', $display_types) .']';
   return $label;
 }
 
@@ -1823,7 +1834,7 @@ function signup_node_admin_page($node) {
       'username' => $username,
       'signup_date' => format_date($signed_up_user->signup_time, variable_get('signup_date_format', 'small')),
       'signup_form_data' => $signup_form_data,
-      'cancel_signup_form' => drupal_get_form('signup_user_cancel_form_'. $id, $id, $node->nid, $signed_up_user->uid, $signed_up_user->anon_mail)
+      'cancel_signup_form' => drupal_get_form('signup_user_cancel_form_'. $id, $id, $node->nid, $signed_up_user->uid, $signed_up_user->anon_mail),
     );
   }
 
@@ -1835,7 +1846,7 @@ function signup_node_admin_page($node) {
  *
  * This is responsible for rendering the signup summary form (allows
  * admins to open/close signups, set a signup limit, and see the total
- * number of signups), the table of signup details (generated by 
+ * number of signups), the table of signup details (generated by
  * signup_node_admin_page()), and if the node is signup-enabled, the
  * form to signup other users.
  *
@@ -1893,7 +1904,8 @@ function theme_signup_admin_node_form($form) {
 
 function signup_admin_node_form($node) {
   if ($node->signup_close_signup_limit &&
-      $node->signup_total >= $node->signup_close_signup_limit) {
+    $node->signup_total >= $node->signup_close_signup_limit
+  ) {
     $form['status'] = array(
       '#value' => t('Closed (limit reached)'),
     );
@@ -2114,7 +2126,7 @@ function _signup_admin_form($node = NULL, $has_date = FALSE) {
     $node->signup_forwarding_email = $result->forwarding_email;
     $node->signup_send_confirmation = $result->send_confirmation;
     $node->signup_confirmation_email = $result->confirmation_email;
-    $node->signup_send_reminder  = $result->send_reminder;
+    $node->signup_send_reminder = $result->send_reminder;
     $node->signup_reminder_days_before = $result->reminder_days_before;
     $node->signup_reminder_email = $result->reminder_email;
     $node->signup_close_signup_limit = $result->close_signup_limit;
@@ -2142,7 +2154,7 @@ function _signup_admin_form($node = NULL, $has_date = FALSE) {
   if (module_exists('token')) {
     _signup_token_help($form, 'signup_confirmation_token_fieldset');
   }
-  
+
   if ($has_date) {
     // Define a sub-tree to wrap the next 2 form elements together in an
     // inline div for better display.
@@ -2177,7 +2189,7 @@ function _signup_admin_form($node = NULL, $has_date = FALSE) {
       _signup_token_help($form, 'signup_reminder_token_fieldset');
     }
   }
-  
+
   $form['signup_close_signup_limit'] = array(
     '#type' => 'textfield',
     '#title' => t('Signup limit'),
@@ -2201,10 +2213,12 @@ function signup_build_signup_data($data, $type = 'output') {
   switch ($type) {
     case 'email':
       return theme('signup_custom_data_email', $data);
+
     case 'table':
       // This function used to take $type == 'table' when it wanted rows. :(
       return theme('signup_custom_data_rows', $data);
-    default: 
+
+    default:
       return theme('signup_custom_data', $data);
   }
 }
@@ -2219,19 +2233,19 @@ function signup_build_signup_data($data, $type = 'output') {
  * @see theme_signup_custom_data_email()
  */
 function theme_signup_email_token_custom_data($signup_data) {
-  return t('SIGNUP INFORMATION') . "\n\r" . theme('signup_custom_data_email', $signup_data);
+  return t('SIGNUP INFORMATION') ."\n\r". theme('signup_custom_data_email', $signup_data);
 }
 
 /**
  * Renders custom signup data into unfiltered output for use in email.
- * 
+ *
  * WARNING: This theme function is recursive (it calls itself for
  * nested data), so if you override it, be sure not to change the part
  * where it does "call_user_func(__FUNCTION__)".
- * 
+ *
  * @param $data
  *   Array of custom user signup data.
- * 
+ *
  * @return
  *   Plain text output with newlines.
  *
@@ -2244,10 +2258,10 @@ function theme_signup_custom_data_email($data) {
     if (is_array($value)) {
       // Element is nested, render it recursively.
       // Instead of the overhead of theme(), just call ourself directly.
-      $output .= "\n\r" . call_user_func(__FUNCTION__, $value) . "\n\r";
+      $output .= "\n\r". call_user_func(__FUNCTION__, $value) ."\n\r";
     }
     else {
-      $output .= $key . ': ' . $value . "\n\r";
+      $output .= $key .': '. $value ."\n\r";
     }
   }
   return $output;
@@ -2255,10 +2269,10 @@ function theme_signup_custom_data_email($data) {
 
 /**
  * Renders custom signup user data into a table.
- * 
+ *
  * @param $data
  *   Array of custom user signup data.
- * 
+ *
  * @return
  *   The themed table with custom signup user data.
  *
@@ -2280,10 +2294,10 @@ function theme_signup_custom_data_table($data) {
  * WARNING: This theme function is recursive (it calls itself for
  * nested data), so if you override it, be sure not to change the part
  * where it does "call_user_func(__FUNCTION__)".
- * 
+ *
  * @param $data
  *   Array of custom user signup data.
- * 
+ *
  * @return
  *   An array of table rows.
  *
@@ -2299,7 +2313,7 @@ function theme_signup_custom_data_rows($data) {
       $rows += call_user_func(__FUNCTION__, $value);
     }
     else {
-      $rows[] = array($key . ':', check_plain($value));
+      $rows[] = array($key .':', check_plain($value));
     }
   }
   return $rows;
@@ -2311,7 +2325,7 @@ function theme_signup_custom_data_rows($data) {
  * WARNING: This theme function is recursive (it calls itself for
  * nested data), so if you override it, be sure not to change the part
  * where it does "call_user_func(__FUNCTION__)".
- * 
+ *
  * @param $data
  *   Array of custom user signup data.
  *
@@ -2324,14 +2338,14 @@ function theme_signup_custom_data($data) {
   $output = '';
   // Loop through each first level element.
   foreach ($data as $key => $value) {
-    $output .= '<div id="' . signup_id_safe($key) . '">';
+    $output .= '<div id="'. signup_id_safe($key) .'">';
     if (is_array($value)) {
       // Element is nested, render it recursively.
       // Instead of the overhead of theme(), just call ourself directly.
       $output .= call_user_func(__FUNCTION__, $value);
     }
     else {
-      $output .= $key . ': ' . check_plain($value);
+      $output .= $key .': '. check_plain($value);
     }
     $output .= "</div>\n";
   }
@@ -2350,8 +2364,8 @@ function signup_id_safe($string) {
   $string = strtolower(preg_replace('/[^a-zA-Z0-9_-]+/', '-', $string));
   // If the first character is not a-z, add 'id' in front.
   // Don't use ctype_alpha since it's locale aware.
-  if (!ctype_lower($string{0})) { 
-    $string = 'id' . $string;
+  if (!ctype_lower($string{0})) {
+    $string = 'id'. $string;
   }
   return $string;
 }
@@ -2396,16 +2410,16 @@ function signup_broadcast_form($node) {
     '#description' => t('Body of the email message you wish to send to all users who have signed up for this @node_type. !token_description', array('@node_type' => $node->type, '!token_description' => $token_text)),
     '#rows' => 10,
   );
-  
+
   if (module_exists('token')) {
     _signup_token_help($form, 'message_tokens_fieldset');
   }
-  
+
   $form['copy'] = array(
     '#type' => 'checkbox',
-    '#title' => t('Send yourself a copy.'), 
+    '#title' => t('Send yourself a copy.'),
   );
-  
+
   $form['send'] = array(
     '#type' => 'submit',
     '#value' => t('Send'),
@@ -2414,7 +2428,7 @@ function signup_broadcast_form($node) {
     '#type' => 'value',
     '#value' => $node->nid,
   );
-  
+
   global $user;
   if (user_access('administer site configuration')) {
     $form['from'] = array(
@@ -2427,9 +2441,9 @@ function signup_broadcast_form($node) {
   }
   else {
     $form['from'] = array(
-     '#value' => t('This message will be sent from: %from', array('%from' => $user->mail)),
-     '#pre' => '<strong>',
-     '#post' => '</strong>',
+      '#value' => t('This message will be sent from: %from', array('%from' => $user->mail)),
+      '#pre' => '<strong>',
+      '#post' => '</strong>',
     );
   }
   return $form;
@@ -2447,6 +2461,7 @@ function signup_extra_tokens($node) {
  * Retrieve a list of all users who have signed up for a node.
  *
  * @param $nid
+ *
  * @return An array of objects containing signup data
  */
 function signup_get_email_addresses($nid) {
@@ -2518,12 +2533,12 @@ function signup_broadcast_form_submit($form_id, $form_values) {
  *   The final text to put in the email body sent to the broadcast sender.
  */
 function theme_signup_broadcast_sender_copy($raw_message, $cooked_message) {
-  $output = t('This is a copy of the signup broadcast you just sent.') . "\n";
-  $output .= wordwrap(t('Here is the original text you entered, with none of the tokens replaced:'), 72) . "\n";
+  $output = t('This is a copy of the signup broadcast you just sent.') ."\n";
+  $output .= wordwrap(t('Here is the original text you entered, with none of the tokens replaced:'), 72) ."\n";
   $output .= "----------\n";
   $output .= $raw_message;
   $output .= "\n----------\n\n";
-  $output .= wordwrap(t('Here is how the message that was sent to each user looked, with all of the tokens replaced (using your account for the user-related tokens):'), 72) . "\n";
+  $output .= wordwrap(t('Here is how the message that was sent to each user looked, with all of the tokens replaced (using your account for the user-related tokens):'), 72) ."\n";
   $output .= "----------\n";
   $output .= $cooked_message;
   $output .= "\n----------\n\n";
@@ -2540,7 +2555,7 @@ function theme_signup_broadcast_sender_copy($raw_message, $cooked_message) {
  * @see _signup_views_tables()
  */
 function signup_views_tables() {
-  require_once(drupal_get_path('module', 'signup') .'/views/views.inc');
+  require_once drupal_get_path('module', 'signup') .'/views/views.inc';
   return _signup_views_tables();
 }
 
@@ -2550,7 +2565,7 @@ function signup_views_tables() {
  * @see _signup_views_arguments()
  */
 function signup_views_arguments() {
-  require_once(drupal_get_path('module', 'signup') .'/views/views.inc');
+  require_once drupal_get_path('module', 'signup') .'/views/views.inc';
   return _signup_views_arguments();
 }
 
@@ -2560,7 +2575,7 @@ function signup_views_arguments() {
  * @see _signup_views_default_views()
  */
 function signup_views_default_views() {
-  require_once(drupal_get_path('module', 'signup') .'/views/views_default.inc');
+  require_once drupal_get_path('module', 'signup') .'/views/views_default.inc';
   return _signup_views_default_views();
 }
 
@@ -2586,7 +2601,7 @@ function _signup_token_help(&$form, $element_name) {
 
 /**
  * Private function to generate HTML for showing the available tokens
- * 
+ *
  * @return The themed representation of the available tokens.
  */
 function _signup_build_token_help() {
@@ -2608,7 +2623,7 @@ function _signup_build_token_help() {
  *
  * @param $tokens
  *   An array of token patterns mapping to their description
- * 
+ *
  * @return The themed representation of the tokens.
  */
 function theme_signup_token_help($tokens) {
@@ -2618,7 +2633,7 @@ function theme_signup_token_help($tokens) {
     $tokens_html .= '<dd>'. $description ."</dd>\n";
   }
   $tokens_html .= "</dl>\n";
-  
+
   return $tokens_html;
 }
 
@@ -2633,6 +2648,7 @@ function theme_signup_token_help($tokens) {
  *   at least 'nid', 'title', and 'TODO: time?' fields.
  * @param $signup
  *   An object with info about the user who signed up.
+ *
  * @return
  *   An array of tokens and their replacement values.
  */
@@ -2640,7 +2656,7 @@ function _signup_get_email_tokens($node, $signup) {
   // Tokens about the node itself are easy and don't require any logic.
   $tokens = array(
     '%event' => $node->title,
-    '%eventurl' => url('node/' . $node->nid, NULL, NULL, TRUE),
+    '%eventurl' => url('node/'. $node->nid, NULL, NULL, TRUE),
     '%time' => signup_format_date($node),
   );
 
@@ -2676,12 +2692,14 @@ function _signup_get_email_tokens($node, $signup) {
  * @param $plugin_type
  *   The plugin type for which the Panels engine is currently requesting the
  *   location of an include directory.
+ *
  * @return
  *   The location of the include directory for plugin type being requested,
  *   relative to the base directory of the module implementing this hook.
  */
 function signup_panels_include_directory($plugin_type) {
   if ($plugin_type == 'content_types') {
-    return 'panels/' . $plugin_type;
+    return 'panels/'. $plugin_type;
   }
 }
+
