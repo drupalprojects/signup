@@ -1248,13 +1248,13 @@ function signup_user_cancel_form($nid, $uid, $anon_mail) {
  */
 function signup_validate_anon_email($nid, $anon_mail, $name = FALSE) {
   if (!valid_email_address($anon_mail)) {
-    $message = 'Invalid email address entered for signup.';
+    $message = t('Invalid email address entered for signup.');
   }
   else if (db_num_rows(db_query("SELECT mail FROM {users} WHERE mail = '%s'", $anon_mail))) {
-    $message = 'The email address entered belongs to a registered user.';
+    $message = t('The email address entered belongs to a registered user.');
   }
   else if (db_num_rows(db_query("SELECT anon_mail FROM {signup_log} WHERE anon_mail = '%s' AND nid = %d", $anon_mail, $nid))) {
-    $message = 'The email address entered has already been used to sign up for this event.';
+    $message = t('The email address entered has already been used to sign up for this event.');
   }
 
   // If there's no message, it's a valid email, so return success.
