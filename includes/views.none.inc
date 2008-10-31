@@ -51,7 +51,7 @@ function signup_block($op = 'list', $delta = 0) {
 function _signup_user_no_views($op, &$edit, &$user, $category = NULL) {
   switch ($op) {
     case 'view':
-      // grab list of events the user signed up for.
+      // grab list of nodes the user signed up for.
       $signups = signup_list_user_signups($user->uid);
       if (count($signups)) {
         $output = '<h4>'. t('Current signups') .' -- '. l(t('view signup schedule'), "user/$user->uid/signups") .'</h4>'. theme_item_list($signups);
@@ -102,7 +102,7 @@ function signup_user_schedule($uid) {
 }
 
 /**
- * Returns an array of node titles with links for all events the
+ * Returns an array of node titles with links for all nodes the
  * specified user has signed up for.
  */
 function signup_list_user_signups($uid) {

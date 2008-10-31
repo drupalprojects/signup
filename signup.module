@@ -9,8 +9,8 @@
  * Implementation of hook_cron().
  *
  * There are two cron-based tasks that can be performed by the signup module:
- * sending reminder emails to events that will begin soon, and auto-closing
- * signup on events that have already started (depending on settings). Each of
+ * sending reminder emails to nodes that will begin soon, and auto-closing
+ * signup on nodes that have already started (depending on settings). Each of
  * these tasks is rather complicated and depends on the specific date-based
  * backend module that's currently installed (if any), so each one is handled
  * in a separate helper function.
@@ -29,9 +29,9 @@ function signup_cron() {
  * Helper function that sends cron-based reminder e-mails.
  *
  * Invokes the method for the installed event/date backend module to get the
- * right query fragments, and builds a query to find all events that need a
+ * right query fragments, and builds a query to find all nodes that need a
  * reminder email. For each one, it loops over the users signed up for that
- * event and send off the emails.
+ * node and send off the emails.
  *
  * @see signup_cron()
  * @see signup_reminder_sql()
@@ -66,7 +66,7 @@ function _signup_cron_send_reminders() {
     // Grab each node, construct the email header and subject, and query
     // the signup log to pull all users who are signed up for this node.
     while ($node = db_fetch_object($result)) {
-      $subject = t('Event reminder: !title', array('!title' => $node->title));
+      $subject = t('!node_type reminder: !title', array('!node_type' => node_get_types('name', $type), '!title' => $node->title));
       $signups = db_query("SELECT u.name, u.mail, s_l.anon_mail, s_l.form_data FROM {signup_log} s_l INNER JOIN {users} u ON u.uid = s_l.uid WHERE s_l.nid = %d", $node->nid);
 
       // Loop through the users, composing their customized message
@@ -81,7 +81,7 @@ function _signup_cron_send_reminders() {
           $message = token_replace($message, 'node', node_load($node->nid));
         }
         drupal_mail('signup_reminder_mail', $user_email, $subject, $message, $from);
-        watchdog('signup', t('Reminder for %event sent to %useremail.', array('%event' => $node->title, '%useremail' => $user_email)), WATCHDOG_NOTICE, l(t('view'), 'node/'. $node->nid));
+        watchdog('signup', t('Reminder for %title sent to %useremail.', array('%title' => $node->title, '%useremail' => $user_email)), WATCHDOG_NOTICE, l(t('view'), 'node/'. $node->nid));
       }
 
       // Reminders for this node are all sent, so mark it in the
@@ -92,11 +92,12 @@ function _signup_cron_send_reminders() {
 }
 
 /**
- * Helper function that handles auto-closing events during cron.
+ * Helper function that handles auto-closing time-based nodes during cron.
  *
- * Invokes the method for the installed event/date backend module to get the
- * right query fragments, and builds a query to find all events where signups
- * should be closed (e.g. events that already started, etc).
+ * Loops over all the node types that are signup-enabled.  For each one, it
+ * invokes the method for the installed event/date backend module to get the
+ * right query fragments, and builds a query to find all nodes of that type
+ * where signups should be closed (e.g. events that already started, etc).
  *
  * @see signup_cron()
  * @see signup_autoclose_sql()
@@ -126,7 +127,7 @@ function _signup_cron_autoclose() {
     $sql = _signup_build_query($autoclose_common_sql, $autoclose_sql);
     $result = db_query($sql, $type);
 
-    // Loop through the results, calling the event closing function.
+    // Loop through the results, calling the signup closing function.
     while ($signup = db_fetch_object($result)) {
       signup_close_signup($signup->nid, $cron = 'yes');
       $node = node_load($signup->nid);
@@ -184,7 +185,7 @@ function signup_help($section) {
   switch ($section) {
     case 'admin/help#signup':
       return '<p>'.
-        t('Signup allows users to sign up (in other words, register) for content of any type. The most common use is for events, where users indicate they are planning to attend. This module includes options for sending a notification email to a selected email address upon a new user signup (good for notifying event coordinators, etc.) and a confirmation email to users who sign up. Each of these options are controlled per node. When used on event nodes (with event.module installed and regular cron runs), it can also send out reminder emails to all signups a configurable number of days before the start of the event (also controlled per node) and to automatically close event signups 1 hour before their start (general setting). Settings exist for resticting signups to selected roles and content types.')
+        t('Signup allows users to sign up (in other words, register) for content of any type. The most common use is for events, where users indicate they are planning to attend. This module includes options for sending a notification email to a selected email address upon a new user signup (good for notifying event coordinators, etc.) and a confirmation email to users who sign up. Each of these options are controlled per node. When used on event nodes (with <a href="@event_url">event.module</a> installed) or nodes that have a date field (with <a href="@date_url">date.module</a>) and regular cron runs, it can also send out reminder emails to all signups a configurable number of days before the start of the event (also controlled per node) and to automatically close signups 1 hour before their start (general setting). Settings exist for resticting signups to selected roles and content types.', array('@event_url' => url('http://drupal.org/project/event'), '@date_url' => url('http://drupal.org/project/date')))
         .'</p><p>'.
         t('To use signup, you must enable which content types should allow signups in administer->settings->content types, and you must also grant the %sign_up_for_content permission to any user role that should be able to sign up in administer->access control. Each signup-enabled node will now have a place for users to sign up.', array('%sign_up_for_content' => 'sign up for content'))
         .'</p><p>'.
@@ -328,7 +329,7 @@ function signup_perm() {
  * Implementatiion of hook_user().
  *
  * When a user is deleted, cancel all of that user's signups to remove all
- * instances of that user from the {signup_log} table, free up space in events
+ * instances of that user from the {signup_log} table, free up space in nodes
  * with signup limits, etc.
  *
  * @ingroup signup_core
@@ -653,12 +654,11 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
               );
             }
             if (_signup_node_completed($node) && $node->signup_status) {
-              // If this is an event, and it's already past the close
-              // in advance time, and signups are still open, close
-              // them now (and don't consider the limit for changing
-              // the status).
+              // If this is an time-based node, and it's already past the
+              // close in advance time, and signups are still open, close them
+              // now (and don't consider the limit for changing the status).
               signup_close_signup($node->nid);
-              drupal_set_message(t('Event start time is already past the signup close-in-advance time, signups now closed.'));
+              drupal_set_message(t('%node_type start time is already past the signup close-in-advance time, signups now closed.', array('%node_type' => node_get_types('name', $node->type))));
             }
             else if ($limit_changed) {
               _signup_check_limit($node, 'limit');
@@ -749,7 +749,7 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
  * @see _signup_print_current_signup()
  */
 function theme_signup_signups_closed($node, $current_signup = '') {
-  $output = '<h3>'. t('Signups closed for this event') .'</h3>';
+  $output = '<h3>'. t('Signups closed for this %node_type', array('%node_type' => node_get_types('name', $node->type))) .'</h3>';
   $output .= $current_signup;
   return $output;
 }
@@ -825,15 +825,16 @@ function _signup_node_output($node, $type = 'node') {
         $anon_login_text = '';
         $signup_roles = user_roles(FALSE, 'sign up for content');
         if (!empty($signup_roles[DRUPAL_AUTHENTICATED_RID])) {
-          $login_array = array(
+          $token_array = array(
             '!login' => l(t('login'), 'user/login', array(), drupal_get_destination()),
             '!register' => l(t('register'), 'user/register', array(), drupal_get_destination()),
-            );
+            '%node_type' => node_get_types('name', $node->type),
+          );
           if (variable_get('user_register', 1) == 0) {
-            $anon_login_text = t('Please !login to sign up for this event.', $login_array); 
+            $anon_login_text = t('Please !login to sign up for this %node_type.', $token_array); 
           }
           else {
-            $anon_login_text = t('Please !login or !register to sign up for this event.', $login_array);
+            $anon_login_text = t('Please !login or !register to sign up for this %node_type.', $token_array);
           }
         }
         $output .= theme('signup_anonymous_user_login_text', $anon_login_text);
@@ -1043,7 +1044,7 @@ function signup_form($node, $signup_type = 'auth', $fieldset = TRUE) {
     $anon_form['signup_anon_mail'] = array(
       '#type' => 'textfield',
       '#title' => t('Email'),
-      '#description' => t('An e-mail address is required for users who are not registered at this site. If you are a registered user at this site, please !login to sign up for this event.', array('!login' => l(t('login'), 'user/login', array(), drupal_get_destination()))),
+      '#description' => t('An e-mail address is required for users who are not registered at this site. If you are a registered user at this site, please !login to sign up for this %node_type.', array('!login' => l(t('login'), 'user/login', array(), drupal_get_destination()), '%node_type' => node_get_types('name', $node->type))),
       '#size' => 40,
       '#validate' => array('signup_form_validate_anon' => array($node->nid)),
       '#maxlength' => 255,
@@ -1186,36 +1187,36 @@ function signup_admin_form() {
   $result = pager_query($sql, 25, 0, $sql_count);
 
   // Loop through the signup nodes, and generate our form elements
-  while ($signup_event = db_fetch_object($result)) {
+  while ($signup_node = db_fetch_object($result)) {
     $row = array();
     if (!empty($start_column)) {
-      $row['start'] = signup_admin_form_extra($signup_event);
+      $row['start'] = signup_admin_form_extra($signup_node);
     }
 
     // Instead of duplicating the logic from the node/N/signups admin
     // form, we just call that form builder here and lift the elements
     // we need directly from that.
-    $node_admin_form = signup_admin_node_form($signup_event);
+    $node_admin_form = signup_admin_node_form($signup_node);
     $row['title'] = array(
       '#type' => 'markup',
-      '#value' => l($signup_event->title, "node/$signup_event->nid"),
+      '#value' => l($signup_node->title, "node/$signup_node->nid"),
     );
     $row['status'] = $node_admin_form['status'];
     $row['total'] = array(
       '#type' => 'markup',
-      '#value' => $signup_event->signup_total,
+      '#value' => $signup_node->signup_total,
       );
     $row['limit'] = $node_admin_form['limit'];
-    $op_links = l(t('View signups'), "node/$signup_event->nid/signups");
+    $op_links = l(t('View signups'), "node/$signup_node->nid/signups");
     if ($access_broadcast) {
       $op_links .= '<br />';
-      $op_links .= l(t('Signup broadcast'), "node/$signup_event->nid/signup-broadcast", array('title' => t('Send an email message to all users who signed up.')));
+      $op_links .= l(t('Signup broadcast'), "node/$signup_node->nid/signup-broadcast", array('title' => t('Send an email message to all users who signed up.')));
     }
     $row['operations'] = array(
       '#type' => 'markup',
       '#value' => $op_links,
     );
-    $form['nids'][$signup_event->nid] = $row;
+    $form['nids'][$signup_node->nid] = $row;
   }
   $form['#tree'] = true;
   $form['submit'] = array(
@@ -1239,10 +1240,10 @@ function signup_admin_form_header() {
   return array();
 }
 
-function signup_admin_form_extra($signup_event) {
+function signup_admin_form_extra($signup_node) {
   return array(
     '#type' => 'markup',
-    '#value' => signup_format_date($signup_event)
+    '#value' => signup_format_date($signup_node)
   );
 }
 
@@ -1705,8 +1706,8 @@ function signup_sign_up_user($signup_form) {
 
     // Figure out if confirmation or reminder emails will be sent and
     // inform the user.
-    $confirmation_email = $node->signup_send_confirmation ? '  '. t('You will receive a confirmation email shortly which contains further event information.') : '';
-    $reminder_email = $node->signup_send_reminder ? '  '. t('You will receive a reminder email !number !days before the event.', array('!number' => $node->signup_reminder_days_before, '!days' => format_plural($node->signup_reminder_days_before, 'day', 'days'))) : '';
+    $confirmation_email = $node->signup_send_confirmation ? '  '. t('You will receive a confirmation email shortly which contains further information about this %node_type.', array('%node_type' => node_get_types('name', $node->type))) : '';
+    $reminder_email = $node->signup_send_reminder ? '  '. t('You will receive a reminder email !number !days before the %node_type.', array('!number' => $node->signup_reminder_days_before, '!days' => format_plural($node->signup_reminder_days_before, 'day', 'days'), '%node_type' => node_get_types('name', $node->type))) : '';
 
     // Insert the user into the signup_log.
     db_query("INSERT INTO {signup_log} (uid, nid, anon_mail, signup_time, form_data) VALUES (%d, %d, '%s', %d, '%s')", $signup_form['uid'], $signup_form['nid'], $signup_form['signup_anon_mail'], $curtime, $signup_form_data);
@@ -1724,11 +1725,12 @@ function signup_sign_up_user($signup_form) {
     $signup_tokens = _signup_get_email_tokens($node, $signup);
     // The right email to use (anon vs. auth) is one of the tokens.
     $user_email = $signup_tokens['%useremail'];
+    $node_type_name = node_get_types('name', $node->type);
 
     // If a confirmation is to be sent, compose the mail message,
     // replace the tokens with the right values, and send it.
     if ($node->signup_send_confirmation && $user_email) {
-      $subject = t('Signup confirmation for event: !event', array('!event' => $node->title));
+      $subject = t('Signup confirmation for !node_type: !title', array('!node_type' => $node_type_name, '!title' => $node->title));
       $message = strtr($node->signup_confirmation_email, $signup_tokens);
       if (module_exists('token')) {
         // If the token.module is enabled, also handle any tokens it provides.
@@ -1740,8 +1742,8 @@ function signup_sign_up_user($signup_form) {
     // If a forwarding email is to be sent, compose the mail message,
     // replace the tokens with the right values, and send it.
     if ($node->signup_forwarding_email) {
-      $header = array('From' => t('New Event Signup') ."<$from>");
-      $subject = t('Signup confirmation for event: !title', array('!title' => $node->title));
+      $header = array('From' => t('New !node_type Signup', array('!node_type' => $node_type_name)) ."<$from>");
+      $subject = t('Signup confirmation for !node_type: !title', array('!node_type' => $node_type_name, '!title' => $node->title));
       $message = t('The following information was submitted as a signup for !title', array('!title' => $node->title));
       if (_signup_get_node_scheduler($node) != 'none') {
         $message .= "\n\r". t('Date/Time: !time', array('!time' => $signup_tokens['%time']));
@@ -2058,7 +2060,8 @@ function signup_validate_anon_email($nid, $anon_mail, $name = FALSE) {
     $message = t('The email address entered belongs to a registered user.');
   }
   else if (db_num_rows(db_query("SELECT anon_mail FROM {signup_log} WHERE anon_mail = '%s' AND nid = %d", $anon_mail, $nid))) {
-    $message = t('The email address entered has already been used to sign up for this event.');
+    $node = node_load($nid);
+    $message = t('The email address entered has already been used to sign up for this %node_type.', array('%node_type' => node_get_types('name', $node->type)));
   }
 
   // If there's no message, it's a valid email, so return success.
@@ -2156,18 +2159,19 @@ function _signup_admin_form($node = NULL, $has_date = FALSE) {
     for ($i = 1; $i <= 60; $i++) {
       $options[$i] = $i;
     }
+    $node_type_name = node_get_types('name', $node->type);
     $form['signup_reminder']['signup_reminder_days_before'] = array(
       '#type' => 'select',
       '#default_value' => $node->signup_reminder_days_before,
       '#options' => $options,
-      '#suffix' => t('day(s) before event'),
+      '#suffix' => t('day(s) before %node_type', array('%node_type' => $node_type_name)),
     );
     $form['signup_reminder_email'] = array(
       '#type' => 'textarea',
       '#title' => t('Reminder email'),
       '#default_value' => $node->signup_reminder_email,
       '#cols' => 40, '#rows' => 6,
-      '#description' => t('Email sent to user as an event reminder. !token_description', array('!token_description' => $signup_token_description)),
+      '#description' => t('Email sent to user as a reminder before the %node_type starts. !token_description', array('%node_type' => $node_type_name, '!token_description' => $signup_token_description)),
     );
     if (module_exists('token')) {
       _signup_token_help($form, 'signup_reminder_token_fieldset');
@@ -2440,7 +2444,7 @@ function signup_extra_tokens($node) {
 }
 
 /**
- * Retrieve a list of all users who have signed up for an event
+ * Retrieve a list of all users who have signed up for a node.
  *
  * @param $nid
  * @return An array of objects containing signup data
@@ -2454,7 +2458,7 @@ function signup_get_email_addresses($nid) {
 }
 
 /**
- * Send an email message to all those signed up to an event.
+ * Send an email message to all those signed up to a node.
  *
  * @param $form_id
  * @param $form_values
@@ -2470,32 +2474,32 @@ function signup_broadcast_form_submit($form_id, $form_values) {
       $from = $user->mail;
     }
     $subject = $form_values['subject'];
-    $event = node_load($form_values['nid']);
+    $node = node_load($form_values['nid']);
     foreach ($addresses as $signup) {
       // Get the hard-coded tokens provided by the signup module to use
       // for the broadcast email.  This also gives us the email to send to.
-      $signup_tokens = _signup_get_email_tokens($event, $signup);
+      $signup_tokens = _signup_get_email_tokens($node, $signup);
       $user_email = $signup_tokens['%useremail'];
       // Replace the signup-provided tokens with the right values.
       $message = strtr($form_values['message'], $signup_tokens);
       if (module_exists('token')) {
         // If the token.module is enabled, also handle any tokens it provides.
-        $message = token_replace($message, 'node', $event);
+        $message = token_replace($message, 'node', $node);
       }
       drupal_mail('signup_broadcast_mail', $user_email, $subject, $message, $from);
-      watchdog('signup', t('Broadcast email for %event sent to %email.', array('%event' => $event->title, '%email' => $user_email)), WATCHDOG_NOTICE, l(t('view'), 'node/'. $event->nid));
+      watchdog('signup', t('Broadcast email for %title sent to %email.', array('%title' => $node->title, '%email' => $user_email)), WATCHDOG_NOTICE, l(t('view'), 'node/'. $node->nid));
     }
     if ($form_values['copy']) {
-      $signup_tokens = _signup_get_email_tokens($event, $user);
+      $signup_tokens = _signup_get_email_tokens($node, $user);
       $sender_email = $signup_tokens['%useremail'];
       $message = strtr($form_values['message'], $signup_tokens);
       if (module_exists('token')) {
         // If the token.module is enabled, also handle any tokens it provides.
-        $message = token_replace($message, 'node', $event);
+        $message = token_replace($message, 'node', $node);
       }
       $final_text = theme('signup_broadcast_sender_copy', $form_values['message'], $message);
       drupal_mail('signup_broadcast_mail', $sender_email, $subject, $final_text, $from);
-      watchdog('signup', t('Broadcast email copy for %event sent to %email.', array('%event' => $event->title, '%email' => $sender_email)), WATCHDOG_NOTICE, l(t('view'), 'node/'. $event->nid));
+      watchdog('signup', t('Broadcast email copy for %title sent to %email.', array('%title' => $node->title, '%email' => $sender_email)), WATCHDOG_NOTICE, l(t('view'), 'node/'. $node->nid));
       drupal_set_message(t('Sent a copy of this message to %email', array('%email' => $sender_email)));
     }
   }
@@ -2633,7 +2637,7 @@ function theme_signup_token_help($tokens) {
  *   An array of tokens and their replacement values.
  */
 function _signup_get_email_tokens($node, $signup) {
-  // Tokens about the event itself are easy and don't require any logic.
+  // Tokens about the node itself are easy and don't require any logic.
   $tokens = array(
     '%event' => $node->title,
     '%eventurl' => url('node/' . $node->nid, NULL, NULL, TRUE),
