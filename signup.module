@@ -2581,7 +2581,7 @@ function signup_views_default_views() {
 
 /**
  * Private function to generate HTML for showing the available tokens.
- * 
+ *
  * @param $form
  *   Reference to the form array to include the help fieldset in.
  * @param $element_name
