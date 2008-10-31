@@ -1,6 +1,7 @@
 <?php
 // $Id$
 
+
 /**
  * @defgroup signup_core Core drupal hooks
  */
@@ -8,11 +9,13 @@
 /**
  * Implementation of hook_block().
  * @ingroup signup_core
+ *
  * @param $op
  *   The operation that is being requested. This defaults to 'list', which
  *   indicates that the method should return which blocks are available.
  * @param $delta
  *   The specific block to display (the offset into an array).
+ *
  * @return
  *   One of two possibilities. The first is an array of available blocks.
  *   The other is an array containing a block.
@@ -20,11 +23,11 @@
 function signup_block($op = 'list', $delta = 0) {
   global $user;
   switch ($op) {
-    case 'list' :
+    case 'list':
       $blocks[0]['info'] = t('List of users current signups.');
       return $blocks;
-      break;
-    case 'view' :
+
+    case 'view':
       if (user_access('access content')) {
         switch ($delta) {
           case 0:
@@ -36,6 +39,8 @@ function signup_block($op = 'list', $delta = 0) {
             return $block;
         }
       }
+      break;
+
   }
 }
 
@@ -48,7 +53,7 @@ function signup_cron() {
   if (module_exists('event')) {
     // We must manually include this here as the event module doesn't
     // include timezone support on all page requests.
-    include_once(drupal_get_path('module', 'event') .'/event_timezones.inc');
+    require_once drupal_get_path('module', 'event') .'/event_timezones.inc';
 
     // Get the current time, and pull all of the nodes for which the
     // current time + the reminder_days_before time is greater than
@@ -170,19 +175,18 @@ function signup_menu($may_cache) {
       'path' => 'closesignup',
       'access' => $access,
       'type' => MENU_CALLBACK,
-      'callback' => 'signup_close_signup_admin'
+      'callback' => 'signup_close_signup_admin',
     );
     $items[] = array(
       'path' => 'opensignup',
       'access' => $access,
       'type' => MENU_CALLBACK,
-      'callback' => 'signup_open_signup_admin'
+      'callback' => 'signup_open_signup_admin',
     );
-
   }
   else {  // !$may_cache: dynamic menu items
     // Include other php code that we need when not serving cached pages:
-    include_once(drupal_get_path('module', 'signup') .'/signup.theme');
+    require_once drupal_get_path('module', 'signup') .'/signup.theme';
 
     // User signup schedule callback
     $items[] = array(
@@ -204,7 +208,7 @@ function signup_menu($may_cache) {
         'callback arguments' => array($node),
         'access' => $access || $access_own,
         'type' => MENU_LOCAL_TASK,
-        'weight' => 20
+        'weight' => 20,
       );
     }
   }
@@ -265,10 +269,8 @@ function signup_user($op, &$edit, &$user, $category = NULL) {
         }
       }
       break;
-
   }
 }
-
 
 /**
  * Implementation of hook_form_alter().
@@ -279,6 +281,7 @@ function signup_form_alter($form_id, &$form) {
     case 'node_type_form':
       signup_alter_node_type_form($form_id, $form);
       break;
+
     case $form['type']['#value'] .'_node_form':
       signup_alter_node_form($form_id, $form);
       break;
@@ -320,8 +323,10 @@ function signup_alter_node_form($form_id, &$form) {
   // to administer signups for their own content, add a fieldset for
   // signup-related settings.
   if (user_access('administer all signups') ||
-      (!empty($node) && $signup_enabled && $node->uid == $user->uid &&
-       user_access('administer signups for own content'))) {
+    (!empty($node) && $signup_enabled && $node->uid == $user->uid &&
+      user_access('administer signups for own content')
+    )
+  ) {
 
     $form['signup'] = array(
       '#type' => 'fieldset',
@@ -351,7 +356,7 @@ function signup_alter_node_form($form_id, &$form) {
     else {
       $default_option = $signup_enabled;
     }
-    if ($default_option == 1 ) {
+    if ($default_option == 1) {
       $hint = t('If enabled, you can control whether users may sign up by visiting the !signups tab and toggling if signups are %open or %closed for this @node_type.', array('!signups' => l(t('Signups'), 'node/'. $node->nid .'/signups'), '%open' => t('open'), '%closed' => t('closed'), '@node_type' => strtolower(node_get_types('name', $form['type']['#value']))));
     }
     else {
@@ -370,7 +375,7 @@ function signup_alter_node_form($form_id, &$form) {
     // If JS is enabled, signup.css will hide all the settings on page
     // load if signups aren't enabled on this node.
     $settings_class = "signup-node-settings";
-    if ($default_option != 1 ) {
+    if ($default_option != 1) {
       $settings_class .= " js-hide";
     }
 
@@ -390,6 +395,7 @@ function signup_alter_node_form($form_id, &$form) {
  * Submits the cancel signup form
  *
  * @ingroup signup_core
+ *
  * @param $form_id The ID of the form being submitted.
  * @param $form_values The constructed form values array of the submitted form.
  */
@@ -401,6 +407,7 @@ function signup_form_cancel_submit($form_id, $form_values) {
  * Executes the user signup form
  *
  * @ingroup signup_core
+ *
  * @param $form_id The ID of the form being submitted.
  * @param $form_values The constructed form values array of the submitted form.
  */
@@ -412,6 +419,7 @@ function signup_form_submit($form_id, $form_values) {
  * Validates the user signup form
  *
  * @ingroup signup_core
+ *
  * @param $form_id The ID of the form being submitted.
  * @param $form_values The constructed form values array of the submitted form.
  */
@@ -513,9 +521,9 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
       break;
 
     case 'delete':
-        // Clean up the signup tables for the deleted node.
-        db_query("DELETE FROM {signup} WHERE nid = %d", $node->nid);
-        db_query("DELETE FROM {signup_log} WHERE nid = %d", $node->nid);
+      // Clean up the signup tables for the deleted node.
+      db_query("DELETE FROM {signup} WHERE nid = %d", $node->nid);
+      db_query("DELETE FROM {signup_log} WHERE nid = %d", $node->nid);
       break;
 
     case 'load':
@@ -531,7 +539,7 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
         $node->signup_forwarding_email = $signup->forwarding_email;
         $node->signup_send_confirmation = $signup->send_confirmation;
         $node->signup_confirmation_email = $signup->confirmation_email;
-        $node->signup_send_reminder  = $signup->send_reminder ;
+        $node->signup_send_reminder = $signup->send_reminder;
         $node->signup_reminder_days_before = $signup->reminder_days_before;
         $node->signup_reminder_email = $signup->reminder_email;
         $node->signup_completed = $signup->completed;
@@ -585,7 +593,7 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
               $signup_roles = user_roles(FALSE, 'sign up for content');
               if (!empty($signup_roles[DRUPAL_AUTHENTICATED_RID])) {
                 if (variable_get('user_register', 1) == 0) {
-                  $anon_login_text = t('Please !login to sign up for this event.', $login_array); 
+                  $anon_login_text = t('Please !login to sign up for this event.', $login_array);
                 }
                 else {
                   $anon_login_text = t('Please !login or !register to sign up for this event.', $login_array);
@@ -736,11 +744,11 @@ function signup_admin_page() {
   $sql .= " GROUP BY n.nid, n.title, s.completed$event_select";
   $sql .= tablesort_sql($header);
   $sql = db_rewrite_sql($sql);
-  
+
   $sql_count = "SELECT COUNT(s.nid) FROM {signup} s";
   $sql_count .= $where;
   $sql_count = db_rewrite_sql($sql_count, 's');
-  
+
   $result = pager_query($sql, 25, 0, $sql_count);
 
   // Loop through the signup nodes, pull the number of signups for
@@ -750,9 +758,9 @@ function signup_admin_page() {
     if ($has_event) {
       // Must include this here as event module doesn't include timezone
       // support on all page requests.
-      include_once(drupal_get_path('module', 'event') .'/event_timezones.inc');
+      require_once drupal_get_path('module', 'event') .'/event_timezones.inc';
       $offset = $signup_event->event_start ? event_get_offset($signup_event->timezone, $signup_event->event_start) : '';
-      $row[] = $signup_event->event_start ?_event_date(variable_get('signup_date_string', 'D, M jS, g:i A'), $signup_event->event_start, $offset) : '';
+      $row[] = $signup_event->event_start ? _event_date(variable_get('signup_date_string', 'D, M jS, g:i A'), $signup_event->event_start, $offset) : '';
     }
     $row[] = l($signup_event->title, "node/$signup_event->nid");
     $row[] = $signup_event->count;
@@ -762,13 +770,13 @@ function signup_admin_page() {
       if (!arg(2)) {
         $op_links .= '<em>'. t('Closed: ') .'</em>';
       }
-      $op_links .= l(t('Open Event'), "opensignup/$signup_event->nid/" . arg(2));
+      $op_links .= l(t('Open Event'), "opensignup/$signup_event->nid/". arg(2));
     }
     else {
       if (!arg(2)) {
         $op_links .= '<em>'. t('Open: ') .'</em>';
       }
-      $op_links .= l(t('Close Event'), "closesignup/$signup_event->nid/" . arg(2));
+      $op_links .= l(t('Close Event'), "closesignup/$signup_event->nid/". arg(2));
     }
     $row[] = $op_links;
     $rows[] = $row;
@@ -847,7 +855,7 @@ function signup_close_signup($nid, $cron = 'no') {
  * @ingroup signup_callback
  */
 function signup_close_signup_admin($nid, $tab = NULL) {
-  signup_close_signup($nid, $cron='no');
+  signup_close_signup($nid, $cron = 'no');
   drupal_goto("admin/content/signup/$tab");
 }
 
@@ -872,7 +880,7 @@ function signup_open_signup($nid, $cron = 'no') {
  * @ingroup signup_callback
  */
 function signup_open_signup_admin($nid, $tab = NULL) {
-  signup_open_signup($nid, $cron='no');
+  signup_open_signup($nid, $cron = 'no');
   drupal_goto("admin/content/signup/$tab");
 }
 
@@ -1047,7 +1055,7 @@ function signup_sign_up_user($signup_form) {
     // Must include this here as event module doesn't include timezone
     // support on all page requests.
     if (module_exists('event')) {
-      include_once(drupal_get_path('module', 'event') .'/event_timezones.inc');
+      require_once drupal_get_path('module', 'event') .'/event_timezones.inc';
     }
 
     // Format the start time, and compose the user's signup data for
@@ -1069,7 +1077,7 @@ function signup_sign_up_user($signup_form) {
       "%time" => $starttime,
       "%username" => $user->name,
       "%useremail" => $user_mail,
-      "%info" => $signup_data
+      "%info" => $signup_data,
     );
     $from = variable_get('site_mail', ini_get('sendmail_from'));
 
@@ -1182,7 +1190,7 @@ function signup_user_signups_form($node) {
     $rows[] = array(
       $username .'<br />'. gmdate(variable_get('signup_date_string', 'M jS, g:i A'), $signed_up_user->signup_time + $offset),
       $signup_form_data,
-      drupal_get_form('signup_user_cancel_form_'. $id, $id, $node->nid, $signed_up_user->uid, $signed_up_user->anon_mail)
+      drupal_get_form('signup_user_cancel_form_'. $id, $id, $node->nid, $signed_up_user->uid, $signed_up_user->anon_mail),
     );
   }
   $output .= theme('table', $header, $rows);
@@ -1289,7 +1297,7 @@ function _signup_admin_form($node) {
     $node->signup_forwarding_email = $result->forwarding_email;
     $node->signup_send_confirmation = $result->send_confirmation;
     $node->signup_confirmation_email = $result->confirmation_email;
-    $node->signup_send_reminder  = $result->send_reminder;
+    $node->signup_send_reminder = $result->send_reminder;
     $node->signup_reminder_days_before = $result->reminder_days_before;
     $node->signup_reminder_email = $result->reminder_email;
   }
@@ -1358,10 +1366,12 @@ function signup_build_signup_data($data, $type = 'output') {
   switch ($type) {
     case 'email':
       return theme('signup_custom_data_email', $data);
+
     case 'table':
       // This function used to take $type == 'table' when it wanted rows. :(
       return theme('signup_custom_data_rows', $data);
-    default: 
+
+    default:
       return theme('signup_custom_data', $data);
   }
 }
@@ -1376,19 +1386,19 @@ function signup_build_signup_data($data, $type = 'output') {
  * @see theme_signup_custom_data_email()
  */
 function theme_signup_email_token_custom_data($signup_data) {
-  return t('SIGNUP INFORMATION') . "\n\r" . theme('signup_custom_data_email', $signup_data);
+  return t('SIGNUP INFORMATION') ."\n\r". theme('signup_custom_data_email', $signup_data);
 }
 
 /**
  * Renders custom signup data into unfiltered output for use in email.
- * 
+ *
  * WARNING: This theme function is recursive (it calls itself for
  * nested data), so if you override it, be sure not to change the part
  * where it does "call_user_func(__FUNCTION__)".
- * 
+ *
  * @param $data
  *   Array of custom user signup data.
- * 
+ *
  * @return
  *   Plain text output with newlines.
  *
@@ -1401,10 +1411,10 @@ function theme_signup_custom_data_email($data) {
     if (is_array($value)) {
       // Element is nested, render it recursively.
       // Instead of the overhead of theme(), just call ourself directly.
-      $output .= "\n\r" . call_user_func(__FUNCTION__, $value) . "\n\r";
+      $output .= "\n\r". call_user_func(__FUNCTION__, $value) ."\n\r";
     }
     else {
-      $output .= $key . ': ' . $value . "\n\r";
+      $output .= $key .': '. $value ."\n\r";
     }
   }
   return $output;
@@ -1412,10 +1422,10 @@ function theme_signup_custom_data_email($data) {
 
 /**
  * Renders custom signup user data into a table.
- * 
+ *
  * @param $data
  *   Array of custom user signup data.
- * 
+ *
  * @return
  *   The themed table with custom signup user data.
  *
@@ -1437,10 +1447,10 @@ function theme_signup_custom_data_table($data) {
  * WARNING: This theme function is recursive (it calls itself for
  * nested data), so if you override it, be sure not to change the part
  * where it does "call_user_func(__FUNCTION__)".
- * 
+ *
  * @param $data
  *   Array of custom user signup data.
- * 
+ *
  * @return
  *   An array of table rows.
  *
@@ -1456,7 +1466,7 @@ function theme_signup_custom_data_rows($data) {
       $rows += call_user_func(__FUNCTION__, $value);
     }
     else {
-      $rows[] = array($key . ':', check_plain($value));
+      $rows[] = array($key .':', check_plain($value));
     }
   }
   return $rows;
@@ -1468,7 +1478,7 @@ function theme_signup_custom_data_rows($data) {
  * WARNING: This theme function is recursive (it calls itself for
  * nested data), so if you override it, be sure not to change the part
  * where it does "call_user_func(__FUNCTION__)".
- * 
+ *
  * @param $data
  *   Array of custom user signup data.
  *
@@ -1481,14 +1491,14 @@ function theme_signup_custom_data($data) {
   $output = '';
   // Loop through each first level element.
   foreach ($data as $key => $value) {
-    $output .= '<div id="' . signup_id_safe($key) . '">';
+    $output .= '<div id="'. signup_id_safe($key) .'">';
     if (is_array($value)) {
       // Element is nested, render it recursively.
       // Instead of the overhead of theme(), just call ourself directly.
       $output .= call_user_func(__FUNCTION__, $value);
     }
     else {
-      $output .= $key . ': ' . check_plain($value);
+      $output .= $key .': '. check_plain($value);
     }
     $output .= "</div>\n";
   }
@@ -1507,8 +1517,9 @@ function signup_id_safe($string) {
   $string = strtolower(preg_replace('/[^a-zA-Z0-9_-]+/', '-', $string));
   // If the first character is not a-z, add 'id' in front.
   // Don't use ctype_alpha since it's locale aware.
-  if (!ctype_lower($string{0})) { 
-    $string = 'id' . $string;
+  if (!ctype_lower($string{0})) {
+    $string = 'id'. $string;
   }
   return $string;
 }
+

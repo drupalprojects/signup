@@ -1,6 +1,7 @@
 <?php
 // $Id$
 
+
 /**
  * Implementation of hook_install()
  *
@@ -141,15 +142,14 @@ function signup_update_3() {
       $ret[] = update_sql("ALTER TABLE {signup_log} DROP INDEX uid_nid;");
       $ret[] = update_sql("ALTER TABLE {signup_log} ADD INDEX (uid);");
       $ret[] = update_sql("ALTER TABLE {signup_log} ADD INDEX (nid);");
-    break;
+      break;
 
     case 'pgsql':
       db_add_column($ret, 'signup_log', 'anon_mail', 'text', array('not null' => TRUE, 'default' => "''"));
       $ret[] = update_sql("DROP INDEX {signup_log}_uid_nid_idx;");
       $ret[] = update_sql("CREATE INDEX {signup_log}_uid_idx ON {signup_log}(uid);");
       $ret[] = update_sql("CREATE INDEX {signup_log}_nid_idx ON {signup_log}(nid);");
-    break;
-
+      break;
   }
   return $ret;
 }
@@ -197,3 +197,4 @@ function signup_update_4() {
 
   return $ret;
 }
+
