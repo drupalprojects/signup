@@ -14,6 +14,8 @@ New features since 5.x-2.5:
 Bugs fixed since 5.x-2.5:
 = #327417 by dww: Fixed bug where reminder emails always used
   '[Untimed]' for the %time token with event 5.x-2.*.
+= #328637 by dww: Fixed bug where error messages generated while
+  validating an anonymous user's email address weren't translatable.
 
 Other changes since 5.x-2.5:
 = #327726 by dww: Reorganized the directory layout of the code.
