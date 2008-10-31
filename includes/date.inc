@@ -10,24 +10,11 @@
 /**
  * @return Array of SQL clauses for admin overview page query builder.
  */
-function signup_admin_sql($content_type_field = NULL) {
+function _signup_date_admin_sql($content_type) {
+  $field = signup_date_field($content_type);
   return array(
-    'fields' => array('n.type', $content_type_field['database']['columns']['value']['column']),
-    'joins' => array('LEFT JOIN {'. $content_type_field['database']['table'] .'} ON {'. $content_type_field['database']['table'] .'}.vid = n.vid'),
-  );
-}
-
-function signup_admin_form_header() {
-  // TODO: Not sure if we can sort date fields, since they might be coming
-  // from different tables so for now 'field' is NULL to disable sorting on
-  // the date field
-  return array('data' => t('Start'), 'field' => NULL);
-}
-
-function signup_admin_form_extra($signup_event) {
-  return array(
-    '#type' => 'markup',
-    '#value' => signup_format_date($signup_event)
+    'fields' => array($field['database']['columns']['value']['column']),
+    'joins' => array('LEFT JOIN {'. $field['database']['table'] .'} ON {'. $field['database']['table'] .'}.vid = n.vid'),
   );
 }
 
@@ -42,10 +29,6 @@ function signup_field_names($content_type = NULL) {
     }
   }
   return $fields;
-}
-
-function signup_extra_tokens() {
-  return array('%time');
 }
 
 function signup_date_field($content_type) {
@@ -65,10 +48,6 @@ function signup_date_field($content_type) {
   return $field;
 }
 
-function theme_signup_event_dates($node) {
-  return signup_format_date($node, TRUE);
-}
-
 /**
  * Returns a list of all cck fields that have been set for use in signups
  */
@@ -84,31 +63,17 @@ function signup_content_type_fields() {
 }
 
 /**
- * Does this site have any date-enabled content?
- *
- * @return Bool: Always return TRUE in this backend
+ * Determine if the specific node is date-enabled.
  */
-function signup_site_has_dates() {
-  return TRUE;
-}
-
-/**
- * @return Bool: Is this node type date-enabled?
- */
-function signup_node_type_has_date($type) {
-  $signup_date_field = variable_get('signup_date_field_'. $type, 0);
-  return (!empty($signup_date_field) && $signup_date_field != 'none');
-}
-
-/**
- * @return Bool: Is this specific node date-enabled?
- */
-function signup_node_has_date($node) {
-  if (signup_node_type_has_date($node->type)) {
-    $field = signup_date_field($node->type);
-    return isset($node->{$field['field_name']});
+function _signup_date_get_node_scheduler($node) {
+  $field = signup_date_field($node->type);
+  if (isset($node->{$field['field_name']})) {
+    return 'date';
   }
-  return FALSE;
+  if (isset($node->{$field['database']['columns']['value']['column']})) {
+    return 'date';
+  }
+  return 'none';
 }
 
 /**

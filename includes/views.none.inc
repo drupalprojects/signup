@@ -100,3 +100,21 @@ function signup_user_schedule($uid) {
   }
   return $output;
 }
+
+/**
+ * Returns an array of node titles with links for all events the
+ * specified user has signed up for.
+ */
+function signup_list_user_signups($uid) {
+  $titles = array();
+
+  // We don't want to return anything for anon users.
+  if ($uid != 0) {
+    $sql = "SELECT n.nid, n.title FROM {node} n INNER JOIN {signup_log} s_l ON n.nid = s_l.nid WHERE s_l.uid = %d ORDER BY n.nid";
+    $result = db_query(db_rewrite_sql($sql), $uid);
+    while ($node = db_fetch_array($result)) {
+      $titles[$node['nid']] = l($node['title'], 'node/'. $node['nid']);
+    }
+  }
+  return $titles;
+}

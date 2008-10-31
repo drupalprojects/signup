@@ -4,7 +4,7 @@
 /**
  * @return Array of SQL clauses for cron reminder email query builder.
  */
-function signup_reminder_sql($content_type = NULL) {
+function _signup_event_reminder_sql($content_type) {
   global $db_type;
   event_include_files();
   switch ($db_type) {
@@ -25,7 +25,7 @@ function signup_reminder_sql($content_type = NULL) {
 /**
  * @return Array of SQL clauses for cron auto-close query builder.
  */
-function signup_autoclose_sql($content_type = NULL) {
+function _signup_event_autoclose_sql($content_type) {
   event_include_files();
   return array(
     'fields' => array(event_select(), 'e.timezone'),
@@ -37,7 +37,7 @@ function signup_autoclose_sql($content_type = NULL) {
 /**
  * @return Array of SQL clauses for admin overview page query builder.
  */
-function signup_admin_sql($content_type = NULL) {
+function _signup_event_admin_sql($content_type = NULL) {
   return array(
     'fields' => array(event_select(), 'e.timezone'),
     'group_by' => array('event_start', 'e.timezone'),
@@ -45,29 +45,11 @@ function signup_admin_sql($content_type = NULL) {
   );
 }
 
-function signup_admin_form_header() {
-  return array('data' => t('Start'), 'field' => event_select());
-}
-
-function signup_admin_form_extra($signup_event) {
-  return array(
-    '#type' => 'markup',
-    '#value' => event_format_date($signup_event->event_start, variable_get('signup_date_format', 'medium')),
-  );
-}
-
-function signup_list_user_signups_sql($content_type = NULL) {
-  return 'SELECT n.nid, n.title, '. event_select() .' FROM {node} n INNER JOIN {signup_log} s_l ON n.nid = s_l.nid '. event_join('n', 'LEFT') .' WHERE s_l.uid = %d AND ('. event_where() ." >= '". event_implode_date(_event_user_time()) ."' OR e.event_start IS NULL) ORDER BY event_start";
-}
-
 /**
  * Returns true if the given node is event-enabled, and the start time
  * has already passed the "Close x hours before" setting.
  */
-function _signup_event_completed($node) {
-  if (is_numeric($node)) {
-    $node = node_load($node);
-  }
+function _signup_event_node_completed($node) {
   if (isset($node->event)) {
     $closing_time = date('Y-m-d H:i:s', time() + (variable_get('signup_close_early', 1) * 3600));
     if (event_is_later($closing_time, $node->event['start_utc'], 'string')) {
@@ -77,11 +59,7 @@ function _signup_event_completed($node) {
   return FALSE;
 }
 
-function signup_extra_tokens() {
-  return array('%time');
-}
-
-function signup_format_date($node) {
+function _signup_event_format_date($node) {
   $event_date = array();
   if (!empty($node->event['start'])) {
     $event_date = event_explode_date($node->event['start']);
@@ -93,35 +71,19 @@ function signup_format_date($node) {
 }
 
 /**
- * Return a list of fields used for signup functionality.
+ * Determine if the given node has a start time managed by the event.module.
  *
- * For the event* backends, this just returns the name 'Event' so that we
- * invoke the event backend with something, but the field names and content
- * types are ignored since we're just using the event module, not CCK.
- */
-function signup_content_type_fields() {
-  return array('Event');
-}
-
-/**
- * Does this site have any date-enabled content?
+ * @param $node
+ *   Fully loaded node object to test.
  *
- * @return Bool: Always return TRUE in this backend
+ * @return
+ *   'event' if this is an event node, otherwise 'none'.
+ *
+ * @see _signup_get_node_scheduler()
  */
-function signup_site_has_dates() {
-  return TRUE;
-}
-
-/**
- * @return Bool: Is this node type date-enabled?
- */
-function signup_node_type_has_date($type) {
-  return variable_get('event_nodeapi_'. $type, 'never') != 'never';
-}
-
-/**
- * @return Bool: Is this specific node date-enabled?
- */
-function signup_node_has_date($node) {
-  return isset($node->event) && isset($node->event['start']);
+function _signup_event_get_node_scheduler($node) {
+  if (isset($node->event) && isset($node->event['start'])) {
+    return 'event';
+  }
+  return isset($node->event_start) ? 'event' : 'none';
 }

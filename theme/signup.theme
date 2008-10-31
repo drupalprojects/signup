@@ -11,10 +11,6 @@
 function theme_signup_user_schedule($node) {
   $output = '';
   $output .= '<div class="signup-user-schedule"><div class="'. $node->type. 'signup-title"><h4>'. l($node->title, "node/$node->nid") . '</h4></div></div>';
-
-  // Add optional output for the start and ending dates for this node.
-  $output .= theme('signup_event_dates', $node);
-
   return $output;
 }
 
