@@ -16,10 +16,6 @@ events.  Both can receive confirmation and reminder emails, and
 registered users are also able to cancel their signups and view listings
 of their current signups.
 
-Conflict resolution features for registered users is also available by
-enabling the signup_conflicts module, located in the contrib folder of the
-signup module.
-
 For installation instructions, see INSTALL.txt.
 
 For instructions on upgrading, see UPGRADE.txt.
