@@ -800,7 +800,7 @@ function theme_signup_anonymous_user_login_text($anon_login_text) {
  */
 function _signup_node_output($node, $type = 'node') {
   global $user;
-  $output = '';
+  $output = theme('signup_node_output_header', $node);
   // The node has been closed for signups, and the user has
   // signup permissions.  Let them know it's closed.
   if (!$node->signup_status) {
@@ -899,6 +899,21 @@ function _signup_node_output($node, $type = 'node') {
     // all, or they want to handle where/how it's displayed via views.
   }
   return $output;
+}
+
+/**
+ * Return HTML desired at the top of the signup output for a node.
+ *
+ * @param $node
+ *   The fully loaded node object to generate a header for.
+ *
+ * @return
+ *   HTML to display at the top of the signup output.
+ *
+ * @see _signup_node_output()
+ */
+function theme_signup_node_output_header($node) {
+  return '<a name="signup"></a>';
 }
 
 /**

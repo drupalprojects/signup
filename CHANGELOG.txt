@@ -9,6 +9,9 @@ New features since 5.x-2.5:
   (auto-closing signups and reminder emails). Currently works with
   date.module versions 5.x-1.* and 5.x-2.*.
 = #321531 by stBorchert and dww: Exposed the signup form as a panel pane.
+= #78707 by dww: Added a theme_signup_node_output_header() function to
+  customize HTML at the top of the signup-related output on nodes.
+  The default implementation adds a 'signup' anchor.
 
 Bugs fixed since 5.x-2.5:
 = #327417 by dww: Fixed bug where reminder emails always used
