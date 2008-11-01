@@ -58,7 +58,7 @@ function theme_signup_user_form() {
     '#type' => 'textfield',
     '#title' => t('Name'),
     '#size' => 40, '#maxlength' => 64,
-    '#required' => true,
+    '#required' => TRUE,
   );
   $form['signup_form_data']['Phone'] = array(
     '#type' => 'textfield',
