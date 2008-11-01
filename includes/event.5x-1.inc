@@ -60,7 +60,7 @@ function _signup_event_node_completed($node) {
   return FALSE;
 }
 
-function signup_event_format_date($node) {
+function _signup_event_format_date($node) {
   include_once (drupal_get_path('module', 'event') .'/event_timezones.inc');
   $offset = intval(variable_get('date_default_timezone', 0));
   $format = _signup_get_date_format();
