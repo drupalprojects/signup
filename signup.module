@@ -632,7 +632,7 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
         $has_signup_record = db_result(db_query('SELECT COUNT(*) FROM {signup} WHERE nid = %d', $node->nid));
         switch ($form_values['signup_enabled']) {
           case 1: // Enabled
-            $limit_changed = false;
+            $limit_changed = FALSE;
             if ($has_signup_record) {
               // See if the limit is going to change, since if it did,
               // we might have to change the status, too.
@@ -1242,7 +1242,7 @@ function signup_admin_form() {
     );
     $form['nids'][$signup_node->nid] = $row;
   }
-  $form['#tree'] = true;
+  $form['#tree'] = TRUE;
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Update'),
@@ -1443,15 +1443,15 @@ function signup_settings_page() {
     '#type' => 'fieldset',
     '#title' => t('Default signup information'),
     '#description' => t('New signup-enabled nodes will start with these settings.'),
-    '#collapsible' => true,
+    '#collapsible' => TRUE,
   );
   $form['node_defaults']['_signup_admin_form'] = _signup_admin_form($node, signup_site_has_dates());
 
   $form['adv_settings'] = array(
     '#type' => 'fieldset',
     '#title' => t('Advanced settings'),
-    '#collapsible' => true,
-    '#collapsed' => true,
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
   );
   $form['adv_settings']['signup_date_format'] = array(
     '#title' => t('Format string for displaying signup-related dates'),
@@ -2416,12 +2416,12 @@ function signup_broadcast_form($node) {
   $form['subject'] = array(
     '#type' => 'textfield',
     '#title' => t('Subject'),
-    '#required' => true,
+    '#required' => TRUE,
   );
   $form['message'] = array(
     '#type' => 'textarea',
     '#title' => t('Message body'),
-    '#required' => true,
+    '#required' => TRUE,
     '#description' => t('Body of the email message you wish to send to all users who have signed up for this @node_type. !token_description', array('@node_type' => $node->type, '!token_description' => $token_text)),
     '#rows' => 10,
   );
@@ -2449,7 +2449,7 @@ function signup_broadcast_form($node) {
     $form['from'] = array(
       '#type' => 'textfield',
       '#title' => t('From'),
-      '#required' => true,
+      '#required' => TRUE,
       '#default_value' => $user->mail,
       '#weight' => '-10',
     );

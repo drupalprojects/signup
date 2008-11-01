@@ -34,20 +34,20 @@ function _signup_views_tables() {
       'uid' => array(
         'name' => t('Signup: User: Name'),
         'handler' => 'views_handler_field_uid',
-        'sortable' => true,
+        'sortable' => TRUE,
         'help' => t('Username of an authenticated user who signed up, or %anonymous for anonymous signups.', array('%anonymous' => variable_get('anonymous', t('Anonymous')))),
       ),
       'email' => array(
         'name' => t('Signup: User: Email Address'),
         'handler' => 'views_handler_field_signup_email',
-        'sortable' => true,
+        'sortable' => TRUE,
         'field' => 'uid',
         'addlfields' => array('anon_mail'),
         'help' => t('Email address of a user (authenticated or anonymous) who signed up.') .' <strong>'. t('WARNING: only expose this data in a view that is restricted to users whom you can trust with such sensitive information.') .'</strong>',
       ),
       'signup_time' => array(
         'name' => t('Signup: User: Signup Time'),
-        'sortable' => true,
+        'sortable' => TRUE,
         'handler' => views_handler_field_dates(),
         'option' => 'string',
         'help' => t('Time when user signed up.'),
@@ -111,13 +111,13 @@ function _signup_views_tables() {
     'fields' => array(
       'status' => array(
         'name' => t('Signup: Node: Open/Closed'),
-        'sortable' => true,
+        'sortable' => TRUE,
         'handler' => 'views_handler_field_signup_status',
         'help' => t('Are signups open or closed for this node?'),
       ),
       'close_signup_limit' => array(
         'name' => t('Signup: Node: Signup Limit'),
-        'sortable' => true,
+        'sortable' => TRUE,
         'help' => t('Maximum number of users who can sign up before signups are automatically closed (set to 0 for no limit).'),
       ),
       'forwarding_email' => array(
@@ -126,7 +126,7 @@ function _signup_views_tables() {
       ),
       'send_confirmation' => array(
         'name' => t('Signup: Confirmation: Enabled/Disabled'),
-        'sortable' => true,
+        'sortable' => TRUE,
         'help' => t('Should confirmation email be sent to each user who signs up.'),
       ),
       'confirmation_email' => array(
@@ -135,12 +135,12 @@ function _signup_views_tables() {
       ),
       'send_reminder' => array(
         'name' => t('Signup: Reminder: Enabled/Disabled'),
-        'sortable' => true,
+        'sortable' => TRUE,
         'help' => t('Should a reminder email be automatically sent to all users who signed up. This will be false if either an administrator disabled the feature for a given event, or if the reminder was already sent.'),
       ),
       'reminder_days_before' => array(
         'name' => t('Signup: Reminder: Days Before Event for Email'),
-        'sortable' => true,
+        'sortable' => TRUE,
         'help' => t('How many days before an event will the reminder email be sent.'),
       ),
       'reminder_email' => array(
@@ -151,7 +151,7 @@ function _signup_views_tables() {
       // Already in the schema, but not implemented in the code, yet:
       'close_in_advance_time' => array(
         'name' => t('Signup: Node: Close in Advance Time'),
-        'sortable' => true,
+        'sortable' => TRUE,
         'handler' => 'views_handler_field_since',
         'help' => t('How many days before an event will the reminder email be sent.'),
       ),
@@ -257,7 +257,7 @@ function _signup_views_arguments() {
 function views_handler_arg_signup_uid($op, &$query, $argtype, $arg = '') {
   switch ($op) {
     case 'summary':
-      $query->add_table('signup_log', true);
+      $query->add_table('signup_log', TRUE);
       $query->add_field('uid', 'signup_log');
       $fieldinfo['field'] = "signup_log.uid";
       return $fieldinfo;
@@ -287,7 +287,7 @@ function views_handler_arg_signup_uid($op, &$query, $argtype, $arg = '') {
             'uid' => $uid,
           ),
         );
-        $num = $query->add_table('signup_log', true, 1, $joininfo);
+        $num = $query->add_table('signup_log', TRUE, 1, $joininfo);
         $tablename = $query->get_table_name('signup_log', $num);
         $query->add_where("$tablename.uid IS NULL");
       }
