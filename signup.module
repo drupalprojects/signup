@@ -900,7 +900,7 @@ function signup_settings_page() {
     '#type' => 'fieldset',
     '#title' => t('Default signup information'),
     '#description' => t('New signup-enabled nodes will start with these settings.'),
-    '#collapsible' => true,
+    '#collapsible' => TRUE,
   );
   $form['node_defaults']['_signup_admin_form'] = _signup_admin_form($node);
 
