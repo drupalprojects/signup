@@ -29,10 +29,12 @@ function theme_signup_user_schedule($node) {
 }
 
 /**
- * Returns any site-specific custom fields for the signup user form.
+ * Return the site-specific custom fields for the signup user form.
  *
- * Feel free to alter any elements in this section, remove them, or
- * add any others.
+ * To customize this for your site, copy this entire function into
+ * your theme's template.php file, rename the function to
+ * phptemplate_signup_user_form(), and modify to taste.  Feel free to
+ * alter any elements in this section, remove them, or add any others.
  *
  * In order for the form to be rendered properly, the name of the form
  * element must be $form['signup_form_data']['NameOfDataField'], where
