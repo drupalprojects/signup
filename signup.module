@@ -902,7 +902,7 @@ function signup_settings_page() {
     '#description' => t('New signup-enabled nodes will start with these settings.'),
     '#collapsible' => TRUE,
   );
-  $form['node_defaults']['_signup_admin_form'] = _signup_admin_form($node);
+  $form['node_defaults']['_signup_admin_form'] = _signup_admin_form(NULL);
 
   // Use our own submit handler, so we can do some processing before
   // we hand control to system_settings_form_submit.
@@ -1289,7 +1289,7 @@ function signup_validate_anon_email($nid, $anon_mail, $name = FALSE) {
  * by the settings page and the node edit page.
  * @ingroup signup_internal
  */
-function _signup_admin_form($node) {
+function _signup_admin_form($node = NULL) {
 
   // Load the default admin form data for new nodes.
   if (!$node || !$node->signup) {
