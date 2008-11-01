@@ -4,17 +4,23 @@ The signup module allows users to sign up for nodes of any type.  For
 each signup-enabled node, this module provides options for sending a
 notification email to a selected email address upon a new user signup
 (good for notifying event coordinators, etc.), and a confirmation
-email to users who sign up.  When used on event-enabled nodes (with
-the event.module installed), it can also send out reminder emails to
-all signups X days before the start of the event (per node setting),
-and automatically close event signups X hours before their start
-(general setting).  Settings exist for restricting signups to selected
-roles and content types.
+email to users who sign up.  When used on event-enabled nodes
+(http://drupal.org/project/event) or nodes that have a CCK date field
+(http://drupal.org/project/date), it can also send out reminder emails
+to all signups X days before the start of the event (per node
+setting), and automatically close signups X hours before their start
+(general setting).  There are settings for restricting signups to
+selected roles and content types.
 
-Support exists for both registered and anonymous users to sign up for
-events.  Both can receive confirmation and reminder emails, and
-registered users are also able to cancel their signups and view listings
-of their current signups.
+There is support for both registered and anonymous users to sign up.
+Both can receive confirmation and reminder emails, and registered
+users are also able to cancel their signups and view listings of their
+current signups.
+
+There is extensive integration with the Views module
+(http://druapl.org/project/views), and also support to embed the
+signup form as a pane using panels (http://druapl.org/project/panels).
+
 
 For installation instructions, see INSTALL.txt.
 

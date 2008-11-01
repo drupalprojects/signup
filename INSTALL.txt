@@ -24,7 +24,9 @@ the Drupal package and read the online documentation.
    Administer > Site building > Modules
 
    Note: if you want support for automatic closing of events and
-   reminder emails you must also install and enable the event package!
+   reminder emails you must also install and enable either the Event
+   module (http://drupal.org/project/event) or use the Date module
+   (http://drupal.org/project/date) and add at least one date field.
 
    Click the 'Save configuration' button at the bottom to commit your
    changes.
