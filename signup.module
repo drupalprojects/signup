@@ -2692,7 +2692,7 @@ function _signup_get_email_tokens($node, $signup) {
   // Determine if this is an anon signup or not, and get the right info.
   if (!empty($signup->anon_mail)) {
     $tokens['%useremail'] = $signup->anon_mail;
-    $tokens['%username'] = theme('signup_email_token_anonymous_username', $signup_data_array, $signup->anon_mail);
+    $tokens['%username'] = theme('signup_email_token_anonymous_username', $signup_data, $signup->anon_mail);
   }
   else {
     $tokens['%useremail'] = $signup->mail;

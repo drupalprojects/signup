@@ -21,6 +21,9 @@ Bugs fixed since 5.x-2.5:
   up the same date logic for the event 5.x-1.* support.
 = #328637 by dww: Fixed bug where error messages generated while
   validating an anonymous user's email address weren't translatable.
+= #290734 by dww: Fixed a bug from the previous patch where the
+  %username token for anonymous users wasn't actually being replaced
+  inside theme_signup_email_token_anonymous_username().
 
 Other changes since 5.x-2.5:
 = #327726 by dww: Reorganized the directory layout of the code.
