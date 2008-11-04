@@ -580,110 +580,15 @@ function signup_form_validate_username($form, $nid) {
  */
 
 /**
- * hook_nodeapi implementation
+ * Implementation of hook_nodeapi().
  *
  * @ingroup signup_nodeapi
  */
 function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
-  global $form_values;
-  $signup_type_default = variable_get('signup_node_default_state_'. $node->type, 'disabled');
-
   switch ($op) {
     case 'insert':
-      if (isset($form_values['signup_enabled'])) {
-        if ($form_values['signup_enabled'] == 1) {
-          $values = array(
-            $node->nid,
-            $form_values['signup_forwarding_email'],
-            $form_values['signup_send_confirmation'],
-            $form_values['signup_confirmation_email'],
-            $form_values['signup_send_reminder'],
-            $form_values['signup_reminder_days_before'],
-            $form_values['signup_reminder_email'],
-            $form_values['signup_close_signup_limit'],
-          );
-        }
-      }
-      else if ($signup_type_default == 'enabled_on') {
-        // The form doesn't include any information about signups, but
-        // the node type is signup-enabled. This would happen if a
-        // user without any signup admin permissions creates a node
-        // that has been signup-enabled based on the node type. In
-        // this case, we use the site-wide default signup settings.
-        $defaults = db_fetch_array(db_query("SELECT * from {signup} WHERE nid = 0"));
-        $values = array(
-          $node->nid,
-          $defaults['forwarding_email'],
-          $defaults['send_confirmation'],
-          $defaults['confirmation_email'],
-          $defaults['send_reminder'],
-          $defaults['reminder_days_before'],
-          $defaults['reminder_email'],
-          $defaults['close_signup_limit'],
-        );
-      }
-      if (isset($values)) {
-        db_query("INSERT INTO {signup} (nid, forwarding_email, send_confirmation, confirmation_email, send_reminder, reminder_days_before, reminder_email, close_signup_limit) VALUES (%d, '%s', %d, '%s', %d, %d, '%s', %d)", $values);
-      }
-      break;
-
     case 'update':
-      if (isset($form_values['signup_enabled'])) {
-        $has_signup_record = db_result(db_query('SELECT COUNT(*) FROM {signup} WHERE nid = %d', $node->nid));
-        switch ($form_values['signup_enabled']) {
-          case 1: // Enabled
-            $limit_changed = FALSE;
-            if ($has_signup_record) {
-              // See if the limit is going to change, since if it did,
-              // we might have to change the status, too.
-              $cur_limit = db_result(db_query("SELECT close_signup_limit FROM {signup} WHERE nid = %d", $node->nid));
-              $limit_changed = $cur_limit != $node->signup_close_signup_limit;
-              db_query("UPDATE {signup} SET forwarding_email  = '%s', send_confirmation = %d, confirmation_email  = '%s', send_reminder = %d, reminder_days_before = %d, reminder_email = '%s', close_signup_limit = %d WHERE nid = %d",
-                $node->signup_forwarding_email,
-                $node->signup_send_confirmation,
-                $node->signup_confirmation_email,
-                $node->signup_send_reminder,
-                $node->signup_reminder_days_before,
-                $node->signup_reminder_email,
-                $node->signup_close_signup_limit,
-                $node->nid
-              );
-            }
-            else {
-              db_query("INSERT INTO {signup} (nid, forwarding_email, send_confirmation, confirmation_email, send_reminder, reminder_days_before, reminder_email, close_signup_limit) VALUES (%d, '%s', %d, '%s', %d, %d, '%s', %d)", $node->nid,
-                $node->signup_forwarding_email,
-                $node->signup_send_confirmation,
-                $node->signup_confirmation_email,
-                $node->signup_send_reminder,
-                $node->signup_reminder_days_before,
-                $node->signup_reminder_email,
-                $node->signup_close_signup_limit
-              );
-            }
-            if (_signup_node_completed($node) && $node->signup_status) {
-              // If this is an time-based node, and it's already past the
-              // close in advance time, and signups are still open, close them
-              // now (and don't consider the limit for changing the status).
-              signup_close_signup($node->nid);
-              drupal_set_message(t('%node_type start time is already past the signup close-in-advance time, signups now closed.', array('%node_type' => node_get_types('name', $node->type))));
-            }
-            else if ($limit_changed) {
-              _signup_check_limit($node, 'limit');
-            }
-            break;
-
-          case 2: // Disabled, and delete {signup_log}, too
-            db_query("DELETE FROM {signup_log} WHERE nid = %d", $node->nid);
-            // No break, fall through and remove from {signup} too.
-
-          case 0: // Disabled, but leave {signup_log} alone
-            if ($has_signup_record) {
-              db_query("DELETE FROM {signup} WHERE nid = %d", $node->nid);
-            }
-            break;
-
-        }
-      }
+      signup_save_node($node, $op);
       break;
 
     case 'delete':
@@ -699,7 +604,7 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
 
       // Load signup data for both new nodes w/ enabled node types,
       // and any existing nodes that are already signup enabled.
-      if ((!$node->nid && $signup_type_default == 'enabled_on') || ($node->nid && db_num_rows($result))) {
+      if ((!$node->nid && variable_get('signup_node_default_state_'. $node->type, 'disabled') == 'enabled_on') || ($node->nid && db_num_rows($result))) {
         $signup = db_fetch_object($result);
         $node->signup = 1;
         $node->signup_forwarding_email = $signup->forwarding_email;
@@ -737,6 +642,118 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
         }
       }
       break;
+  }
+}
+
+/**
+ * Save signup-related information when a node is created or edited.
+ *
+ * This is a helper function invoked via signup_nodeapi().  It ensures that
+ * the currently selected signup values are properly saved into the database.
+ * If the node is signup-enabled, the per-node configuration values are saved
+ * to the {signup} table. If signups are disabled, the record from {signup} is
+ * cleared.  If the signup administrator editing the node decided to remove
+ * all signup data, all the records from the {signup_log} table for this node
+ * are also removed.  This function is also responsible for testing if the
+ * node * has a start time and if the autoclose period has already begun, in
+ * which case signups are closed.  Finally, if the signup limit was changed
+ * while editing the node, the function compares the limit against the current
+ * total number of signups and opens or closes signups as appropriate.
+ *
+ * @param $node
+ *   The node object given to signup_nodeapi().
+ * @param $op
+ *   The hook_nodeapi() operation, either 'insert' or 'update'.
+ *
+ * @return
+ *   Nothing, this function is expected to update the database.
+ *
+ * @see signup_nodeapi()
+ */
+function signup_save_node($node, $op) {
+  // Before we update the DB, see if the limit is changing, so we can take
+  // appropriate action later on.
+  $has_signup_record = FALSE;
+  $limit_changed = FALSE;
+  if ($op == 'update') {
+    $cur_limit = db_result(db_query("SELECT close_signup_limit FROM {signup} WHERE nid = %d", $node->nid));
+    if ($cur_limit !== FALSE) {
+      $has_signup_record = TRUE;
+      $limit_changed = $cur_limit != $node->signup_close_signup_limit;
+    }
+  }
+
+  // See if the form indicates that signups are enabled on this node.
+  if (isset($node->signup_enabled)) {
+    if ($node->signup_enabled == 1) {
+      $values = array(
+        $node->signup_forwarding_email,
+        $node->signup_send_confirmation,
+        $node->signup_confirmation_email,
+        $node->signup_close_signup_limit,
+      );
+      // If we're dealing with a node that doesn't have a start time, these
+      // fields are missing from the signup settings form, so we can't assume
+      // they're defined.
+      $values[] = isset($node->signup_send_reminder) ? $node->signup_send_reminder : 0;
+      $values[] = isset($node->signup_reminder_days_before) ? $node->signup_reminder_days_before : 0;
+      $values[] = isset($node->signup_reminder_email) ? $node->signup_reminder_email : '';
+    }
+  }
+  else if (variable_get('signup_node_default_state_'. $node->type, 'disabled') == 'enabled_on') {
+    // The form doesn't include any information about signups, but the node
+    // type is signup-enabled. This would happen if a user without any signup
+    // admin permissions creates a node that has been signup-enabled based on
+    // the node type. In this case, we use the site-wide default signup
+    // settings.
+    $defaults = db_fetch_object(db_query("SELECT * from {signup} WHERE nid = 0"));
+    $values = array(
+      $defaults->forwarding_email,
+      $defaults->send_confirmation,
+      $defaults->confirmation_email,
+      $defaults->close_signup_limit,
+      $defaults->send_reminder,
+      $defaults->reminder_days_before,
+      $defaults->reminder_email,
+    );
+  }
+
+  if (isset($values)) {
+    // If $values is set, we need to save them to the DB.  See if we need to
+    // update an existing record or insert a new one.  Either way, we always
+    // the nid as the final value. The nid will either be used as the last
+    // column in the INSERT, or the argument to the WHERE clause for the
+    // UPDATE.
+    $values[] = $node->nid;
+    if ($has_signup_record) {
+      db_query("UPDATE {signup} SET forwarding_email = '%s', send_confirmation = %d, confirmation_email = '%s', close_signup_limit = %d, send_reminder = %d, reminder_days_before = %d, reminder_email = '%s' WHERE nid = %d", $values);
+    }
+    else {
+      db_query("INSERT INTO {signup} (forwarding_email, send_confirmation, confirmation_email, close_signup_limit, send_reminder, reminder_days_before, reminder_email, nid) VALUES ('%s', %d, '%s', %d, %d, %d, '%s', %d)", $values);
+    }
+    if (_signup_node_completed($node) && $node->signup_status) {
+      // If this is an time-based node, and it's already past the close in
+      // advance time, and signups are still open, close them now (and don't
+      // consider the limit for changing the status).
+      signup_close_signup($node->nid);
+      drupal_set_message(t('%node_type start time is already past the signup close-in-advance time, signups now closed.', array('%node_type' => node_get_types('name', $node->type))));
+    }
+    else if ($limit_changed) {
+      _signup_check_limit($node, 'limit');
+    }
+  }
+  else if (isset($node->signup_enabled)) {
+    // $values was not set, because signups are now disabled on this node.
+    switch ($node->signup_enabled) {
+      case 2: // Disabled, and delete {signup_log}, too
+        db_query("DELETE FROM {signup_log} WHERE nid = %d", $node->nid);
+        // No break, fall through and remove from {signup} too.
+      case 0: // Disabled, but leave {signup_log} alone
+        if ($has_signup_record) {
+          db_query("DELETE FROM {signup} WHERE nid = %d", $node->nid);
+        }
+        break;
+    }
   }
 }
 
