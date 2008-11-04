@@ -133,9 +133,19 @@ function _signup_date_alter_node_type_form($form_id, &$form) {
   $form['workflow']['signup_node_default_state']['#prefix'] = '<div class="signup-node-default-state-radios">';
   $form['workflow']['signup_node_default_state']['#suffix'] = '</div>';
 
+  // If event.module is enabled, add a div for those settings, too.
+  if (!empty($form['workflow']['event_nodeapi'])) {
+    $form['workflow']['event_nodeapi']['#prefix'] = '<div class="event-nodeapi-radios">';
+    $form['workflow']['event_nodeapi']['#suffix'] = '</div>';
+    $event_enabled = $form['workflow']['event_nodeapi']['#default_value'] != 'never';
+  }
+  else {
+    $event_enabled = FALSE;
+  }
+
   // Figure out if we should hide the date field selector by default.
   $class = 'signup-date-field-setting';
-  if ($default_signup_state == 'disabled') {
+  if ($default_signup_state == 'disabled' || $event_enabled) {
     $class .= ' js-hide';
   }
 
@@ -215,7 +225,8 @@ function signup_date_check_node_types($type) {
  */
 function signup_date_field_check_config($type, $name) {
   $signup_default_state = variable_get('signup_node_default_state_'. $type, 'disabled');
-  if ($signup_default_state != 'disabled') {
+  $signup_scheduler = _signup_get_node_type_scheduler($type);
+  if ($signup_scheduler != 'event' && $signup_default_state != 'disabled') {
     // Signups aren't disabled on this node type, see if there's a date field.
     $signup_date_field = signup_date_field($type);
     if ($signup_date_field != 'none') {

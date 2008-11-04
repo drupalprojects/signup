@@ -6,8 +6,9 @@ $Id$
 New features since 5.x-2.5:
 = #86462 by KarenS, dww, duellj, shane_jordan, and stBorchert: Added
   support to use CCK date fields to control time-based functionality
-  (auto-closing signups and reminder emails). Currently works with
-  date.module versions 5.x-1.* and 5.x-2.*.
+  (auto-closing signups and reminder emails).  Currently works with
+  date.module versions 5.x-1.* and 5.x-2.*.  Related issues:
+  #328181, #328647, #329668, #329708, and #330121.
 = #321531 by stBorchert and dww: Exposed the signup form as a panel pane.
 = #78707 by dww: Added a theme_signup_node_output_header() function to
   customize HTML at the top of the signup-related output on nodes.

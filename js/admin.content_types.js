@@ -1,13 +1,27 @@
 /* $Id$ */
 
 /**
- * On a node type settings form, if the "Allow signups" radios are 
- * not set to 0 ('Disabled'), then show the date field selection,
- * otherwise, hide it.
+ * Conditionally show or hide the signup date field setting.
+ *
+ * On a node type settings form, if the "Allow signups" radios set
+ * set to 0 ('Disabled'), or the node type is event-enabled, then
+ * hide the date field setting.  Otherwise, show it.
  */
-Drupal.signupShowDateFieldAutoAttach = function () {
-  $('div.signup-node-default-state-radios input[@type=radio]').click(function () {
-    if (this.value == 'disabled') {
+Drupal.signupDateFieldAutoAttach = function () {
+  $('div.signup-node-default-state-radios input[@type=radio], div.event-nodeapi-radios input[@type=radio]').click(function () {
+    var eventEnabled = false;
+    var signupDisabled = true;
+    $('div.event-nodeapi-radios input.form-radio').each(function() {
+      if (this.checked && this.value != 'never') {
+        eventEnabled = true;
+      }
+    });
+    $('div.signup-node-default-state-radios input.form-radio').each(function() {
+      if (this.checked && this.value != 'disabled') {
+        signupDisabled = false;
+      }
+    });
+    if (signupDisabled || eventEnabled) {
       $('div.signup-date-field-setting').hide();
     }
     else {
@@ -19,6 +33,6 @@ Drupal.signupShowDateFieldAutoAttach = function () {
 // Global killswitch.
 if (Drupal.jsEnabled) {
   $(function() {
-    Drupal.signupShowDateFieldAutoAttach();
+    Drupal.signupDateFieldAutoAttach();
   });
 }
