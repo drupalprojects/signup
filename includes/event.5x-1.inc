@@ -13,7 +13,10 @@ function _signup_event_reminder_sql($content_type) {
   return array(
     'fields' => array('e.event_start', 'e.timezone'),
     'joins' => array('INNER JOIN {event} e ON e.nid = n.nid'),
-    'where' => array('('. time() .' > (e.event_start - ((s.reminder_days_before) * 86400)))'),
+    'where' => array(
+      '('. time() .' > (e.event_start - ((s.reminder_days_before) * 86400)))',
+      '('. time() .' <= e.event_start)',
+    ),
   );
 }
 

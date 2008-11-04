@@ -12,11 +12,17 @@ function _signup_date_reminder_sql($content_type) {
   switch ($db_type) {
     case 'mysql':
     case 'mysqli':
-      $where = array("NOW() + INTERVAL s.reminder_days_before DAY > ". date_sql('DATE', $field['database']['columns']['value']['column'], 'iso'));
+      $where = array(
+        "NOW() + INTERVAL s.reminder_days_before DAY > ". date_sql('DATE', $field['database']['columns']['value']['column'], 'iso'),
+        "NOW() <= ". date_sql('DATE', $field['database']['columns']['value']['column'], 'iso'),
+      );
       break;
 
     case 'pgsql':
-      $where = array("NOW() + INTERVAL s.reminder_days_before days > ". date_sql('DATE', $field['database']['columns']['value']['column'], 'iso'));
+      $where = array(
+        "NOW() + INTERVAL s.reminder_days_before days > ". date_sql('DATE', $field['database']['columns']['value']['column'], 'iso'),
+        "NOW() <= ". date_sql('DATE', $field['database']['columns']['value']['column'], 'iso'),
+      );
       break;
   }
   return array(

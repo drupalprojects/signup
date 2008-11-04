@@ -19,6 +19,11 @@ Bugs fixed since 5.x-2.5:
 = #327417 by dww: Fixed bugs regarding timezones and other date logic
   for auto-close and reminder emails with event 5.x-2.*.  Also cleaned
   up the same date logic for the event 5.x-1.* support.
+= #329708 by dww: Fixed bug where reminder emails could be sent for
+  time-based content that already started.  This would be particularly
+  prominent if a site has content types that use CCK date fields which
+  are signup enabled, then upgraded to the latest version.  But, the
+  bug could have potentially hit sites using the Event module, too.
 = #328637 by dww: Fixed bug where error messages generated while
   validating an anonymous user's email address weren't translatable.
 = #290734 by dww: Fixed a bug from the previous patch where the
