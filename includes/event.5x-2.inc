@@ -12,11 +12,17 @@ function _signup_event_reminder_sql($content_type) {
   switch ($db_type) {
     case 'mysql':
     case 'mysqli':
-      $where = array("('". gmdate('Y-m-d H:i:s') ."' > (". event_where_utc() ." - INTERVAL s.reminder_days_before DAY))");
+      $where = array(
+        "('". gmdate('Y-m-d H:i:s') ."' > (". event_where_utc() ." - INTERVAL s.reminder_days_before DAY))",
+        "('". gmdate('Y-m-d H:i:s') ."' <= (". event_where_utc() ."))",
+      );
       break;
 
     case 'pgsql':
-      $where = array("('". gmdate('Y-m-d H:i:s') ."' > (". event_where_utc() ." - INTERVAL 's.reminder_days_before days'))");
+      $where = array(
+        "('". gmdate('Y-m-d H:i:s') ."' > (". event_where_utc() ." - INTERVAL 's.reminder_days_before days'))",
+        "('". gmdate('Y-m-d H:i:s') ."' <= (". event_where_utc() ."))",
+      );
   }
   return array(
     'fields' => array(event_select(), 'e.timezone'),
