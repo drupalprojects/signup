@@ -219,16 +219,23 @@ function signup_date_field_check_config($type, $name) {
     // Signups aren't disabled on this node type, see if there's a date field.
     $signup_date_field = signup_date_field($type);
     if ($signup_date_field != 'none') {
+      $placeholders = array(
+        '%node_type' => $name,
+        '%signup_date_field' => t('Date field to use with signup'),
+        '@type_admin_url' => url('admin/content/types/'. $type),
+        '@type_add_field_url' => url('admin/content/types/'. $type .'/add_field'),
+        '%none' => t('<none>'),
+      );
       // Administrator hasn't specifically turned off date support...
       if (signup_field_names($type)) {
         // Node type has some date fields...
         if ($signup_date_field == 0) {
-          drupal_set_message(t('You have enabled the %node_type content type for signups, and have added one or more date fields, but have not selected a date field for use with signup.', array('%node_type' => $name)), 'warning');
+          drupal_set_message(t('You have enabled the %node_type content type for signups, and have added one or more date fields, but have not selected a date field for use with signup. You can modify the %signup_date_field setting at the <a href="@type_admin_url">%node_type configuration page</a> to select a date field to use, or disable this warning by selecting %none.', $placeholders), 'warning');
         }
       }
       else {
         // No date fields at all.
-        drupal_set_message(t('You have enabled the %node_type content type for signups but have not added a date field.', array('%node_type' => $name)), 'warning');
+        drupal_set_message(t('You have enabled the %node_type content type for signups but have not added a date field. You can either <a href="@type_add_field_url">add a date field</a>, or disable this warning by selecting %none for the %signup_date_field setting at the <a href="@type_admin_url">%node_type configuration page</a>.', $placeholders), 'warning');
       }
     }
   }
