@@ -23,6 +23,7 @@ function _signup_event_reminder_sql($content_type) {
         "('". gmdate('Y-m-d H:i:s') ."' > (". event_where_utc() ." - INTERVAL 's.reminder_days_before days'))",
         "('". gmdate('Y-m-d H:i:s') ."' <= (". event_where_utc() ."))",
       );
+      break;
   }
   return array(
     'fields' => array(event_select(), 'e.timezone'),
