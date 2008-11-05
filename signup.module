@@ -1339,7 +1339,7 @@ function signup_admin_form_sql() {
   $all_fragments = array_merge_recursive($admin_common_sql, $admin_sql);
   $sql_count = "SELECT COUNT(s.nid) FROM {signup} s";
   if (!empty($all_fragments['where'])) {
-    $sql_count .= ' WHERE '. implode(' AND ', $where);
+    $sql_count .= ' WHERE '. implode(' AND ', $all_fragments['where']);
   }
 
   return array(db_rewrite_sql($sql), db_rewrite_sql($sql_count, 's'));
