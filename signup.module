@@ -332,7 +332,7 @@ function signup_perm() {
 }
 
 /**
- * Implementatiion of hook_user().
+ * Implementation of hook_user().
  *
  * When a user is deleted, cancel all of that user's signups to remove all
  * instances of that user from the {signup_log} table, free up space in nodes

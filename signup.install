@@ -3,7 +3,7 @@
 
 
 /**
- * Implementation of hook_install()
+ * Implementation of hook_install().
  *
  * This will automatically install the database tables for the Signup
  * module for both the MySQL and PostgreSQL databases.
