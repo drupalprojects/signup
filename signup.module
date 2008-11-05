@@ -478,7 +478,7 @@ function signup_alter_node_form($form_id, &$form) {
       $default_option = $signup_type_default == 'enabled_on' ? 1 : 0;
     }
     if ($default_option == 1) {
-      $hint = t('If enabled, you can control whether users may sign up by visiting the !signups tab and toggling if signups are %open or %closed for this @node_type.', array('!signups' => l(t('Signups'), 'node/'. $node->nid .'/signups'), '%open' => t('open'), '%closed' => t('closed'), '@node_type' => strtolower(node_get_types('name', $form['type']['#value']))));
+      $hint = t('If enabled, you can control whether users may sign up by visiting the !signups tab and toggling if signups are %open or %closed for this @node_type.', array('!signups' => !empty($node) ? l(t('Signups'), 'node/'. $node->nid .'/signups') : theme('placeholder', t('Signups')), '%open' => t('open'), '%closed' => t('closed'), '@node_type' => strtolower(node_get_types('name', $form['type']['#value']))));
     }
     else {
       $hint = '';
