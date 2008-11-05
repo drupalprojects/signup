@@ -17,7 +17,7 @@ function _signup_load_scheduler_includes() {
   if (defined('EVENT_API') && EVENT_API == '5.2') {
     require_once (SIGNUP_PATH .'/includes/event.5x-2.inc');
   }
-  else if (module_exists('event')) {
+  elseif (module_exists('event')) {
     require_once (SIGNUP_PATH .'/includes/event.5x-1.inc');
   }
 
@@ -25,7 +25,7 @@ function _signup_load_scheduler_includes() {
     require_once (SIGNUP_PATH .'/includes/date.inc');
     require_once (SIGNUP_PATH .'/includes/date.5x-2.inc');
   }
-  else if (module_exists('date')) {
+  elseif (module_exists('date')) {
     require_once (SIGNUP_PATH .'/includes/date.inc');
     require_once (SIGNUP_PATH .'/includes/date.5x-1.inc');
   }

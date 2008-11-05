@@ -700,7 +700,7 @@ function signup_save_node($node, $op) {
       $values[] = isset($node->signup_reminder_email) ? $node->signup_reminder_email : '';
     }
   }
-  else if (variable_get('signup_node_default_state_'. $node->type, 'disabled') == 'enabled_on') {
+  elseif (variable_get('signup_node_default_state_'. $node->type, 'disabled') == 'enabled_on') {
     // The form doesn't include any information about signups, but the node
     // type is signup-enabled. This would happen if a user without any signup
     // admin permissions creates a node that has been signup-enabled based on
@@ -738,11 +738,11 @@ function signup_save_node($node, $op) {
       signup_close_signup($node->nid);
       drupal_set_message(t('%node_type start time is already past the signup close-in-advance time, signups now closed.', array('%node_type' => node_get_types('name', $node->type))));
     }
-    else if ($limit_changed) {
+    elseif ($limit_changed) {
       _signup_check_limit($node, 'limit');
     }
   }
-  else if (isset($node->signup_enabled)) {
+  elseif (isset($node->signup_enabled)) {
     // $values was not set, because signups are now disabled on this node.
     switch ($node->signup_enabled) {
       case 2: // Disabled, and delete {signup_log}, too
@@ -1273,7 +1273,7 @@ function signup_admin_form_header() {
     // each content type can come from different tables.
     return array('data' => t('Start'), 'field' => NULL);
   }
-  else if (module_exists('event')) {
+  elseif (module_exists('event')) {
     // If we've got event, but not date, we can sort by e.event_start.
     return array('data' => t('Start'), 'field' => 'e.event_start');
   }
@@ -1315,7 +1315,7 @@ function signup_admin_form_sql() {
   if ($type == 'open') {
     $filter_status = 1;
   }
-  else if ($type == 'closed') {
+  elseif ($type == 'closed') {
     $filter_status = 0;
   }
   if (isset($filter_status)) {
@@ -2022,7 +2022,7 @@ function _signup_check_limit($node, $type) {
         $status_change = -1;
         drupal_set_message(t('Signup limit reached for !title, signups closed.', array('!title' => $node_link)));
       }
-      else if ($type == 'limit') {
+      elseif ($type == 'limit') {
         // This is a weird special case, where signups are already
         // closed, but the admin lowers the limit to the signup total
         // or lower. We need to print a message about this, and also
@@ -2031,7 +2031,7 @@ function _signup_check_limit($node, $type) {
         $status_change = -1;
       }
     }
-    else if (($node->signup_total < $limit) && (!$node->signup_status) && (!_signup_node_completed($node))) {
+    elseif (($node->signup_total < $limit) && (!$node->signup_status) && (!_signup_node_completed($node))) {
       signup_open_signup($node->nid);
       $status_change = 1;
       if ($type == 'limit') {
@@ -2041,11 +2041,11 @@ function _signup_check_limit($node, $type) {
         drupal_set_message(t('Total signups for !title now below limit, signups re-opened.', array('!title' => $node_link)));
       }
     }
-    else if ($type == 'limit') {
+    elseif ($type == 'limit') {
       drupal_set_message(t('Signup limit updated for !title.', array('!title' => $node_link)));
     }
   }
-  else if ($type == 'limit') {
+  elseif ($type == 'limit') {
     // These checks should only happen if the limit was just changed...
     if (!$node->signup_status && !_signup_node_completed($node)) {
       signup_open_signup($node->nid);
@@ -2100,10 +2100,10 @@ function signup_validate_anon_email($nid, $anon_mail, $name = FALSE) {
   if (!valid_email_address($anon_mail)) {
     $message = t('Invalid email address entered for signup.');
   }
-  else if (db_num_rows(db_query("SELECT mail FROM {users} WHERE mail = '%s'", $anon_mail))) {
+  elseif (db_num_rows(db_query("SELECT mail FROM {users} WHERE mail = '%s'", $anon_mail))) {
     $message = t('The email address entered belongs to a registered user.');
   }
-  else if (db_num_rows(db_query("SELECT anon_mail FROM {signup_log} WHERE anon_mail = '%s' AND nid = %d", $anon_mail, $nid))) {
+  elseif (db_num_rows(db_query("SELECT anon_mail FROM {signup_log} WHERE anon_mail = '%s' AND nid = %d", $anon_mail, $nid))) {
     $node = node_load($nid);
     $message = t('The email address entered has already been used to sign up for this %node_type.', array('%node_type' => node_get_types('name', $node->type)));
   }
