@@ -203,7 +203,7 @@ function signup_help($section) {
   // If we're still here, consider the URL for help on various menu tabs.
   if (arg(0) == 'node' && is_numeric(arg(1)) && arg(2) == 'signup-broadcast') {
     $node = node_load(arg(1));
-    return '<p>'. t('This page allows you to send an email message to every user who signed up for this @node_type.', array('@node_type' => $node->type)) .'</p>';
+    return '<p>'. t('This page allows you to send an email message to every user who signed up for this %node_type.', array('%node_type' => node_get_types('name', $node->type))) .'</p>';
   }
 
   // See if we need to add our extra checking and validation while configuring

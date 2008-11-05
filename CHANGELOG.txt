@@ -32,6 +32,8 @@ Bugs fixed since 5.x-2.5:
   inside theme_signup_email_token_anonymous_username().
 = #330281 by dww: Fixed broken link to the 'Signups' tab in the help
   text for the signup settings on the node form when creating new nodes.
+= Fixed the help text on the signup broadcast page to use the
+  human-readable name of the content type, not the internal name.
 
 Other changes since 5.x-2.5:
 = #327726 by dww: Reorganized the directory layout of the code.
