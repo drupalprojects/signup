@@ -482,7 +482,7 @@ function signup_alter_node_form($form_id, &$form) {
       $default_option = $signup_type_default == 'enabled_on' ? 1 : 0;
     }
     if ($default_option == 1) {
-      $hint = t('If enabled, you can control whether users may sign up by visiting the !signups tab and toggling if signups are %open or %closed for this @node_type.', array('!signups' => !empty($node) ? l(t('Signups'), 'node/'. $node->nid .'/signups') : theme('placeholder', t('Signups')), '%open' => t('open'), '%closed' => t('closed'), '@node_type' => strtolower(node_get_types('name', $form['type']['#value']))));
+      $hint = t('If enabled, you can control whether users may sign up by visiting the !signups tab and toggling if signups are %open or %closed for this @node_type.', array('!signups' => !empty($node) ? l(t('Signups'), 'node/'. $node->nid .'/signups') : theme('placeholder', t('Signups')), '%open' => t('open'), '%closed' => t('closed'), '@node_type' => drupal_strtolower(node_get_types('name', $form['type']['#value']))));
     }
     else {
       $hint = '';
@@ -2397,7 +2397,7 @@ function theme_signup_custom_data($data) {
 function signup_id_safe($string) {
   // Replace with dashes anything that isn't a-zA-Z, numbers, dashes, or
   // underscores.
-  $string = strtolower(preg_replace('/[^a-zA-Z0-9_-]+/', '-', $string));
+  $string = drupal_strtolower(preg_replace('/[^a-zA-Z0-9_-]+/', '-', $string));
   // If the first character is not a-z, add 'id' in front.
   // Don't use ctype_alpha since it's locale aware.
   if (!ctype_lower($string{0})) {
