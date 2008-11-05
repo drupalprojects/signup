@@ -50,6 +50,8 @@ Changes since 5.x-1.0:
   form resulting from an uninitialized variable.
 = #328637 by dww: Fixed bug where error messages generated while
   validating an anonymous user's email address weren't translatable.
+= #330281 by dww: Fixed broken link to the 'Signups' tab in the help
+  text for the signup settings on the node form when creating new nodes.
 = #145749 by schittli: Added German (de) translation.
 
 
