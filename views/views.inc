@@ -15,7 +15,7 @@
  */
 
 /**
- * Private implementation of hook_views_tables.
+ * Private implementation of hook_views_tables().
  */
 function _signup_views_tables() {
   $tables['signup_log'] = array(
@@ -235,7 +235,7 @@ function views_handler_field_signup_status($fieldinfo, $fielddata, $value, $data
 }
 
 /**
- * Private implementation of hook_views_arguments.
+ * Private implementation of hook_views_arguments().
  */
 function _signup_views_arguments() {
   $arguments['signup_uid'] = array(
