@@ -457,7 +457,7 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
           );
         }
       }
-      else if (variable_get('signup_form_'. $node->type, 0)) {
+      elseif (variable_get('signup_form_'. $node->type, 0)) {
         // The form doesn't include any information about signups, but
         // the node type is signup-enabled. This would happen if a
         // user without any signup admin permissions creates a node
@@ -615,7 +615,7 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
               $output = drupal_get_form('signup_form', $node, $anon_signup_form);
             }
           }
-          else if ($user->uid !== 0 && isset($result)) {
+          elseif ($user->uid !== 0 && isset($result)) {
             // The authenticated user is already signed up, so print a table
             // of their signup data, and give them the option to cancel.
             $result = db_fetch_object($result);
@@ -717,7 +717,7 @@ function signup_admin_page() {
   if ($type == 'open') {
     $where = ' WHERE s.completed = 0';
   }
-  else if ($type == 'closed') {
+  elseif ($type == 'closed') {
     $where = ' WHERE s.completed = 1';
   }
   else {
@@ -1258,10 +1258,10 @@ function signup_validate_anon_email($nid, $anon_mail, $name = FALSE) {
   if (!valid_email_address($anon_mail)) {
     $message = t('Invalid email address entered for signup.');
   }
-  else if (db_num_rows(db_query("SELECT mail FROM {users} WHERE mail = '%s'", $anon_mail))) {
+  elseif (db_num_rows(db_query("SELECT mail FROM {users} WHERE mail = '%s'", $anon_mail))) {
     $message = t('The email address entered belongs to a registered user.');
   }
-  else if (db_num_rows(db_query("SELECT anon_mail FROM {signup_log} WHERE anon_mail = '%s' AND nid = %d", $anon_mail, $nid))) {
+  elseif (db_num_rows(db_query("SELECT anon_mail FROM {signup_log} WHERE anon_mail = '%s' AND nid = %d", $anon_mail, $nid))) {
     $message = t('The email address entered has already been used to sign up for this event.');
   }
 
