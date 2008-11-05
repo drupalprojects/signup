@@ -70,7 +70,7 @@ function _signup_date_format_date($node, $include_to_date = FALSE) {
   if (isset($node->{$field['field_name']})) {
     $date_value = $node->{$field['field_name']}[0]['value'];
   }
-  else if (isset($node->{$field['field_name'] .'_value'})) {
+  elseif (isset($node->{$field['field_name'] .'_value'})) {
     $date_value = $node->{$field['field_name'] .'_value'};
   }
   else {
