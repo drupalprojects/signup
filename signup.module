@@ -180,6 +180,7 @@ function _signup_build_query($common_sql, $type_sql) {
 
 /**
  * Implementation of hook_help().
+ *
  * @ingroup signup_core
  */
 function signup_help($section) {
@@ -220,7 +221,8 @@ function signup_help($section) {
 }
 
 /**
- * Implmentation of hook_menu()
+ * Implementation of hook_menu().
+ *
  * @ingroup signup_core
  */
 function signup_menu($may_cache) {
@@ -314,6 +316,7 @@ function _signup_initialize_scheduler_backend() {
 
 /**
  * Implementation of hook_perm().
+ *
  * @ingroup signup_core
  */
 function signup_perm() {
@@ -370,6 +373,7 @@ function signup_user($type, &$edit, &$user, $category = NULL) {
 
 /**
  * Implementation of hook_form_alter().
+ *
  * @ingroup signup_core
  */
 function signup_form_alter($form_id, &$form) {
@@ -2583,7 +2587,8 @@ function theme_signup_broadcast_sender_copy($raw_message, $cooked_message) {
  */
 
 /**
- * Implementation of hook_views_tables.
+ * Implementation of hook_views_tables().
+ *
  * @ingroup signup_views
  * @see _signup_views_tables()
  */
@@ -2593,7 +2598,8 @@ function signup_views_tables() {
 }
 
 /**
- * Implementation of hook_views_arguments.
+ * Implementation of hook_views_arguments().
+ *
  * @ingroup signup_views
  * @see _signup_views_arguments()
  */
@@ -2603,7 +2609,8 @@ function signup_views_arguments() {
 }
 
 /**
- * Implementation of hook_views_default_views.
+ * Implementation of hook_views_default_views().
+ *
  * @ingroup signup_views
  * @see _signup_views_default_views()
  */
@@ -2720,7 +2727,7 @@ function _signup_get_email_tokens($node, $signup) {
 }
 
 /**
- * Implementation of hook_panels_include_directory()
+ * Implementation of hook_panels_include_directory().
  *
  * @param $plugin_type
  *   The plugin type for which the Panels engine is currently requesting the
