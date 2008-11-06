@@ -16,7 +16,7 @@
  * and the signup user list is being rendered by an embedded view,
  * show the views settings, otherwise, hide them.
  */
-Drupal.signupFormLocationSettingAutoAttach = function () {
+Drupal.behaviors.signupShowFormLocationSetting = function () {
   $('div.signup-form-location-radios input.form-radio').click(function () {
     // Simple part: Depending on the form location, hide/show the
     // collapsible fieldset setting.
@@ -61,7 +61,7 @@ Drupal.signupFormLocationSettingAutoAttach = function () {
  * If the signup user list is going to be an embedded view, show the
  * view-related settings, otherwise, hide them.
  */
-Drupal.signupUserListSettingAutoAttach = function () {
+Drupal.behaviors.signupShowUserListSetting = function () {
   $('div.signup-display-signup-user-list-setting input.form-radio').click(function () {
     if (this.value == 'embed-view') {
       $('div.signup-user-list-view-settings').show();
@@ -71,11 +71,3 @@ Drupal.signupUserListSettingAutoAttach = function () {
     }
   });
 };
-
-// Global killswitch
-if (Drupal.jsEnabled) {
-  $(function() {
-    Drupal.signupFormLocationSettingAutoAttach();
-    Drupal.signupUserListSettingAutoAttach();
-  });
-}

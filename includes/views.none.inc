@@ -59,10 +59,26 @@ function _signup_user_no_views($op, &$edit, &$user, $category = NULL) {
       // grab list of nodes the user signed up for.
       $signups = signup_list_user_signups($user->uid);
       if (count($signups)) {
-        $output = '<h4>'. t('Current signups') .' -- '. l(t('view signup schedule'), "user/$user->uid/signups") .'</h4>'. theme_item_list($signups);
-      }
-      if (isset($output)) {
-        return array(t('Signup information') => array(array('value' => $output, 'class' => 'user')));
+        $user->content['signup'] = array(
+          '#type' => 'user_profile_category',
+          '#attributes' => array('class' => 'signup'),
+          '#weight' => 5,
+          '#title' => t('Signup information'),
+        );
+        $user->content['signup']['current'] = array(
+          '#type' => 'user_profile_item',
+          '#attributes' => array('class' => 'signup-current'),
+          '#title' => t('Current signups'),
+          '#value' => theme_item_list($signups),
+          '#weight' => 0,
+        );
+        $user->content['signup']['schedule'] = array(
+          '#type' => 'user_profile_item',
+          '#attributes' => array('class' => 'signup-schedule'),
+          '#title' => t('Signup schedule'),
+          '#value' => l(t('View full signup schedule'), 'user/'. $user->uid .'/signups'),
+          '#weight' => 2,
+        );
       }
       break;
   }
@@ -71,19 +87,17 @@ function _signup_user_no_views($op, &$edit, &$user, $category = NULL) {
 /**
  * Add menu items we only need to define if views is not enabled.
  */
-function signup_no_views_menu(&$items, $may_cache) {
-  global $user;
-  $access = user_access('administer all signups');
-  if (!$may_cache) {
-    // User signup schedule callback
-    $items[] = array(
-      'path' => 'user/'. arg(1) .'/signups',
-      'access' => ($access || ($user->uid == arg(1))),
-      'type' => MENU_CALLBACK,
-      'callback' => 'signup_user_schedule',
-      'callback arguments' => array($uid => arg(1)),
-    );
-  }
+function signup_no_views_menu(&$items) {
+  // User signup schedule callback
+  $items['user/%user/signups'] = array(
+    'title' => 'Signups',
+    'page callback' => 'signup_user_schedule',
+    'page arguments' => array(1),
+    'type' => MENU_CALLBACK,
+    'access callback' => '_signup_user_menu_access',
+    'access arguments' => array(1),
+    'file' => 'includes/views.none.inc',
+  );
 }
 
 /**
@@ -91,15 +105,10 @@ function signup_no_views_menu(&$items, $may_cache) {
  *
  * @ingroup signup_callback
  */
-function signup_user_schedule($uid) {
+function signup_user_schedule($account) {
   $output = '';
-  $user = user_load(array('uid' => $uid));
-  if (!$user) {
-    return drupal_not_found();
-  }
-  require_once (SIGNUP_PATH .'/theme/signup.theme');
-  drupal_set_title(t('Signups for @user', array('@user' => $user->name)));
-  $titles = signup_list_user_signups($user->uid);
+  drupal_set_title(t('Signups for @user', array('@user' => $account->name)));
+  $titles = signup_list_user_signups($account->uid);
   foreach ($titles as $nid => $title) {
     $node = node_load(array('nid' => $nid));
     $output .= theme('signup_user_schedule', $node);

@@ -1,6 +1,12 @@
 $Id$
 
 -----------
+6.x-1.x-dev
+-----------
+= #222217 by dww: Initial port to the Druapl 6 core API.
+
+
+-----------
 5.x-2.x-dev
 -----------
 New features since 5.x-2.5:

@@ -7,7 +7,7 @@
  * set to 0 ('Disabled'), or the node type is event-enabled, then
  * hide the date field setting.  Otherwise, show it.
  */
-Drupal.signupDateFieldAutoAttach = function () {
+Drupal.behaviors.signupShowDateField = function () {
   $('div.signup-node-default-state-radios input[@type=radio], div.event-nodeapi-radios input[@type=radio]').click(function () {
     var eventEnabled = false;
     var signupDisabled = true;
@@ -29,10 +29,3 @@ Drupal.signupDateFieldAutoAttach = function () {
     }
   });
 };
-
-// Global killswitch.
-if (Drupal.jsEnabled) {
-  $(function() {
-    Drupal.signupDateFieldAutoAttach();
-  });
-}

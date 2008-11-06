@@ -58,7 +58,7 @@ function _signup_event_admin_sql($content_type = NULL) {
 }
 
 /**
- * Returns TRUE if the given node is event-enabled, and the start time
+ * Returns true if the given node is event-enabled, and the start time
  * has already passed the "Close x hours before" setting.
  */
 function _signup_event_node_completed($node) {
