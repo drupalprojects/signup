@@ -2706,13 +2706,14 @@ function _signup_get_email_tokens($node, $signup) {
   // might want to do other processing on the signup form data.
 
   // Get the array of custom signup data (if any).
-  if (is_array($signup->form_data)) {
-    $signup_data = $signup->form_data;
-  }
-  else {
-    $signup_data = unserialize($signup->form_data);
-  }
-  if (!empty($signup_data)) {
+  $signup_data = array();
+  if (!empty($signup->form_data)) {
+    if (is_array($signup->form_data)) {
+      $signup_data = $signup->form_data;
+    }
+    else {
+      $signup_data = unserialize($signup->form_data);
+    }
     $tokens['%info'] = theme('signup_email_token_custom_data', $signup_data);
   }
   // Determine if this is an anon signup or not, and get the right info.
