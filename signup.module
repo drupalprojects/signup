@@ -675,18 +675,6 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
  * @see signup_nodeapi()
  */
 function signup_save_node($node, $op) {
-  // Before we update the DB, see if the limit is changing, so we can take
-  // appropriate action later on.
-  $has_signup_record = FALSE;
-  $limit_changed = FALSE;
-  if ($op == 'update') {
-    $cur_limit = db_result(db_query("SELECT close_signup_limit FROM {signup} WHERE nid = %d", $node->nid));
-    if ($cur_limit !== FALSE) {
-      $has_signup_record = TRUE;
-      $limit_changed = $cur_limit != $node->signup_close_signup_limit;
-    }
-  }
-
   // See if the form indicates that signups are enabled on this node.
   if (isset($node->signup_enabled)) {
     if ($node->signup_enabled == 1) {
@@ -704,7 +692,7 @@ function signup_save_node($node, $op) {
       $values[] = isset($node->signup_reminder_email) ? $node->signup_reminder_email : '';
     }
   }
-  elseif (variable_get('signup_node_default_state_'. $node->type, 'disabled') == 'enabled_on') {
+  elseif ($op == 'insert' && variable_get('signup_node_default_state_'. $node->type, 'disabled') == 'enabled_on') {
     // The form doesn't include any information about signups, but the node
     // type is signup-enabled. This would happen if a user without any signup
     // admin permissions creates a node that has been signup-enabled based on
@@ -723,11 +711,24 @@ function signup_save_node($node, $op) {
   }
 
   if (isset($values)) {
-    // If $values is set, we need to save them to the DB.  See if we need to
-    // update an existing record or insert a new one.  Either way, we always
-    // the nid as the final value. The nid will either be used as the last
-    // column in the INSERT, or the argument to the WHERE clause for the
-    // UPDATE.
+    // If $values is set, we need to save them to the DB.
+
+    // Before we update the DB, see if the limit is changing, so we can take
+    // appropriate action after we update to the new settings.
+    $has_signup_record = FALSE;
+    $limit_changed = FALSE;
+    if ($op == 'update') {
+      $cur_limit = db_result(db_query("SELECT close_signup_limit FROM {signup} WHERE nid = %d", $node->nid));
+      if ($cur_limit !== FALSE) {
+        $has_signup_record = TRUE;
+        $limit_changed = $cur_limit != $node->signup_close_signup_limit;
+      }
+    }
+
+    // See if we need to update an existing record or insert a new one.
+    // Either way, we always the nid as the final value. The nid will either
+    // be used as the last column in the INSERT, or the argument to the WHERE
+    // clause for the UPDATE.
     $values[] = $node->nid;
     if ($has_signup_record) {
       db_query("UPDATE {signup} SET forwarding_email = '%s', send_confirmation = %d, confirmation_email = '%s', close_signup_limit = %d, send_reminder = %d, reminder_days_before = %d, reminder_email = '%s' WHERE nid = %d", $values);
@@ -746,7 +747,7 @@ function signup_save_node($node, $op) {
       _signup_check_limit($node, 'limit');
     }
   }
-  elseif (isset($node->signup_enabled)) {
+  elseif ($op == 'update' && isset($node->signup_enabled)) {
     // $values was not set, because signups are now disabled on this node.
     switch ($node->signup_enabled) {
       case 2: // Disabled, and delete {signup_log}, too
