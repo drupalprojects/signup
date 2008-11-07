@@ -726,8 +726,10 @@ function signup_form_submit($form, &$form_state) {
  * @param $nid
  *   Node id of the node the user is trying to signup for.
  */
-function signup_form_validate_anon($form, $nid) {
-  signup_validate_anon_email($nid, $form['#value'], 'signup_anon_mail');
+function signup_form_validate_anon($form, $form_state) {
+  $nid = $form_state['values']['nid'];
+  $anon_mail = $form_state['values']['signup_anon_mail'];
+  signup_validate_anon_email($nid, $anon_mail, 'signup_anon_mail');
 }
 
 /**
@@ -738,18 +740,19 @@ function signup_form_validate_anon($form, $nid) {
  * @param $nid
  *   Node id of the node the user is being signed up for.
  */
-function signup_form_validate_username($form, $nid) {
-  $username = $form['#value'];
+function signup_form_validate_username($form, $form_state) {
+  $nid = $form_state['values']['nid'];
+  $username = $form_state['values']['signup_username'];
   $account = user_load(array('name' => $username));
   if (empty($account)) {
-    form_error($form, t('User %username does not exist.', array('%username' => $username)));
+    form_set_error('signup_username', t('User %username does not exist.', array('%username' => $username)));
   }
   elseif (!user_access('sign up for content', $account)) {
-    form_error($form, t('User !user does not have permission to sign up.', array('!user' => theme('username', $account))));
+    form_set_error('signup_username', t('User !user does not have permission to sign up.', array('!user' => theme('username', $account))));
   }
   elseif (db_result(db_query("SELECT COUNT(*) FROM {signup_log} WHERE uid = %d AND nid = %d", $account->uid, $nid)) > 0) {
     $node = node_load($nid);
-    form_error($form, t('User !user is already signed up for %title', array('!user' => theme('username', $account), '%title' => $node->title)));
+    form_set_error('signup_username', t('User !user is already signed up for %title', array('!user' => theme('username', $account), '%title' => $node->title)));
   }
 }
 
@@ -1265,11 +1268,10 @@ function signup_form(&$form_state, $node, $signup_type = 'auth', $fieldset = TRU
       '#title' => t('Email'),
       '#description' => t('An e-mail address is required for users who are not registered at this site. If you are a registered user at this site, please !login to sign up for this %node_type.', array('!login' => l(t('login'), 'user/login', array('query' => drupal_get_destination())), '%node_type' => node_get_types('name', $node->type))),
       '#size' => 40,
-      '#validate' => array('signup_form_validate_anon'),
-      '#signup_form_validate_anon_param_1' => $node->nid,
       '#maxlength' => 255,
       '#required' => TRUE,
     );
+    $validate_handler = 'signup_form_validate_anon';
     $signup_form += $anon_form;
   }
   elseif ($signup_type == 'admin') {
@@ -1279,12 +1281,11 @@ function signup_form(&$form_state, $node, $signup_type = 'auth', $fieldset = TRU
       '#type' => 'textfield',
       '#autocomplete_path' => 'user/autocomplete',
       '#maxlength' => USERNAME_MAX_LENGTH,
-      '#validate' => array('signup_form_validate_username'),
-      '#signup_form_validate_username_param_1' => $node->nid,
       '#size' => 40,
       '#weight' => -1,
       '#required' => TRUE,
     );
+    $validate_handler = 'signup_form_validate_username';
     $signup_form += $admin_form;
   }
 
@@ -1305,6 +1306,9 @@ function signup_form(&$form_state, $node, $signup_type = 'auth', $fieldset = TRU
     '#type' => 'submit',
     '#value' => t('Sign up'),
   );
+  if (!empty($validate_handler)) {
+    $form['#validate'][] = $validate_handler;
+  }
   return $form;
 }
 
