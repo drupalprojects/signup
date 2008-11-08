@@ -191,7 +191,7 @@ function _signup_date_field_element($type) {
  * @see signup_help()
  * @see signup_date_field_check_config()
  */
-function signup_date_check_node_types($type) {
+function signup_date_check_node_types($type = NULL) {
   $names = node_get_types('names');
   if (!empty($type)) {
     signup_date_field_check_config($type, $names[$type]);

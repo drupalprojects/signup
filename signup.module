@@ -216,7 +216,9 @@ function signup_help($section) {
     && function_exists('signup_date_check_node_types')
   ) {
     $type = arg(3);
-    signup_date_check_node_types($type);
+    if ($type != 'add') {
+      signup_date_check_node_types($type);
+    }
   }
 }
 
