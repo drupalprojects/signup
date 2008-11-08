@@ -2727,12 +2727,11 @@ function signup_broadcast_form_submit($form, &$form_state) {
       }
       $final_text = theme('signup_broadcast_sender_copy', $form_state['values']['message'], $message);
       $params = array(
-        'subject' => $subject,
-        'body' => $message,
-        'node' => $node,
-        'signup' => $signup,
+        'subject' => $form_state['values']['subject'],
+        'body' => $final_text,
+        'ignore_tokens' => TRUE,
       );
-      $language = user_preferred_language($account);
+      $language = user_preferred_language($user);
       drupal_mail('signup', 'signup_broadcast_mail', $sender_email, $language, $params, $from);
       watchdog('signup', 'Broadcast email copy for %title sent to %email.', array('%title' => $node->title, '%email' => $sender_email), WATCHDOG_NOTICE, l(t('view'), 'node/'. $node->nid));
       drupal_set_message(t('Sent a copy of this message to %email', array('%email' => $sender_email)));
@@ -2871,6 +2870,10 @@ function theme_signup_token_help($tokens) {
  *   Reference to the message array being built.
  * @param $params
  *   Array of parameters to indicate what text to include in the message body.
+ *   If $params['ignore_tokens'] is TRUE, none of the signup-provided tokens
+ *   in the message body will be replaced, otherwise, tokens are replaced
+ *   using the node passed in as $params['node'] and the signup data from
+ *   $params['signup'].
  *
  * @see drupal_mail()
  * @see _signup_cron_send_reminders()
@@ -2878,9 +2881,15 @@ function theme_signup_token_help($tokens) {
  * @see signup_broadcast_form_submit()
  */
 function signup_mail($key, &$message, $params) {
-  $tokens = _signup_get_email_tokens($params['node'], $params['signup']);
-  $body = strtr($params['body'], $tokens);
-  $subject = strtr($params['subject'], $tokens);
+  if (empty($params['ignore_tokens'])) {
+    $tokens = _signup_get_email_tokens($params['node'], $params['signup']);
+    $body = strtr($params['body'], $tokens);
+    $subject = strtr($params['subject'], $tokens);
+  }
+  else {
+    $body = $params['body'];
+    $subject = $params['subject'];
+  }
   $message['subject'] .= str_replace(array("\r", "\n"), '', $subject);
   $message['body'][] = drupal_html_to_text($body);
 }
