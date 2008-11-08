@@ -24,7 +24,7 @@ function signup_field_names($content_type = NULL) {
   $content_type_info = _content_type_info();
   if ($content_type_info['content types'][$content_type]) {
     foreach ($content_type_info['content types'][$content_type]['fields'] as $field) {
-      if (in_array($field['type'], array('date', 'datestamp'))) {
+      if (in_array($field['type'], array('date', 'datestamp', 'datetime'))) {
         $fields[$field['field_name']] = $field['widget']['label'];
       }
     }
@@ -84,9 +84,9 @@ function _signup_date_get_node_scheduler($node) {
  * field as the Signup date field (for autoclose and reminder emails).
  *
  */
-function signup_form_content_admin_field_alter(&$form, &$form_state) {
+function signup_form_content_field_edit_form_alter(&$form, &$form_state) {
   $type = $form['type_name']['#value'];
-  if (in_array($form['field_type']['#value'], array('date', 'datestamp')) && variable_get('signup_node_default_state_'. $type, 'disabled') != 'disabled') {
+  if (in_array($form['#field']['type'], array('date', 'datestamp', 'datetime')) && variable_get('signup_node_default_state_'. $type, 'disabled') != 'disabled') {
     $form['signup'] = array(
       '#type' => 'fieldset',
       '#title' => t('Signup settings'),
@@ -120,7 +120,7 @@ function _signup_date_field_form_submit($form, &$form_state) {
  *
  * @see signup_alter_node_type_form()
  */
-function _signup_date_alter_node_type_form($form_id, &$form) {
+function _signup_date_alter_node_type_form(&$form, &$form_state) {
   drupal_add_js(drupal_get_path('module', 'signup') .'/js/admin.content_types.js');
   drupal_add_css(drupal_get_path('module', 'signup') .'/signup.css');
 
@@ -189,7 +189,7 @@ function _signup_date_field_element($type) {
  * @see signup_help()
  * @see signup_date_field_check_config()
  */
-function signup_date_check_node_types($type) {
+function signup_date_check_node_types($type = NULL) {
   $names = node_get_types('names');
   if (!empty($type)) {
     signup_date_field_check_config($type, $names[$type]);
@@ -231,8 +231,8 @@ function signup_date_field_check_config($type, $name) {
       $placeholders = array(
         '%node_type' => $name,
         '%signup_date_field' => t('Date field to use with signup'),
-        '@type_admin_url' => url('admin/content/types/'. $type),
-        '@type_add_field_url' => url('admin/content/types/'. $type .'/add_field'),
+        '@type_admin_url' => url('admin/content/node-type/'. $type),
+        '@type_add_field_url' => url('admin/content/node-type/'. $type .'/fields'),
         '%none' => t('<none>'),
       );
       // Administrator hasn't specifically turned off date support...

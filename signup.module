@@ -367,12 +367,15 @@ function signup_help($path, $arg) {
   // CCK node types for signup.  We only want to do this if the $path
   // doesn't contain 'help#' since hook_help() is invoked twice on admin
   // pages.
-  if (arg(0) == 'admin' && arg(1) == 'content' && arg(2) == 'types'
-    && !preg_match('/.*help#.*/', $path)
+  if (!empty($arg[0]) && $arg[0] == 'admin' && $arg[1] == 'content'
     && function_exists('signup_date_check_node_types')
   ) {
-    $type = arg(3);
-    signup_date_check_node_types($type);
+    if ($arg[2] == 'types' && $arg[3] != 'add') {
+      signup_date_check_node_types();
+    }
+    elseif ($arg[2] == 'node-type') {
+      signup_date_check_node_types($arg[3]);
+    }
   }
 }
 
@@ -580,8 +583,8 @@ function signup_form_node_type_form_alter(&$form, &$form_state) {
     '#description' => t('If %disabled is selected, signups will not be possible for this content type. If %allowed_off is selected, signups will be off by default, but users with the %admin_all_signups permission will be able to allow signups for specific posts of this content type. If %enabled_on is selected, users will be allowed to signup for this content type unless an administrator disbles signups on specific posts.', array('%disabled' => t('Disabled'), '%allowed_off' => t('Allowed (off by default)'), '%enabled_on' => t('Enabled (on by default)'), '%admin_all_signups' => t('administer all signups'))),
   );
 
-  if (function_exists('_signup_date_alter_node_type_form')) {
-    _signup_date_alter_node_type_form($form_id, $form);
+  if (!empty($type) && function_exists('_signup_date_alter_node_type_form')) {
+    _signup_date_alter_node_type_form($form, $form_state);
   }
 }
 
@@ -1983,7 +1986,7 @@ function signup_sign_up_user($signup_form) {
     if ($node->signup_forwarding_email) {
       $message = t('The following information was submitted as a signup for !title', array('!title' => $node->title));
       if (_signup_get_node_scheduler($node) != 'none') {
-        $message .= "\n\r". t('Date/Time: !time', array('!time' => $signup_tokens['%time']));
+        $message .= "\n\r". t('Date/Time: !time', array('!time' => signup_format_date($node)));
       }
 
       $message .= "\n\r\n\r". t('Username: !name', array('!name' => empty($user->uid) ? variable_get('anonymous', t('Anonymous')) : $user->name));
