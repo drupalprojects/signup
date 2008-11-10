@@ -46,6 +46,8 @@ Other changes since 5.x-2.5:
 = #328647 by dww: Removed all mention of 'event' in the UI and code
   unless it refers specifically to the event.module.  User-facing text
   now uses the human-readable node type name, instead.
+= #328840 by dww: Renamed the default email tokens to use less
+  ambiguous names and to not refer to 'event' at all (#328647).
 
 
 -----------
