@@ -76,13 +76,13 @@ function _signup_cron_send_reminders() {
         // Get the hard-coded tokens provided by the signup module to use
         // for the reminder email.  This also gives us the email to send to.
         $signup_tokens = _signup_get_email_tokens($node, $signup);
-        $user_email = $signup_tokens['%useremail'];
+        $user_mail = $signup_tokens['%user_mail'];
         $message = strtr($node->reminder_email, $signup_tokens);
         if (module_exists('token')) {
           $message = token_replace($message, 'node', node_load($node->nid));
         }
-        drupal_mail('signup_reminder_mail', $user_email, $subject, $message, $from);
-        watchdog('signup', t('Reminder for %title sent to %useremail.', array('%title' => $node->title, '%useremail' => $user_email)), WATCHDOG_NOTICE, l(t('view'), 'node/'. $node->nid));
+        drupal_mail('signup_reminder_mail', $user_mail, $subject, $message, $from);
+        watchdog('signup', t('Reminder for %title sent to %user_mail.', array('%title' => $node->title, '%user_mail' => $user_mail)), WATCHDOG_NOTICE, l(t('view'), 'node/'. $node->nid));
       }
 
       // Reminders for this node are all sent, so mark it in the
@@ -1774,19 +1774,19 @@ function signup_sign_up_user($signup_form) {
     }
     $signup_tokens = _signup_get_email_tokens($node, $signup);
     // The right email to use (anon vs. auth) is one of the tokens.
-    $user_email = $signup_tokens['%useremail'];
+    $user_mail = $signup_tokens['%user_mail'];
     $node_type_name = node_get_types('name', $node->type);
 
     // If a confirmation is to be sent, compose the mail message,
     // replace the tokens with the right values, and send it.
-    if ($node->signup_send_confirmation && $user_email) {
+    if ($node->signup_send_confirmation && $user_mail) {
       $subject = t('Signup confirmation for !node_type: !title', array('!node_type' => $node_type_name, '!title' => $node->title));
       $message = strtr($node->signup_confirmation_email, $signup_tokens);
       if (module_exists('token')) {
         // If the token.module is enabled, also handle any tokens it provides.
         $message = token_replace($message, 'node', $node);
       }
-      drupal_mail('signup_confirmation_mail', $user_email, $subject, $message, $from);
+      drupal_mail('signup_confirmation_mail', $user_mail, $subject, $message, $from);
     }
 
     // If a forwarding email is to be sent, compose the mail message,
@@ -1796,7 +1796,7 @@ function signup_sign_up_user($signup_form) {
       $subject = t('Signup confirmation for !node_type: !title', array('!node_type' => $node_type_name, '!title' => $node->title));
       $message = t('The following information was submitted as a signup for !title', array('!title' => $node->title));
       if (_signup_get_node_scheduler($node) != 'none') {
-        $message .= "\n\r". t('Date/Time: !time', array('!time' => $signup_tokens['%time']));
+        $message .= "\n\r". t('Date/Time: !time', array('!time' => $signup_tokens['%node_start_time']));
       }
 
       $message .= "\n\r\n\r". t('Username: !name', array('!name' => empty($user->uid) ? variable_get('anonymous', t('Anonymous')) : $user->name));
@@ -1806,10 +1806,10 @@ function signup_sign_up_user($signup_form) {
       }
       else {
         // For anonymous users, their email is all we've got, so disclose it.
-        $message .= "\n\r". t('E-mail: !email', array('!email' => $user_email));
+        $message .= "\n\r". t('E-mail: !email', array('!email' => $user_mail));
       }
-      if (!empty($signup_tokens['%info'])) {
-        $message .= "\n\r\n\r". $signup_tokens['%info'];
+      if (!empty($signup_tokens['%user_signup_info'])) {
+        $message .= "\n\r\n\r". $signup_tokens['%user_signup_info'];
       }
       drupal_mail('signup_forwarding_mail', $node->signup_forwarding_email, $subject, $message, $from, $header);
     }
@@ -2153,10 +2153,10 @@ function signup_validate_anon_email($nid, $anon_mail, $name = FALSE) {
  */
 function _signup_admin_form($node = NULL, $has_date = FALSE) {
   if (module_exists('token')) {
-    $signup_token_description = t('Supported string substitutions: %event, %eventurl, %time, %username, %useremail, %info (user signup information), and any tokens in the %replacement_tokens list.', array('%replacement_tokens' => t('Replacement tokens')));
+    $signup_token_description = t('Supported string substitutions: %node_title, %node_url, %node_start_time, %user_name, %user_mail, %user_signup_info (additional information from the signup form), and any tokens in the %replacement_tokens list.', array('%replacement_tokens' => t('Replacement tokens')));
   }
   else {
-    $signup_token_description = t('Supported string substitutions: %event, %eventurl, %time, %username, %useremail, %info (user signup information).');
+    $signup_token_description = t('Supported string substitutions: %node_title, %node_url, %node_start_time, %user_name, %user_mail, %user_signup_info (additional information from the signup form).');
   }
 
   // Load the default admin form data for new nodes.
@@ -2263,7 +2263,7 @@ function signup_build_signup_data($data, $type = 'output') {
 }
 
 /**
- * Returns the value to use for the %info email token for custom signup data.
+ * Return the value for the %user_signup_info email token for custom signup data.
  *
  * @param $signup_data
  *   Array of custom data for a particular signup.
@@ -2427,7 +2427,7 @@ function signup_broadcast_form($node) {
     return $form;
   }
 
-  $tokens = array('%event', '%eventurl', '%username', '%useremail');
+  $tokens = array('%node_title', '%node_url', '%user_name', '%user_mail');
   $tokens = array_merge($tokens, signup_extra_tokens($node));
   sort($tokens);
   if (module_exists('token')) {
@@ -2493,7 +2493,7 @@ function signup_broadcast_form($node) {
  */
 function signup_extra_tokens($node) {
   $scheduler = _signup_get_node_scheduler($node);
-  return $scheduler == 'none' ? array() : array('%time');
+  return $scheduler == 'none' ? array() : array('%node_start_time');
 }
 
 /**
@@ -2534,19 +2534,19 @@ function signup_broadcast_form_submit($form_id, $form_values) {
       // Get the hard-coded tokens provided by the signup module to use
       // for the broadcast email.  This also gives us the email to send to.
       $signup_tokens = _signup_get_email_tokens($node, $signup);
-      $user_email = $signup_tokens['%useremail'];
+      $user_mail = $signup_tokens['%user_mail'];
       // Replace the signup-provided tokens with the right values.
       $message = strtr($form_values['message'], $signup_tokens);
       if (module_exists('token')) {
         // If the token.module is enabled, also handle any tokens it provides.
         $message = token_replace($message, 'node', $node);
       }
-      drupal_mail('signup_broadcast_mail', $user_email, $subject, $message, $from);
-      watchdog('signup', t('Broadcast email for %title sent to %email.', array('%title' => $node->title, '%email' => $user_email)), WATCHDOG_NOTICE, l(t('view'), 'node/'. $node->nid));
+      drupal_mail('signup_broadcast_mail', $user_mail, $subject, $message, $from);
+      watchdog('signup', t('Broadcast email for %title sent to %email.', array('%title' => $node->title, '%email' => $user_mail)), WATCHDOG_NOTICE, l(t('view'), 'node/'. $node->nid));
     }
     if ($form_values['copy']) {
       $signup_tokens = _signup_get_email_tokens($node, $user);
-      $sender_email = $signup_tokens['%useremail'];
+      $sender_email = $signup_tokens['%user_mail'];
       $message = strtr($form_values['message'], $signup_tokens);
       if (module_exists('token')) {
         // If the token.module is enabled, also handle any tokens it provides.
@@ -2698,9 +2698,9 @@ function theme_signup_token_help($tokens) {
 function _signup_get_email_tokens($node, $signup) {
   // Tokens about the node itself are easy and don't require any logic.
   $tokens = array(
-    '%event' => $node->title,
-    '%eventurl' => url('node/'. $node->nid, NULL, NULL, TRUE),
-    '%time' => signup_format_date($node),
+    '%node_title' => $node->title,
+    '%node_url' => url('node/'. $node->nid, NULL, NULL, TRUE),
+    '%node_start_time' => signup_format_date($node),
   );
 
   // Tokens about the user are harder, since we need to potentially do
@@ -2716,16 +2716,16 @@ function _signup_get_email_tokens($node, $signup) {
     else {
       $signup_data = unserialize($signup->form_data);
     }
-    $tokens['%info'] = theme('signup_email_token_custom_data', $signup_data);
+    $tokens['%user_signup_info'] = theme('signup_email_token_custom_data', $signup_data);
   }
   // Determine if this is an anon signup or not, and get the right info.
   if (!empty($signup->anon_mail)) {
-    $tokens['%useremail'] = $signup->anon_mail;
-    $tokens['%username'] = theme('signup_email_token_anonymous_username', $signup_data, $signup->anon_mail);
+    $tokens['%user_mail'] = $signup->anon_mail;
+    $tokens['%user_name'] = theme('signup_email_token_anonymous_username', $signup_data, $signup->anon_mail);
   }
   else {
-    $tokens['%useremail'] = $signup->mail;
-    $tokens['%username'] = $signup->name;
+    $tokens['%user_mail'] = $signup->mail;
+    $tokens['%user_name'] = $signup->name;
   }
   return $tokens;
 }

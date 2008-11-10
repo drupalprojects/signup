@@ -284,6 +284,79 @@ function signup_update_5203() {
   return array();
 }
 
+/**
+ * Rename all the tokens in existing email templates and the global settings.
+ */
+function signup_update_5204() {
+  $ret = array();
+
+  // Multi-part update.
+  if (!isset($_SESSION['signup_update_5204'])) {
+    // We need to start at nid 0 for the site-wide defaults, so
+    // initialize our variable to the value below that.
+    $_SESSION['signup_update_5204'] = -1;
+    $_SESSION['signup_update_5204_max'] = db_result(db_query("SELECT MAX(nid) FROM {signup}"));
+  }
+
+  // Array of replacements mapping old names to the new names.
+  $replacements = array(
+    '%eventurl' => '%node_url',
+    '%event' => '%node_title',
+    '%time' => '%node_start_time',
+    '%username' => '%user_name',
+    '%useremail' => '%user_mail',
+    '%info' => '%user_signup_info',
+  );
+
+  // Build up a nested REPLACE() fragment to have the DB do all the string
+  // conversions for us in a single query, instead of pulling the records out
+  // of the DB, doing the string manipulation in PHP, and writing back the
+  // values in a bunch of separate queries.  According to the docs, REPLACE()
+  // works the same way on both MySQL and PgSQL.
+  $reminder_replace = 'reminder_email';
+  $confirmation_replace = 'confirmation_email';
+  foreach ($replacements as $from => $to) {
+    $reminder_replace = "REPLACE($reminder_replace, '$from', '$to')";
+    $confirmation_replace = "REPLACE($confirmation_replace, '$from', '$to')";
+  }
+
+  // Do the next batch of the deed.
+  // Find the next N records to update, or do the final batch.
+  $next = min($_SESSION['signup_update_5204'] + 2000, $_SESSION['signup_update_5204_max']);
+  // Perform the UPDATE in our specified range of nid values.
+  $result = db_query("UPDATE {signup} SET reminder_email = $reminder_replace, confirmation_email = $confirmation_replace WHERE nid > %d AND nid <= %d", $_SESSION['signup_update_5204'], $next);
+  // Remember where we left off.
+  $_SESSION['signup_update_5204'] = $next;
+
+  if ($_SESSION['signup_update_5204'] == $_SESSION['signup_update_5204_max']) {
+    // We're done, clear these out.
+    unset($_SESSION['signup_update_5204']);
+    unset($_SESSION['signup_update_5204_max']);
+
+    // Provide a human-readable explaination of what we did.
+    $tokens = array(
+      '%event' => '%event',
+      '%eventurl' => '%eventurl',
+      '%time' => '%time',
+      '%username' => '%username',
+      '%useremail' => '%useremail',
+      '%info' => '%info',
+      '%node_title' => '%node_title',
+      '%node_url' => '%node_url',
+      '%node_start_time' => '%node_start_time',
+      '%user_name' => '%user_name',
+      '%user_mail' => '%user_mail',
+      '%user_signup_info' => '%user_signup_info',
+      );
+    $ret[] = array('success' => TRUE, 'query' => t('Replaced %event, %eventurl, %time, %username, %useremail, and %info tokens with %node_title, %node_url, %node_start_time, %user_name, %user_mail, and %user_signup_info in the reminder and confirmation email templates.', $tokens));
+  }
+  else {
+    // Report how much is left to complete.
+    $ret['#finished'] = $_SESSION['signup_update_5204'] / $_SESSION['signup_update_5204_max'];
+  }
+  return $ret;
+}
+
 function _signup_db_column_exists($table, $column) {
   switch ($GLOBALS['db_type']) {
     case 'mysql':
