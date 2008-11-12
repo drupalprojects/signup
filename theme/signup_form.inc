@@ -1,18 +1,11 @@
 <?php
-
 // $Id$
 
+
 /**
- * Format a user signup for display in a schedule list.
- *
- * @param node
- *   The node which needs theming
+ * @file
+ * Site-specific code related to the form when users signup for a node.
  */
-function theme_signup_user_schedule($node) {
-  $output = '';
-  $output .= '<div class="signup-user-schedule"><div class="'. $node->type. 'signup-title"><h4>'. l($node->title, "node/$node->nid") . '</h4></div></div>';
-  return $output;
-}
 
 /**
  * Return the site-specific custom fields for the signup user form.

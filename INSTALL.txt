@@ -16,8 +16,9 @@ the Drupal package and read the online documentation.
    for content on your site.  Unfortuantely, there is not yet a way to
    do this from within your site, you must modify a theme function to
    change this form.  See the comment above "theme_signup_user_form()"
-   in the signup.theme file.  You can either modify that version of
-   the function, or define your own version in your site's theme.
+   in the theme/signup_form.inc file.  If you want to change the form,
+   you should define your own version of theme_signup_user_form() in
+   your site's theme (e.g. as phptemplate_signup_user_form()).
 
 
 3. Enable the signup module by navigating to:

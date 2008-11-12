@@ -10,58 +10,146 @@
  * Implementation of hook_theme(), the theme registry.
  */
 function signup_theme() {
+  $path = drupal_get_path('module', 'signup') .'/theme';
   return array(
-    'signup_signups_closed' => array(
-      'file' => 'signup.module',
-      'arguments' => array(
-        'node' => NULL,
-        'current_signup' => '',
-      ),
-    ),
-    'signup_anonymous_user_login_text' => array(
-      'file' => 'signup.module',
-      'arguments' => array(
-        'anon_login_text' => NULL,
-      ),
-    ),
-    'signup_node_output_header' => array(
-      'file' => 'signup.module',
-      'arguments' => array(
-        'node' => NULL,
-      ),
-    ),
-    'signup_user_list' => array(
-      'file' => 'signup.module',
-      'arguments' => array(
-        'node' => NULL,
-        'registered_signups' => NULL,
-        'anon_signups' => NULL,
-      ),
-    ),
-    'signup_current_signup' => array(
-      'file' => 'signup.module',
-      'arguments' => array(
-        'signup_data' => NULL,
-        'cancel_signup_form' => '',
-      ),
-    ),
     'signup_admin_page' => array(
-      'file' => 'signup.module',
+      'file' => 'admin.inc',
+      'path' => $path,
       'arguments' => array(
         'filter_status_form' => NULL,
         'signup_admin_form' => NULL,
       ),
     ),
     'signup_filter_status_form' => array(
-      'file' => 'signup.module',
+      'file' => 'admin.inc',
+      'path' => $path,
       'arguments' => array(
         'form' => NULL,
       ),
     ),
     'signup_admin_form' => array(
-      'file' => 'signup.module',
+      'file' => 'admin.inc',
+      'path' => $path,
       'arguments' => array(
         'form' => NULL,
+      ),
+    ),
+    'signup_email_token_custom_data' => array(
+      'file' => 'email.inc',
+      'path' => $path,
+      'arguments' => array(
+        'signup_data' => NULL,
+      ),
+    ),
+    'signup_custom_data_email' => array(
+      'file' => 'email.inc',
+      'path' => $path,
+      'arguments' => array(
+        'data' => NULL,
+      ),
+    ),
+    'signup_broadcast_sender_copy' => array(
+      'file' => 'email.inc',
+      'path' => $path,
+      'arguments' => array(
+        'raw_message' => NULL,
+        'cooked_message' => NULL,
+      ),
+    ),
+    'signup_user_list' => array(
+      'file' => 'no_views.inc',
+      'path' => $path,
+      'arguments' => array(
+        'node' => NULL,
+        'registered_signups' => NULL,
+        'anon_signups' => NULL,
+      ),
+    ),
+    'signup_user_schedule' => array(
+      'file' => 'no_views.inc',
+      'path' => $path,
+      'arguments' => array(
+        'node' => NULL,
+      ),
+    ),
+    'signup_node_admin_page' => array(
+      'file' => 'node.admin.inc',
+      'path' => $path,
+      'arguments' => array(
+        'node' => NULL,
+        'header' => NULL,
+        'rows' => NULL,
+      ),
+    ),
+    'signup_admin_node_form' => array(
+      'file' => 'node.admin.inc',
+      'path' => $path,
+      'arguments' => array(
+        'form' => NULL,
+      ),
+    ),
+    'signup_custom_data' => array(
+      'file' => 'node.admin.inc',
+      'path' => $path,
+      'arguments' => array(
+        'data' => NULL,
+      ),
+    ),
+    'signup_signups_closed' => array(
+      'file' => 'node.inc',
+      'path' => $path,
+      'arguments' => array(
+        'node' => NULL,
+        'current_signup' => '',
+      ),
+    ),
+    'signup_anonymous_user_login_text' => array(
+      'file' => 'node.inc',
+      'path' => $path,
+      'arguments' => array(
+        'anon_login_text' => NULL,
+      ),
+    ),
+    'signup_node_output_header' => array(
+      'file' => 'node.inc',
+      'path' => $path,
+      'arguments' => array(
+        'node' => NULL,
+      ),
+    ),
+    'signup_current_signup' => array(
+      'file' => 'node.inc',
+      'path' => $path,
+      'arguments' => array(
+        'signup_data' => NULL,
+        'cancel_signup_form' => '',
+      ),
+    ),
+    'signup_custom_data_table' => array(
+      'file' => 'node.inc',
+      'path' => $path,
+      'arguments' => array(
+        'data' => NULL,
+      ),
+    ),
+    'signup_custom_data_rows' => array(
+      'file' => 'node.inc',
+      'path' => $path,
+      'arguments' => array(
+        'data' => NULL,
+      ),
+    ),
+    'signup_user_form' => array(
+      'file' => 'signup_form.inc',
+      'path' => $path,
+      'arguments' => array(),
+    ),
+    'signup_email_token_anonymous_username' => array(
+      'file' => 'signup_form.inc',
+      'path' => $path,
+      'arguments' => array(
+        'form_data' => NULL,
+        'email' => NULL,
       ),
     ),
     'signup_view_label' => array(
@@ -70,78 +158,10 @@ function signup_theme() {
         'view' => NULL,
       ),
     ),
-    'signup_node_admin_page' => array(
-      'file' => 'signup.module',
-      'arguments' => array(
-        'node' => NULL,
-        'header' => NULL,
-        'rows' => NULL,
-      ),
-    ),
-    'signup_admin_node_form' => array(
-      'file' => 'signup.module',
-      'arguments' => array(
-        'form' => NULL,
-      ),
-    ),
-    'signup_email_token_custom_data' => array(
-      'file' => 'signup.module',
-      'arguments' => array(
-        'signup_data' => NULL,
-      ),
-    ),
-    'signup_custom_data_email' => array(
-      'file' => 'signup.module',
-      'arguments' => array(
-        'data' => NULL,
-      ),
-    ),
-    'signup_custom_data_table' => array(
-      'file' => 'signup.module',
-      'arguments' => array(
-        'data' => NULL,
-      ),
-    ),
-    'signup_custom_data_rows' => array(
-      'file' => 'signup.module',
-      'arguments' => array(
-        'data' => NULL,
-      ),
-    ),
-    'signup_custom_data' => array(
-      'file' => 'signup.module',
-      'arguments' => array(
-        'data' => NULL,
-      ),
-    ),
-    'signup_broadcast_sender_copy' => array(
-      'file' => 'signup.module',
-      'arguments' => array(
-        'raw_message' => NULL,
-        'cooked_message' => NULL,
-      ),
-    ),
     'signup_token_help' => array(
       'file' => 'signup.module',
       'arguments' => array(
         'tokens' => NULL,
-      ),
-    ),
-    'signup_user_schedule' => array(
-      'file' => 'theme/signup.theme',
-      'arguments' => array(
-        'node' => NULL,
-      ),
-    ),
-    'signup_user_form' => array(
-      'file' => 'theme/signup.theme',
-      'arguments' => array(),
-    ),
-    'signup_email_token_anonymous_username' => array(
-      'file' => 'theme/signup.theme',
-      'arguments' => array(
-        'form_data' => NULL,
-        'email' => NULL,
       ),
     ),
   );
@@ -946,43 +966,6 @@ function signup_save_node($node, $op) {
 }
 
 /**
- * Controls the output displayed if this node is closed for signups.
- *
- * @param $node
- *   The fully loaded node object.
- * @param $current_signup
- *   If the user already signed up, an HTML representation of their current
- *   signup information, otherwise an empty string.
- *
- * @return
- *   Themed output to display for a node with closed signups.
- *
- * @see _signup_node_output()
- * @see _signup_print_current_signup()
- */
-function theme_signup_signups_closed($node, $current_signup = '') {
-  $output = '<h3>'. t('Signups closed for this %node_type', array('%node_type' => node_get_types('name', $node->type))) .'</h3>';
-  $output .= $current_signup;
-  return $output;
-}
-
-/**
- * Controls the output for anonymous users who can't signup.
- *
- * @param $anon_login_text
- *   The translated HTML help text telling users to login (and if allowed on
- *   this site, register) so they can signup, including login/register links.
- *
- * @return
- *   The themed HTML to display the login (and maybe register) help text.
- */
-function theme_signup_anonymous_user_login_text($anon_login_text) {
-  if (!empty($anon_login_text)) {
-    return '<div class="signup_anonymous_login">'. $anon_login_text .'</div>';
-  }
-}
-
-/**
  * Generate all the signup-related output for a given node.
  *
  * Because of the global setting to control if the signup details and form
@@ -1108,43 +1091,6 @@ function _signup_node_output($node, $type = 'node') {
 }
 
 /**
- * Return HTML desired at the top of the signup output for a node.
- *
- * @param $node
- *   The fully loaded node object to generate a header for.
- *
- * @return
- *   HTML to display at the top of the signup output.
- *
- * @see _signup_node_output()
- */
-function theme_signup_node_output_header($node) {
-  return '<a name="signup"></a>';
-}
-
-/**
- * Formats the list of users signed up for a particular node.
- *
- * @param $node
- *   The node object that users have signed up for.
- * @param $registered_signups
- *   Array of objects with data for each registered user signed up.
- * @param $anon_signups
- *   Array of objects with data for each anonymous user signed up.
- */
-function theme_signup_user_list($node, $registered_signups, $anon_signups) {
-  $header = array(array('data' => t('!users signed up', array('!users' => format_plural((count($registered_signups) + count($anon_signups)), '1 individual', '@count individuals')))));
-  $rows = array();
-  foreach ($registered_signups as $signup) {
-    $rows[] = array(theme('username', $signup));
-  }
-  if (!empty($anon_signups)) {
-    $rows[] = array(t('!count anonymous', array('!count' => count($anon_signups))));
-  }
-  return theme('table', $header, $rows);
-}
-
-/**
  * Helper function that determines if a given node should have any
  * signup-related output.
  *
@@ -1170,25 +1116,6 @@ function _signup_needs_output($node) {
 function signup_node_tab($node) {
   drupal_set_title(check_plain($node->title));
   return _signup_node_output($node, 'tab');
-}
-
-/**
- * Controls the output of the users signup data and optional cancel button.
- *
- * @param $signup_data
- *   Array containing information about the user's signup.  Contains:
- *   'signup_timestamp' - Integer timestamp when the user signed up.
- *   'custom_data' - Array containing the user's custom signup data.
- * @param $cancel_signup_form
- *   Optional HTML for a "Cancel signup" button if the user is allowed.
- *
- * @return
- *   Themed output containing the user's current signup information.
- */
-function theme_signup_current_signup($signup_data, $cancel_signup_form = '') {
-  $output = theme('signup_custom_data_table', $signup_data['custom_data']);
-  $output .= $cancel_signup_form;
-  return $output;
 }
 
 /**
@@ -1336,29 +1263,6 @@ function signup_cancel_form(&$form_state, $node, $account) {
 }
 
 /**
- * Controls the output of the signup administration overview page.
- *
- * This page is located at admin/content/signup, and allows site-wide signup
- * administrators to view signup-related information, close/open signups, etc,
- * for all signup-enabled nodes on the site.  There's a form to filter the
- * results by signup status, which is rendered at the top of the page by
- * default.
- *
- * @param $filter_status_form
- *   HTML representation of the signup status filter form.
- * @param $signup_admin_form
- *   HTML representation of the main signup administration form.
- *
- * @return
- *   Themed output for the signup administration overview page.
- */
-function theme_signup_admin_page($filter_status_form, $signup_admin_form) {
-  $output = $filter_status_form;
-  $output .= $signup_admin_form;
-  return $output;
-}
-
-/**
  * Prints the admin signup overview page located at admin/content/signup
  * @ingroup signup_callback
  */
@@ -1387,10 +1291,6 @@ function signup_filter_status_form(&$form_state) {
   $form['submit'] = array('#type' => 'submit', '#value' => t('Filter'));
 //  $form['#redirect'] = FALSE;
   return $form;
-}
-
-function theme_signup_filter_status_form($form) {
-  return '<div class="container-inline">'. drupal_render($form) .'</div>';
 }
 
 function signup_filter_status_form_submit($form, &$form_state) {
@@ -1535,50 +1435,6 @@ function signup_admin_form_sql() {
   }
 
   return array(db_rewrite_sql($sql), db_rewrite_sql($sql_count, 's'));
-}
-
-function theme_signup_admin_form($form) {
-  if (!isset($form['nids'])) {
-    $type = $_SESSION['signup_status_filter'];
-    switch ($type) {
-      case 'open':
-        $filter = t('open');
-        break;
-
-      case 'closed':
-        $filter = t('closed');
-        break;
-
-      default:
-        $filter = t('enabled');
-        break;
-    }
-    return t('No content is currently !status for signups.', array('!status' => $filter));
-  }
-  foreach ($form['nids'] as $nid => $node_form) {
-    if (!is_numeric($nid)) {
-      continue;
-    }
-    $row = array();
-    if (isset($node_form['start'])) {
-      $row[] = drupal_render($form['nids'][$nid]['start']);
-    }
-    $row[] = drupal_render($form['nids'][$nid]['title']);
-    $row[] = drupal_render($form['nids'][$nid]['total']);
-    $row[] = drupal_render($form['nids'][$nid]['limit']);
-    $row[] = drupal_render($form['nids'][$nid]['status']);
-    $row[] = drupal_render($form['nids'][$nid]['operations']);
-    $rows[] = $row;
-  }
-  $header = $form['header']['#value'];
-  unset($form['header']);
-  $output = theme('table', $header, $rows, array('style' => 'width:100%'));
-  $output .= drupal_render($form);
-  $pager = theme('pager', NULL, 25, 0);
-  if (!empty($pager)) {
-    $output .= $pager;
-  }
-  return $output;
 }
 
 function signup_admin_form_submit($form, &$form_state) {
@@ -2069,69 +1925,6 @@ function signup_node_admin_page($node) {
   return theme('signup_node_admin_page', $node, $header, $rows);
 }
 
-/**
- * Theme function for the signup administrative tab (node/N/signups).
- *
- * This is responsible for rendering the signup summary form (allows
- * admins to open/close signups, set a signup limit, and see the total
- * number of signups), the table of signup details (generated by
- * signup_node_admin_page()), and if the node is signup-enabled, the
- * form to signup other users.
- *
- * @param $node
- *   The node object for the signup-enabled node this is a tab on.
- * @param $header
- *   Array containing the header for the signup details table.
- * @param $rows
- *   Array containing the rows for the signup details table, keyed by
- *   column name.
- */
-function theme_signup_node_admin_page($node, $header, $rows) {
-  $output = '';
-
-  // Administrative table to control signups for this node.
-  $output .= drupal_get_form('signup_admin_node_form', $node);
-
-  $signup_details_table = theme('table', $header, $rows);
-
-  $fieldset = array(
-    '#title' => t('Signup details'),
-    '#collapsible' => TRUE,
-    '#collapsed' => FALSE,
-    '#value' => $signup_details_table,
-  );
-  $output .= theme('fieldset', $fieldset);
-
-  if ($node->signup_status) {
-    // Add a form to allow the administrator to signup other users.
-    $output .= drupal_get_form('signup_form', $node, 'admin');
-  }
-
-  return $output;
-}
-
-function theme_signup_admin_node_form($form) {
-  $row = array(
-    drupal_render($form['status']),
-    drupal_render($form['total']),
-    drupal_render($form['limit']),
-    drupal_render($form),
-  );
-  $header = array(
-    t('Status'),
-    t('Total'),
-    t('Limit'),
-    t('Operations'),
-  );
-  $fieldset = array(
-    '#title' => t('Signup summary'),
-    '#collapsible' => TRUE,
-    '#collapsed' => FALSE,
-    '#value' => theme('table', $header, array($row)),
-  );
-  return theme('fieldset', $fieldset);
-}
-
 function signup_admin_node_form($form_state, $node) {
   $form = array();
   if ($node->signup_close_signup_limit &&
@@ -2409,135 +2202,6 @@ function signup_node_settings_form($form_state, $node = NULL, $node_type = NULL,
 }
 
 /**
- * Return the value for the %user_signup_info email token for custom signup data.
- *
- * @param $signup_data
- *   Array of custom data for a particular signup.
- *
- * @see theme_signup_user_form()
- * @see theme_signup_custom_data_email()
- */
-function theme_signup_email_token_custom_data($signup_data) {
-  return t('SIGNUP INFORMATION') ."\n\r". theme('signup_custom_data_email', $signup_data);
-}
-
-/**
- * Renders custom signup data into unfiltered output for use in email.
- *
- * WARNING: This theme function is recursive (it calls itself for
- * nested data), so if you override it, be sure not to change the part
- * where it does "call_user_func(__FUNCTION__)".
- *
- * @param $data
- *   Array of custom user signup data.
- *
- * @return
- *   Plain text output with newlines.
- *
- * @see theme_signup_user_form()
- */
-function theme_signup_custom_data_email($data) {
-  $output = '';
-  // Loop through each first level element.
-  foreach ($data as $key => $value) {
-    if (is_array($value)) {
-      // Element is nested, render it recursively.
-      // Instead of the overhead of theme(), just call ourself directly.
-      $output .= "\n\r". call_user_func(__FUNCTION__, $value) ."\n\r";
-    }
-    else {
-      $output .= $key .': '. $value ."\n\r";
-    }
-  }
-  return $output;
-}
-
-/**
- * Renders custom signup user data into a table.
- *
- * @param $data
- *   Array of custom user signup data.
- *
- * @return
- *   The themed table with custom signup user data.
- *
- * @see theme_signup_user_form()
- */
-function theme_signup_custom_data_table($data) {
-  $output = '';
-  if (is_array($data)) {
-    $header = array(array('data' => t('Your signup information'), 'colspan' => 2));
-    $rows = theme('signup_custom_data_rows', $data);
-    $output .= theme('table', $header, $rows);
-  }
-  return $output;
-}
-
-/**
- * Renders custom signup user data into table rows.
- *
- * WARNING: This theme function is recursive (it calls itself for
- * nested data), so if you override it, be sure not to change the part
- * where it does "call_user_func(__FUNCTION__)".
- *
- * @param $data
- *   Array of custom user signup data.
- *
- * @return
- *   An array of table rows.
- *
- * @see theme_signup_user_form()
- */
-function theme_signup_custom_data_rows($data) {
-  $rows = array();
-  // Loop through each first level element.
-  foreach ($data as $key => $value) {
-    if (is_array($value)) {
-      // Element is nested, render it recursively.
-      // Instead of the overhead of theme(), just call ourself directly.
-      $rows += call_user_func(__FUNCTION__, $value);
-    }
-    else {
-      $rows[] = array($key .':', check_plain($value));
-    }
-  }
-  return $rows;
-}
-
-/**
- * Renders custom signup user data into a human-readable format.
- *
- * WARNING: This theme function is recursive (it calls itself for
- * nested data), so if you override it, be sure not to change the part
- * where it does "call_user_func(__FUNCTION__)".
- *
- * @param $data
- *   Array of custom user signup data.
- *
- * @return
- *   User data directly formatted in divs.
- *
- * @see theme_signup_user_form()
- */
-function theme_signup_custom_data($data) {
-  $output = '';
-  // Loop through each first level element.
-  foreach ($data as $key => $value) {
-    $output .= '<div id="'. signup_id_safe($key) .'">';
-    if (is_array($value)) {
-      // Element is nested, render it recursively.
-      // Instead of the overhead of theme(), just call ourself directly.
-      $output .= call_user_func(__FUNCTION__, $value);
-    }
-    else {
-      $output .= $key .': '. check_plain($value);
-    }
-    $output .= "</div>\n";
-  }
-  return $output;
-}
-
-/**
  * Converts an arbitrary string into something safe to use for a CSS id.
  *
  * Stolen wholesale from the Zen theme. ;)
@@ -2708,30 +2372,6 @@ function signup_broadcast_form_submit($form, &$form_state) {
     }
   }
   drupal_set_message(t('Message sent to all users who have signed up'));
-}
-
-/**
- * Controls the body of the copy of the broadcast message sent to the sender.
- *
- * @param $raw_message
- *   The raw message typed in by the sender with no tokens replaced.
- * @param $cooked_message
- *   The message after all the tokens have been replaced.
- *
- * @return
- *   The final text to put in the email body sent to the broadcast sender.
- */
-function theme_signup_broadcast_sender_copy($raw_message, $cooked_message) {
-  $output = t('This is a copy of the signup broadcast you just sent.') ."\n";
-  $output .= wordwrap(t('Here is the original text you entered, with none of the tokens replaced:'), 72) ."\n";
-  $output .= "----------\n";
-  $output .= $raw_message;
-  $output .= "\n----------\n\n";
-  $output .= wordwrap(t('Here is how the message that was sent to each user looked, with all of the tokens replaced (using your account for the user-related tokens):'), 72) ."\n";
-  $output .= "----------\n";
-  $output .= $cooked_message;
-  $output .= "\n----------\n\n";
-  return $output;
 }
 
 /**

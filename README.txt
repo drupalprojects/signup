@@ -26,6 +26,8 @@ For installation instructions, see INSTALL.txt.
 
 For instructions on upgrading, see UPGRADE.txt.
 
+For information about theming, see theme/README.txt.
+
 Send feature requests and bug reports to the issue tracking system for
 the signup module: http://drupal.org/node/add/project_issue/signup.
 For a list of future work, also see http://groups.drupal.org/node/5044.
