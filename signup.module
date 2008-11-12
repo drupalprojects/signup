@@ -898,7 +898,9 @@ function signup_save_node($node, $op) {
     $has_signup_record = FALSE;
     $limit_changed = FALSE;
     if ($op == 'update') {
-      $cur_limit = db_result(db_query("SELECT close_signup_limit FROM {signup} WHERE nid = %d", $node->nid));
+      $signup = db_fetch_object(db_query("SELECT close_signup_limit, status FROM {signup} WHERE nid = %d", $node->nid));
+      $cur_limit = $signup->close_signup_limit;
+      $node->signup_status = $signup->status;
       if ($cur_limit !== FALSE) {
         $has_signup_record = TRUE;
         $limit_changed = $cur_limit != $node->signup_close_signup_limit;
@@ -924,6 +926,7 @@ function signup_save_node($node, $op) {
       drupal_set_message(t('%node_type start time is already past the signup close-in-advance time, signups now closed.', array('%node_type' => node_get_types('name', $node->type))));
     }
     elseif ($limit_changed) {
+      $node->signup_total = db_result(db_query("SELECT COUNT(*) FROM {signup_log} WHERE nid = %d", $node->nid));
       _signup_check_limit($node, 'limit');
     }
   }
