@@ -34,6 +34,10 @@ Bugs fixed since 5.x-2.5:
   text for the signup settings on the node form when creating new nodes.
 = Fixed the help text on the signup broadcast page to use the
   human-readable name of the content type, not the internal name.
+= #332968 by dww: Renamed _signup_admin_form to signup_node_settings_form
+  to be less confusing, and fixed PHP warnings from not knowing the node
+  type on the global signup settings configuration page.  Also, all help
+  text now consistently uses the human-readable node type name.
 
 Other changes since 5.x-2.5:
 = #327726 by dww: Reorganized the directory layout of the code.
