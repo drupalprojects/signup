@@ -2406,27 +2406,6 @@ function signup_node_settings_form($form_state, $node = NULL, $node_type = NULL,
 }
 
 /**
- * Deprecated function to render signup data in a human-readable form.
- *
- * @see theme_signup_custom_data()
- * @see theme_signup_custom_data_email()
- * @see theme_signup_custom_data_rows()
- */
-function signup_build_signup_data($data, $type = 'output') {
-  switch ($type) {
-    case 'email':
-      return theme('signup_custom_data_email', $data);
-
-    case 'table':
-      // This function used to take $type == 'table' when it wanted rows. :(
-      return theme('signup_custom_data_rows', $data);
-
-    default:
-      return theme('signup_custom_data', $data);
-  }
-}
-
-/**
  * Return the value for the %user_signup_info email token for custom signup data.
  *
  * @param $signup_data

@@ -10,6 +10,8 @@ $Id$
   revisit the signup settings page and select a new value under the
   advanced settings fieldset.  signup_update_6000() removes the
   deprecated variables from the database.
+= #333185 by dww: Removed deprecated signup_build_signup_data() function.
+
 
 -----------
 5.x-2.x-dev
