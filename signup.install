@@ -405,3 +405,23 @@ function signup_update_5204() {
   return $ret;
 }
 
+/**
+ * Migrate signup user list view display type to the new variable.
+ */
+function signup_update_6000() {
+  $ret = array();
+  variable_del('signup_user_list_view_name');
+  variable_del('signup_user_list_view_type');
+  $ret[] = array(
+    'success' => TRUE,
+    'query' => t('Removed the deprecated %old_view_name and %old_view_type variables. If you were using embedding a view on signup-enabled nodes, please visit the <a href="@signup_settings_url">Signup configuration page</a> and select a new value for the %setting_name setting (which is located under the Advanced settings).', array(
+      '%old_view_name' => 'signup_user_list_view_name',
+      '%old_view_type' => 'signup_user_list_view_type',
+      // NOTE: we can't use url() here because it would use 'update.php?q=...'
+      '@signup_settings_url' => base_path() .'?q=admin/settings/signup', 
+      '%setting_name' => t('View to embed for the signup user list'),
+    )),
+  );
+  return $ret;
+}
+
