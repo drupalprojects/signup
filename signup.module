@@ -1082,7 +1082,7 @@ function _signup_node_output($node, $type = 'node') {
       $view_display = $signup_view_parts[1];
       $view = views_get_view($view_name);
       $view_args = array($node->nid);
-      $output .=  $view->execute_display($view_display, $view_args);
+      $output .=  $view->preview($view_display, $view_args);
     }
     // Otherwise, they're on their own, and either don't want it displayed at
     // all, or they want to handle where/how it's displayed via views.
