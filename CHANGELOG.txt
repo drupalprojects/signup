@@ -29,6 +29,9 @@ New features since 5.x-2.5:
   The default implementation adds a 'signup' anchor.
 = #333257 by dww: Improved the UI at the node/N/signups administration
   page to use a column of checkboxes to cancel multiple signups at once.
+= #332443 by TheOnlyHarry and dww: theme_signup_user_form() is now
+  invoked with the $node object as context, so you can conditionally
+  add custom signup fields depending on the node or node type.
 
 Bugs fixed since 5.x-2.5:
 = #327417 by dww: Fixed bug where reminder emails always used

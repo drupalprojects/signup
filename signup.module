@@ -150,7 +150,9 @@ function signup_theme() {
     'signup_user_form' => array(
       'file' => 'signup_form.inc',
       'path' => $path,
-      'arguments' => array(),
+      'arguments' => array(
+        'node' => NULL,
+      ),
     ),
     'signup_email_token_anonymous_username' => array(
       'file' => 'signup_form.inc',
@@ -1241,7 +1243,7 @@ function signup_form(&$form_state, $node, $signup_type = 'auth', $fieldset = TRU
   }
 
   // Build the themed signup form for this site and include that.
-  $signup_themed_form = theme('signup_user_form');
+  $signup_themed_form = theme('signup_user_form', $node);
 
   if ($signup_type == 'admin') {
     // Special case hack for the default signup form, where the current

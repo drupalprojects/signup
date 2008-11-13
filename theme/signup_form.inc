@@ -34,12 +34,15 @@
  * If you do not want any additional fields, the function can simply
  * return an empty array: "return array();"
  *
+ * @param $node
+ *   The fully loaded node object where this signup form is appearing.
+ *
  * @return
  *   Array defining the form to present to the user to signup for a node.
  *
  * @see theme_signup_email_token_anonymous_username()
  */
-function theme_signup_user_form() {
+function theme_signup_user_form($node) {
   global $user;
   $form = array();
 
