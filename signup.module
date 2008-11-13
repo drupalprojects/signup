@@ -1245,7 +1245,7 @@ function signup_admin_form() {
     // Instead of duplicating the logic from the node/N/signups admin
     // form, we just call that form builder here and lift the elements
     // we need directly from that.
-    $node_admin_form = signup_admin_node_form($signup_node);
+    $node_admin_form = signup_node_admin_summary_form($signup_node);
     $row['title'] = array(
       '#type' => 'markup',
       '#value' => l($signup_node->title, "node/$signup_node->nid"),
@@ -1396,7 +1396,7 @@ function theme_signup_admin_form($form) {
 function signup_admin_form_submit($form_id, $form_values) {
   foreach ($form_values['nids'] as $nid => $values) {
     $values['nid'] = $nid;
-    signup_admin_node_form_submit($form_id, $values);
+    signup_node_admin_summary_form_submit($form_id, $values);
   }
 }
 
@@ -1902,7 +1902,7 @@ function theme_signup_node_admin_page($node, $header, $rows) {
   $output = '';
 
   // Administrative table to control signups for this node.
-  $output .= drupal_get_form('signup_admin_node_form', $node);
+  $output .= drupal_get_form('signup_node_admin_summary_form', $node);
 
   $signup_details_table = theme('table', $header, $rows);
 
@@ -1921,7 +1921,10 @@ function theme_signup_node_admin_page($node, $header, $rows) {
   return $output;
 }
 
-function theme_signup_admin_node_form($form) {
+/**
+ * Renders the HTML for the per-node signup summary administrative form.
+ */
+function theme_signup_node_admin_summary_form($form) {
   $row = array(
     drupal_render($form['status']),
     drupal_render($form['total']),
@@ -1942,7 +1945,7 @@ function theme_signup_admin_node_form($form) {
   return theme('fieldset', $fieldset);
 }
 
-function signup_admin_node_form($node) {
+function signup_node_admin_summary_form($node) {
   if ($node->signup_close_signup_limit &&
     $node->signup_total >= $node->signup_close_signup_limit
   ) {
@@ -1976,7 +1979,7 @@ function signup_admin_node_form($node) {
   return $form;
 }
 
-function signup_admin_node_form_submit($form_id, $form_values) {
+function signup_node_admin_summary_form_submit($form_id, $form_values) {
   $nid = $form_values['nid'];
   $node = node_load($nid);
   $limit_status = 0;
