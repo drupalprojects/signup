@@ -60,6 +60,11 @@ Other changes since 5.x-2.5:
   now uses the human-readable node type name, instead.
 = #328840 by dww: Renamed the default email tokens to use less
   ambiguous names and to not refer to 'event' at all (#328647).
+= #333259 by dww: Renamed 'signup_admin_node_form' to
+  'signup_node_admin_summary_form' to help avoid confusion in the
+  code.  This does mean that sites which implemented their own theme
+  function for this form will have to modify the name of their
+  override function.
 
 
 -----------
