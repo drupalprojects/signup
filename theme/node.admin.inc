@@ -28,7 +28,7 @@ function theme_signup_node_admin_page($node, $header, $rows) {
   $output = '';
 
   // Administrative table to control signups for this node.
-  $output .= drupal_get_form('signup_admin_node_form', $node);
+  $output .= drupal_get_form('signup_node_admin_summary_form', $node);
 
   $signup_details_table = theme('table', $header, $rows);
 
@@ -48,7 +48,10 @@ function theme_signup_node_admin_page($node, $header, $rows) {
   return $output;
 }
 
-function theme_signup_admin_node_form($form) {
+/**
+ * Renders the HTML for the per-node signup summary administrative form.
+ */
+function theme_signup_node_admin_summary_form($form) {
   $row = array(
     drupal_render($form['status']),
     drupal_render($form['total']),
