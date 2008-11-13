@@ -27,6 +27,8 @@ New features since 5.x-2.5:
 = #78707 by dww: Added a theme_signup_node_output_header() function to
   customize HTML at the top of the signup-related output on nodes.
   The default implementation adds a 'signup' anchor.
+= #333257 by dww: Improved the UI at the node/N/signups administration
+  page to use a column of checkboxes to cancel multiple signups at once.
 
 Bugs fixed since 5.x-2.5:
 = #327417 by dww: Fixed bug where reminder emails always used

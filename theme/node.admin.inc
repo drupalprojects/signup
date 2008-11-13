@@ -18,33 +18,29 @@
  *
  * @param $node
  *   The node object for the signup-enabled node this is a tab on.
- * @param $header
- *   Array containing the header for the signup details table.
- * @param $rows
- *   Array containing the rows for the signup details table, keyed by
- *   column name.
+ * @param $signup_node_admin_summary_form
+ *   The rendered HTML for the signup node summary form (to set the signup
+ *   limit, open/close signups, see the total number of signups, etc).
+ * @param $signup_node_admin_details_form
+ *   The rendered HTML for the signup node details form (to view all the users
+ *   who have signed up, their full signup details, and checkboxes to cancel
+ *   multiple signups at once.
+ * @param $signup_form
+ *   If the signups are open on this node, the HTML to signup another user,
+ *   otherwise, and empty string.
  */
-function theme_signup_node_admin_page($node, $header, $rows) {
+ function theme_signup_node_admin_page($node, $signup_node_admin_summary_form, $signup_node_admin_details_form, $signup_form) {
   $output = '';
 
-  // Administrative table to control signups for this node.
-  $output .= drupal_get_form('signup_node_admin_summary_form', $node);
+  // Administrative summary table to control signups for this node.
+  $output .= $signup_node_admin_summary_form;
 
-  $signup_details_table = theme('table', $header, $rows);
+  // Details for each user who signed up.
+  $output .= $signup_node_admin_details_form;
 
-  $fieldset = array(
-    '#title' => t('Signup details'),
-    '#collapsible' => TRUE,
-    '#collapsed' => FALSE,
-    '#value' => $signup_details_table,
-  );
-  $output .= theme('fieldset', $fieldset);
-
-  if ($node->signup_status) {
-    // Add a form to allow the administrator to signup other users.
-    $output .= drupal_get_form('signup_form', $node, 'admin');
-  }
-
+  // Form for admins to signup other users (if signups are still open).
+  $output .= $signup_form;
+  
   return $output;
 }
 
@@ -71,6 +67,31 @@ function theme_signup_node_admin_summary_form($form) {
     '#value' => theme('table', $header, array($row)),
   );
   return theme('fieldset', $fieldset);
+}
+
+function theme_signup_node_admin_details_form($form) {
+  $fieldset = array(
+    '#title' => t('Signup details'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  if (!empty($form['users']['#options'])) {
+    $header = $form['#header'];
+    $rows = array();
+    foreach ($form['users']['#options'] as $key => $value) {
+      $rows[] = array(
+        'cancel_checkbox' => drupal_render($form['users'][$key]),
+        'username' => drupal_render($form['username'][$key]),
+        'signup_date' => drupal_render($form['signup_date'][$key]),
+        'signup_form_data' => drupal_render($form['signup_form_data'][$key]),
+      );
+    }
+    $fieldset['#value'] = theme('table', $header, $rows) . drupal_render($form['submit_cancel']);
+  }
+  else {
+    $fieldset['#value'] = '<span>'. drupal_render($form['no_users']) .'</span>';
+  }
+  return theme('fieldset', $fieldset) . drupal_render($form);
 }
 
 /**
