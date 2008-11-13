@@ -293,6 +293,15 @@ function signup_menu($may_cache) {
           'weight' => 20,
         );
         $items[] = array(
+          'path' => 'node/'. arg(1) .'/signups/confirm',
+          'title' => t('Signups'),
+          'callback' => 'drupal_get_form',
+          'callback arguments' => array('signup_cancel_multiple_confirm', $node),
+          'access' => $access || $access_own,
+          'type' => MENU_CALLBACK,
+          'weight' => 20,
+        );
+        $items[] = array(
           'path' => 'node/'. arg(1) .'/signup-broadcast',
           'title' => t('Signup broadcast'),
           'callback' => 'drupal_get_form',
@@ -1834,51 +1843,155 @@ function signup_sign_up_user($signup_form) {
 function signup_node_admin_page($node) {
   drupal_set_title(check_plain($node->title));
 
+  // Administrative table to control signups for this node.
+  $signup_node_admin_summary_form = drupal_get_form('signup_node_admin_summary_form', $node);
+
+  // Signup details table, including cancel checkboxes.
+  $signup_node_admin_details_form = drupal_get_form('signup_node_admin_details_form', $node);
+
+  if ($node->signup_status) {
+    // Add a form to allow the administrator to signup other users.
+    $signup_form = drupal_get_form('signup_form', $node, 'admin');
+  }
+  else {
+    $signup_form = '';
+  }
+
+  return theme('signup_node_admin_page', $node, $signup_node_admin_summary_form, $signup_node_admin_details_form, $signup_form);
+}
+
+function signup_node_admin_details_form($node) {
+  unset($_SESSION['signup_cancel_multiple_users']);
+  $form = array();
+
   // Prepare a table header that allows sorting on name and signup time.
   $header = array(
+    theme('table_select_header_cell'),
     array('data' => t('Name'), 'field' => 'u.name', 'sort' => 'asc'),
     array('data' => t('Signup time'), 'field' => 's.signup_time'),
     array('data' => t('Extra information')),
-    array('data' => t('Operations')),
   );
 
   $sql = "SELECT u.uid, u.name, s.anon_mail, s.signup_time, s.form_data FROM {signup_log} s INNER JOIN {users} u ON u.uid = s.uid WHERE s.nid = %d";
   $sql .= tablesort_sql($header);
   $result = db_query($sql, $node->nid);
-  $rows = array();
 
   // Loop through the users, unserializing their user data.
   while ($signed_up_user = db_fetch_object($result)) {
-    $table_data = array();
-    $form_data = unserialize($signed_up_user->form_data);
-
-    // Compose the user data.
-    $signup_form_data = theme('signup_custom_data', $form_data);
-
     // The username and the unique form identifier are different for
     // anon signups and registered user signups.  For registered users,
     // provide a link to the user profile, and use the uid as the
     // identifier.  For anon, use the user's email address as the
     // identifier and name.
     if ($signed_up_user->uid == 0) {
+      $key = '__anon:'. $signed_up_user->anon_mail;
       $username = check_plain($signed_up_user->anon_mail);
-      $id = $signed_up_user->anon_mail;
     }
     else {
+      $key = $signed_up_user->uid;
       $username = theme('username', $signed_up_user);
-      $id = $signed_up_user->uid;
     }
 
-    // Build the row for this user.
-    $rows[] = array(
-      'username' => $username,
-      'signup_date' => format_date($signed_up_user->signup_time, variable_get('signup_date_format', 'small')),
-      'signup_form_data' => $signup_form_data,
-      'cancel_signup_form' => drupal_get_form('signup_user_cancel_form_'. $id, $id, $node->nid, $signed_up_user->uid, $signed_up_user->anon_mail),
+    $users[$key] = '';
+    $form['username'][$key] = array('#value' => $username);
+    $form['signup_date'][$key] = array('#value' => format_date($signed_up_user->signup_time, variable_get('signup_date_format', 'small')));
+    $form['signup_form_data'][$key] = array('#value' => theme('signup_custom_data', unserialize($signed_up_user->form_data)));
+  }
+  if (empty($users)) {
+    $form['no_users'] = array('#value' => t('No users have signed up for this %node_type.', array('%node_type' => node_get_types('name', $node->type))));
+  }
+  else {
+    $form['nid'] = array(
+      '#type' => 'hidden',
+      '#value' => $node->nid,
+    );
+    $form['users'] = array('#type' => 'checkboxes', '#options' => $users);
+    $form['submit_cancel'] = array(
+      '#type' => 'submit',
+      '#value' => t('Cancel signups'),
+    );
+    $form['#header'] = $header;
+  }
+  return $form;
+}
+
+function signup_node_admin_details_form_validate($form_id, $form_values) {
+  $users = array_filter($form_values['users']);
+  if (empty($users)) {
+    form_set_error('', t('No users selected.'));
+  }
+}
+
+/**
+ * Submit handler for cancelling multiple signups via node/N/signups.
+ *
+ * This saves the selected users into SESSION and redirects to a confirm form
+ * which is registered at node/N/signups/confirm.
+ */
+function signup_node_admin_details_form_submit($form_id, $form_values) {
+  $_SESSION['signup_cancel_multiple_users'] = array_filter($form_values['users']);
+  return 'node/'. $form_values['nid'] .'/signups/confirm';
+}
+
+/**
+ * Builds the confirm form when canceling multiple signups from node/N/signups.
+ */
+function signup_cancel_multiple_confirm($node) {
+  $form = array();
+  $form['nid'] =  array(
+    '#type' => 'hidden',
+    '#value' => $node->nid,
+  );
+  $form['users'] =  array(
+    '#prefix' => '<ul>',
+    '#suffix' => '</ul>',
+    '#tree' => TRUE,
+  );
+  foreach ($_SESSION['signup_cancel_multiple_users'] as $key) {
+    $label = '';
+    $matches = array();
+    if (preg_match('/__anon:(.*)/', $key, $matches)) {
+      $label = t('Anonymous signup: %anon_mail', array('%anon_mail' => $matches[1]));
+    }
+    else {
+      $account = db_fetch_object(db_query("SELECT uid, name FROM {users} WHERE uid = %d", $key));
+      $label = theme('username', $account);
+    }
+    $form['users'][$key] = array(
+      '#type' => 'hidden',
+      '#value' => $key,
+      '#prefix' => '<li>',
+      '#suffix' => $label ."</li>\n",
     );
   }
+  return confirm_form(
+    $form,
+    t('Are you sure you want to cancel signups for these users?'),
+    'node/'. $node->nid .'/signups',
+    t('This action cannot be undone.'),
+    t('Cancel signups'), t('Keep signups')
+  );
+}
 
-  return theme('signup_node_admin_page', $node, $header, $rows);
+/**
+ * Submit handler for the confirm form to cancel multiple signups.
+ */
+function signup_cancel_multiple_confirm_submit($form_id, $form_values) {
+  $nid = $form_values['nid'];
+  foreach ($form_values['users'] as $key) {
+    $matches = array();
+    if (preg_match('/__anon:(.*)/', $key, $matches)) {
+      $uid = 0;
+      $anon_mail = $matches[1];
+    }
+    else {
+      $uid = $key;
+      $anon_mail = NULL;
+    }
+    signup_cancel_signup($uid, $nid, $anon_mail);
+  }
+  unset($_SESSION['signup_cancel_multiple_users']);
+  return 'node/'. $nid .'/signups';
 }
 
 /**
@@ -1887,38 +2000,58 @@ function signup_node_admin_page($node) {
  * This is responsible for rendering the signup summary form (allows
  * admins to open/close signups, set a signup limit, and see the total
  * number of signups), the table of signup details (generated by
- * signup_node_admin_page()), and if the node is signup-enabled, the
- * form to signup other users.
+ * signup_node_admin_details_form), and if the node is signup-enabled,
+ * the form to signup other users.
  *
- * @param $node
- *   The node object for the signup-enabled node this is a tab on.
- * @param $header
- *   Array containing the header for the signup details table.
- * @param $rows
- *   Array containing the rows for the signup details table, keyed by
- *   column name.
+ * @param $signup_node_admin_summary_form
+ *   The rendered HTML for the signup node summary form (to set the signup
+ *   limit, open/close signups, see the total number of signups, etc).
+ * @param $signup_node_admin_details_form
+ *   The rendered HTML for the signup node details form (to view all the users
+ *   who have signed up, their full signup details, and checkboxes to cancel
+ *   multiple signups at once.
+ * @param $signup_form
+ *   If the signups are open on this node, the HTML to signup another user,
+ *   otherwise, and empty string.
  */
-function theme_signup_node_admin_page($node, $header, $rows) {
+ function theme_signup_node_admin_page($node, $signup_node_admin_summary_form, $signup_node_admin_details_form, $signup_form) {
   $output = '';
 
-  // Administrative table to control signups for this node.
-  $output .= drupal_get_form('signup_node_admin_summary_form', $node);
+  // Administrative summary table to control signups for this node.
+  $output .= $signup_node_admin_summary_form;
 
-  $signup_details_table = theme('table', $header, $rows);
+  // Details for each user who signed up.
+  $output .= $signup_node_admin_details_form;
 
+  // Form for admins to signup other users (if signups are still open).
+  $output .= $signup_form;
+  
+  return $output;
+}
+
+function theme_signup_node_admin_details_form($form) {
   $fieldset = array(
     '#title' => t('Signup details'),
     '#collapsible' => TRUE,
-    '#value' => $signup_details_table,
+    '#collapsed' => FALSE,
   );
-  $output .= theme('fieldset', $fieldset);
-
-  if ($node->signup_status) {
-    // Add a form to allow the administrator to signup other users.
-    $output .= drupal_get_form('signup_form', $node, 'admin');
+  if (!empty($form['users']['#options'])) {
+    $header = $form['#header'];
+    $rows = array();
+    foreach ($form['users']['#options'] as $key => $value) {
+      $rows[] = array(
+        'cancel_checkbox' => drupal_render($form['users'][$key]),
+        'username' => drupal_render($form['username'][$key]),
+        'signup_date' => drupal_render($form['signup_date'][$key]),
+        'signup_form_data' => drupal_render($form['signup_form_data'][$key]),
+      );
+    }
+    $fieldset['#value'] = theme('table', $header, $rows) . drupal_render($form['submit_cancel']);
   }
-
-  return $output;
+  else {
+    $fieldset['#value'] = '<span>'. drupal_render($form['no_users']) .'</span>';
+  }
+  return theme('fieldset', $fieldset) . drupal_render($form);
 }
 
 /**
