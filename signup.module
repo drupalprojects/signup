@@ -1126,7 +1126,7 @@ function signup_form($node, $signup_type = 'auth', $fieldset = TRUE) {
   }
 
   // Build the themed signup form for this site and include that.
-  $signup_themed_form = theme('signup_user_form');
+  $signup_themed_form = theme('signup_user_form', $node);
 
   if ($signup_type == 'admin') {
     // Special case hack for the default signup form, where the current
