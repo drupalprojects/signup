@@ -39,16 +39,17 @@ function signup_panels_content_types_signup_form() {
  *
  * Outputs the signup form based on a given nid, as provided by the $context.
  */
-function signup_panels_content_signup_form($conf, $panel_args, &$context) {
+function signup_panels_content_signup_form($subtype, $conf, $panel_args, &$context) {
   $node = isset($context->data) ? drupal_clone($context->data) : NULL;
   $block = new stdClass();
   $block->module = 'signup';
-  $block->delta = $node->nid;
   $block->subject = '';
   if (empty($node)) {
+    $block->delta = 0;
     $block->content = '';
   }
   else {
+    $block->delta = $node->nid;
     $block->content = _signup_node_output($node);
   }
   return $block;
@@ -68,7 +69,7 @@ function signup_panels_edit_signup_form($id, $parents, $conf = array()) {
 /**
  * Return the administrative title for a signup form pane.
  */
-function signup_panels_title_signup_form($conf, $context) {
+function signup_panels_title_signup_form($subtype, $conf, $context) {
   $choices = signup_panels_content_types_signup_form();
   return t('"@s" @type', array('@s' => $context->identifier, '@type' => drupal_strtolower($choices[$conf['id']]['title'])));
 }
