@@ -1,8 +1,8 @@
 $Id$
 
------------
-5.x-1.x-dev
------------
+-------
+5.x-1.1
+-------
 Changes since 5.x-1.0:
 = #160862 by adrinux and dww: Fixed paging on signup administration form
   (admin/content/signup) due to missing count query.
