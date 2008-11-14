@@ -96,7 +96,7 @@ function signup_no_views_menu(&$items) {
     'type' => MENU_CALLBACK,
     'access callback' => '_signup_user_menu_access',
     'access arguments' => array(1),
-    'file' => 'includes/views.none.inc',
+    'file' => 'includes/no_views.inc',
   );
 }
 

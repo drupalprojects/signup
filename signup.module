@@ -469,7 +469,7 @@ function signup_menu() {
 
   // Add extra menu items if we're not using views.
   if (!module_exists('views')) {
-    module_load_include('inc', 'signup', 'includes/views.none');
+    module_load_include('inc', 'signup', 'includes/no_views');
     signup_no_views_menu($items);
   }
 
@@ -584,7 +584,7 @@ function signup_user($type, &$edit, &$user, $category = NULL) {
   // operations, for example, to add the user's current signup
   // schedule to their user profile page.
   if (!module_exists('views')) {
-    module_load_include('inc', 'signup', 'includes/views.none');
+    module_load_include('inc', 'signup', 'includes/no_views');
     return _signup_user_no_views($type, $edit, $user, $category);
   }
 }
