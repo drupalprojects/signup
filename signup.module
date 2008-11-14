@@ -936,11 +936,15 @@ function signup_save_node($node, $op) {
     $limit_changed = FALSE;
     if ($op == 'update') {
       $signup = db_fetch_object(db_query("SELECT close_signup_limit, status FROM {signup} WHERE nid = %d", $node->nid));
-      $cur_limit = $signup->close_signup_limit;
-      $node->signup_status = $signup->status;
-      if ($cur_limit !== FALSE) {
+      if ($signup !== FALSE) {
+        $cur_limit = $signup->close_signup_limit;
+        $node->signup_status = $signup->status;
         $has_signup_record = TRUE;
         $limit_changed = $cur_limit != $node->signup_close_signup_limit;
+      }
+      else {
+        // Newly signup-enabled node.
+        $node->signup_status = 1;
       }
     }
 
