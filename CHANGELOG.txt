@@ -1,8 +1,8 @@
 $Id$
 
------------
-5.x-2.x-dev
------------
+-------
+5.x-2.6
+-------
 New features since 5.x-2.5:
 = #86462 by KarenS, dww, duellj, shane_jordan, and stBorchert: Added
   support to use CCK date fields to control time-based functionality
