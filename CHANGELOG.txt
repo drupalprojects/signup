@@ -60,6 +60,10 @@ Bugs fixed since 5.x-2.5:
   to be less confusing, and fixed PHP warnings from not knowing the node
   type on the global signup settings configuration page.  Also, all help
   text now consistently uses the human-readable node type name.
+= #334405 by dww: Fixed minor UI bug where the "Sign up another user"
+  fieldset on the node/N/signups administrative tab was expanded or
+  collapsed based on the setting to control the signup fieldset when
+  viewing nodes.  Now, the fieldset is always open on the admin tab.
 
 Other changes since 5.x-2.5:
 = #327726 by dww: Reorganized the directory layout of the code.

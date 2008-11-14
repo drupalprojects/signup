@@ -1208,6 +1208,8 @@ function signup_form(&$form_state, $node, $signup_type = 'auth', $fieldset = TRU
     );
     if ($signup_type == 'admin') {
       $form['collapse']['#title'] = t('Sign up another user');
+      // We always want this fieldset expanded on the node/N/signups tab.
+      $form['collapse']['#collapsed'] = FALSE;
     }
     else {
       $form['collapse']['#title'] = t('Sign up for @title', array('@title' => $node->title));
