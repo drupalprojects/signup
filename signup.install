@@ -299,13 +299,15 @@ function signup_update_5204() {
   }
 
   // Array of replacements mapping old names to the new names.
+  // NOTE: To avoid trouble with db_query() trying to interpret the
+  // '%', we escape all of them as '%%' to get % literals.
   $replacements = array(
-    '%eventurl' => '%node_url',
-    '%event' => '%node_title',
-    '%time' => '%node_start_time',
-    '%username' => '%user_name',
-    '%useremail' => '%user_mail',
-    '%info' => '%user_signup_info',
+    '%%eventurl' => '%%node_url',
+    '%%event' => '%%node_title',
+    '%%time' => '%%node_start_time',
+    '%%username' => '%%user_name',
+    '%%useremail' => '%%user_mail',
+    '%%info' => '%%user_signup_info',
   );
 
   // Build up a nested REPLACE() fragment to have the DB do all the string
@@ -324,7 +326,7 @@ function signup_update_5204() {
   // Find the next N records to update, or do the final batch.
   $next = min($_SESSION['signup_update_5204'] + 2000, $_SESSION['signup_update_5204_max']);
   // Perform the UPDATE in our specified range of nid values.
-  $result = db_query("UPDATE {signup} SET reminder_email = $reminder_replace, confirmation_email = $confirmation_replace WHERE nid > %d AND nid <= %d", $_SESSION['signup_update_5204'], $next);
+  db_query("UPDATE {signup} SET reminder_email = $reminder_replace, confirmation_email = $confirmation_replace WHERE nid > %d AND nid <= %d", $_SESSION['signup_update_5204'], $next);
   // Remember where we left off.
   $_SESSION['signup_update_5204'] = $next;
 
