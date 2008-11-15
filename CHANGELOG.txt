@@ -17,15 +17,15 @@ $Id$
 = #333185 by dww: Removed deprecated signup_build_signup_data() function.
 
 
------------
-5.x-2.x-dev
------------
+-------
+5.x-2.6
+-------
 New features since 5.x-2.5:
 = #86462 by KarenS, dww, duellj, shane_jordan, and stBorchert: Added
   support to use CCK date fields to control time-based functionality
   (auto-closing signups and reminder emails).  Currently works with
   date.module versions 5.x-1.* and 5.x-2.*.  Related issues:
-  #328181, #328647, #329668, #329708, and #330121.
+  #328181, #328647, #328756, #329668, #329708, #330121, and #330821.
 = #321531 by stBorchert and dww: Exposed the signup form as a panel pane.
 = #78707 by dww: Added a theme_signup_node_output_header() function to
   customize HTML at the top of the signup-related output on nodes.
@@ -64,6 +64,9 @@ Bugs fixed since 5.x-2.5:
   fieldset on the node/N/signups administrative tab was expanded or
   collapsed based on the setting to control the signup fieldset when
   viewing nodes.  Now, the fieldset is always open on the admin tab.
+= #330840 by dww: Fixed a PHP warning when sending a copy of a signup
+  broadcast to yourself from _signup_get_email_tokens() inspecting an
+  element in the $signup object that doesn't always exist.
 
 Other changes since 5.x-2.5:
 = #327726 by dww: Reorganized the directory layout of the code.
@@ -77,6 +80,11 @@ Other changes since 5.x-2.5:
   code.  This does mean that sites which implemented their own theme
   function for this form will have to modify the name of their
   override function.
+= #327726: Removed dead 'contrib' code. signup_ecommerce is already
+  moved to another project and is referenced on the signup project
+  page.  signup_conflict hasn't been touched since 4.7.x (#326110).
+  If anyone wants it, they can checkout DRUPAL-4-7 and make a new
+  project for it.
 
 
 -----------
