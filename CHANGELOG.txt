@@ -3,6 +3,8 @@ $Id$
 -------------
 6.x-1.0-beta1
 -------------
+Contains all the features and bug fixes up to and including version
+5.x-2.6.  Changes since 5.x-2.6:
 = #222217 by dww: Initial port to the Druapl 6 core API.
   Related issues: #330838, #330840, #332968, #333264.
 = #330820 by dww and duellj: Ported all views support to the views2 API.
