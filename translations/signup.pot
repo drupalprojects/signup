@@ -3,7 +3,7 @@
 # LANGUAGE translation of Drupal (general)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
 # Generated from files:
-#  signup.module,v 1.198 2008/11/14 18:31:00 dww
+#  signup.module,v 1.199 2008/11/14 19:17:20 dww
 #  signup_handler_field_signup_send_confirmation.inc,v 1.1 2008/11/12 01:00:58 dww
 #  signup_handler_filter_signup_disabled.inc,v 1.1 2008/11/12 01:00:58 dww
 #  signup_handler_filter_signup_send_confirmation.inc,v 1.1 2008/11/12 01:00:58 dww
@@ -31,7 +31,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2008-11-14 10:44-0800\n"
+"POT-Creation-Date: 2008-11-14 18:06-0800\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -44,7 +44,7 @@ msgstr ""
 msgid "!node_type reminder: !title"
 msgstr ""
 
-#: signup.module:272;326;1500;1516;2481;2499
+#: signup.module:272;326;1502;1518;2483;2501
 msgid "view"
 msgstr ""
 
@@ -128,7 +128,7 @@ msgstr ""
 msgid "If enabled, you can control whether users may sign up by visiting the !signups tab and toggling if signups are %open or %closed for this %node_type."
 msgstr ""
 
-#: signup.module:694;694;1327
+#: signup.module:694;694;1329
 msgid "Signups"
 msgstr ""
 
@@ -152,7 +152,7 @@ msgstr ""
 msgid "User !user does not have permission to sign up."
 msgstr ""
 
-#: signup.module:796;1790
+#: signup.module:796;1792
 msgid "User !user is already signed up for %title"
 msgstr ""
 
@@ -160,7 +160,7 @@ msgstr ""
 msgid "%node_type start time is already past the signup close-in-advance time, signups now closed."
 msgstr ""
 
-#: signup.module:1045;1226
+#: signup.module:1045;1228
 msgid "login"
 msgstr ""
 
@@ -180,471 +180,471 @@ msgstr ""
 msgid "Sign up another user"
 msgstr ""
 
-#: signup.module:1213
+#: signup.module:1215
 msgid "Sign up for @title"
 msgstr ""
 
-#: signup.module:1225
+#: signup.module:1227
 msgid "Email"
 msgstr ""
 
-#: signup.module:1226
+#: signup.module:1228
 msgid "An e-mail address is required for users who are not registered at this site. If you are a registered user at this site, please !login to sign up for this %node_type."
 msgstr ""
 
-#: signup.module:1237
+#: signup.module:1239
 msgid "Username"
 msgstr ""
 
-#: signup.module:1264;1563
+#: signup.module:1266;1565
 msgid "Sign up"
 msgstr ""
 
-#: signup.module:1282
+#: signup.module:1284
 msgid "Cancel signup"
 msgstr ""
 
-#: signup.module:1299
+#: signup.module:1301
 msgid "All"
 msgstr ""
 
-#: signup.module:1300;2068 views/handlers/signup_handler_field_signup_status.inc:9 views/handlers/signup_handler_filter_signup_status.inc:12
+#: signup.module:1302;2070 views/handlers/signup_handler_field_signup_status.inc:9 views/handlers/signup_handler_filter_signup_status.inc:12
 msgid "Open"
 msgstr ""
 
-#: signup.module:1301;2068 views/handlers/signup_handler_field_signup_status.inc:9 views/handlers/signup_handler_filter_signup_status.inc:12
+#: signup.module:1303;2070 views/handlers/signup_handler_field_signup_status.inc:9 views/handlers/signup_handler_filter_signup_status.inc:12
 msgid "Closed"
 msgstr ""
 
-#: signup.module:1308
+#: signup.module:1310
 msgid "Filter by signup status"
 msgstr ""
 
-#: signup.module:1312
+#: signup.module:1314
 msgid "Filter"
 msgstr ""
 
-#: signup.module:1326
+#: signup.module:1328
 msgid "Title"
 msgstr ""
 
-#: signup.module:1328 theme/node.admin.inc:60
+#: signup.module:1330 theme/node.admin.inc:60
 msgid "Limit"
 msgstr ""
 
-#: signup.module:1329 theme/node.admin.inc:58
+#: signup.module:1331 theme/node.admin.inc:58
 msgid "Status"
 msgstr ""
 
-#: signup.module:1330 theme/node.admin.inc:61
+#: signup.module:1332 theme/node.admin.inc:61
 msgid "Operations"
 msgstr ""
 
-#: signup.module:1367
+#: signup.module:1369
 msgid "View signups"
 msgstr ""
 
-#: signup.module:1370
+#: signup.module:1372
 msgid "Send an email message to all users who signed up."
 msgstr ""
 
-#: signup.module:1371
+#: signup.module:1373
 msgid "Signup broadcast"
 msgstr ""
 
-#: signup.module:1382;2082
+#: signup.module:1384;2084
 msgid "Update"
 msgstr ""
 
-#: signup.module:1391;1395
+#: signup.module:1393;1397
 msgid "Start"
 msgstr ""
 
-#: signup.module:1484
+#: signup.module:1486
 msgid "Signup to !title cancelled."
 msgstr ""
 
-#: signup.module:1526
+#: signup.module:1528
 msgid "Close x hours before"
 msgstr ""
 
-#: signup.module:1530
+#: signup.module:1532
 msgid "The number of hours before the event which signups will no longer be allowed. Use negative numbers to close signups after the event start (example: -12)."
 msgstr ""
 
-#: signup.module:1535
+#: signup.module:1537
 msgid "Default signup information"
 msgstr ""
 
-#: signup.module:1536
+#: signup.module:1538
 msgid "New signup-enabled nodes will start with these settings."
 msgstr ""
 
-#: signup.module:1543
+#: signup.module:1545
 msgid "Advanced settings"
 msgstr ""
 
-#: signup.module:1548
+#: signup.module:1550
 msgid "Format string for displaying signup-related dates"
 msgstr ""
 
-#: signup.module:1551
+#: signup.module:1553
 msgid "Small"
 msgstr ""
 
-#: signup.module:1552
+#: signup.module:1554
 msgid "Medium"
 msgstr ""
 
-#: signup.module:1553
+#: signup.module:1555
 msgid "Large"
 msgstr ""
 
-#: signup.module:1556
+#: signup.module:1558
 msgid "Whenever this module needs to print a date (both in the administrative interface, and in the various e-mail messages it can send), this setting controls which date format string to use. The format strings are defined at the <a href=\"!settings_url\">Date and time settings page</a>."
 msgstr ""
 
-#: signup.module:1559
+#: signup.module:1561
 msgid "Location of the signup form and related information"
 msgstr ""
 
-#: signup.module:1562
+#: signup.module:1564
 msgid "At the bottom of each node"
 msgstr ""
 
-#: signup.module:1563
+#: signup.module:1565
 msgid "On a separate %sign_up tab"
 msgstr ""
 
-#: signup.module:1564
+#: signup.module:1566
 msgid "Do not display signup form"
 msgstr ""
 
-#: signup.module:1567
+#: signup.module:1569
 msgid "On every signup-enabled node, users with permission to\n sign up can be presented with a form and additional signup-related information. This setting controls where this information should be displayed: either directly on the node itself, on a separate tab, or not at all."
 msgstr ""
 
-#: signup.module:1588
+#: signup.module:1590
 msgid "Default fieldset behavior for per-node signup form"
 msgstr ""
 
-#: signup.module:1590
+#: signup.module:1592
 msgid "Collapsed"
 msgstr ""
 
-#: signup.module:1590
+#: signup.module:1592
 msgid "Expanded"
 msgstr ""
 
-#: signup.module:1592
+#: signup.module:1594
 msgid "If the signup form is included at the bottom of each node, the signup form will be encapsulated in a collapsible fieldset. This setting controls if that fieldset is expanded or collapsed by default."
 msgstr ""
 
-#: signup.module:1600
+#: signup.module:1602
 msgid "Use the built-in listing"
 msgstr ""
 
-#: signup.module:1603
+#: signup.module:1605
 msgid "Embed a view"
 msgstr ""
 
-#: signup.module:1604
+#: signup.module:1606
 msgid "If you choose to embed a view, you will be able to select which view you want to use below. The view you select will have a single argument passed in, the node id (nid) of the signup-enabled node being viewed. You can also use views to display this listing on its own tab or in a block if you disable this setting."
 msgstr ""
 
-#: signup.module:1607
+#: signup.module:1609
 msgid "If you enable the !views_url, you will be able to embed a view directly onto the page for this listing."
 msgstr ""
 
-#: signup.module:1607
+#: signup.module:1609
 msgid "Views module"
 msgstr ""
 
-#: signup.module:1609
+#: signup.module:1611
 msgid "Do not display a listing at all"
 msgstr ""
 
-#: signup.module:1616
+#: signup.module:1618
 msgid "How to display the list of signed-up users"
 msgstr ""
 
-#: signup.module:1620
+#: signup.module:1622
 msgid "If the signup form is being displayed, users with the %view_signups permission can see a list of all users who have signed up. This setting controls if and how that list should be generated. !views_help_text"
 msgstr ""
 
-#: signup.module:1620;545
+#: signup.module:1622;545
 msgid "view all signups"
 msgstr ""
 
-#: signup.module:1645 signup.install:424
+#: signup.module:1647 signup.install:424
 msgid "View to embed for the signup user list"
 msgstr ""
 
-#: signup.module:1649
+#: signup.module:1651
 msgid "If the signup user list is being generated by embedding a view, this selects which view should be used. The view's name, description, and display(s) it defines are listed.  NOTE: if you enable or customize the view being used for this, you should strongly consider disabling the view's menu items to prevent a duplicate tab showing the same information."
 msgstr ""
 
-#: signup.module:1692
+#: signup.module:1694
 msgid "Save configuration"
 msgstr ""
 
-#: signup.module:1779
+#: signup.module:1781
 msgid "Anonymous user %email is already signed up for %title"
 msgstr ""
 
-#: signup.module:1815
+#: signup.module:1817
 msgid "You will receive a confirmation email shortly which contains further information about this %node_type."
 msgstr ""
 
-#: signup.module:1816
+#: signup.module:1818
 msgid "You will receive a reminder email !number !days before the %node_type."
 msgstr ""
 
-#: signup.module:1837;1870
+#: signup.module:1839;1872
 msgid "Signup confirmation for !node_type: !title"
 msgstr ""
 
-#: signup.module:1852
+#: signup.module:1854
 msgid "The following information was submitted as a signup for !title"
 msgstr ""
 
-#: signup.module:1854
+#: signup.module:1856
 msgid "Date/Time: !time"
 msgstr ""
 
-#: signup.module:1857
+#: signup.module:1859
 msgid "Username: !name"
 msgstr ""
 
-#: signup.module:1857 views/handlers/signup_handler_filter_signup_user_authenticated.inc:13
+#: signup.module:1859 views/handlers/signup_handler_filter_signup_user_authenticated.inc:13
 msgid "Anonymous"
 msgstr ""
 
-#: signup.module:1860
+#: signup.module:1862
 msgid "Profile page: !url"
 msgstr ""
 
-#: signup.module:1864
+#: signup.module:1866
 msgid "E-mail: !email"
 msgstr ""
 
-#: signup.module:1874
+#: signup.module:1876
 msgid "New !node_type Signup"
 msgstr ""
 
-#: signup.module:1883
+#: signup.module:1885
 msgid "Signup to !title confirmed."
 msgstr ""
 
-#: signup.module:1926 theme/signup_form.inc:55
+#: signup.module:1928 theme/signup_form.inc:55
 msgid "Name"
 msgstr ""
 
-#: signup.module:1927
+#: signup.module:1929
 msgid "Signup time"
 msgstr ""
 
-#: signup.module:1928
+#: signup.module:1930
 msgid "Extra information"
 msgstr ""
 
-#: signup.module:1957
+#: signup.module:1959
 msgid "No users have signed up for this %node_type."
 msgstr ""
 
-#: signup.module:1967;2031
+#: signup.module:1969;2033
 msgid "Cancel signups"
 msgstr ""
 
-#: signup.module:1979
+#: signup.module:1981
 msgid "No users selected."
 msgstr ""
 
-#: signup.module:2012
+#: signup.module:2014
 msgid "Anonymous signup: %anon_mail"
 msgstr ""
 
-#: signup.module:2028
+#: signup.module:2030
 msgid "Are you sure you want to cancel signups for these users?"
 msgstr ""
 
-#: signup.module:2030
+#: signup.module:2032
 msgid "This action cannot be undone."
 msgstr ""
 
-#: signup.module:2031
+#: signup.module:2033
 msgid "Keep signups"
 msgstr ""
 
-#: signup.module:2062
+#: signup.module:2064
 msgid "Closed (limit reached)"
 msgstr ""
 
-#: signup.module:2107
+#: signup.module:2109
 msgid "Signups opened for !title."
 msgstr ""
 
-#: signup.module:2111
+#: signup.module:2113
 msgid "Signups closed for !title."
 msgstr ""
 
-#: signup.module:2144
+#: signup.module:2146
 msgid "Signup limit reached for !title, signups closed."
 msgstr ""
 
-#: signup.module:2151
+#: signup.module:2153
 msgid "Signup limit reached."
 msgstr ""
 
-#: signup.module:2159
+#: signup.module:2161
 msgid "Signup limit increased for !title, signups re-opened."
 msgstr ""
 
-#: signup.module:2162
+#: signup.module:2164
 msgid "Total signups for !title now below limit, signups re-opened."
 msgstr ""
 
-#: signup.module:2166
+#: signup.module:2168
 msgid "Signup limit updated for !title."
 msgstr ""
 
-#: signup.module:2174
+#: signup.module:2176
 msgid "Signup limit removed for !title, signups now open."
 msgstr ""
 
-#: signup.module:2177
+#: signup.module:2179
 msgid "Signup limit removed for !title."
 msgstr ""
 
-#: signup.module:2194
+#: signup.module:2196
 msgid "Invalid email address entered for signup."
 msgstr ""
 
-#: signup.module:2197
+#: signup.module:2199
 msgid "The email address entered belongs to a registered user."
 msgstr ""
 
-#: signup.module:2201
+#: signup.module:2203
 msgid "The email address entered has already been used to sign up for this %node_type."
 msgstr ""
 
-#: signup.module:2245
+#: signup.module:2247
 msgid "Supported string substitutions: %node_title, %node_url, %node_start_time, %user_name, %user_mail, %user_signup_info (additional information from the signup form), and any tokens in the %replacement_tokens list."
 msgstr ""
 
-#: signup.module:2245;2370;2527
+#: signup.module:2247;2372;2529
 msgid "Replacement tokens"
 msgstr ""
 
-#: signup.module:2248
+#: signup.module:2250
 msgid "Supported string substitutions: %node_title, %node_url, %node_start_time, %user_name, %user_mail, %user_signup_info (additional information from the signup form)."
 msgstr ""
 
-#: signup.module:2265
+#: signup.module:2267
 msgid "Send signups to"
 msgstr ""
 
-#: signup.module:2268
+#: signup.module:2270
 msgid "Email address where notification of new signups will be sent. Leave blank for no notifications."
 msgstr ""
 
-#: signup.module:2272
+#: signup.module:2274
 msgid "Send confirmation"
 msgstr ""
 
-#: signup.module:2277
+#: signup.module:2279
 msgid "Confirmation email"
 msgstr ""
 
-#: signup.module:2280
+#: signup.module:2282
 msgid "Email sent to user upon signup. !token_description"
 msgstr ""
 
-#: signup.module:2295
+#: signup.module:2297
 msgid "Send reminder"
 msgstr ""
 
-#: signup.module:2307
+#: signup.module:2309
 msgid "day(s) before this %node_type"
 msgstr ""
 
-#: signup.module:2307
+#: signup.module:2309
 msgid "day(s) before start time"
 msgstr ""
 
-#: signup.module:2311
+#: signup.module:2313
 msgid "Reminder email"
 msgstr ""
 
-#: signup.module:2314
+#: signup.module:2316
 msgid "Email sent to user as a reminder before the %node_type starts. !token_description"
 msgstr ""
 
-#: signup.module:2314
+#: signup.module:2316
 msgid "Email sent to user as a reminder before the start time. !token_description"
 msgstr ""
 
-#: signup.module:2323
+#: signup.module:2325
 msgid "Signup limit"
 msgstr ""
 
-#: signup.module:2326
+#: signup.module:2328
 msgid "Maximum number of users who can sign up before signups are automatically closed. If set to 0, there is no limit."
 msgstr ""
 
-#: signup.module:2361
+#: signup.module:2363
 msgid "No users have signup up for this %node_type."
 msgstr ""
 
-#: signup.module:2370
+#: signup.module:2372
 msgid "Supported string substitutions: %tokens, and any tokens in the %replacement_tokens list."
 msgstr ""
 
-#: signup.module:2373
+#: signup.module:2375
 msgid "Supported string substitutions: %tokens."
 msgstr ""
 
-#: signup.module:2378
+#: signup.module:2380
 msgid "Subject"
 msgstr ""
 
-#: signup.module:2383
+#: signup.module:2385
 msgid "Message body"
 msgstr ""
 
-#: signup.module:2385
+#: signup.module:2387
 msgid "Body of the email message you wish to send to all users who have signed up for this %node_type. !token_description"
 msgstr ""
 
-#: signup.module:2395
+#: signup.module:2397
 msgid "Send yourself a copy."
 msgstr ""
 
-#: signup.module:2400
+#: signup.module:2402
 msgid "Send"
 msgstr ""
 
-#: signup.module:2411
+#: signup.module:2413
 msgid "From"
 msgstr ""
 
-#: signup.module:2419
+#: signup.module:2421
 msgid "This message will be sent from: %from"
 msgstr ""
 
-#: signup.module:2500
+#: signup.module:2502
 msgid "Sent a copy of this message to %email"
 msgstr ""
 
-#: signup.module:2503
+#: signup.module:2505
 msgid "Message sent to all users who have signed up"
 msgstr ""
 
-#: signup.module:272;326;1500;1516;2481;2499;0
+#: signup.module:272;326;1502;1518;2483;2501;0
 msgid "signup"
 msgstr ""
 
-#: signup.module:1816
+#: signup.module:1818
 msgid "day"
 msgid_plural "days"
 msgstr[0] ""
