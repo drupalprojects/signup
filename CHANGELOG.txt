@@ -1,8 +1,9 @@
 $Id$
 
 -----------
-6.x-1.x-dev
+6.x-1.0-rc1
 -----------
+Changes since 6.x-1.0-beta1:
 = #330828 by dww: Split module code out into separate include files.
 
 
