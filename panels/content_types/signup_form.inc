@@ -50,6 +50,7 @@ function signup_panels_content_signup_form($subtype, $conf, $panel_args, &$conte
   }
   else {
     $block->delta = $node->nid;
+    module_load_include('inc', 'signup', 'includes/node_output');
     $block->content = _signup_node_output($node);
   }
   return $block;

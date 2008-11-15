@@ -1,5 +1,11 @@
 $Id$
 
+-----------
+6.x-1.x-dev
+-----------
+= #330828 by dww: Split module code out into separate include files.
+
+
 -------------
 6.x-1.0-beta1
 -------------
