@@ -1,6 +1,15 @@
 $Id$
 
 -----------
+6.x-1.x-dev
+-----------
+Bugs fixed since 6.x-1.0-rc1:
+= #335190 by bkat and dww: Fixed bug where if you had a node enabled
+  for signups and edited it to disable signups, the node would remain
+  signup enabled.  The bug was introduced in 5.x-2.6 by #328822.
+
+
+-----------
 6.x-1.0-rc1
 -----------
 Changes since 6.x-1.0-beta1:

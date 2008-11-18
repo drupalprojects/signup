@@ -119,9 +119,7 @@ function signup_save_node($node, $op) {
         db_query("DELETE FROM {signup_log} WHERE nid = %d", $node->nid);
         // No break, fall through and remove from {signup} too.
       case 0: // Disabled, but leave {signup_log} alone
-        if ($has_signup_record) {
-          db_query("DELETE FROM {signup} WHERE nid = %d", $node->nid);
-        }
+        db_query("DELETE FROM {signup} WHERE nid = %d", $node->nid);
         break;
     }
   }
