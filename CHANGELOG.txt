@@ -8,6 +8,16 @@ Bugs fixed since 6.x-1.0-rc1:
   for signups and edited it to disable signups, the node would remain
   signup enabled.  The bug was introduced in 5.x-2.6 by #328822.
 
+Other changes since 6.x-1.0-rc1:
+= #335563 by dww: Added support to control the relative ordering of
+  the signup information embedded on nodes.  If the content.module
+  (CCK) is enabled, "Signup information" is now exposed to the field
+  management page (where there is a drag-and-drop interface to reorder
+  everything) at admin/content/node-type/[node-type-name]/fields.  If
+  CCK is disabled, there is a variable to manually control the weight.
+  The variable is called "signup_info_node_weight_[node_type]" and can
+  be defined in the $conf array in settings.php.
+
 
 -----------
 6.x-1.0-rc1

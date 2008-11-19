@@ -585,9 +585,15 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
           // Save into a node property for retrieval from the theme layer.
           $node->signup_view = $output;
           // Store the data into the content array, for default display.
+          if (module_exists('content')) {
+            $signup_weight = content_extra_field_weight($node->type, 'signup_node_info');
+          }
+          else {
+            $signup_weight = variable_get('signup_info_node_weight_'. $node->type, 10);
+          }
           $node->content['signup'] = array(
             '#value' => $output,
-            '#weight' => 10,
+            '#weight' => $signup_weight,
           );
         }
       }
@@ -616,6 +622,21 @@ function _signup_needs_output($node) {
     return FALSE;
   }
   return TRUE;
+}
+
+/**
+ * Implementation of hook_content_extra_fields.
+ */
+function signup_content_extra_fields($type_name) {
+  if (variable_get('signup_node_default_state_'. $type_name, 'disabled') != 'disabled') {
+    return array(
+      'signup_node_info' => array(
+        'label' => t('Signup information'),
+        'description' => t('Signup form and other information.'),
+        'weight' => 10,
+      ),
+    );
+  }
 }
 
 /**
