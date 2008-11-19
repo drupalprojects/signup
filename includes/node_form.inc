@@ -206,7 +206,7 @@ function signup_alter_node_form(&$form, &$form_state, $form_id) {
       '#suffix' => '</div>',
     );
 
-    // If JS is enabled, signup.css will hide all the settings on page
+    // If JS is enabled, system.css will hide all the settings on page
     // load if signups aren't enabled on this node.
     $settings_class = "signup-node-settings";
     if ($default_option != 1) {
@@ -216,7 +216,6 @@ function signup_alter_node_form(&$form, &$form_state, $form_id) {
     // Add the actual settings.  We wrap this in a div to make it easy
     // to use jQuery to hide these settings when signups are disabled.
     drupal_add_js(drupal_get_path('module', 'signup') .'/js/node_form.js');
-    drupal_add_css(drupal_get_path('module', 'signup') .'/signup.css');
     $form['signup']['node_settings'] = array(
       '#prefix' => '<div class="'. $settings_class .'">',
       '#suffix' => '</div>',

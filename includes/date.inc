@@ -122,7 +122,6 @@ function _signup_date_field_form_submit($form, &$form_state) {
  */
 function _signup_date_alter_node_type_form(&$form, &$form_state) {
   drupal_add_js(drupal_get_path('module', 'signup') .'/js/admin.content_types.js');
-  drupal_add_css(drupal_get_path('module', 'signup') .'/signup.css');
 
   $type = $form['#node_type']->type;
   $default_signup_state = variable_get('signup_node_default_state_'. $type, 'disabled');

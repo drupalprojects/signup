@@ -66,11 +66,9 @@ function signup_settings_form() {
   // relevant.
   $signup_path = drupal_get_path('module', 'signup');
   drupal_add_js($signup_path .'/js/admin.settings.js');
-  drupal_add_css($signup_path .'/signup.css');
 
-  // For each setting that should be hidden, signup.css will hide all the
-  // settings on page load if.
-
+  // For each setting that should be hidden, system.css will hide all the
+  // settings on page load if JS is enabled.
   $class = 'signup-fieldset_collapsed-setting';
   if (variable_get('signup_form_location', 'node') != 'node') {
     $class .= ' js-hide';
