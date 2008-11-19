@@ -280,7 +280,7 @@ function _signup_get_date_field_options($type) {
 function _signup_date_reminder_sql($content_type) {
   $field = signup_date_field($content_type);
   global $db_type;
-  include_once ('./'. drupal_get_path('module', 'date_api') .'/date_api_sql.inc');
+  include_once drupal_get_path('module', 'date_api') .'/date_api_sql.inc';
   $handler = new date_sql_handler();
   switch ($db_type) {
     case 'mysql':

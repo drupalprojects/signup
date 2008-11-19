@@ -103,7 +103,7 @@ function signup_views_data() {
       'click sortable' => TRUE,
     ),
     'filter' => array(
-      'handler' => 'views_handler_field_boolean_operator',
+      'handler' => 'views_handler_filter_boolean_operator',
       'help' => t('Filter on signup reminder'),
     ),
   );
@@ -231,7 +231,7 @@ function signup_views_data() {
 function signup_views_handlers() {
   return array(
     'info' => array(
-      'path' => drupal_get_path('module', 'signup') . '/views/handlers',
+      'path' => drupal_get_path('module', 'signup') .'/views/handlers',
     ),
     'handlers' => array(
       'signup_handler_argument_signup_user_uid' => array(
@@ -274,7 +274,7 @@ function signup_views_plugins() {
       'signup_status' => array(
         'title' => t('Signup status'),
         'handler' => 'signup_plugin_argument_validate_signup_status',
-        'path' => drupal_get_path('module', 'signup') . '/views/plugins',
+        'path' => drupal_get_path('module', 'signup') .'/views/plugins',
       ),
     ),
   );

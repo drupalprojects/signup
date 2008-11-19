@@ -37,7 +37,7 @@ function theme_signup_user_list($node, $registered_signups, $anon_signups) {
  */
 function theme_signup_user_schedule($node) {
   $output = '';
-  $output .= '<div class="signup-user-schedule"><div class="'. $node->type. 'signup-title"><h4>'. l($node->title, "node/$node->nid") . '</h4></div></div>';
+  $output .= '<div class="signup-user-schedule"><div class="'. $node->type .'signup-title"><h4>'. l($node->title, "node/$node->nid") .'</h4></div></div>';
   return $output;
 }
 

@@ -631,7 +631,7 @@ function _signup_needs_output($node) {
 }
 
 /**
- * Implementation of hook_content_extra_fields.
+ * Implementation of hook_content_extra_fields().
  */
 function signup_content_extra_fields($type_name) {
   if (variable_get('signup_node_default_state_'. $type_name, 'disabled') != 'disabled') {
@@ -949,7 +949,7 @@ function signup_id_safe($string) {
 function signup_views_api() {
   return array(
     'api' => 2.0,
-    'path' => drupal_get_path('module', 'signup') . '/views',
+    'path' => drupal_get_path('module', 'signup') .'/views',
   );
 }
 
