@@ -17,6 +17,8 @@ Other changes since 6.x-1.0-rc1:
   CCK is disabled, there is a variable to manually control the weight.
   The variable is called "signup_info_node_weight_[node_type]" and can
   be defined in the $conf array in settings.php.
+= #336129 by dww: Moved the signup node type settings out of the
+  "Workflow" fieldset into a separate "Signup settings" fieldset.
 
 
 -----------

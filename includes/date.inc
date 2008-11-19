@@ -128,8 +128,8 @@ function _signup_date_alter_node_type_form(&$form, &$form_state) {
   $default_signup_state = variable_get('signup_node_default_state_'. $type, 'disabled');
 
   // Add a div to the 'Signup options' radios for signup.date.js.
-  $form['workflow']['signup_node_default_state']['#prefix'] = '<div class="signup-node-default-state-radios">';
-  $form['workflow']['signup_node_default_state']['#suffix'] = '</div>';
+  $form['signup']['signup_node_default_state']['#prefix'] = '<div class="signup-node-default-state-radios">';
+  $form['signup']['signup_node_default_state']['#suffix'] = '</div>';
 
   // If event.module is enabled, add a div for those settings, too.
   if (!empty($form['workflow']['event_nodeapi'])) {
@@ -147,9 +147,9 @@ function _signup_date_alter_node_type_form(&$form, &$form_state) {
     $class .= ' js-hide';
   }
 
-  $form['workflow']['signup_date_field'] = _signup_date_field_element($type);
-  $form['workflow']['signup_date_field']['#prefix'] = '<div class="'. $class .'">';
-  $form['workflow']['signup_date_field']['#suffix'] = '</div>';
+  $form['signup']['signup_date_field'] = _signup_date_field_element($type);
+  $form['signup']['signup_date_field']['#prefix'] = '<div class="'. $class .'">';
+  $form['signup']['signup_date_field']['#suffix'] = '</div>';
 }
 
 /**
