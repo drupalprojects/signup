@@ -9,6 +9,8 @@ Bugs fixed since 6.x-1.0-rc1:
   signup enabled.  The bug was introduced in 5.x-2.6 by #328822.
 = #336442 by dww: Fixed bugs with the views filters "Signup:
   Enabled/Disabled" and "Signup: Confirmation: Enabled/Disabled".
+= #336461 by dww: The "Signup: Reminder: Enabled/Disabled" views
+  filter was broken since it was using the wrong filter handler.
 
 Other changes since 6.x-1.0-rc1:
 = #335563 by dww: Added support to control the relative ordering of
