@@ -230,11 +230,12 @@ function signup_date_field_check_config($type, $name) {
     // Signups aren't disabled on this node type, see if there's a date field.
     $signup_date_field = signup_date_field($type);
     if ($signup_date_field != 'none') {
+      $type_url = str_replace('_', '-', $type);      
       $placeholders = array(
         '%node_type' => $name,
         '%signup_date_field' => t('Date field to use with signup'),
-        '@type_admin_url' => url('admin/content/types/'. $type),
-        '@type_add_field_url' => url('admin/content/types/'. $type .'/add_field'),
+        '@type_admin_url' => url('admin/content/types/'. $type_url),
+        '@type_add_field_url' => url('admin/content/types/'. $type_url .'/add_field'),
         '%none' => t('<none>'),
       );
       // Administrator hasn't specifically turned off date support...

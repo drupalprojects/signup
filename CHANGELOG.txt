@@ -7,6 +7,11 @@ Bugs fixed since 5.x-2.6:
 = #335190 by bkat and dww: Fixed bug where if you had a node enabled
   for signups and edited it to disable signups, the node would remain
   signup enabled.  The bug was introduced in 5.x-2.6 by #328822.
+= 336610 by dww: Fixed bug introduced in #329668 where node types that
+  have an underscore in their name had broken links in the warning
+  messages about CCK date fields being misconfigured.  Those warnings
+  also didn't appear at all in some cases.  The bug was caused by
+  core's bizarre handling of node_type vs. node-type in URLs.
 
 Other changes since 5.x-2.6:
 = #335563 by dww: Added a variable to specify the weight (to control

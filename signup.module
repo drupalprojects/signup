@@ -228,7 +228,9 @@ function signup_help($section) {
   ) {
     $type = arg(3);
     if ($type != 'add') {
-      signup_date_check_node_types($type);
+      // Thanks to stupid core handling of node types with underscores, we
+      // need to convert this back to the actual machine-readable type name.
+      signup_date_check_node_types(str_replace('-', '_', $type));
     }
   }
 }
