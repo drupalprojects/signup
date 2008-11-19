@@ -29,7 +29,7 @@
  *   If the signups are open on this node, the HTML to signup another user,
  *   otherwise, and empty string.
  */
- function theme_signup_node_admin_page($node, $signup_node_admin_summary_form, $signup_node_admin_details_form, $signup_form) {
+function theme_signup_node_admin_page($node, $signup_node_admin_summary_form, $signup_node_admin_details_form, $signup_form) {
   $output = '';
 
   // Administrative summary table to control signups for this node.
@@ -40,7 +40,7 @@
 
   // Form for admins to signup other users (if signups are still open).
   $output .= $signup_form;
-  
+
   return $output;
 }
 

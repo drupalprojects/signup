@@ -420,7 +420,7 @@ function signup_update_6000() {
       '%old_view_name' => 'signup_user_list_view_name',
       '%old_view_type' => 'signup_user_list_view_type',
       // NOTE: we can't use url() here because it would use 'update.php?q=...'
-      '@signup_settings_url' => base_path() .'?q=admin/settings/signup', 
+      '@signup_settings_url' => base_path() .'?q=admin/settings/signup',
       '%setting_name' => t('View to embed for the signup user list'),
     )),
   );

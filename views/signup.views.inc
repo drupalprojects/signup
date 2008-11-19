@@ -117,7 +117,7 @@ function signup_views_data() {
       'click sortable' => TRUE,
     ),
   );
-      
+
   $data['signup']['reminder_email'] = array(
     'title' => t('Reminder: Message'),
     'help' => t('The body of the optional reminder email that can be sent a configurable time before an event begins.'),
@@ -162,7 +162,7 @@ function signup_views_data() {
     'real field' => 'uid',
     'argument' => array(
       'handler' => 'signup_handler_argument_signup_user_uid',
-     ),
+    ),
   );
 
   $data['signup_log']['email'] = array(

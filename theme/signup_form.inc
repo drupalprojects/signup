@@ -47,7 +47,7 @@ function theme_signup_user_form($node) {
   $form = array();
 
   // If this function is providing any extra fields at all, the following
-  // line is required for form form to work -- DO NOT EDIT OR REMOVE. 
+  // line is required for form form to work -- DO NOT EDIT OR REMOVE.
   $form['signup_form_data']['#tree'] = TRUE;
 
   $form['signup_form_data']['Name'] = array(
@@ -71,7 +71,7 @@ function theme_signup_user_form($node) {
 }
 
 /**
- * Returns the value to use for the %username email token for anonymous users.
+ * Returns the value to use for the %user_name email token for anonymous users.
  *
  * WARNING: If you implemented your own version of theme_signup_form_data()
  * that changed or removed the custom 'Name' field and your site
@@ -82,7 +82,7 @@ function theme_signup_user_form($node) {
  * @param $email
  *   E-mail address of the anonymous user who signed up.
  * @return
- *   A string with the proper 
+ *   A string with the proper value for the %user_name email token.
  *
  * @see theme_signup_user_form()
  */
