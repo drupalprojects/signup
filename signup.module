@@ -3,6 +3,17 @@
 
 
 /**
+ * @file
+ * The Signup module (http://drupal.org/project/signup) manages replies to
+ * nodes. In particular, it's good for event management.  Signup supports
+ * sending reminder emails and automatically closing signups for nodes with
+ * a start time, via the Event module (http://drupal.org/project/event) or
+ * with a CCK date field (http://drupal.org/project/date).  Signup provides
+ * extensive Views integration (http://drupal.org/project/views).  For more
+ * information, see the README.txt and INSTALL.txt files in this directory.
+ */
+
+/**
  * @defgroup signup_core Core drupal hooks
  */
 
