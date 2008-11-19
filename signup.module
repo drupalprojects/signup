@@ -411,7 +411,13 @@ function signup_form_alter($form_id, &$form) {
  */
 function signup_alter_node_type_form($form_id, &$form) {
   $type = $form['old_type']['#value'];
-  $form['workflow']['signup_node_default_state'] = array(
+  $form['signup'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Signup settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  $form['signup']['signup_node_default_state'] = array(
     '#type' => 'radios',
     '#title' => t('Signup options'),
     '#options' => array(
