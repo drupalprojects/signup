@@ -300,7 +300,9 @@ function signup_help($path, $arg) {
       signup_date_check_node_types();
     }
     elseif ($arg[2] == 'node-type') {
-      signup_date_check_node_types($arg[3]);
+      // Thanks to stupid core handling of node types with underscores, we
+      // need to convert this back to the actual machine-readable type name.
+      signup_date_check_node_types(str_replace('-', '_', $arg[3]));
     }
   }
 }
