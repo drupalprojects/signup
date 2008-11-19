@@ -3,13 +3,18 @@
 
 
 /**
+ * @file
+ * Code required to support version 5.x-1.* of the event module.
+ */
+
+/**
  *
  * @return Array of SQL clauses for cron reminder email query builder.
  */
 function _signup_event_reminder_sql($content_type) {
   // We must manually include this here as the event module doesn't
   // include timezone support on all page requests.
-  include_once (drupal_get_path('module', 'event') .'/event_timezones.inc');
+  require_once drupal_get_path('module', 'event') .'/event_timezones.inc';
   return array(
     'fields' => array('e.event_start', 'e.timezone'),
     'joins' => array('INNER JOIN {event} e ON e.nid = n.nid'),
@@ -27,7 +32,7 @@ function _signup_event_reminder_sql($content_type) {
 function _signup_event_autoclose_sql($content_type) {
   // We must manually include this here as the event module doesn't
   // include timezone support on all page requests.
-  include_once (drupal_get_path('module', 'event') .'/event_timezones.inc');
+  require_once drupal_get_path('module', 'event') .'/event_timezones.inc';
   return array(
     'fields' => array('e.event_start', 'e.timezone'),
     'joins' => array('INNER JOIN {event} e ON e.nid = s.nid'),
@@ -64,7 +69,7 @@ function _signup_event_node_completed($node) {
 }
 
 function _signup_event_format_date($node) {
-  include_once (drupal_get_path('module', 'event') .'/event_timezones.inc');
+  require_once drupal_get_path('module', 'event') .'/event_timezones.inc';
   $offset = intval(variable_get('date_default_timezone', 0));
   $format = _signup_get_date_format();
   return $node->event_start ? _event_date($format, $node->event_start, $offset) : t('[Untimed]');

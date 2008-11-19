@@ -97,7 +97,7 @@ function signup_user_schedule($uid) {
   if (!$user) {
     return drupal_not_found();
   }
-  require_once (SIGNUP_PATH .'/theme/signup.theme');
+  require_once SIGNUP_PATH .'/theme/signup.theme';
   drupal_set_title(t('Signups for @user', array('@user' => $user->name)));
   $titles = signup_list_user_signups($user->uid);
   foreach ($titles as $nid => $title) {

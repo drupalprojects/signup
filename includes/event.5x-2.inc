@@ -3,6 +3,11 @@
 
 
 /**
+ * @file
+ * Code required to support version 5.x-2.* of the event module.
+ */
+
+/**
  *
  * @return Array of SQL clauses for cron reminder email query builder.
  */

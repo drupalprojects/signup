@@ -1,6 +1,10 @@
 <?php
 // $Id$
 
+/**
+ * @file
+ * Code required to support version 5.x-1.* of the CCK date field module.
+ */
 
 /**
  *

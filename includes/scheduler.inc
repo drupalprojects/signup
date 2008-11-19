@@ -15,19 +15,19 @@
  */
 function _signup_load_scheduler_includes() {
   if (defined('EVENT_API') && EVENT_API == '5.2') {
-    require_once (SIGNUP_PATH .'/includes/event.5x-2.inc');
+    require_once SIGNUP_PATH .'/includes/event.5x-2.inc';
   }
   elseif (module_exists('event')) {
-    require_once (SIGNUP_PATH .'/includes/event.5x-1.inc');
+    require_once SIGNUP_PATH .'/includes/event.5x-1.inc';
   }
 
   if (variable_get('date_api_version', 0) == '5.2') {
-    require_once (SIGNUP_PATH .'/includes/date.inc');
-    require_once (SIGNUP_PATH .'/includes/date.5x-2.inc');
+    require_once SIGNUP_PATH .'/includes/date.inc';
+    require_once SIGNUP_PATH .'/includes/date.5x-2.inc';
   }
   elseif (module_exists('date')) {
-    require_once (SIGNUP_PATH .'/includes/date.inc');
-    require_once (SIGNUP_PATH .'/includes/date.5x-1.inc');
+    require_once SIGNUP_PATH .'/includes/date.inc';
+    require_once SIGNUP_PATH .'/includes/date.5x-1.inc';
   }
 }
 
