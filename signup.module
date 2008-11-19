@@ -653,7 +653,7 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
           // Store the data into the content array, for default display.
           $node->content['signup'] = array(
             '#value' => $output,
-            '#weight' => 10,
+            '#weight' => variable_get('signup_info_node_weight_'. $node->type, 10),
           );
         }
       }

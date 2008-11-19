@@ -8,6 +8,12 @@ Bugs fixed since 5.x-2.6:
   for signups and edited it to disable signups, the node would remain
   signup enabled.  The bug was introduced in 5.x-2.6 by #328822.
 
+Other changes since 5.x-2.6:
+= #335563 by dww: Added a variable to specify the weight (to control
+  the relative ordering) of signup information embedded on nodes.  The
+  variable is called "signup_info_node_weight_[node_type]" and can be
+  defined in the $conf array in settings.php.
+  
 
 -------
 5.x-2.6
