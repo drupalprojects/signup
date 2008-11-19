@@ -4,7 +4,7 @@
 /**
  * Filter nodes based on if signups are disabled or enabled.
  */
-class signup_handler_filter_signup_disabled.inc extends views_handler_filter_boolean_operator {
+class signup_handler_filter_signup_disabled extends views_handler_filter_boolean_operator {
   function admin_summary() {
     if (!empty($this->options['exposed'])) {
       return t('exposed');
