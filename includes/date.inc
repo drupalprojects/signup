@@ -279,26 +279,20 @@ function _signup_get_date_field_options($type) {
  * @return Array of SQL clauses for cron reminder email query builder.
  */
 function _signup_date_reminder_sql($content_type) {
-  $field = signup_date_field($content_type);
+  module_load_include('inc', 'date_api', 'date_api_sql');
   global $db_type;
-  include_once drupal_get_path('module', 'date_api') .'/date_api_sql.inc';
-  $handler = new date_sql_handler();
-  switch ($db_type) {
-    case 'mysql':
-    case 'mysqli':
-      $where = array(
-        "NOW() + INTERVAL s.reminder_days_before DAY > ". $handler->sql_extract('DATE', $field['database']['columns']['value']['column']),
-        "NOW() <= ". $handler->sql_extract('DATE', $field['database']['columns']['value']['column']),
-      );
-      break;
+  $day = $db_type == 'pgsql' ? 'days' : 'DAY';
 
-    case 'pgsql':
-      $where = array(
-        "NOW() + INTERVAL s.reminder_days_before days > ". $handler->sql_extract('DATE', $field['database']['columns']['value']['column']),
-        "NOW() <= ". $handler->sql_extract('DATE', $field['database']['columns']['value']['column']),
-      );
-      break;
-  }
+  $field = signup_date_field($content_type);
+  $handler = new date_sql_handler();
+  $handler->construct($field['type']);
+  $start_time = $handler->sql_field($field['database']['columns']['value']['column']);
+
+  $where = array(
+    "NOW() + INTERVAL s.reminder_days_before ". $day ." > ". $start_time,
+    "NOW() <= ". $start_time,
+  );
+
   return array(
     'fields' => array($field['database']['columns']['value']['column']),
     'joins' => array('LEFT JOIN {'. $field['database']['table'] .'} ON {'. $field['database']['table'] .'}.vid = n.vid'),
@@ -311,15 +305,19 @@ function _signup_date_reminder_sql($content_type) {
  * @return Array of SQL clauses for cron auto-close query builder.
  */
 function _signup_date_autoclose_sql($content_type) {
-  $field = signup_date_field($content_type);
   module_load_include('inc', 'date_api', 'date_api_sql');
+
+  $field = signup_date_field($content_type);
   $handler = new date_sql_handler();
+  $handler->construct($field['type']);
+  $close_early = variable_get('signup_close_early', 1) * 3600;
+
+  $where = $handler->sql_where_date('DATE', $field['database']['columns']['value']['column'], '<=', 'NOW', $close_early);
+
   return array(
     'fields' => array($field['database']['columns']['value']['column']),
-    'joins' => array(
-      'LEFT JOIN {'. $field['database']['table'] .'} ON {'. $field['database']['table'] .'}.vid = n.vid',
-    ),
-    'where' => array($handler->sql_extract('DATE', $field['database']['columns']['value']['column']) ." < '". date('Y-m-d\TH:i:s', time() + variable_get('signup_close_early', 1) * 3600) ."'"),
+    'joins' => array('LEFT JOIN {'. $field['database']['table'] .'} ON {'. $field['database']['table'] .'}.vid = n.vid'),
+    'where' => array($where),
   );
 }
 
@@ -330,8 +328,18 @@ function _signup_date_autoclose_sql($content_type) {
 function _signup_date_node_completed($node) {
   $field = signup_date_field($node->type);
   if ($field && $field != 'none' && isset($node->{$field['field_name']})) {
-    $closing_time = time() + (variable_get('signup_close_early', 1) * 3600);
-    if (strtotime($node->{$field['field_name']}[0]['value']) < $closing_time) {
+    $date_value = $node->{$field['field_name']}[0]['value'];
+    if ($field['tz_handling'] == 'date') {
+      $tz = $node->{$field['field_name']}[0]['timezone'];
+    }
+    else {
+      $tz = date_default_timezone_name();
+    }
+    $db_tz = date_get_timezone_db($field['tz_handling'], $tz);
+    $date = date_make_date($date_value, $db_tz, $field['type']);
+    $start_time = date_format($date, 'U');
+    $close_time = $start_time - (variable_get('signup_close_early', 1) * 3600);
+    if (time() > $close_time) {
       return TRUE;
     }
   }

@@ -37,7 +37,7 @@ function signup_views_data() {
     'filter' => array(
       'handler' => 'signup_handler_filter_signup_status',
       'help' => t('Filter on if signups are open or closed for each node.'),
-      'label' => 'Open',
+      'label' => 'Signup status',
     ),
     // Information for sorting on status
     'sort' => array(
@@ -58,6 +58,7 @@ function signup_views_data() {
     'filter' => array(
       'handler' => 'views_handler_filter_numeric',
       'help' => t('Filter by the maximum number of users who can sign up before signups are automatically closed (set to 0 for no limit).'),
+      'label' => 'Signup limit',
     ),
   );
 
@@ -71,7 +72,7 @@ function signup_views_data() {
   );
 
   $data['signup']['send_confirmation'] = array(
-    'title' => t('Confirmation: Enabled/Disabled'),
+    'title' => t('Send Confirmation'),
     'help' => t('Should confirmation email be sent to each user who signs up.'),
     // Information for displaying the field
     'field' => array(
@@ -80,8 +81,9 @@ function signup_views_data() {
     ),
     // Information for accepting send_confirmation as a filter
     'filter' => array(
-      'handler' => 'signup_handler_filter_signup_send_confirmation',
+      'handler' => 'signup_handler_filter_boolean',
       'help' => t('Filter on if signup confirmation is enabled or disabled.'),
+      'label' => t('Send confirmation'),
     ),
   );
 
@@ -95,7 +97,7 @@ function signup_views_data() {
   );
 
   $data['signup']['send_reminder'] = array(
-    'title' => t('Reminder: Enabled/Disabled'),
+    'title' => t('Send Reminder'),
     'help' => t('Should a reminder email be automatically sent to all users who signed up. This will be false if either an administrator disabled the feature for a given event, or if the reminder was already sent.'),
     // Information for displaying the field
     'field' => array(
@@ -103,8 +105,9 @@ function signup_views_data() {
       'click sortable' => TRUE,
     ),
     'filter' => array(
-      'handler' => 'views_handler_filter_boolean_operator',
-      'help' => t('Filter on signup reminder'),
+      'handler' => 'signup_handler_filter_boolean',
+      'help' => t('Filter on if a signup reminder email will be sent.'),
+      'label' => t('Send reminder'),
     ),
   );
 
@@ -131,8 +134,8 @@ function signup_views_data() {
     'title' => t('Enabled/Disabled'),
     'filter' => array(
       'handler' => 'signup_handler_filter_signup_disabled',
-      'help' => t('Filter on if signups are enabled or disabled'),
-      'label' => 'Enabled',
+      'help' => t('Filter on if signups are enabled or disabled.'),
+      'label' => 'Signups',
       ),
   );
 
@@ -183,7 +186,8 @@ function signup_views_data() {
     ),
     'filter' => array(
       'handler' => 'views_handler_filter_date',
-      'help' => t('Time when user signed up.'),
+      'help' => t('Time when the user signed up.'),
+      'label' => t('Signup time'),
     ),
     'sort' => array(
       'handler' => 'views_handler_sort_date',
@@ -206,7 +210,7 @@ function signup_views_data() {
     'filter' => array(
       'handler' => 'signup_handler_filter_signup_user_authenticated',
       'help' => t('Filter on if a user who signed up is anonymous, or an authenticated user on the site.'),
-      'label' => t('Authenticated'),
+      'label' => t('Signup user'),
     ),
   );
 
@@ -249,17 +253,17 @@ function signup_views_handlers() {
       'signup_handler_field_signup_user_form_data' => array(
         'parent' => 'views_handler_field_prerender_list',
       ),
-      'signup_handler_filter_signup_disabled' => array(
+      'signup_handler_filter_boolean' => array(
         'parent' => 'views_handler_filter_boolean_operator',
       ),
-      'signup_handler_filter_signup_send_confirmation' => array(
-        'parent' => 'views_handler_filter_boolean_operator',
+      'signup_handler_filter_signup_disabled' => array(
+        'parent' => 'signup_handler_filter_boolean',
       ),
       'signup_handler_filter_signup_status' => array(
-        'parent' => 'views_handler_filter_boolean_operator',
+        'parent' => 'signup_handler_filter_boolean',
       ),
       'signup_handler_filter_signup_user_authenticated' => array(
-        'parent' => 'views_handler_filter_boolean_operator',
+        'parent' => 'signup_handler_filter_boolean',
       ),
     ),
   );
