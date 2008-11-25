@@ -55,6 +55,14 @@ function _signup_event_autoclose_sql($content_type) {
  * @return Array of SQL clauses for admin overview page query builder.
  */
 function _signup_event_admin_sql($content_type = NULL) {
+  // Since all event node types store their event data in the same table, we
+  // need to make sure we only JOIN on this table once.  It doesn't matter
+  // which node type we use to add this JOIN.
+  static $did_event_join = FALSE;
+  if ($did_event_join) {
+    return array();
+  }
+  $did_event_join = TRUE;
   return array(
     'fields' => array(event_select(), 'e.timezone'),
     'group_by' => array('event_start', 'e.timezone'),

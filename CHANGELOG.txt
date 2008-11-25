@@ -4,6 +4,9 @@ $Id$
 5.x-2.x-dev
 -----------
 Bugs fixed since 5.x-2.6:
+= #338850 by dww: Fixed critical SQL bug ("Not unique table/alias: 'e'")
+  on the signup administration page (admin/content/signup) for sites
+  that have more than one event.module node type that is signup-enabled.
 = #335190 by bkat and dww: Fixed bug where if you had a node enabled
   for signups and edited it to disable signups, the node would remain
   signup enabled.  The bug was introduced in 5.x-2.6 by #328822.
