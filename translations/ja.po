@@ -4,28 +4,27 @@
 # Copyright YEAR NAME <EMAIL@ADDRESS>
 # Generated from files:
 #  signup.module,v 1.205 2008/11/19 23:47:56 dww
-#  date.inc,v 1.11 2008/11/19 23:47:57 dww
+#  date.inc,v 1.13 2008/11/22 01:44:19 dww
 #  node_form.inc,v 1.3 2008/11/19 01:44:07 dww
 #  signup_handler_field_signup_send_confirmation.inc,v 1.1 2008/11/12 01:00:58 dww
-#  signup_handler_filter_signup_disabled.inc,v 1.3 2008/11/19 18:30:07 dww
-#  signup_handler_filter_signup_send_confirmation.inc,v 1.2 2008/11/19 18:27:47 dww
+#  signup_handler_filter_signup_disabled.inc,v 1.4 2008/11/22 00:47:25 dww
 #  no_views.inc,v 1.15 2008/11/14 04:14:04 dww
 #  broadcast.inc,v 1.1 2008/11/15 02:03:50 dww
 #  cron.inc,v 1.1 2008/11/15 02:03:50 dww
 #  signup_form.inc,v 1.1 2008/11/15 02:03:50 dww
-#  signup_handler_filter_signup_user_authenticated.inc,v 1.2 2008/11/19 18:30:07 dww
+#  signup_handler_filter_signup_user_authenticated.inc,v 1.3 2008/11/22 00:47:25 dww
 #  admin.settings.inc,v 1.2 2008/11/19 01:44:07 dww
 #  admin.signup_administration.inc,v 1.1 2008/11/15 02:03:50 dww
 #  signup.install,v 1.23 2008/11/19 18:35:11 dww
 #  signup.info,v 1.5 2008/11/06 10:20:48 dww
-#  signup.views.inc,v 1.3 2008/11/19 18:35:12 dww
+#  signup.views.inc,v 1.4 2008/11/22 00:47:24 dww
 #  node_admin_summary.inc,v 1.1 2008/11/15 02:03:50 dww
 #  signup_handler_field_signup_status.inc,v 1.1 2008/11/12 01:00:58 dww
-#  signup_handler_filter_signup_status.inc,v 1.1 2008/11/12 01:00:58 dww
+#  signup_handler_filter_signup_status.inc,v 1.2 2008/11/22 00:47:25 dww
 #  node.admin.inc,v 1.4 2008/11/19 18:35:11 dww
 #  node_settings.inc,v 1.1 2008/11/15 02:03:50 dww
 #  token_help.inc,v 1.1 2008/11/15 02:03:50 dww
-#  event.6x-2.inc,v 1.1 2008/11/06 10:20:48 dww
+#  event.6x-2.inc,v 1.2 2008/11/25 17:54:05 dww
 #  scheduler.inc,v 1.4 2008/11/06 10:20:48 dww
 #  node_admin.inc,v 1.1 2008/11/15 02:03:50 dww
 #  signup_form.inc,v 1.3 2008/11/19 18:35:11 dww
@@ -38,12 +37,13 @@
 #  node.inc,v 1.1 2008/11/12 23:22:19 dww
 #  signup_plugin_argument_validate_signup_status.inc,v 1.1 2008/11/12 01:00:58 dww
 #  signup_handler_field_signup_user_form_data.inc,v 1.1 2008/11/12 01:00:58 dww
+#  signup_handler_filter_boolean.inc,v 1.1 2008/11/22 00:47:25 dww
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2008-11-21 15:19+0900\n"
-"PO-Revision-Date: 2008-11-21 17:58+0900\n"
+"POT-Creation-Date: 2008-11-27 16:08+0900\n"
+"PO-Revision-Date: 2008-11-27 17:27+0900\n"
 "Last-Translator: PineRay <matsudaterutaka@gmail.com>\n"
 "Language-Team: Japanese <EMAIL@ADDRESS>\n"
 "MIME-Version: 1.0\n"
@@ -96,8 +96,7 @@ msgstr "サインアップのオプション"
 #: signup.module:533;538
 #: includes/node_form.inc:183
 #: views/handlers/signup_handler_field_signup_send_confirmation.inc:9
-#: views/handlers/signup_handler_filter_signup_disabled.inc:13
-#: views/handlers/signup_handler_filter_signup_send_confirmation.inc:13
+#: views/handlers/signup_handler_filter_signup_disabled.inc:9
 msgid "Disabled"
 msgstr "無効"
 
@@ -170,7 +169,7 @@ msgid "Username: !name"
 msgstr "ユーザ名: !name"
 
 #: signup.module:836
-#: views/handlers/signup_handler_filter_signup_user_authenticated.inc:13
+#: views/handlers/signup_handler_filter_signup_user_authenticated.inc:9
 msgid "Anonymous"
 msgstr "匿名ユーザ"
 
@@ -394,15 +393,15 @@ msgstr "リマインダメールと確認メールのテンプレートにある
 
 #: signup.install:419
 msgid "Removed the deprecated %old_view_name and %old_view_type variables. If you were using embedding a view on signup-enabled nodes, please visit the <a href=\"@signup_settings_url\">Signup configuration page</a> and select a new value for the %setting_name setting (which is located under the Advanced settings)."
-msgstr "%old_view_name および %old_view_type 変数を削除しました。サインアップが有効なノードで表示の埋め込みを使用していれば、<a href=\"@signup_settings_url\">サインアップの設定ページ</a>にアクセスして、 %setting_name の設定 (高度な設定にあります) に新しい値を選択してください。"
+msgstr "%old_view_name および %old_view_type 変数を削除しました。サインアップが有効なノードでビューの埋め込みを使用していれば、<a href=\"@signup_settings_url\">サインアップの設定ページ</a>にアクセスして、 %setting_name の設定 (高度な設定にあります) に新しい値を選択してください。"
 
 #: signup.install:424
 #: includes/admin.settings.inc:134
 msgid "View to embed for the signup user list"
-msgstr "サインアップユーザ一覧として埋め込む表示"
+msgstr "サインアップユーザ一覧として埋め込むビュー"
 
 #: signup.info:0
-#: views/signup.views.inc:19;140
+#: views/signup.views.inc:19;143
 msgid "Signup"
 msgstr "サインアップ"
 
@@ -470,7 +469,7 @@ msgstr "サインアップフォームを非表示"
 msgid ""
 "On every signup-enabled node, users with permission to\n"
 " sign up can be presented with a form and additional signup-related information. This setting controls where this information should be displayed: either directly on the node itself, on a separate tab, or not at all."
-msgstr "サインアップが有効なノードで、サインアップの権限を持つユーザにフォームおよびサインアップに関連した追加の情報を表示します。この情報をどこに表示するかをここで設定します: ノードに直接表示する、またはタブに分離する、表示しないといった選択肢があります。"
+msgstr "サインアップが有効なノードで、サインアップの権限を持つユーザにフォームやサインアップに関連した追加の情報を表示します。この情報をどこに表示するかをここで設定します: ノードに直接表示する、またはタブに分離する、表示しないといった選択肢があります。"
 
 #: includes/admin.settings.inc:77
 msgid "Default fieldset behavior for per-node signup form"
@@ -494,15 +493,15 @@ msgstr "内蔵の一覧表示を使用"
 
 #: includes/admin.settings.inc:92
 msgid "Embed a view"
-msgstr "表示の埋め込み"
+msgstr "ビューの埋め込み"
 
 #: includes/admin.settings.inc:93
 msgid "If you choose to embed a view, you will be able to select which view you want to use below. The view you select will have a single argument passed in, the node id (nid) of the signup-enabled node being viewed. You can also use views to display this listing on its own tab or in a block if you disable this setting."
-msgstr "表示の埋め込みを選択すると、使用する表示を下記で選択することができます。選択した表示には、サインアップが有効なノードのノードIDを表す引数が渡されます。あるいは、この設定を無効にした場合、表示を使用してノードの一覧をタブやブロックで表示することができます。"
+msgstr "ビューの埋め込みを選択すると、使用するビューを下記で選択することができます。選択したビューには、サインアップが有効なノードのノードIDを表す引数が渡されます。あるいは、この設定を無効にした場合、ビューを使用してノードの一覧をタブやブロックで表示することができます。"
 
 #: includes/admin.settings.inc:96
 msgid "If you enable the !views_url, you will be able to embed a view directly onto the page for this listing."
-msgstr "!views_url を有効にしていれば、この一覧の表示をページに直接埋め込むことができるようになります。"
+msgstr "!views_url を有効にしていれば、この一覧のビューをページに直接埋め込むことができるようになります。"
 
 #: includes/admin.settings.inc:96
 msgid "Views module"
@@ -522,7 +521,7 @@ msgstr "サインアップフォームを表示する場合、%view_signups 権�
 
 #: includes/admin.settings.inc:138
 msgid "If the signup user list is being generated by embedding a view, this selects which view should be used. The view's name, description, and display(s) it defines are listed.  NOTE: if you enable or customize the view being used for this, you should strongly consider disabling the view's menu items to prevent a duplicate tab showing the same information."
-msgstr "埋め込んだ表示でサインアップしたユーザの一覧を生成する場合、使用する表示を選択します。定義されている表示名や説明、表示方法が一覧に並んでいます。注意: ここで使用する表示を有効にしたりカスタマイズする場合は、同じ情報を表示するタブの重複を避けるために、表示のメニュー項目を無効にする方が良いでしょう。"
+msgstr "埋め込んだビューでサインアップしたユーザの一覧を生成する場合、使用するビューを選択します。定義されているビューの名前や説明、表示方法が一覧に並んでいます。注意: ここで使用するビューを有効にしたりカスタマイズする場合は、同じ情報を表示するタブの重複を避けるために、ビューのメニュー項目を無効にする方が良いでしょう。"
 
 #: includes/admin.settings.inc:158
 msgid "Save configuration"
@@ -535,14 +534,14 @@ msgstr "すべて"
 #: includes/admin.signup_administration.inc:26
 #: includes/node_admin_summary.inc:22
 #: views/handlers/signup_handler_field_signup_status.inc:9
-#: views/handlers/signup_handler_filter_signup_status.inc:12
+#: views/handlers/signup_handler_filter_signup_status.inc:9
 msgid "Open"
 msgstr "オープン"
 
 #: includes/admin.signup_administration.inc:27
 #: includes/node_admin_summary.inc:22
 #: views/handlers/signup_handler_field_signup_status.inc:9
-#: views/handlers/signup_handler_filter_signup_status.inc:12
+#: views/handlers/signup_handler_filter_signup_status.inc:9
 msgid "Closed"
 msgstr "クローズド"
 
@@ -700,7 +699,7 @@ msgstr "<なし>"
 msgid " to "
 msgstr " ～ "
 
-#: includes/event.6x-2.inc:82
+#: includes/event.6x-2.inc:90
 #: includes/scheduler.inc:110
 msgid "[Untimed]"
 msgstr "[時間設定なし]"
@@ -731,6 +730,7 @@ msgid "Name"
 msgstr "名前"
 
 #: includes/node_admin.inc:43
+#: views/signup.views.inc:190
 msgid "Signup time"
 msgstr "サインアップ日時"
 
@@ -784,8 +784,7 @@ msgstr "%node_type の締切時間をすでに過ぎているので、サイン�
 
 #: includes/node_form.inc:177
 #: views/handlers/signup_handler_field_signup_send_confirmation.inc:9
-#: views/handlers/signup_handler_filter_signup_disabled.inc:13
-#: views/handlers/signup_handler_filter_signup_send_confirmation.inc:13
+#: views/handlers/signup_handler_filter_signup_disabled.inc:9
 msgid "Enabled"
 msgstr "有効"
 
@@ -853,6 +852,7 @@ msgid "Email address where notification of new signups will be sent. Leave blank
 msgstr "新しいサインアップに関する通知メールの宛先。空欄であれば通知を送信しません。"
 
 #: includes/node_settings.inc:58
+#: views/signup.views.inc:86
 msgid "Send confirmation"
 msgstr "確認メールを送信"
 
@@ -865,6 +865,7 @@ msgid "Email sent to user upon signup. !token_description"
 msgstr "サインアップの際にユーザへ送信するメール。!token_description"
 
 #: includes/node_settings.inc:82
+#: views/signup.views.inc:110
 msgid "Send reminder"
 msgstr "リマインダを送信"
 
@@ -1050,148 +1051,147 @@ msgstr "サインアップが自動的にクローズとなるまでにサイン
 msgid "Filter by the maximum number of users who can sign up before signups are automatically closed (set to 0 for no limit)."
 msgstr "サインアップが自動的にクローズとなるまでにサインアップすることのできるユーザの最大数で絞り込みます (0の場合は無制限)。"
 
-#: views/signup.views.inc:65
+#: views/signup.views.inc:66
 msgid "Notification: Email Address"
 msgstr "通知: メールアドレス"
 
-#: views/signup.views.inc:66
+#: views/signup.views.inc:67
 msgid "Address where notification emails are sent wenever a user signs up."
 msgstr "ユーザがサインアップした際に送信する通知メールの宛先。"
 
-#: views/signup.views.inc:74
-msgid "Confirmation: Enabled/Disabled"
-msgstr "確認: 有効/無効"
-
 #: views/signup.views.inc:75
+msgid "Send Confirmation"
+msgstr "確認メールを送信"
+
+#: views/signup.views.inc:76
 msgid "Should confirmation email be sent to each user who signs up."
 msgstr "サインアップしたユーザに確認メールをそうしんするかどうか。"
 
-#: views/signup.views.inc:84
+#: views/signup.views.inc:85
 msgid "Filter on if signup confirmation is enabled or disabled."
 msgstr "サインアップの確認メールが有効か無効かで絞り込みます。"
 
-#: views/signup.views.inc:89
+#: views/signup.views.inc:91
 msgid "Confirmation: Message"
 msgstr "確認: メッセージ"
 
-#: views/signup.views.inc:90
+#: views/signup.views.inc:92
 msgid "The body of the optional confirmation email that can be sent whenever a user signs up."
 msgstr "ユーザがサインアップした際に送信する、任意の確認メールの本文。"
 
-#: views/signup.views.inc:98
-msgid "Reminder: Enabled/Disabled"
-msgstr "リマインダ: 有効/無効"
+#: views/signup.views.inc:100
+msgid "Send Reminder"
+msgstr "リマインダメールを送信"
 
-#: views/signup.views.inc:99
+#: views/signup.views.inc:101
 msgid "Should a reminder email be automatically sent to all users who signed up. This will be false if either an administrator disabled the feature for a given event, or if the reminder was already sent."
 msgstr "サインアップしたすべてのユーザにリマインダメールを自動で送信するかどうか。指定されたイベントで管理者がこの機能を無効にしていても、またリマインダがすでに送信済みであっても、FALSEとなります。"
 
-#: views/signup.views.inc:107
-msgid "Filter on signup reminder"
-msgstr "サインアップリマインダのフィルタ"
+#: views/signup.views.inc:109
+msgid "Filter on if a signup reminder email will be sent."
+msgstr "サインアップのリマインダメールを送信するかどうかで絞り込みます。"
 
-#: views/signup.views.inc:112
+#: views/signup.views.inc:115
 msgid "Reminder: Days Before Event for Email"
 msgstr "リマインダ: メール送信からイベントまでの日数"
 
-#: views/signup.views.inc:113
+#: views/signup.views.inc:116
 msgid "How many days before an event will the reminder email be sent."
 msgstr "イベントの何日前にリマインダメールを送信するか。"
 
-#: views/signup.views.inc:122
+#: views/signup.views.inc:125
 msgid "Reminder: Message"
 msgstr "リマインダ: メッセージ"
 
-#: views/signup.views.inc:123
+#: views/signup.views.inc:126
 msgid "The body of the optional reminder email that can be sent a configurable time before an event begins."
 msgstr "イベントが始まるまでの指定した日時に送信する、任意のリマインダメールの本文。"
 
-#: views/signup.views.inc:131
+#: views/signup.views.inc:134
 msgid "Enabled/Disabled"
 msgstr "有効/無効"
 
-#: views/signup.views.inc:134
-msgid "Filter on if signups are enabled or disabled"
-msgstr "サインアップが有効か無効かで絞り込み"
+#: views/signup.views.inc:137
+msgid "Filter on if signups are enabled or disabled."
+msgstr "サインアップが有効か無効かで絞り込みます。"
 
-#: views/signup.views.inc:150
+#: views/signup.views.inc:153
 msgid "User"
 msgstr "ユーザ"
 
-#: views/signup.views.inc:151
+#: views/signup.views.inc:154
 msgid "The user who signed up."
 msgstr "サインアップしているユーザ。"
 
-#: views/signup.views.inc:155
+#: views/signup.views.inc:158;213
 msgid "Signup user"
 msgstr "サインアップユーザ"
 
-#: views/signup.views.inc:160
+#: views/signup.views.inc:163
 msgid "User available signups"
 msgstr "ユーザがサインアップ可能"
 
-#: views/signup.views.inc:161
+#: views/signup.views.inc:164
 msgid "Displays nodes the given user has not signed up for. Note that this argument will not work properly if you add the %signup_user relationship to the view."
-msgstr "与えられたユーザがまだサインアップしていないノードを表示します。表示に %signup_user の関連性を加えなければ、この引数は正しく動作しないことに注意してください。"
+msgstr "与えられたユーザがまだサインアップしていないノードを表示します。ビューに %signup_user の関連性を加えなければ、この引数は正しく動作しないことに注意してください。"
 
-#: views/signup.views.inc:161
+#: views/signup.views.inc:164
 msgid "Signup: User"
 msgstr "サインアップ: ユーザ"
 
-#: views/signup.views.inc:169
+#: views/signup.views.inc:172
 msgid "User: Email Address"
 msgstr "ユーザ: メールアドレス"
 
-#: views/signup.views.inc:173
+#: views/signup.views.inc:176
 msgid "Email address of a user (authenticated or anonymous) who signed up."
 msgstr "サインアップしたユーザ (登録または匿名) のメールアドレス。"
 
-#: views/signup.views.inc:173
+#: views/signup.views.inc:176
 msgid "WARNING: only expose this data in a view that is restricted to users whom you can trust with such sensitive information."
 msgstr "警告: 機密情報を任せられるとあなたが信頼するユーザにだけ、このデータを表示するようにしてください。"
 
-#: views/signup.views.inc:178
+#: views/signup.views.inc:181
 msgid "User: Signup Time"
 msgstr "ユーザ: サインアップ日時"
 
-#: views/signup.views.inc:179;186
+#: views/signup.views.inc:182
 msgid "Time when user signed up."
 msgstr "ユーザがサインアップした日時。"
 
-#: views/signup.views.inc:190
+#: views/signup.views.inc:189
+msgid "Time when the user signed up."
+msgstr "ユーザがサインアップした日時。"
+
+#: views/signup.views.inc:194
 msgid "Sort by time of sign up."
 msgstr "サインアップの日時で並び替えます。"
 
-#: views/signup.views.inc:195
+#: views/signup.views.inc:199
 msgid "User: Additional Signup Info"
 msgstr "ユーザ: 追加のサインアップ情報"
 
-#: views/signup.views.inc:196
+#: views/signup.views.inc:200
 msgid "Enter the additional field name (from signup.theme) in the Option column."
 msgstr "オプションカラムの追加フィールド名 (signup.themeより) を入力してください。"
 
-#: views/signup.views.inc:204
+#: views/signup.views.inc:208
 msgid "User: Anonymous/Authenticated"
 msgstr "ユーザ: 匿名/登録"
 
-#: views/signup.views.inc:208
+#: views/signup.views.inc:212
 msgid "Filter on if a user who signed up is anonymous, or an authenticated user on the site."
 msgstr "匿名ユーザか登録ユーザかで絞り込みます。"
 
-#: views/signup.views.inc:209
-#: views/handlers/signup_handler_filter_signup_user_authenticated.inc:13
-msgid "Authenticated"
-msgstr "登録"
-
-#: views/signup.views.inc:214
+#: views/signup.views.inc:218
 msgid "User: Current User"
 msgstr "ユーザ: 現在のユーザ"
 
-#: views/signup.views.inc:218
+#: views/signup.views.inc:222
 msgid "This allows you to filter by whether or not the node was signed up by the logged in user of the view."
 msgstr "ログインして表示しているユーザがサインアップしているかどうかでノードを絞り込むことができます。"
 
-#: views/signup.views.inc:275
+#: views/signup.views.inc:279
 #: views/plugins/signup_plugin_argument_validate_signup_status.inc:15
 msgid "Signup status"
 msgstr "サインアップの状態"
@@ -1204,12 +1204,21 @@ msgstr " フィールド名"
 msgid "If you want to display a single field from signup.theme, enter its name here, otherwise, all fields will be displayed."
 msgstr "signup.theme にある単一のフィールドを表示させる場合は、その名前を個々に入力してください。入力が無ければ、すべてのフィールドを表示します。"
 
-#: views/handlers/signup_handler_filter_signup_disabled.inc:10
-#: views/handlers/signup_handler_filter_signup_send_confirmation.inc:10
-#: views/handlers/signup_handler_filter_signup_status.inc:10
-#: views/handlers/signup_handler_filter_signup_user_authenticated.inc:10
+#: views/handlers/signup_handler_filter_boolean.inc:23
+msgid "Yes"
+msgstr "はい"
+
+#: views/handlers/signup_handler_filter_boolean.inc:23
+msgid "No"
+msgstr "いいえ"
+
+#: views/handlers/signup_handler_filter_boolean.inc:55
 msgid "exposed"
 msgstr "表示"
+
+#: views/handlers/signup_handler_filter_signup_user_authenticated.inc:9
+msgid "Authenticated"
+msgstr "登録"
 
 #: views/plugins/signup_plugin_argument_validate_signup_status.inc:17
 msgid "Signups enabled (either open or closed)"
