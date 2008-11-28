@@ -117,7 +117,8 @@ function signup_insert_default_signup_info() {
     send_reminder, reminder_days_before, reminder_email,
     close_in_advance_time, close_signup_limit, status) VALUES (0, '',
     1, 'Enter your default confirmation email message here',
-    1, 0, 'Enter your default reminder email message here', 0, 0, 1)");
+    1, 1, 'Enter your default reminder email message here',
+    0, 0, 1)");
 }
 
 /**
