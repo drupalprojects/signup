@@ -20,6 +20,10 @@ Bugs fixed since 6.x-1.0-rc1:
   also didn't appear at all in some cases.  The bug was caused by
   core's bizarre handling of node_type vs. node-type in URLs.
 = #336450 by dww: Fixed the UI for signup's Views filters.
+= #340377 by dww: Fixed bug where the default value in the database
+  for how many days in advance to send reminder emails did not match
+  what the rest of the code was written to expect.  Reminders would
+  not be sent until the admin/settings/signup page was saved.
 
 Other changes since 6.x-1.0-rc1:
 = #335563 by dww: Added support to control the relative ordering of
