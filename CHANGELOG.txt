@@ -1,5 +1,15 @@
 $Id$
 
+-----------
+5.x-1.x-dev
+-----------
+Bugs fixed since 5.x-1.1:
+= #340377 by dww: Fixed bug where the default value in the database
+  for how many days in advance to send reminder emails did not match
+  what the rest of the code was written to expect.  Reminders would
+  not be sent until the admin/settings/signup page was saved.
+
+
 -------
 5.x-1.1
 -------
