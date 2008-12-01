@@ -13,10 +13,17 @@
  * @return Array of SQL clauses for admin overview page query builder.
  */
 function _signup_date_admin_sql($content_type) {
+  // Get the date field information for this content type.
   $field = signup_date_field($content_type);
+  // See what fields to SELECT.
+  $fields[] = $field['database']['columns']['value']['column'];
+  if (isset($field['database']['columns']['timezone']['column'])) {
+    $fields[] = $field['database']['columns']['timezone']['column'];
+  }
+  $table = '{'. $field['database']['table'] .'}';
   return array(
-    'fields' => array($field['database']['columns']['value']['column']),
-    'joins' => array('LEFT JOIN {'. $field['database']['table'] .'} ON {'. $field['database']['table'] .'}.vid = n.vid'),
+    'fields' => $fields,
+    'joins' => array("LEFT JOIN $table ON $table.vid = n.vid"),
   );
 }
 

@@ -1,6 +1,7 @@
 <?php
 // $Id$
 
+
 /**
  * @file
  * Code required to support version 5.x-1.* of the CCK date field module.
@@ -11,28 +12,19 @@
  * @return Array of SQL clauses for cron reminder email query builder.
  */
 function _signup_date_reminder_sql($content_type) {
-  $field = signup_date_field($content_type);
+  require_once drupal_get_path('module', 'date') .'/date.inc';
   global $db_type;
-  switch ($db_type) {
-    case 'mysql':
-    case 'mysqli':
-      $where = array(
-        "NOW() + INTERVAL s.reminder_days_before DAY > ". date_sql('DATE', $field['database']['columns']['value']['column'], 'iso'),
-        "NOW() <= ". date_sql('DATE', $field['database']['columns']['value']['column'], 'iso'),
-      );
-      break;
+  $day = $db_type == 'pgsql' ? 'days' : 'DAY';
 
-    case 'pgsql':
-      $where = array(
-        "NOW() + INTERVAL s.reminder_days_before days > ". date_sql('DATE', $field['database']['columns']['value']['column'], 'iso'),
-        "NOW() <= ". date_sql('DATE', $field['database']['columns']['value']['column'], 'iso'),
-      );
-      break;
-  }
+  $field = signup_date_field($content_type);
+  $date_type = $field['type'] == 'datestamp' ? 'int' : 'iso';
+  $start_time = date_sql('DATE', $field['database']['columns']['value']['column'], $date_type);
+
+  $where = "NOW() + INTERVAL s.reminder_days_before ". $day ." > ". $start_time;
   return array(
     'fields' => array($field['database']['columns']['value']['column']),
     'joins' => array('LEFT JOIN {'. $field['database']['table'] .'}  ON {'. $field['database']['table'] .'}.vid = n.vid'),
-    'where' => $where,
+    'where' => array($where),
   );
 }
 
@@ -41,13 +33,31 @@ function _signup_date_reminder_sql($content_type) {
  * @return Array of SQL clauses for cron auto-close query builder.
  */
 function _signup_date_autoclose_sql($content_type) {
+  require_once drupal_get_path('module', 'date') .'/date.inc';
+  global $db_type;
+
+  $close_early = variable_get('signup_close_early', 1);
+  switch ($db_type) {
+    case 'mysql':
+    case 'mysqli':
+      $interval = "INTERVAL '". $close_early ."' HOUR";
+      break;
+
+    case 'pgsql':
+      $interval = "INTERVAL '". $close_early ." hours'";
+      break;
+
+  }
+
   $field = signup_date_field($content_type);
+  $date_type = $field['type'] == 'datestamp' ? 'int' : 'iso';
+  $start_time = date_sql('DATE', $field['database']['columns']['value']['column'], $date_type);
+
+  $where = "NOW() + ". $interval ." > ". $start_time;
   return array(
     'fields' => array($field['database']['columns']['value']['column']),
-    'joins' => array(
-      'LEFT JOIN {'. $field['database']['table'] .'} ON {'. $field['database']['table'] .'}.vid = n.vid',
-    ),
-    'where' => array(date_sql('DATE', $field['database']['columns']['value']['column'], 'iso') ." < '". date('Y-m-d H:i:s', time() + variable_get('signup_close_early', 1) * 3600) ."'"),
+    'joins' => array('LEFT JOIN {'. $field['database']['table'] .'} ON {'. $field['database']['table'] .'}.vid = n.vid'),
+    'where' => array($where),
   );
 }
 
@@ -56,17 +66,28 @@ function _signup_date_autoclose_sql($content_type) {
  * has already passed the "Close x hours before" setting.
  */
 function _signup_date_node_completed($node) {
+  require_once drupal_get_path('module', 'date') .'/date.inc';
   $field = signup_date_field($node->type);
   if ($field && $field != 'none' && isset($node->{$field['field_name']})) {
-    $closing_time = time() + (variable_get('signup_close_early', 1) * 3600);
-    if (date_iso2unix($node->{$field['field_name']}[0]['value']) < $closing_time) {
+    switch ($field['type']) {
+      case 'date':
+        $start_time = date_iso2unix($node->{$field['field_name']}[0]['value']);
+        break;
+
+      case 'datestamp':
+        $start_time = $node->{$field['field_name']}[0]['value'];
+        break;
+
+    }
+    $close_time = $start_time - (variable_get('signup_close_early', 1) * 3600);
+    if (time() > $close_time) {
       return TRUE;
     }
   }
   return FALSE;
 }
 
-function _signup_date_format_date($node, $include_to_date = FALSE) {
+function _signup_date_format_date($node) {
   $field = signup_date_field($node->type);
   if (!$field || $field == 'none') {
     return '';
@@ -80,20 +101,24 @@ function _signup_date_format_date($node, $include_to_date = FALSE) {
   else {
     $date_value = $node->{$field['database']['columns']['value']['column']};
   }
-  $date = date_show_date(date_make_date($date_value), $field['output_format_date'], 'db');
+  $date_obj = date_make_date($date_value, 'GMT', 'db', $field['type']);
+  switch ($field['tz_handling']) {
+    case 'site':
+      $timezone_name = date_get_site_timezone();
+      break;
 
-  if ($include_to_date) {
-    if (isset($node->{$field['field_name']})) {
-      $date_value = $node->{$field['field_name']}[0]['value2'];
-    }
-    else {
-      $date_value = $node->{$field['database']['columns']['value2']['column']};
-    }
-    if ($date_value) {
-      $date .= t(' to ') . date_show_date(date_make_date($date_value), $field['output_format_date'], 'db');
-    }
+    case 'date':
+      $timezone_name = $field['field_timezone'];
+      break;
+
   }
-
-  return $date;
+  if (!empty($timezone_name)) {
+    $offset = date_offset(date_gmgetdate($date_obj->db->timestamp), $timezone_name);
+  }
+  else {
+    $offset = 0;
+    $timezone_name = NULL;
+  }
+  return date_format_date($field['output_format_date'], date_fuzzy_stamp($date_obj->db) + $offset, 0, $timezone_name);
 }
 
