@@ -407,6 +407,7 @@ function _signup_date_sql_handler($field, $compare_tz = NULL) {
   // have to do the work ourselves here or datestamp fields don't work.
   if ($GLOBALS['db_type'] == 'mysql' && !$mysql_db_offset_set && version_compare(db_version(), '4.1.3', '>=')) {
     db_query("SET @@session.time_zone = '+00:00'");
+    $mysql_db_offset_set = TRUE;
   }
 
   return $handler;
