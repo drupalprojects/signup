@@ -4,6 +4,16 @@ $Id$
 6.x-1.x-dev
 -----------
 Bugs fixed since 6.x-1.0-rc1:
+= #336255 by KarenS and dww: Fixed numerous bugs in usage of DateAPI
+  that were breaking all time-based signup functionality for datestamp
+  fields and causing problems for certain configurations of date or
+  datetime fields depending on the timezone handling.  Using
+  6.x-2.0-rc5 of DateAPI and the CCK Date field, the one configuration
+  that doesn't fully work is a datestamp field that has no timezone
+  handling at all.  With that configuration, you must use the latest
+  Date code from the DRUPAL-6--2 branch (check the top of your copy of
+  date/date.module and make sure the revision is at least
+  "1.61.2.4.2.34" (2008-11-28) or newer).
 = #338850 by dww: Fixed critical SQL bug ("Not unique table/alias: 'e'")
   on the signup administration page (admin/content/signup) for sites
   that have more than one event.module node type that is signup-enabled.
