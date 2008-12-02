@@ -46,6 +46,9 @@ Other changes since 6.x-1.0-rc1:
   be defined in the $conf array in settings.php.
 = #336129 by dww: Moved the signup node type settings out of the
   "Workflow" fieldset into a separate "Signup settings" fieldset.
+= #341331 by dww: Improved database performance during cron runs by
+  using INNER JOIN instead of LEFT JOIN for finding nodes of a given
+  type that need to be auto-closed and/or have reminder emails sent.
 
 
 -----------
