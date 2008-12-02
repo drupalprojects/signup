@@ -23,7 +23,7 @@ function _signup_date_reminder_sql($content_type) {
   $where = "NOW() + INTERVAL s.reminder_days_before ". $day ." > ". $start_time;
   return array(
     'fields' => array($field['database']['columns']['value']['column']),
-    'joins' => array('LEFT JOIN {'. $field['database']['table'] .'}  ON {'. $field['database']['table'] .'}.vid = n.vid'),
+    'joins' => array('INNER JOIN {'. $field['database']['table'] .'}  ON {'. $field['database']['table'] .'}.vid = n.vid'),
     'where' => array($where),
   );
 }
@@ -56,7 +56,7 @@ function _signup_date_autoclose_sql($content_type) {
   $where = "NOW() + ". $interval ." > ". $start_time;
   return array(
     'fields' => array($field['database']['columns']['value']['column']),
-    'joins' => array('LEFT JOIN {'. $field['database']['table'] .'} ON {'. $field['database']['table'] .'}.vid = n.vid'),
+    'joins' => array('INNER JOIN {'. $field['database']['table'] .'} ON {'. $field['database']['table'] .'}.vid = n.vid'),
     'where' => array($where),
   );
 }

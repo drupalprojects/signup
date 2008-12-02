@@ -54,7 +54,7 @@ function _signup_date_reminder_sql($content_type) {
   $table = '{'. $field['database']['table'] .'}';
   return array(
     'fields' => $fields,
-    'joins' => array("LEFT JOIN $table ON $table.vid = n.vid"),
+    'joins' => array("INNER JOIN $table ON $table.vid = n.vid"),
     'where' => $where,
   );
 }
@@ -98,7 +98,7 @@ function _signup_date_autoclose_sql($content_type) {
   $table = '{'. $field['database']['table'] .'}';
   return array(
     'fields' => $fields,
-    'joins' => array("LEFT JOIN $table ON $table.vid = n.vid"),
+    'joins' => array("INNER JOIN $table ON $table.vid = n.vid"),
     'where' => $where,
   );
 }
