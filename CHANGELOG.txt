@@ -24,12 +24,12 @@ Bugs fixed since 6.x-1.0-rc1:
   Enabled/Disabled" and "Signup: Confirmation: Enabled/Disabled".
 = #336461 by dww: The "Signup: Reminder: Enabled/Disabled" views
   filter was broken since it was using the wrong filter handler.
+= #336450 by dww: Fixed the UI for signup's Views filters.
 = #336610 by dww: Fixed bug introduced in #329668 where node types that
   have an underscore in their name had broken links in the warning
   messages about CCK date fields being misconfigured.  Those warnings
   also didn't appear at all in some cases.  The bug was caused by
   core's bizarre handling of node_type vs. node-type in URLs.
-= #336450 by dww: Fixed the UI for signup's Views filters.
 = #340377 by dww: Fixed bug where the default value in the database
   for how many days in advance to send reminder emails did not match
   what the rest of the code was written to expect.  Reminders would
