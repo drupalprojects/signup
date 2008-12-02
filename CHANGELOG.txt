@@ -1,7 +1,7 @@
 $Id$
 
 -----------
-6.x-1.x-dev
+6.x-1.0-rc2
 -----------
 Bugs fixed since 6.x-1.0-rc1:
 = #336255 by KarenS and dww: Fixed numerous bugs in usage of DateAPI
