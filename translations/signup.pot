@@ -3,47 +3,47 @@
 # LANGUAGE translation of Drupal (general)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
 # Generated from files:
-#  signup.module,v 1.200 2008/11/15 02:03:49 dww
-#  node_form.inc,v 1.1 2008/11/15 02:03:50 dww
+#  signup.module,v 1.205 2008/11/19 23:47:56 dww
+#  date.inc,v 1.16 2008/12/02 02:53:25 dww
+#  node_form.inc,v 1.3 2008/11/19 01:44:07 dww
 #  signup_handler_field_signup_send_confirmation.inc,v 1.1 2008/11/12 01:00:58 dww
-#  signup_handler_filter_signup_disabled.inc,v 1.1 2008/11/12 01:00:58 dww
-#  signup_handler_filter_signup_send_confirmation.inc,v 1.1 2008/11/12 01:00:58 dww
+#  signup_handler_filter_signup_disabled.inc,v 1.4 2008/11/22 00:47:25 dww
+#  no_views.inc,v 1.15 2008/11/14 04:14:04 dww
 #  broadcast.inc,v 1.1 2008/11/15 02:03:50 dww
 #  cron.inc,v 1.1 2008/11/15 02:03:50 dww
 #  signup_form.inc,v 1.1 2008/11/15 02:03:50 dww
-#  signup_handler_filter_signup_user_authenticated.inc,v 1.1 2008/11/12 01:00:58 dww
-#  admin.settings.inc,v 1.1 2008/11/15 02:03:50 dww
-#  signup.install,v 1.22 2008/11/14 04:01:16 dww
+#  signup_handler_filter_signup_user_authenticated.inc,v 1.3 2008/11/22 00:47:25 dww
+#  admin.settings.inc,v 1.2 2008/11/19 01:44:07 dww
+#  signup.install,v 1.24 2008/11/28 23:49:07 dww
 #  signup.info,v 1.5 2008/11/06 10:20:48 dww
-#  signup.views.inc,v 1.1 2008/11/12 01:00:57 dww
+#  signup.views.inc,v 1.4 2008/11/22 00:47:24 dww
 #  admin.signup_administration.inc,v 1.1 2008/11/15 02:03:50 dww
 #  node_admin_summary.inc,v 1.1 2008/11/15 02:03:50 dww
 #  signup_handler_field_signup_status.inc,v 1.1 2008/11/12 01:00:58 dww
-#  signup_handler_filter_signup_status.inc,v 1.1 2008/11/12 01:00:58 dww
-#  node.admin.inc,v 1.3 2008/11/13 19:32:57 dww
+#  signup_handler_filter_signup_status.inc,v 1.2 2008/11/22 00:47:25 dww
+#  node.admin.inc,v 1.4 2008/11/19 18:35:11 dww
 #  node_settings.inc,v 1.1 2008/11/15 02:03:50 dww
 #  token_help.inc,v 1.1 2008/11/15 02:03:50 dww
-#  date.inc,v 1.7 2008/11/08 20:06:14 dww
-#  event.6x-2.inc,v 1.1 2008/11/06 10:20:48 dww
+#  event.6x-2.inc,v 1.2 2008/11/25 17:54:05 dww
 #  scheduler.inc,v 1.4 2008/11/06 10:20:48 dww
-#  no_views.inc,v 1.15 2008/11/14 04:14:04 dww
 #  node_admin.inc,v 1.1 2008/11/15 02:03:50 dww
-#  signup_form.inc,v 1.2 2008/11/13 19:48:17 dww
+#  signup_form.inc,v 1.3 2008/11/19 18:35:11 dww
 #  admin.inc,v 1.1 2008/11/12 23:22:19 dww
 #  node_output.inc,v 1.1 2008/11/15 02:03:50 dww
 #  signup_cancel_form.inc,v 1.1 2008/11/15 02:03:50 dww
 #  signup_form.inc,v 1.4 2008/11/15 02:03:50 dww
 #  email.inc,v 1.1 2008/11/12 23:22:19 dww
-#  no_views.inc,v 1.1 2008/11/12 23:22:19 dww
+#  no_views.inc,v 1.2 2008/11/19 18:30:07 dww
 #  node.inc,v 1.1 2008/11/12 23:22:19 dww
 #  signup_plugin_argument_validate_signup_status.inc,v 1.1 2008/11/12 01:00:58 dww
 #  signup_handler_field_signup_user_form_data.inc,v 1.1 2008/11/12 01:00:58 dww
+#  signup_handler_filter_boolean.inc,v 1.1 2008/11/22 00:47:25 dww
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2008-11-14 18:07-0800\n"
+"POT-Creation-Date: 2008-12-01 19:16-0800\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -52,181 +52,193 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: signup.module:262
+#: signup.module:273
 msgid "Signup allows users to sign up (in other words, register) for content of any type. The most common use is for events, where users indicate they are planning to attend. This module includes options for sending a notification email to a selected email address upon a new user signup (good for notifying event coordinators, etc.) and a confirmation email to users who sign up. Each of these options are controlled per node. When used on event nodes (with <a href=\"@event_url\">event.module</a> installed) or nodes that have a date field (with <a href=\"@date_url\">date.module</a>) and regular cron runs, it can also send out reminder emails to all signups a configurable number of days before the start of the event (also controlled per node) and to automatically close signups 1 hour before their start (general setting). Settings exist for resticting signups to selected roles and content types."
 msgstr ""
 
-#: signup.module:264
+#: signup.module:275
 msgid "To use signup, you must enable which content types should allow signups in administer->settings->content types, and you must also grant the %sign_up_for_content permission to any user role that should be able to sign up in administer->access control. Each signup-enabled node will now have a place for users to sign up."
 msgstr ""
 
-#: signup.module:266
+#: signup.module:277
 msgid "There are two ways for a user to have administrative access to the signup information about a given node: either the user has the %administer_signups_for_own_content permission and they are viewing a node they created, or the user has the global %administer_all_signups permission. Administrative access allows a user to view all the users who have signed up for the node, along with whatever information they included when they signed up.  Signup administrators can also cancel other user's signups for the node, and can close signups on the node entirely (meaning no one else is allowed to sign up)."
 msgstr ""
 
-#: signup.module:268
+#: signup.module:279
 msgid "Default settings for notification email address, reminder emails and confirmation emails are located in administer->settings->signup. These will be the default values used for a signup node unless otherwise specified (to configure these options per node, visit 'edit' for that node and make the adjustments in the 'Sign up settings' section)."
 msgstr ""
 
-#: signup.module:270
+#: signup.module:281
 msgid "Signups can be manually closed for any node at the %signup_overview page, or on the 'signups' tab on each node."
 msgstr ""
 
-#: signup.module:270
+#: signup.module:281
 msgid "Signup overview"
 msgstr ""
 
-#: signup.module:272
+#: signup.module:283
 msgid "The user signup form is fully themable -- form fields may be added or deleted. For more details see the instructions in signup.theme, where a sample user form is included."
 msgstr ""
 
-#: signup.module:278
+#: signup.module:289
 msgid "This page allows you to send an email message to every user who signed up for this %node_type."
 msgstr ""
 
-#: signup.module:512
+#: signup.module:525 includes/date.inc:99 includes/node_form.inc:167
+msgid "Signup settings"
+msgstr ""
+
+#: signup.module:531
 msgid "Signup options"
 msgstr ""
 
-#: signup.module:514;519 includes/node_form.inc:185 views/handlers/signup_handler_field_signup_send_confirmation.inc:9 views/handlers/signup_handler_filter_signup_disabled.inc:13 views/handlers/signup_handler_filter_signup_send_confirmation.inc:13
+#: signup.module:533;538 includes/node_form.inc:183 views/handlers/signup_handler_field_signup_send_confirmation.inc:9 views/handlers/signup_handler_filter_signup_disabled.inc:9
 msgid "Disabled"
 msgstr ""
 
-#: signup.module:515;519
+#: signup.module:534;538
 msgid "Allowed (off by default)"
 msgstr ""
 
-#: signup.module:516;519
+#: signup.module:535;538
 msgid "Enabled (on by default)"
 msgstr ""
 
-#: signup.module:519
+#: signup.module:538
 msgid "If %disabled is selected, signups will not be possible for this content type. If %allowed_off is selected, signups will be off by default, but users with the %admin_all_signups permission will be able to allow signups for specific posts of this content type. If %enabled_on is selected, users will be allowed to signup for this content type unless an administrator disbles signups on specific posts."
 msgstr ""
 
-#: signup.module:519;444
+#: signup.module:538;457
 msgid "administer all signups"
 msgstr ""
 
-#: signup.module:636
+#: signup.module:653 includes/no_views.inc:66
+msgid "Signup information"
+msgstr ""
+
+#: signup.module:654
+msgid "Signup form and other information."
+msgstr ""
+
+#: signup.module:676
 msgid "Signup to !title cancelled."
 msgstr ""
 
-#: signup.module:652;668 includes/broadcast.inc:134;152 includes/cron.inc:69;123
+#: signup.module:692;708 includes/broadcast.inc:134;152 includes/cron.inc:69;123
 msgid "view"
 msgstr ""
 
-#: signup.module:718
+#: signup.module:758
 msgid "Anonymous user %email is already signed up for %title"
 msgstr ""
 
-#: signup.module:729 includes/signup_form.inc:191
+#: signup.module:769 includes/signup_form.inc:191
 msgid "User !user is already signed up for %title"
 msgstr ""
 
-#: signup.module:754
+#: signup.module:794
 msgid "You will receive a confirmation email shortly which contains further information about this %node_type."
 msgstr ""
 
-#: signup.module:755
+#: signup.module:795
 msgid "You will receive a reminder email !number !days before the %node_type."
 msgstr ""
 
-#: signup.module:776;809
+#: signup.module:816;849
 msgid "Signup confirmation for !node_type: !title"
 msgstr ""
 
-#: signup.module:791
+#: signup.module:831
 msgid "The following information was submitted as a signup for !title"
 msgstr ""
 
-#: signup.module:793
+#: signup.module:833
 msgid "Date/Time: !time"
 msgstr ""
 
-#: signup.module:796
+#: signup.module:836
 msgid "Username: !name"
 msgstr ""
 
-#: signup.module:796 views/handlers/signup_handler_filter_signup_user_authenticated.inc:13
+#: signup.module:836 views/handlers/signup_handler_filter_signup_user_authenticated.inc:9
 msgid "Anonymous"
 msgstr ""
 
-#: signup.module:799
+#: signup.module:839
 msgid "Profile page: !url"
 msgstr ""
 
-#: signup.module:803
+#: signup.module:843
 msgid "E-mail: !email"
 msgstr ""
 
-#: signup.module:813
+#: signup.module:853
 msgid "New !node_type Signup"
 msgstr ""
 
-#: signup.module:822
+#: signup.module:862
 msgid "Signup to !title confirmed."
 msgstr ""
 
-#: signup.module:862
+#: signup.module:902
 msgid "Signup limit reached for !title, signups closed."
 msgstr ""
 
-#: signup.module:869
+#: signup.module:909
 msgid "Signup limit reached."
 msgstr ""
 
-#: signup.module:877
+#: signup.module:917
 msgid "Signup limit increased for !title, signups re-opened."
 msgstr ""
 
-#: signup.module:880
+#: signup.module:920
 msgid "Total signups for !title now below limit, signups re-opened."
 msgstr ""
 
-#: signup.module:884
+#: signup.module:924
 msgid "Signup limit updated for !title."
 msgstr ""
 
-#: signup.module:892
+#: signup.module:932
 msgid "Signup limit removed for !title, signups now open."
 msgstr ""
 
-#: signup.module:895
+#: signup.module:935
 msgid "Signup limit removed for !title."
 msgstr ""
 
-#: signup.module:652;668;0 includes/broadcast.inc:134;152 includes/cron.inc:69;123
+#: signup.module:692;708;0 includes/broadcast.inc:134;152 includes/cron.inc:69;123
 msgid "signup"
 msgstr ""
 
-#: signup.module:755
+#: signup.module:795
 msgid "day"
 msgid_plural "days"
 msgstr[0] ""
 msgstr[1] ""
 
-#: signup.module:441
+#: signup.module:454
 msgid "sign up for content"
 msgstr ""
 
-#: signup.module:442
+#: signup.module:455
 msgid "cancel own signups"
 msgstr ""
 
-#: signup.module:443 includes/admin.settings.inc:111
+#: signup.module:456 includes/admin.settings.inc:109
 msgid "view all signups"
 msgstr ""
 
-#: signup.module:445
+#: signup.module:458
 msgid "administer signups for own content"
 msgstr ""
 
-#: signup.module:446
+#: signup.module:459
 msgid "email users signed up for own content"
 msgstr ""
 
-#: signup.module:447
+#: signup.module:460
 msgid "email all signed up users"
 msgstr ""
 
@@ -298,47 +310,47 @@ msgstr ""
 msgid "Serialized string of additional signup form values.  See theme_signup_user_form() from theme/signup.theme for more information."
 msgstr ""
 
-#: signup.install:236
+#: signup.install:237
 msgid "The old %signup_user_view setting was enabled on your site, so the %view_all_signups permission has been added to the %authenticated_user role. Please consider customizing what roles have this permission on the !access_control page."
 msgstr ""
 
-#: signup.install:236;244
+#: signup.install:237;245
 msgid "Users can view signups"
 msgstr ""
 
-#: signup.install:236
+#: signup.install:237
 msgid "Access control"
 msgstr ""
 
-#: signup.install:244
+#: signup.install:245
 msgid "The %signup_user_view setting has been removed."
 msgstr ""
 
-#: signup.install:313
+#: signup.install:314
 msgid "Added the 'cancel own signups' permission to all roles that have the 'sign up for content' permission."
 msgstr ""
 
-#: signup.install:313
+#: signup.install:314
 msgid "If you do not want your users to cancel their own signups, go to the <a href=\"@access_url\">Access control</a> page and unset this permission."
 msgstr ""
 
-#: signup.install:331
+#: signup.install:332
 msgid "Migrated signup settings per content type."
 msgstr ""
 
-#: signup.install:401
+#: signup.install:402
 msgid "Replaced %event, %eventurl, %time, %username, %useremail, and %info tokens with %node_title, %node_url, %node_start_time, %user_name, %user_mail, and %user_signup_info in the reminder and confirmation email templates."
 msgstr ""
 
-#: signup.install:419
+#: signup.install:420
 msgid "Removed the deprecated %old_view_name and %old_view_type variables. If you were using embedding a view on signup-enabled nodes, please visit the <a href=\"@signup_settings_url\">Signup configuration page</a> and select a new value for the %setting_name setting (which is located under the Advanced settings)."
 msgstr ""
 
-#: signup.install:424 includes/admin.settings.inc:136
+#: signup.install:425 includes/admin.settings.inc:134
 msgid "View to embed for the signup user list"
 msgstr ""
 
-#: signup.info:0 views/signup.views.inc:19;140
+#: signup.info:0 views/signup.views.inc:19;143
 msgid "Signup"
 msgstr ""
 
@@ -414,59 +426,59 @@ msgstr ""
 msgid "On every signup-enabled node, users with permission to\n sign up can be presented with a form and additional signup-related information. This setting controls where this information should be displayed: either directly on the node itself, on a separate tab, or not at all."
 msgstr ""
 
-#: includes/admin.settings.inc:79
+#: includes/admin.settings.inc:77
 msgid "Default fieldset behavior for per-node signup form"
 msgstr ""
 
-#: includes/admin.settings.inc:81
+#: includes/admin.settings.inc:79
 msgid "Collapsed"
 msgstr ""
 
-#: includes/admin.settings.inc:81
+#: includes/admin.settings.inc:79
 msgid "Expanded"
 msgstr ""
 
-#: includes/admin.settings.inc:83
+#: includes/admin.settings.inc:81
 msgid "If the signup form is included at the bottom of each node, the signup form will be encapsulated in a collapsible fieldset. This setting controls if that fieldset is expanded or collapsed by default."
 msgstr ""
 
-#: includes/admin.settings.inc:91
+#: includes/admin.settings.inc:89
 msgid "Use the built-in listing"
 msgstr ""
 
-#: includes/admin.settings.inc:94
+#: includes/admin.settings.inc:92
 msgid "Embed a view"
 msgstr ""
 
-#: includes/admin.settings.inc:95
+#: includes/admin.settings.inc:93
 msgid "If you choose to embed a view, you will be able to select which view you want to use below. The view you select will have a single argument passed in, the node id (nid) of the signup-enabled node being viewed. You can also use views to display this listing on its own tab or in a block if you disable this setting."
 msgstr ""
 
-#: includes/admin.settings.inc:98
+#: includes/admin.settings.inc:96
 msgid "If you enable the !views_url, you will be able to embed a view directly onto the page for this listing."
 msgstr ""
 
-#: includes/admin.settings.inc:98
+#: includes/admin.settings.inc:96
 msgid "Views module"
 msgstr ""
 
-#: includes/admin.settings.inc:100
+#: includes/admin.settings.inc:98
 msgid "Do not display a listing at all"
 msgstr ""
 
-#: includes/admin.settings.inc:107
+#: includes/admin.settings.inc:105
 msgid "How to display the list of signed-up users"
 msgstr ""
 
-#: includes/admin.settings.inc:111
+#: includes/admin.settings.inc:109
 msgid "If the signup form is being displayed, users with the %view_signups permission can see a list of all users who have signed up. This setting controls if and how that list should be generated. !views_help_text"
 msgstr ""
 
-#: includes/admin.settings.inc:140
+#: includes/admin.settings.inc:138
 msgid "If the signup user list is being generated by embedding a view, this selects which view should be used. The view's name, description, and display(s) it defines are listed.  NOTE: if you enable or customize the view being used for this, you should strongly consider disabling the view's menu items to prevent a duplicate tab showing the same information."
 msgstr ""
 
-#: includes/admin.settings.inc:160
+#: includes/admin.settings.inc:158
 msgid "Save configuration"
 msgstr ""
 
@@ -474,11 +486,11 @@ msgstr ""
 msgid "All"
 msgstr ""
 
-#: includes/admin.signup_administration.inc:26 includes/node_admin_summary.inc:22 views/handlers/signup_handler_field_signup_status.inc:9 views/handlers/signup_handler_filter_signup_status.inc:12
+#: includes/admin.signup_administration.inc:26 includes/node_admin_summary.inc:22 views/handlers/signup_handler_field_signup_status.inc:9 views/handlers/signup_handler_filter_signup_status.inc:9
 msgid "Open"
 msgstr ""
 
-#: includes/admin.signup_administration.inc:27 includes/node_admin_summary.inc:22 views/handlers/signup_handler_field_signup_status.inc:9 views/handlers/signup_handler_filter_signup_status.inc:12
+#: includes/admin.signup_administration.inc:27 includes/node_admin_summary.inc:22 views/handlers/signup_handler_field_signup_status.inc:9 views/handlers/signup_handler_filter_signup_status.inc:9
 msgid "Closed"
 msgstr ""
 
@@ -494,7 +506,7 @@ msgstr ""
 msgid "Title"
 msgstr ""
 
-#: includes/admin.signup_administration.inc:59 includes/node_form.inc:196;196
+#: includes/admin.signup_administration.inc:59 includes/node_form.inc:194;194
 msgid "Signups"
 msgstr ""
 
@@ -586,47 +598,43 @@ msgstr ""
 msgid "!node_type reminder: !title"
 msgstr ""
 
-#: includes/date.inc:92 includes/node_form.inc:169
-msgid "Signup settings"
-msgstr ""
-
-#: includes/date.inc:170;233
+#: includes/date.inc:176;240
 msgid "Date field to use with signup"
 msgstr ""
 
-#: includes/date.inc:173
+#: includes/date.inc:179
 msgid "Select the date field of this content type to use for signup time-based functionality, such as automatically closing signups when the start time has passed and sending reminder emails. Select \"%none\" to not use a date field for signup functionality at all."
 msgstr ""
 
-#: includes/date.inc:173
+#: includes/date.inc:179
 msgid "None"
 msgstr ""
 
-#: includes/date.inc:236
+#: includes/date.inc:243
 msgid "<none>"
 msgstr ""
 
-#: includes/date.inc:242
+#: includes/date.inc:249
 msgid "You have enabled the %node_type content type for signups, and have added one or more date fields, but have not selected a date field for use with signup. You can modify the %signup_date_field setting at the <a href=\"@type_admin_url\">%node_type configuration page</a> to select a date field to use, or disable this warning by selecting %none."
 msgstr ""
 
-#: includes/date.inc:247
+#: includes/date.inc:254
 msgid "You have enabled the %node_type content type for signups but have not added a date field. You can either <a href=\"@type_add_field_url\">add a date field</a>, or disable this warning by selecting %none for the %signup_date_field setting at the <a href=\"@type_admin_url\">%node_type configuration page</a>."
 msgstr ""
 
-#: includes/date.inc:268
+#: includes/date.inc:275
 msgid "<Not specified>"
 msgstr ""
 
-#: includes/date.inc:273
+#: includes/date.inc:280
 msgid "<None>"
 msgstr ""
 
-#: includes/date.inc:380
+#: includes/date.inc:535
 msgid " to "
 msgstr ""
 
-#: includes/event.6x-2.inc:82 includes/scheduler.inc:110
+#: includes/event.6x-2.inc:90 includes/scheduler.inc:110
 msgid "[Untimed]"
 msgstr ""
 
@@ -636,10 +644,6 @@ msgstr ""
 
 #: includes/no_views.inc:43
 msgid "View signup schedule"
-msgstr ""
-
-#: includes/no_views.inc:66
-msgid "Signup information"
 msgstr ""
 
 #: includes/no_views.inc:78
@@ -658,7 +662,7 @@ msgstr ""
 msgid "Name"
 msgstr ""
 
-#: includes/node_admin.inc:43
+#: includes/node_admin.inc:43 views/signup.views.inc:190
 msgid "Signup time"
 msgstr ""
 
@@ -710,35 +714,35 @@ msgstr ""
 msgid "%node_type start time is already past the signup close-in-advance time, signups now closed."
 msgstr ""
 
-#: includes/node_form.inc:179 views/handlers/signup_handler_field_signup_send_confirmation.inc:9 views/handlers/signup_handler_filter_signup_disabled.inc:13 views/handlers/signup_handler_filter_signup_send_confirmation.inc:13
+#: includes/node_form.inc:177 views/handlers/signup_handler_field_signup_send_confirmation.inc:9 views/handlers/signup_handler_filter_signup_disabled.inc:9
 msgid "Enabled"
 msgstr ""
 
-#: includes/node_form.inc:181
+#: includes/node_form.inc:179
 msgid "Disabled, but save existing signup information"
 msgstr ""
 
-#: includes/node_form.inc:182
+#: includes/node_form.inc:180
 msgid "Disabled, and remove all signup information"
 msgstr ""
 
-#: includes/node_form.inc:182
+#: includes/node_form.inc:180
 msgid "This can not be undone, use with extreme caution!"
 msgstr ""
 
-#: includes/node_form.inc:196
+#: includes/node_form.inc:194
 msgid "If enabled, you can control whether users may sign up by visiting the !signups tab and toggling if signups are %open or %closed for this %node_type."
 msgstr ""
 
-#: includes/node_form.inc:196 theme/admin.inc:42
+#: includes/node_form.inc:194 theme/admin.inc:42
 msgid "open"
 msgstr ""
 
-#: includes/node_form.inc:196 theme/admin.inc:46
+#: includes/node_form.inc:194 theme/admin.inc:46
 msgid "closed"
 msgstr ""
 
-#: includes/node_form.inc:206
+#: includes/node_form.inc:204
 msgid "If disabled, all of the other signup settings will be ignored."
 msgstr ""
 
@@ -774,7 +778,7 @@ msgstr ""
 msgid "Email address where notification of new signups will be sent. Leave blank for no notifications."
 msgstr ""
 
-#: includes/node_settings.inc:58
+#: includes/node_settings.inc:58 views/signup.views.inc:86
 msgid "Send confirmation"
 msgstr ""
 
@@ -786,7 +790,7 @@ msgstr ""
 msgid "Email sent to user upon signup. !token_description"
 msgstr ""
 
-#: includes/node_settings.inc:82
+#: includes/node_settings.inc:82 views/signup.views.inc:110
 msgid "Send reminder"
 msgstr ""
 
@@ -972,147 +976,147 @@ msgstr ""
 msgid "Filter by the maximum number of users who can sign up before signups are automatically closed (set to 0 for no limit)."
 msgstr ""
 
-#: views/signup.views.inc:65
+#: views/signup.views.inc:66
 msgid "Notification: Email Address"
 msgstr ""
 
-#: views/signup.views.inc:66
+#: views/signup.views.inc:67
 msgid "Address where notification emails are sent wenever a user signs up."
 msgstr ""
 
-#: views/signup.views.inc:74
-msgid "Confirmation: Enabled/Disabled"
+#: views/signup.views.inc:75
+msgid "Send Confirmation"
 msgstr ""
 
-#: views/signup.views.inc:75
+#: views/signup.views.inc:76
 msgid "Should confirmation email be sent to each user who signs up."
 msgstr ""
 
-#: views/signup.views.inc:84
+#: views/signup.views.inc:85
 msgid "Filter on if signup confirmation is enabled or disabled."
 msgstr ""
 
-#: views/signup.views.inc:89
+#: views/signup.views.inc:91
 msgid "Confirmation: Message"
 msgstr ""
 
-#: views/signup.views.inc:90
+#: views/signup.views.inc:92
 msgid "The body of the optional confirmation email that can be sent whenever a user signs up."
 msgstr ""
 
-#: views/signup.views.inc:98
-msgid "Reminder: Enabled/Disabled"
+#: views/signup.views.inc:100
+msgid "Send Reminder"
 msgstr ""
 
-#: views/signup.views.inc:99
+#: views/signup.views.inc:101
 msgid "Should a reminder email be automatically sent to all users who signed up. This will be false if either an administrator disabled the feature for a given event, or if the reminder was already sent."
 msgstr ""
 
-#: views/signup.views.inc:107
-msgid "Filter on signup reminder"
+#: views/signup.views.inc:109
+msgid "Filter on if a signup reminder email will be sent."
 msgstr ""
 
-#: views/signup.views.inc:112
+#: views/signup.views.inc:115
 msgid "Reminder: Days Before Event for Email"
 msgstr ""
 
-#: views/signup.views.inc:113
+#: views/signup.views.inc:116
 msgid "How many days before an event will the reminder email be sent."
 msgstr ""
 
-#: views/signup.views.inc:122
+#: views/signup.views.inc:125
 msgid "Reminder: Message"
 msgstr ""
 
-#: views/signup.views.inc:123
+#: views/signup.views.inc:126
 msgid "The body of the optional reminder email that can be sent a configurable time before an event begins."
 msgstr ""
 
-#: views/signup.views.inc:131
+#: views/signup.views.inc:134
 msgid "Enabled/Disabled"
 msgstr ""
 
-#: views/signup.views.inc:134
-msgid "Filter on if signups are enabled or disabled"
+#: views/signup.views.inc:137
+msgid "Filter on if signups are enabled or disabled."
 msgstr ""
 
-#: views/signup.views.inc:150
+#: views/signup.views.inc:153
 msgid "User"
 msgstr ""
 
-#: views/signup.views.inc:151
+#: views/signup.views.inc:154
 msgid "The user who signed up."
 msgstr ""
 
-#: views/signup.views.inc:155
+#: views/signup.views.inc:158;213
 msgid "Signup user"
 msgstr ""
 
-#: views/signup.views.inc:160
+#: views/signup.views.inc:163
 msgid "User available signups"
 msgstr ""
 
-#: views/signup.views.inc:161
+#: views/signup.views.inc:164
 msgid "Displays nodes the given user has not signed up for. Note that this argument will not work properly if you add the %signup_user relationship to the view."
 msgstr ""
 
-#: views/signup.views.inc:161
+#: views/signup.views.inc:164
 msgid "Signup: User"
 msgstr ""
 
-#: views/signup.views.inc:169
+#: views/signup.views.inc:172
 msgid "User: Email Address"
 msgstr ""
 
-#: views/signup.views.inc:173
+#: views/signup.views.inc:176
 msgid "Email address of a user (authenticated or anonymous) who signed up."
 msgstr ""
 
-#: views/signup.views.inc:173
+#: views/signup.views.inc:176
 msgid "WARNING: only expose this data in a view that is restricted to users whom you can trust with such sensitive information."
 msgstr ""
 
-#: views/signup.views.inc:178
+#: views/signup.views.inc:181
 msgid "User: Signup Time"
 msgstr ""
 
-#: views/signup.views.inc:179;186
+#: views/signup.views.inc:182
 msgid "Time when user signed up."
 msgstr ""
 
-#: views/signup.views.inc:190
+#: views/signup.views.inc:189
+msgid "Time when the user signed up."
+msgstr ""
+
+#: views/signup.views.inc:194
 msgid "Sort by time of sign up."
 msgstr ""
 
-#: views/signup.views.inc:195
+#: views/signup.views.inc:199
 msgid "User: Additional Signup Info"
 msgstr ""
 
-#: views/signup.views.inc:196
+#: views/signup.views.inc:200
 msgid "Enter the additional field name (from signup.theme) in the Option column."
 msgstr ""
 
-#: views/signup.views.inc:204
+#: views/signup.views.inc:208
 msgid "User: Anonymous/Authenticated"
 msgstr ""
 
-#: views/signup.views.inc:208
+#: views/signup.views.inc:212
 msgid "Filter on if a user who signed up is anonymous, or an authenticated user on the site."
 msgstr ""
 
-#: views/signup.views.inc:209 views/handlers/signup_handler_filter_signup_user_authenticated.inc:13
-msgid "Authenticated"
-msgstr ""
-
-#: views/signup.views.inc:214
+#: views/signup.views.inc:218
 msgid "User: Current User"
 msgstr ""
 
-#: views/signup.views.inc:218
+#: views/signup.views.inc:222
 msgid "This allows you to filter by whether or not the node was signed up by the logged in user of the view."
 msgstr ""
 
-#: views/signup.views.inc:275 views/plugins/signup_plugin_argument_validate_signup_status.inc:15
+#: views/signup.views.inc:279 views/plugins/signup_plugin_argument_validate_signup_status.inc:15
 msgid "Signup status"
 msgstr ""
 
@@ -1124,8 +1128,20 @@ msgstr ""
 msgid "If you want to display a single field from signup.theme, enter its name here, otherwise, all fields will be displayed."
 msgstr ""
 
-#: views/handlers/signup_handler_filter_signup_disabled.inc:10 views/handlers/signup_handler_filter_signup_send_confirmation.inc:10 views/handlers/signup_handler_filter_signup_status.inc:10 views/handlers/signup_handler_filter_signup_user_authenticated.inc:10
+#: views/handlers/signup_handler_filter_boolean.inc:23
+msgid "Yes"
+msgstr ""
+
+#: views/handlers/signup_handler_filter_boolean.inc:23
+msgid "No"
+msgstr ""
+
+#: views/handlers/signup_handler_filter_boolean.inc:55
 msgid "exposed"
+msgstr ""
+
+#: views/handlers/signup_handler_filter_signup_user_authenticated.inc:9
+msgid "Authenticated"
 msgstr ""
 
 #: views/plugins/signup_plugin_argument_validate_signup_status.inc:17
