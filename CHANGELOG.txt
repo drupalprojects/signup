@@ -1,8 +1,8 @@
 $Id$
 
------------
-5.x-2.x-dev
------------
+-------
+5.x-2.7
+-------
 Bugs fixed since 5.x-2.6:
 = #336255 by KarenS and dww: Fixed numerous bugs in usage of DateAPI
   that were breaking all time-based signup functionality for datestamp
