@@ -100,7 +100,7 @@ function signup_save_node($node, $op) {
     else {
       db_query("INSERT INTO {signup} (forwarding_email, send_confirmation, confirmation_email, close_signup_limit, send_reminder, reminder_days_before, reminder_email, nid) VALUES ('%s', %d, '%s', %d, %d, %d, '%s', %d)", $values);
     }
-    if (_signup_node_completed($node) && $node->signup_status) {
+    if (_signup_node_completed($node) && !empty($node->signup_status)) {
       // If this is an time-based node, and it's already past the close in
       // advance time, and signups are still open, close them now (and don't
       // consider the limit for changing the status).
