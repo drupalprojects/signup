@@ -1,5 +1,12 @@
 $Id$
 
+-----------
+5.x-2.x-dev
+-----------
+Bugs fixed since 5.x-2.7:
+= #343789 by KarenS: Fixed undefined value when adding nodes with feeds.
+
+
 -------
 5.x-2.7
 -------
