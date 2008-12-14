@@ -81,6 +81,13 @@ function signup_schema() {
   $schema['signup_log'] = array(
     'description' => t('Records information for each user who signs up for a node.'),
     'fields' => array(
+      'sid' => array(
+        'description' => t('Primary key: signup ID'),
+        'type' => 'serial',
+        'size' => 'normal',
+        'unsigned' => 1,
+        'not null' => true,
+      ),
       'uid' => array(
         'description' => t('Key: the user ID of the user who signed up.'),
         'type' => 'int',
@@ -116,6 +123,7 @@ function signup_schema() {
         'not null' => TRUE,
       ),
     ),
+    'primary key' => array('sid'),
     'indexes' => array(
       'uid' => array('uid'),
       'nid' => array('nid'),
@@ -426,5 +434,20 @@ function signup_update_6000() {
     )),
   );
   return $ret;
+}
+
+/**
+ * Add unique id column to signup_log as the primary key.
+ */
+function signup_update_6200() {
+  $ret = array();
+  $field = array(
+    'type' => 'serial',
+    'size' => 'normal',
+    'unsigned' => 1,
+    'not null' => true,
+  );
+  db_add_field($ret, 'signup_log', 'sid', $field, array('primary key' => array('sid')));
+  return $ret;	
 }
 

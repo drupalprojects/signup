@@ -1,6 +1,14 @@
 $Id$
 
 -----------
+6.x-2.x-dev
+-----------
+Changes since 6.x-1.0-rc2:
+= #341382 by Sid_M and dww: Added a serial "Signup ID" (sid) field as
+  the primary key for the {signup_log} table.
+
+
+-----------
 6.x-1.x-dev
 -----------
 Bugs fixed since 6.x-1.0-rc2:
