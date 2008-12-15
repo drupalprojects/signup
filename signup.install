@@ -12,7 +12,7 @@ function signup_schema() {
       'nid' => array(
         'description' => t('Primary key: node ID'),
         'type' => 'int',
-        'unsigned' => 1,
+        'unsigned' => TRUE,
         'not null' => TRUE,
         'default' => 0,
       ),
@@ -44,7 +44,7 @@ function signup_schema() {
       'reminder_days_before' => array(
         'description' => t('Number of days before the start of a time-based node when the reminder emails should be sent.'),
         'type' => 'int',
-        'unsigned' => 1,
+        'unsigned' => TRUE,
         'not null' => TRUE,
         'default' => 0,
       ),
@@ -57,14 +57,14 @@ function signup_schema() {
       'close_in_advance_time' => array(
         'description' => t('Number of hours before the start of a time-based node when signups should automatically be closed. This column is not currently used and the behavior is controlled by a site-wide setting.  See http://drupal.org/node/290249 for more information.'),
         'type' => 'int',
-        'unsigned' => 1,
+        'unsigned' => TRUE,
         'not null' => TRUE,
         'default' => 0,
       ),
       'close_signup_limit' => array(
         'description' => t('Maximum number of users who can signup before signups are closed. If set to 0, there is no limit.'),
         'type' => 'int',
-        'unsigned' => 1,
+        'unsigned' => TRUE,
         'not null' => TRUE,
         'default' => 0,
       ),
@@ -84,14 +84,14 @@ function signup_schema() {
       'uid' => array(
         'description' => t('Key: the user ID of the user who signed up.'),
         'type' => 'int',
-        'unsigned' => 1,
+        'unsigned' => TRUE,
         'not null' => TRUE,
         'default' => 0,
       ),
       'nid' => array(
         'description' => t('Key: the node ID of the node the user signed up for.'),
         'type' => 'int',
-        'unsigned' => 1,
+        'unsigned' => TRUE,
         'not null' => TRUE,
         'default' => 0,
       ),
@@ -105,7 +105,7 @@ function signup_schema() {
       'signup_time' => array(
         'description' => t('Integer timestamp of when the user signed up for the node.'),
         'type' => 'int',
-        'unsigned' => 1,
+        'unsigned' => TRUE,
         'not null' => TRUE,
         'default' => 0,
       ),
