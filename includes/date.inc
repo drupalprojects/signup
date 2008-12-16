@@ -15,15 +15,22 @@
 function _signup_date_admin_sql($content_type) {
   // Get the date field information for this content type.
   $field = signup_date_field($content_type);
+
+  // In the case where the same CCK date field is being reused on multiple
+  // content types, we'll potentially be JOINing on the same tables and
+  // columns for different content types.  To defend against duplicate table
+  // names or ambiguous columns in the query, use the content type to alias.
+  $alias = $content_type;
+
   // See what fields to SELECT.
-  $fields[] = $field['database']['columns']['value']['column'];
+  $fields[] = $alias .'.'. $field['database']['columns']['value']['column'];
   if (isset($field['database']['columns']['timezone']['column'])) {
-    $fields[] = $field['database']['columns']['timezone']['column'];
+    $fields[] = $alias .'.'. $field['database']['columns']['timezone']['column'];
   }
-  $table = '{'. $field['database']['table'] .'}';
+  $table = '{'. $field['database']['table'] .'} '. $alias;
   return array(
     'fields' => $fields,
-    'joins' => array("LEFT JOIN $table ON $table.vid = n.vid"),
+    'joins' => array("LEFT JOIN $table ON $alias.vid = n.vid"),
   );
 }
 
