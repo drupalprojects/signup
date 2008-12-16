@@ -4,6 +4,8 @@ $Id$
 6.x-1.x-dev
 -----------
 Bugs fixed since 6.x-1.0-rc2:
+= #347234 by dww: Fixed fatal SQL error at admin/content/signup when
+  there are multiple node types using the same CCK date field.
 = #343789 by KarenS: Fixed undefined value when adding nodes with feeds.
 
 
