@@ -6,6 +6,9 @@ $Id$
 Changes since 6.x-1.x-dev:
 = #341382 by Sid_M and dww: Added a serial "Signup ID" (sid) field as
   the primary key for the {signup_log} table.
+= #347601 by dww: Changed the API for signup_cancel_signup() so that
+  it either just takes the signup ID (sid) or a full object containing
+  all the fields from the {signup_log} table.
 
 
 -----------

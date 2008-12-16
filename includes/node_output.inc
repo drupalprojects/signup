@@ -39,7 +39,7 @@ function _signup_node_output($node, $type = 'node') {
       // If they're logged in and already signed up, show their current
       // signup info and give them the option to cancel.
       if ($user->uid) {
-        $result = db_query("SELECT signup_time, form_data FROM {signup_log} WHERE uid = %d AND nid = %d", $user->uid, $node->nid);
+        $result = db_query("SELECT * FROM {signup_log} WHERE uid = %d AND nid = %d", $user->uid, $node->nid);
         $signup_info = db_fetch_object($result);
         if (!empty($signup_info)) {
           $current_signup = _signup_print_current_signup($node, $signup_info);
@@ -82,7 +82,7 @@ function _signup_node_output($node, $type = 'node') {
       // An authenticated user.
 
       // See if the user is already signed up for this node.
-      $result = db_query("SELECT signup_time, form_data FROM {signup_log} WHERE uid = %d AND nid = %d", $user->uid, $node->nid);
+      $result = db_query("SELECT * FROM {signup_log} WHERE uid = %d AND nid = %d", $user->uid, $node->nid);
       $signup_info = db_fetch_object($result);
       if (empty($signup_info)) {
         // Not yet signed up
@@ -171,7 +171,6 @@ function signup_node_tab($node) {
  * @see theme_signup_current_signup()
  */
 function _signup_print_current_signup($node, $signup_info) {
-  global $user;
   // Generate an array of data about the current signup for the theme function.
   $signup_data = array();
   $signup_data['custom_data'] = unserialize($signup_info->form_data);
@@ -182,7 +181,7 @@ function _signup_print_current_signup($node, $signup_info) {
   $cancel_signup_form = '';
   if (user_access('cancel own signups')) {
     module_load_include('inc', 'signup', 'includes/signup_cancel_form');
-    $cancel_signup_form = drupal_get_form('signup_cancel_form', $node, $user);
+    $cancel_signup_form = drupal_get_form('signup_cancel_form', $signup_info->sid);
   }
 
   // Hand off everything to the theme function for actual HTML generation.

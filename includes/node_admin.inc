@@ -44,26 +44,22 @@ function signup_node_admin_details_form(&$form_state, $node) {
     array('data' => t('Extra information')),
   );
 
-  $sql = "SELECT u.uid, u.name, s.anon_mail, s.signup_time, s.form_data FROM {signup_log} s INNER JOIN {users} u ON u.uid = s.uid WHERE s.nid = %d";
+  $sql = "SELECT u.uid, u.name, s.* FROM {signup_log} s INNER JOIN {users} u ON u.uid = s.uid WHERE s.nid = %d";
   $sql .= tablesort_sql($header);
   $result = db_query($sql, $node->nid);
 
   // Loop through the users, unserializing their user data.
   while ($signed_up_user = db_fetch_object($result)) {
-    // The username and the unique form identifier are different for
-    // anon signups and registered user signups.  For registered users,
-    // provide a link to the user profile, and use the uid as the
-    // identifier.  For anon, use the user's email address as the
-    // identifier and name.
+    // The "username" to print is different for anon signups and registered
+    // user signups.  For registered users, provide a link to the user profile
+    // For anon, use the user's email address as the name.
     if ($signed_up_user->uid == 0) {
-      $key = '__anon:'. $signed_up_user->anon_mail;
       $username = check_plain($signed_up_user->anon_mail);
     }
     else {
-      $key = $signed_up_user->uid;
       $username = theme('username', $signed_up_user);
     }
-
+    $key = $signed_up_user->sid;
     $users[$key] = '';
     $form['username'][$key] = array('#value' => $username);
     $form['signup_date'][$key] = array('#value' => format_date($signed_up_user->signup_time, variable_get('signup_date_format', 'small')));
@@ -121,15 +117,15 @@ function signup_cancel_multiple_confirm(&$form_state, $node) {
     '#suffix' => '</ul>',
     '#tree' => TRUE,
   );
-  foreach ($_SESSION['signup_cancel_multiple_users'] as $key) {
-    $label = '';
-    $matches = array();
-    if (preg_match('/__anon:(.*)/', $key, $matches)) {
-      $label = t('Anonymous signup: %anon_mail', array('%anon_mail' => $matches[1]));
+  $placeholders = db_placeholders($_SESSION['signup_cancel_multiple_users']);
+  $query = db_query("SELECT u.name, u.uid, s.* FROM {signup_log} s INNER JOIN {users} u ON s.uid = u.uid WHERE s.sid IN (". $placeholders .")", $_SESSION['signup_cancel_multiple_users']);
+  while ($signup = db_fetch_object($query)) {
+    $key = $signup->sid;
+    if ($signup->uid) {
+      $label = theme('username', $signup);
     }
     else {
-      $account = db_fetch_object(db_query("SELECT uid, name FROM {users} WHERE uid = %d", $key));
-      $label = theme('username', $account);
+      $label = t('Anonymous signup: %anon_mail', array('%anon_mail' => $signup->anon_mail));
     }
     $form['users'][$key] = array(
       '#type' => 'hidden',
@@ -154,16 +150,7 @@ function signup_cancel_multiple_confirm(&$form_state, $node) {
 function signup_cancel_multiple_confirm_submit($form, &$form_state) {
   $nid = $form_state['values']['nid'];
   foreach ($form_state['values']['users'] as $key) {
-    $matches = array();
-    if (preg_match('/__anon:(.*)/', $key, $matches)) {
-      $uid = 0;
-      $anon_mail = $matches[1];
-    }
-    else {
-      $uid = $key;
-      $anon_mail = NULL;
-    }
-    signup_cancel_signup($uid, $nid, $anon_mail);
+    signup_cancel_signup($key);
   }
   $form_state['redirect'] = 'node/'. $nid .'/signups';
   unset($_SESSION['signup_cancel_multiple_users']);
