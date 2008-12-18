@@ -14,6 +14,10 @@ API/Schema changes since 6.x-1.x-dev:
   it either just takes the signup ID (sid) or a full object containing
   all the fields from the {signup_log} table.
 
+Other changes since 6.x-1.x-dev:
+= #337614: Signup's optional Views integration now requires Views
+  version 6.x-2.2 or later.
+
 
 -----------
 6.x-1.x-dev
