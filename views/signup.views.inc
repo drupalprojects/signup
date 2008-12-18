@@ -195,6 +195,24 @@ function signup_views_data() {
     ),
   );
 
+  $data['signup_log']['attended'] = array(
+    'title' => t('User: Attended'),
+    'help' => t('Did the user attend or not?'),
+    'field' => array(
+      'handler' => 'signup_handler_field_signup_user_attended',
+      'click sortable' => TRUE,
+    ),
+    'filter' => array(
+      'handler' => 'signup_handler_filter_signup_user_attended',
+      'help' => t('Filter on users who attended or not.'),
+      'label' => 'Signup attendance',
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort',
+      'help' => t('Sort by if the user attended or not.'),
+    ),
+  );
+
   $data['signup_log']['form_data'] = array(
     'title' => t('User: Additional Signup Info'),
     'help' => t('Enter the additional field name (from signup.theme) in the Option column.'),
@@ -247,6 +265,9 @@ function signup_views_handlers() {
       'signup_handler_field_signup_status' => array(
         'parent' => 'views_handler_field',
       ),
+      'signup_handler_field_signup_user_attended' => array(
+        'parent' => 'views_handler_field',
+      ),
       'signup_handler_field_signup_user_email' => array(
         'parent' => 'views_handler_field',
       ),
@@ -260,6 +281,9 @@ function signup_views_handlers() {
         'parent' => 'signup_handler_filter_boolean',
       ),
       'signup_handler_filter_signup_status' => array(
+        'parent' => 'signup_handler_filter_boolean',
+      ),
+      'signup_handler_filter_signup_user_attended' => array(
         'parent' => 'signup_handler_filter_boolean',
       ),
       'signup_handler_filter_signup_user_authenticated' => array(

@@ -114,6 +114,13 @@ function signup_theme() {
         'data' => NULL,
       ),
     ),
+    'signup_attended_text' => array(
+      'file' => 'node.admin.inc',
+      'path' => $path,
+      'arguments' => array(
+        'attended' => NULL,
+      ),
+    ),
     'signup_signups_closed' => array(
       'file' => 'node.inc',
       'path' => $path,

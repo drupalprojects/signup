@@ -42,6 +42,7 @@ function signup_node_admin_details_form(&$form_state, $node) {
     array('data' => t('Name'), 'field' => 'u.name', 'sort' => 'asc'),
     array('data' => t('Signup time'), 'field' => 's.signup_time'),
     array('data' => t('Extra information')),
+    array('data' => t('Attendance'), 'field' => 's.attended'),
   );
 
   $sql = "SELECT u.uid, u.name, s.* FROM {signup_log} s INNER JOIN {users} u ON u.uid = s.uid WHERE s.nid = %d";
@@ -64,6 +65,7 @@ function signup_node_admin_details_form(&$form_state, $node) {
     $form['username'][$key] = array('#value' => $username);
     $form['signup_date'][$key] = array('#value' => format_date($signed_up_user->signup_time, variable_get('signup_date_format', 'small')));
     $form['signup_form_data'][$key] = array('#value' => theme('signup_custom_data', unserialize($signed_up_user->form_data)));
+    $form['attended'][$key] = array('#value' => theme('signup_attended_text', $signed_up_user->attended));
   }
   if (empty($users)) {
     $form['no_users'] = array('#value' => t('No users have signed up for this %node_type.', array('%node_type' => node_get_types('name', $node->type))));
@@ -74,18 +76,29 @@ function signup_node_admin_details_form(&$form_state, $node) {
       '#value' => $node->nid,
     );
     $form['users'] = array('#type' => 'checkboxes', '#options' => $users);
-    $form['submit_cancel'] = array(
+    $form['operation'] = array(
+      '#type' => 'select',
+      '#options' => array(
+        'attend_yes' => t('Mark as attended'),
+        'attend_no' => t('Mark as did not attend'),
+        'cancel' => t('Cancel signup'),
+      ),
+    );
+    $form['submit'] = array(
       '#type' => 'submit',
-      '#value' => t('Cancel signups'),
-      '#submit' => array('signup_cancel_multiple_submit'),
-      '#validate' => array('signup_cancel_multiple_validate'),
+      '#value' => t('Update'),
+      '#submit' => array('signup_node_admin_multiple_submit'),
+      '#validate' => array('signup_node_admin_multiple_validate'),
     );
     $form['#header'] = $header;
   }
   return $form;
 }
 
-function signup_cancel_multiple_validate($form, &$form_state) {
+/**
+ * Validate handler for updating multiple signups via node/N/signups.
+ */
+function signup_node_admin_multiple_validate($form, &$form_state) {
   $users = array_filter($form_state['values']['users']);
   if (empty($users)) {
     form_set_error('', t('No users selected.'));
@@ -93,14 +106,32 @@ function signup_cancel_multiple_validate($form, &$form_state) {
 }
 
 /**
- * Submit handler for cancelling multiple signups via node/N/signups.
+ * Submit handler for updating multiple signups via node/N/signups.
  *
- * This saves the selected users into SESSION and redirects to a confirm form
- * which is registered at node/N/signups/confirm.
+ * If the operation is non-destructive (recording attendance), do the deed.
+ * For cancelling multiple users, this just saves the selected users into
+ * SESSION and redirects to a confirm form which is registered at
+ * node/N/signups/confirm.
  */
-function signup_cancel_multiple_submit($form, &$form_state) {
-  $_SESSION['signup_cancel_multiple_users'] = array_filter($form_state['values']['users']);
-  $form_state['redirect'] = 'node/'. $form_state['values']['nid'] .'/signups/confirm';
+function signup_node_admin_multiple_submit($form, &$form_state) {
+  $users = array_filter($form_state['values']['users']);
+  switch ($form_state['values']['operation']) {
+    case 'cancel':
+      $_SESSION['signup_cancel_multiple_users'] = $users;
+      $form_state['redirect'] = 'node/'. $form_state['values']['nid'] .'/signups/confirm';
+      return;
+
+    case 'attend_yes':
+      $attend = 1;
+      break;
+
+    case 'attend_no':
+      $attend = 0;
+      break;
+
+  }
+  $placeholders = db_placeholders($users);
+  db_query("UPDATE {signup_log} SET attended = %d WHERE sid IN ($placeholders)", array($attend) + $users);
 }
 
 /**

@@ -3,7 +3,11 @@ $Id$
 -----------
 6.x-2.x-dev
 -----------
-Changes since 6.x-1.x-dev:
+New features since 6.x-1.x-dev:
+= #55168 by dww: Added a way to track actual attendance at node/N/signups,
+  including Views handlers to display, sort, and filter by attendance.
+
+API/Schema changes since 6.x-1.x-dev:
 = #341382 by Sid_M and dww: Added a serial "Signup ID" (sid) field as
   the primary key for the {signup_log} table.
 = #347601 by dww: Changed the API for signup_cancel_signup() so that
