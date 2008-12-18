@@ -10,6 +10,10 @@ Bugs fixed since 6.x-1.0-rc2:
 = #346810 by dww: Fixed invocation of hook_signup_cancel() so that the
   record in the {signup_log} table still exists when the hook runs.
 
+Other changes since 6.x-1.0-rc2:
+= #337614: Signup's optional Views integration now requires Views
+  version 6.x-2.2 or later.
+
 
 -----------
 6.x-1.0-rc2

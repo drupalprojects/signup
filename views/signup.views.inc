@@ -81,7 +81,7 @@ function signup_views_data() {
     ),
     // Information for accepting send_confirmation as a filter
     'filter' => array(
-      'handler' => 'signup_handler_filter_boolean',
+      'handler' => 'views_handler_filter_boolean_operator',
       'help' => t('Filter on if signup confirmation is enabled or disabled.'),
       'label' => t('Send confirmation'),
     ),
@@ -105,7 +105,7 @@ function signup_views_data() {
       'click sortable' => TRUE,
     ),
     'filter' => array(
-      'handler' => 'signup_handler_filter_boolean',
+      'handler' => 'views_handler_filter_boolean_operator',
       'help' => t('Filter on if a signup reminder email will be sent.'),
       'label' => t('Send reminder'),
     ),
@@ -253,17 +253,14 @@ function signup_views_handlers() {
       'signup_handler_field_signup_user_form_data' => array(
         'parent' => 'views_handler_field_prerender_list',
       ),
-      'signup_handler_filter_boolean' => array(
+      'signup_handler_filter_signup_disabled' => array(
         'parent' => 'views_handler_filter_boolean_operator',
       ),
-      'signup_handler_filter_signup_disabled' => array(
-        'parent' => 'signup_handler_filter_boolean',
-      ),
       'signup_handler_filter_signup_status' => array(
-        'parent' => 'signup_handler_filter_boolean',
+        'parent' => 'views_handler_filter_boolean_operator',
       ),
       'signup_handler_filter_signup_user_authenticated' => array(
-        'parent' => 'signup_handler_filter_boolean',
+        'parent' => 'views_handler_filter_boolean_operator',
       ),
     ),
   );
