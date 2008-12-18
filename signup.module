@@ -1433,17 +1433,23 @@ function signup_admin_form_submit($form_id, $form_values) {
  * @ingroup signup_callback
  */
 function signup_cancel_signup($uid, $nid, $anon_mail = NULL) {
-  // Delete the selected user from the log table.
+  $node = node_load($nid);
+  $node->signup_total--;
+
+  // Invoke hook_signup_cancel().
+  module_invoke_all('signup_cancel', $node, $uid);
+
+  // Delete the record from the {signup_log} table.
   if ($anon_mail) {
     db_query("DELETE FROM {signup_log} WHERE anon_mail = '%s' AND nid = %d", $anon_mail, $nid);
   }
   else {
     db_query('DELETE FROM {signup_log} WHERE uid = %d AND nid = %d', $uid, $nid);
   }
-  $node = node_load($nid);
-  $node->signup_total--;
-  module_invoke_all('signup_cancel', $node, $uid);
+
   drupal_set_message(t('Signup to !title cancelled.', array('!title' => l($node->title, "node/$node->nid"))));
+
+  // See if signups should be re-opened if the total dropped below the limit.
   _signup_check_limit($node, 'total');
 }
 
