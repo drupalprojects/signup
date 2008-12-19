@@ -84,9 +84,14 @@ function theme_signup_node_admin_details_form($form) {
         'username' => drupal_render($form['username'][$key]),
         'signup_date' => drupal_render($form['signup_date'][$key]),
         'signup_form_data' => drupal_render($form['signup_form_data'][$key]),
+        'attended' => drupal_render($form['attended'][$key]),
       );
     }
-    $fieldset['#value'] = theme('table', $header, $rows) . drupal_render($form['submit_cancel']);
+    $fieldset['#value'] = '<div class="container-inline">';
+    $fieldset['#value'] .= drupal_render($form['operation']);
+    $fieldset['#value'] .= drupal_render($form['submit']);
+    $fieldset['#value'] .= '</div>';
+    $fieldset['#value'] .= theme('table', $header, $rows);
   }
   else {
     $fieldset['#value'] = '<span>'. drupal_render($form['no_users']) .'</span>';
@@ -125,5 +130,17 @@ function theme_signup_custom_data($data) {
     $output .= "</div>\n";
   }
   return $output;
+}
+
+function theme_signup_attended_text($attended = NULL) {
+  if ($attended === NULL) {
+    return '';
+  }
+  if ($attended == 0) {
+    return t('Did not attend');
+  }
+  else {
+    return t('Attended');
+  }
 }
 

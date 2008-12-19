@@ -114,6 +114,13 @@ function signup_theme() {
         'data' => NULL,
       ),
     ),
+    'signup_attended_text' => array(
+      'file' => 'node.admin.inc',
+      'path' => $path,
+      'arguments' => array(
+        'attended' => NULL,
+      ),
+    ),
     'signup_signups_closed' => array(
       'file' => 'node.inc',
       'path' => $path,
@@ -483,9 +490,9 @@ function signup_user($type, &$edit, &$user, $category = NULL) {
         $uids[] = $edit['uid'];
       }
       foreach ($uids as $uid) {
-        $nids = db_query("SELECT nid FROM {signup_log} WHERE uid = %d", $uid);
-        while ($data = db_fetch_object($nids)) {
-          signup_cancel_signup($uid, $data->nid);
+        $query = db_query("SELECT * FROM {signup_log} WHERE uid = %d", $uid);
+        while ($signup = db_fetch_object($query)) {
+          signup_cancel_signup($signup);
         }
       }
       break;
@@ -659,23 +666,28 @@ function signup_content_extra_fields($type_name) {
 }
 
 /**
- * Callback function for canceling signups
- * @ingroup signup_callback
+ * Cancel the given signup.
+ *
+ * @param $signup
+ *   Information about the signup to cancel. Can be either the integer signup
+ *   ID (sid), or a full object of data about the signup (a complete row from
+ *   the {signup_log} table.
  */
-function signup_cancel_signup($uid, $nid, $anon_mail = NULL) {
-  $node = node_load($nid);
+function signup_cancel_signup($signup) {
+  // If we only have a numeric sid argument, load the full signup object.
+  if (is_numeric($signup)) {
+    $query = db_query('SELECT * FROM {signup_log} WHERE sid = %d', $signup);
+    $signup = db_fetch_object($query);
+  }
+
+  $node = node_load($signup->nid);
   $node->signup_total--;
 
   // Invoke hook_signup_cancel().
-  module_invoke_all('signup_cancel', $node, $uid);
+  module_invoke_all('signup_cancel', $node, $signup->sid, $signup->uid);
 
   // Delete the record from the {signup_log} table.
-  if ($anon_mail) {
-    db_query("DELETE FROM {signup_log} WHERE anon_mail = '%s' AND nid = %d", $anon_mail, $nid);
-  }
-  else {
-    db_query('DELETE FROM {signup_log} WHERE uid = %d AND nid = %d', $uid, $nid);
-  }
+  db_query('DELETE FROM {signup_log} WHERE sid = %d', $signup->sid);
 
   drupal_set_message(t('Signup to !title cancelled.', array('!title' => l($node->title, "node/$node->nid"))));
 
