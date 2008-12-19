@@ -20,6 +20,10 @@ API/Schema changes since 6.x-1.0-rc2:
 = #347601 by dww: Changed the API for signup_cancel_signup() so that
   it either just takes the signup ID (sid) or a full object containing
   all the fields from the {signup_log} table.
+= #347601 by dww: Changed the API for hook_signup_cancel() so that it
+  is now invoked with a $signup object with the full information about
+  the signup being canceled, and a fully loaded $node object.  See the
+  new signup.api.php file for full documentation on the hook.
 
 Other changes since 6.x-1.0-rc2:
 = #337614: Signup's optional Views integration now requires Views

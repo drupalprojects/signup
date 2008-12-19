@@ -684,7 +684,7 @@ function signup_cancel_signup($signup) {
   $node->signup_total--;
 
   // Invoke hook_signup_cancel().
-  module_invoke_all('signup_cancel', $node, $signup->sid, $signup->uid);
+  module_invoke_all('signup_cancel', $signup, $node);
 
   // Delete the record from the {signup_log} table.
   db_query('DELETE FROM {signup_log} WHERE sid = %d', $signup->sid);
