@@ -85,6 +85,48 @@ Contains all the features and bug fixes up to and including version
 
 
 -------
+5.x-2.7
+-------
+Bugs fixed since 5.x-2.6:
+= #336255 by KarenS and dww: Fixed numerous bugs in usage of DateAPI
+  that were breaking all time-based signup functionality for datestamp
+  fields and causing problems for certain configurations of date or
+  datetime fields depending on the timezone handling.  Using 5.x-2.4
+  of DateAPI and the CCK Date field, the one configuration that
+  doesn't fully work is a datestamp field that has no timezone
+  handling at all.  With that configuration, you must use the latest
+  Date code from the DRUPAL-5--2 branch (check the top of your copy of
+  date_api.module and make sure the revision is at least "1.39.2.50"
+  (2008-11-28) or newer).
+= #338850 by dww: Fixed critical SQL bug ("Not unique table/alias: 'e'")
+  on the signup administration page (admin/content/signup) for sites
+  that have more than one event.module node type that is signup-enabled.
+= #335190 by bkat and dww: Fixed bug where if you had a node enabled
+  for signups and edited it to disable signups, the node would remain
+  signup enabled.  The bug was introduced in 5.x-2.6 by #328822.
+= 336610 by dww: Fixed bug introduced in #329668 where node types that
+  have an underscore in their name had broken links in the warning
+  messages about CCK date fields being misconfigured.  Those warnings
+  also didn't appear at all in some cases.  The bug was caused by
+  core's bizarre handling of node_type vs. node-type in URLs.
+= #340377 by dww: Fixed bug where the default value in the database
+  for how many days in advance to send reminder emails did not match
+  what the rest of the code was written to expect.  Reminders would
+  not be sent until the admin/settings/signup page was saved.
+
+Other changes since 5.x-2.6:
+= #335563 by dww: Added a variable to specify the weight (to control
+  the relative ordering) of signup information embedded on nodes.  The
+  variable is called "signup_info_node_weight_[node_type]" and can be
+  defined in the $conf array in settings.php.
+= #336129 by dww: Moved the signup node type settings out of the
+  "Workflow" fieldset into a separate "Signup settings" fieldset.
+= #341331 by dww: Improved database performance during cron runs by
+  using INNER JOIN instead of LEFT JOIN for finding nodes of a given
+  type that need to be auto-closed and/or have reminder emails sent.
+
+
+-------
 5.x-2.6
 -------
 New features since 5.x-2.5:
