@@ -3,31 +3,8 @@ $Id$
 -----------
 6.x-2.x-dev
 -----------
-New features since 6.x-1.x-dev:
-= #55168 by dww: Added a way to track actual attendance at node/N/signups,
-  including Views handlers to display, sort, and filter by attendance.
-
-API/Schema changes since 6.x-1.x-dev:
-= #341382 by Sid_M and dww: Added a serial "Signup ID" (sid) field as
-  the primary key for the {signup_log} table.
-= #347601 by dww: Changed the API for signup_cancel_signup() so that
-  it either just takes the signup ID (sid) or a full object containing
-  all the fields from the {signup_log} table.
-
-Other changes since 6.x-1.x-dev:
-= #337614: Signup's optional Views integration now requires Views
-  version 6.x-2.2 or later.
-
-
------------
-6.x-1.x-dev
------------
-Bugs fixed since 6.x-1.0-rc2:
-= #347234 by dww: Fixed fatal SQL error at admin/content/signup when
-  there are multiple node types using the same CCK date field.
-= #343789 by KarenS: Fixed undefined value when adding nodes with feeds.
-= #346810 by dww: Fixed invocation of hook_signup_cancel() so that the
-  record in the {signup_log} table still exists when the hook runs.
+The DRUPAL-6--1 branch was created somewhat prematurely.  There's no
+6.x-2.* series at this time.  Please use the DRUPAL-6--1 branch, instead.
 
 
 -----------

@@ -446,7 +446,7 @@ function signup_update_6000() {
  *
  * http://drupal.org/node/341382 for more infomation.
  */
-function signup_update_6200() {
+function signup_update_6001() {
   $ret = array();
   $field = array(
     'type' => 'serial',
@@ -463,7 +463,7 @@ function signup_update_6200() {
  *
  * http://drupal.org/node/55168 for more infomation.
  */
-function signup_update_6201() {
+function signup_update_6002() {
   $ret = array();
   $field = array(
     'type' => 'int',
