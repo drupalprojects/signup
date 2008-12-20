@@ -13,6 +13,10 @@ New features since 6.x-1.0-rc2:
   you want to give any roles the ability to cancel other users'
   signups, you must visit admin/user/permissions and manually assign
   this new permission to the appropriate roles.
+= #325237 by dww: Added support for a %cancel_signup_url email
+  placeholder which points to a new signup/cancel/%/% page so that any
+  users (even anonymous) with the 'cancel own signups' permission can
+  now securely cancel their own signups.
 
 Bugs fixed since 6.x-1.0-rc2:
 = #347234 by dww: Fixed fatal SQL error at admin/content/signup when

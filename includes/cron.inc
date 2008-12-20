@@ -49,7 +49,7 @@ function _signup_cron_send_reminders() {
     // the signup log to pull all users who are signed up for this node.
     while ($node = db_fetch_object($result)) {
       $subject = t('!node_type reminder: !title', array('!node_type' => node_get_types('name', $type), '!title' => $node->title));
-      $signups = db_query("SELECT u.name, u.mail, s_l.anon_mail, s_l.form_data FROM {signup_log} s_l INNER JOIN {users} u ON u.uid = s_l.uid WHERE s_l.nid = %d", $node->nid);
+      $signups = db_query("SELECT u.name, u.mail, s_l.sid, s_l.anon_mail, s_l.form_data FROM {signup_log} s_l INNER JOIN {users} u ON u.uid = s_l.uid WHERE s_l.nid = %d", $node->nid);
 
       // Loop through the users, composing their customized message
       // and sending the email.

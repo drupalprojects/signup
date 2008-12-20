@@ -332,6 +332,16 @@ function signup_menu() {
     'file path' => $path,
   );
 
+  $items['signup/cancel/%/%'] = array(
+    'description' => 'View all signup-enabled posts, and open or close signups on them.',
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('cancel own signups'),
+    'page callback' => 'signup_cancel_signup_page',
+    'page arguments' => array(2, 3),
+    'file' => 'signup_cancel.inc',
+    'file path' => $path,
+  );
+
   $items['admin/content/signup'] = array(
     'description' => 'View all signup-enabled posts, and open or close signups on them.',
     'access arguments' => array('administer all signups'),
@@ -697,6 +707,22 @@ function signup_cancel_signup($signup) {
 }
 
 /**
+ * Generate a token for the given signup ID.
+ */
+function signup_get_token($sid, $operation) {
+  $private_key = drupal_get_private_key();
+  return md5("signup_token:$sid:$operation:$private_key");
+}
+
+/**
+ * Ensure that the given token is valid for the given sid.
+ */
+function signup_valid_token($token, $sid, $operation) {
+  $private_key = drupal_get_private_key();
+  return $token == md5("signup_token:$sid:$operation:$private_key");
+}
+
+/**
  * Callback function for closing signups
  * @ingroup signup_callback
  */
@@ -815,6 +841,7 @@ function signup_sign_up_user($signup_form) {
 
     // Insert the user into the signup_log.
     db_query("INSERT INTO {signup_log} (uid, nid, anon_mail, signup_time, form_data) VALUES (%d, %d, '%s', %d, '%s')", $signup_form['uid'], $signup_form['nid'], $signup_anon_mail, $curtime, $signup_form_data);
+    $sid = db_last_insert_id('signup_log', 'sid');
 
     $from = variable_get('site_mail', ini_get('sendmail_from'));
 
@@ -823,6 +850,7 @@ function signup_sign_up_user($signup_form) {
     // an object representing the user's signup to get the right values.
     $signup = $user;
     $signup->form_data = $signup_info;
+    $signup->sid = $sid;
     if (!empty($signup_anon_mail)) {
       $signup->anon_mail = $signup_anon_mail;
     }
@@ -1066,6 +1094,7 @@ function _signup_get_email_tokens($node, $signup) {
     $tokens['%user_name'] = $signup->name;
   }
   $tokens['%user_mail'] = _signup_get_email($signup);
+  $tokens['%cancel_signup_url'] = _signup_get_cancel_link($signup->sid);
 
   return $tokens;
 }
@@ -1081,6 +1110,14 @@ function _signup_get_email_tokens($node, $signup) {
  */
 function _signup_get_email($signup) {
   return !empty($signup->anon_mail) ? $signup->anon_mail : $signup->mail;
+}
+
+/**
+ * Generate a link to cancel a given signup.
+ */
+function _signup_get_cancel_link($sid) {
+  $token = signup_get_token($sid, 'cancel');
+  return url("signup/cancel/$sid/$token", array('absolute' => TRUE));
 }
 
 /**

@@ -28,10 +28,10 @@
  */
 function signup_node_settings_form($form_state, $node = NULL, $node_type = NULL, $has_date = FALSE) {
   if (module_exists('token')) {
-    $signup_token_description = t('Supported string substitutions: %node_title, %node_url, %node_start_time, %user_name, %user_mail, %user_signup_info (additional information from the signup form), and any tokens in the %replacement_tokens list.', array('%replacement_tokens' => t('Replacement tokens')));
+    $signup_token_description = t('Supported string substitutions: %node_title, %node_url, %node_start_time, %user_name, %user_mail, %user_signup_info (additional information from the signup form), %cancel_signup_url (access to this link is denied to users without the "%cancel_own_signups" permission), and any tokens in the %replacement_tokens list.', array('%replacement_tokens' => t('Replacement tokens'), '%cancel_own_signups' => t('cancel own signups')));
   }
   else {
-    $signup_token_description = t('Supported string substitutions: %node_title, %node_url, %node_start_time, %user_name, %user_mail, %user_signup_info (additional information from the signup form).');
+    $signup_token_description = t('Supported string substitutions: %node_title, %node_url, %node_start_time, %user_name, %user_mail, %user_signup_info (additional information from the signup form), and %cancel_signup_url (access to this link is denied to users without the "%cancel_own_signups" permission).', array('%cancel_own_signups' => t('cancel own signups')));
   }
 
   // Load the default admin form data for new nodes.

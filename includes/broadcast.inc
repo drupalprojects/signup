@@ -22,7 +22,7 @@ function signup_broadcast_form($form_state, $node) {
     return $form;
   }
 
-  $tokens = array('%node_title', '%node_url', '%user_mail', '%user_name');
+  $tokens = array('%node_title', '%node_url', '%user_mail', '%user_name', t('%cancel_signup_url (access to this link is denied to users without the "cancel own signups" permission)'));
   if (_signup_get_node_scheduler($node) != 'none') {
     $tokens = array_merge(array('%node_start_time'), $tokens);
   }
@@ -94,7 +94,7 @@ function signup_broadcast_form($form_state, $node) {
  */
 function signup_get_email_addresses($nid) {
   $signup_data = array();
-  $signups = db_query("SELECT u.uid, u.name, u.mail, s_l.anon_mail, s_l.form_data FROM {signup_log} s_l INNER JOIN {users} u ON u.uid = s_l.uid WHERE s_l.nid = %d", $nid);
+  $signups = db_query("SELECT u.uid, u.name, u.mail, s_l.sid, s_l.anon_mail, s_l.form_data FROM {signup_log} s_l INNER JOIN {users} u ON u.uid = s_l.uid WHERE s_l.nid = %d", $nid);
   while ($signup_entry = db_fetch_object($signups)) {
     $signup_data[] = $signup_entry;
   }
