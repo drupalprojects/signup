@@ -81,9 +81,12 @@ function signup_node_admin_details_form(&$form_state, $node) {
       '#options' => array(
         'attend_yes' => t('Mark as attended'),
         'attend_no' => t('Mark as did not attend'),
-        'cancel' => t('Cancel signup'),
       ),
     );
+    if (user_access('cancel signups')) {
+      $form['operation']['#options']['cancel'] = t('Cancel signup');
+    }
+
     $form['submit'] = array(
       '#type' => 'submit',
       '#value' => t('Update'),
@@ -117,9 +120,15 @@ function signup_node_admin_multiple_submit($form, &$form_state) {
   $users = array_filter($form_state['values']['users']);
   switch ($form_state['values']['operation']) {
     case 'cancel':
-      $_SESSION['signup_cancel_multiple_users'] = $users;
-      $form_state['redirect'] = 'node/'. $form_state['values']['nid'] .'/signups/confirm';
-      return;
+      if (user_access('cancel signups')) {
+        $_SESSION['signup_cancel_multiple_users'] = $users;
+        $form_state['redirect'] = 'node/'. $form_state['values']['nid'] .'/signups/confirm';
+        return;
+      }
+      else {
+        drupal_set_message(t('You do not have permission to cancel signups.'), 'error');
+        return;
+      }
 
     case 'attend_yes':
       $attend = 1;
@@ -180,8 +189,13 @@ function signup_cancel_multiple_confirm(&$form_state, $node) {
  */
 function signup_cancel_multiple_confirm_submit($form, &$form_state) {
   $nid = $form_state['values']['nid'];
-  foreach ($form_state['values']['users'] as $key) {
-    signup_cancel_signup($key);
+  if (user_access('cancel signups')) {
+    foreach ($form_state['values']['users'] as $key) {
+      signup_cancel_signup($key);
+    }
+  }
+  else {
+    drupal_set_message(t('You do not have permission to cancel signups.'), 'error');
   }
   $form_state['redirect'] = 'node/'. $nid .'/signups';
   unset($_SESSION['signup_cancel_multiple_users']);

@@ -7,6 +7,16 @@ this file when you download a new version to see if there are any
 specific things you need to know about a certain upgrade.
 ======================================================================
 
+* Upgrading to 6.x-1.0-rc3 (from any earlier version)
+  There is a new permission called "cancel signups" which is required
+to cancel other user's signups at the signup administration tab at
+node/N/signups.  There is no automatic upgrade path that adds this
+permission to roles which current can administer signups.  If you want
+any roles to be able to cancel other user's signups, you must visit
+admin/user/permissions and manually configure which roles should be
+allowed to cancel other user's signups.
+
+
 * Upgrading to 5.x-2.5 (from any earlier version)
 
   The 5.x-2.5 release greatly improves themeability of this module, so
