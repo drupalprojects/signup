@@ -1,7 +1,7 @@
 $Id$
 
 -----------
-6.x-1.x-dev
+6.x-1.0-rc3
 -----------
 New features since 6.x-1.0-rc2:
 = #349292 by dww: Completely reorganized the signup node tabs.  All tabs
