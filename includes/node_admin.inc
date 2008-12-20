@@ -20,16 +20,7 @@ function signup_node_admin_page($node) {
   // Signup details table, including cancel checkboxes.
   $signup_node_admin_details_form = drupal_get_form('signup_node_admin_details_form', $node);
 
-  if ($node->signup_status) {
-    // Add a form to allow the administrator to signup other users.
-    module_load_include('inc', 'signup', 'includes/signup_form');
-    $signup_form = drupal_get_form('signup_form', $node, 'admin');
-  }
-  else {
-    $signup_form = '';
-  }
-
-  return theme('signup_node_admin_page', $node, $signup_node_admin_summary_form, $signup_node_admin_details_form, $signup_form);
+  return theme('signup_node_admin_page', $node, $signup_node_admin_summary_form, $signup_node_admin_details_form);
 }
 
 function signup_node_admin_details_form(&$form_state, $node) {

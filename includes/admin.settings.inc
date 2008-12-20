@@ -47,16 +47,16 @@ function signup_settings_form() {
     '#description' => t('Whenever this module needs to print a date (both in the administrative interface, and in the various e-mail messages it can send), this setting controls which date format string to use. The format strings are defined at the <a href="!settings_url">Date and time settings page</a>.', array('!settings_url' => url('admin/settings/date-time'))),
   );
   $form['adv_settings']['signup_form_location'] = array(
-    '#title' => t('Location of the signup form and related information'),
+    '#title' => t('Location of the signup form'),
     '#type' => 'radios',
     '#options' => array(
       'node' => t('At the bottom of each node'),
-      'tab' => t('On a separate %sign_up tab', array('%sign_up' => t('Sign up'))),
+      'tab' => t('Under the %signups tab', array('%signups' => t('Signups'))),
       'none' => t('Do not display signup form'),
     ),
     '#default_value' => variable_get('signup_form_location', 'node'),
     '#description' => t('On every signup-enabled node, users with permission to
- sign up can be presented with a form and additional signup-related information. This setting controls where this information should be displayed: either directly on the node itself, on a separate tab, or not at all.'),
+ sign up can be presented with a form. This setting controls where this form should be displayed: either directly on the node itself, on a separate tab, or not at all.'),
     '#prefix' => '<div class="signup-form-location-radios">',
     '#suffix' => '</div>',
   );
@@ -97,17 +97,13 @@ function signup_settings_form() {
   }
   $display_options['none'] = t('Do not display a listing at all');
 
-  $class = 'signup-display-signup-user-list-setting';
-  if (variable_get('signup_form_location', 'node') == 'none') {
-    $class .= ' js-hide';
-  }
   $form['adv_settings']['signup_display_signup_user_list'] = array(
     '#title' => t('How to display the list of signed-up users'),
     '#type' => 'radios',
     '#options' => $display_options,
     '#default_value' => variable_get('signup_display_signup_user_list', 'signup'),
-    '#description' => t('If the signup form is being displayed, users with the %view_signups permission can see a list of all users who have signed up. This setting controls if and how that list should be generated. !views_help_text', array('%view_signups' => t('view all signups'), '!views_help_text' => $views_help_text)),
-    '#prefix' => '<div class="'. $class .'">',
+    '#description' => t('Users with the %view_signups permission can be presented with a list of all users who have signed up. This setting controls if and how that list should be generated. !views_help_text', array('%view_signups' => t('view all signups'), '!views_help_text' => $views_help_text)),
+    '#prefix' => '<div class="signup-display-signup-user-list-setting">',
     '#suffix' => '</div>',
   );
 

@@ -25,11 +25,8 @@
  *   The rendered HTML for the signup node details form (to view all the users
  *   who have signed up, their full signup details, and checkboxes to cancel
  *   multiple signups at once.
- * @param $signup_form
- *   If the signups are open on this node, the HTML to signup another user,
- *   otherwise, and empty string.
  */
-function theme_signup_node_admin_page($node, $signup_node_admin_summary_form, $signup_node_admin_details_form, $signup_form) {
+function theme_signup_node_admin_page($node, $signup_node_admin_summary_form, $signup_node_admin_details_form) {
   $output = '';
 
   // Administrative summary table to control signups for this node.
@@ -37,9 +34,6 @@ function theme_signup_node_admin_page($node, $signup_node_admin_summary_form, $s
 
   // Details for each user who signed up.
   $output .= $signup_node_admin_details_form;
-
-  // Form for admins to signup other users (if signups are still open).
-  $output .= $signup_form;
 
   return $output;
 }

@@ -292,8 +292,15 @@ function signup_help($path, $arg) {
   }
 
   // If we're still here, consider the URL for help on various menu tabs.
-  if (($node = menu_get_object()) && arg(2) == 'signup-broadcast') {
-    return '<p>'. t('This page allows you to send an email message to every user who signed up for this %node_type.', array('%node_type' => node_get_types('name', $node->type))) .'</p>';
+  if (($node = menu_get_object()) && arg(2) == 'signups') {
+    switch (arg(3)) {
+      case 'broadcast':
+        return '<p>'. t('This page allows you to send an email message to every user who signed up for this %node_type.', array('%node_type' => node_get_types('name', $node->type))) .'</p>';
+
+      case 'add':
+        return '<p>'. t('This page allows you to sign up another user for this %node_type.', array('%node_type' => node_get_types('name', $node->type))) .'</p>';
+
+    }
   }
 
   // See if we need to add our extra checking and validation while configuring
@@ -352,25 +359,41 @@ function signup_menu() {
   );
 
   // Conditionally add any available signup-related tabs to nodes.
-  $items['node/%node/signup'] = array(
-    'title' => 'Sign up',
-    'page callback' => 'signup_node_tab',
+  $items['node/%node/signups'] = array(
+    'title' => 'Signups',
+    'page callback' => 'signup_node_tab_page',
     'page arguments' => array(1),
     'access callback' => '_signup_menu_access',
-    'access arguments' => array(1, 'node'),
+    'access arguments' => array(1, 'any'),
     'type' => MENU_LOCAL_TASK,
-    'weight' => 19,
+    'weight' => 20,
+  );
+  $items['node/%node/signups/signup'] = array(
+    'title' => 'Sign up',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'access callback' => '_signup_menu_access',
+    'access arguments' => array(1, 'signup'),
+    'weight' => -10,
+  );
+  $items['node/%node/signups/list'] = array(
+    'title' => 'List',
+    'page callback' => 'signup_user_list_page',
+    'page arguments' => array(1),
+    'access callback' => '_signup_menu_access',
+    'access arguments' => array(1, 'list'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => -5,
     'file' => 'node_output.inc',
     'file path' => $path,
   );
-  $items['node/%node/signups'] = array(
-    'title' => 'Signups',
+  $items['node/%node/signups/admin'] = array(
+    'title' => 'Administer',
     'page callback' => 'signup_node_admin_page',
     'page arguments' => array(1),
     'access callback' => '_signup_menu_access',
     'access arguments' => array(1, 'admin'),
     'type' => MENU_LOCAL_TASK,
-    'weight' => 20,
+    'weight' => 0,
     'file' => 'node_admin.inc',
     'file path' => $path,
   );
@@ -383,14 +406,25 @@ function signup_menu() {
     'file' => 'node_admin.inc',
     'file path' => $path,
   );
-  $items['node/%node/signup-broadcast'] = array(
+  $items['node/%node/signups/add'] = array(
+    'title' => 'Add',
+    'page callback' => 'signup_node_admin_add_user_page',
+    'page arguments' => array(1),
+    'access callback' => '_signup_menu_access',
+    'access arguments' => array(1, 'admin-add'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 5,
+    'file' => 'signup_form.inc',
+    'file path' => $path,
+  );
+  $items['node/%node/signups/broadcast'] = array(
     'title' => 'Signup broadcast',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('signup_broadcast_form', 1),
     'access callback' => '_signup_menu_access',
     'access arguments' => array(1, 'email'),
     'type' => MENU_LOCAL_TASK,
-    'weight' => 21,
+    'weight' => 10,
     'file' => 'broadcast.inc',
     'file path' => $path,
   );
@@ -413,10 +447,15 @@ function signup_menu() {
  * @param $node
  *   The fully loaded node object from the menu autoloader.
  * @param $menu_type
- *   String specifying what kind of menu item to test access for.  Can be
- *   'node' for the tab holding the signup form and attendee listing, 'admin'
- *   for the signup administration tab, or 'email' for the broadcast tab.
- *
+ *   String specifying what kind of menu item to test access for.  Can be:
+ *   'signup': the signup form
+ *   'list': the signup attendee listing
+ *   'admin': the signup administration tab
+ *   'admin-add': the signup administration tab to add other users (requires
+ *                that signups are currently open on the given node).
+ *   'email': for the broadcast tab
+ *   'any': if the user has permission to see any of these
+ *   
  * @return
  *   TRUE if the current node is signup enabled and the current user has
  *   permisison to access to requested menu item, otherwise FALSE.
@@ -430,27 +469,82 @@ function _signup_menu_access($node, $menu_type = 'node') {
     return FALSE;
   }
   switch ($menu_type) {
-    case 'node':
-      // See if this node is configured to display the signup form and
-      // attendee list on a separate tab, and if the node has signup output.
-      return (variable_get('signup_form_location', 'node') == 'tab') && _signup_needs_output($node);
+    case 'signup':
+      // See if this user can signup, if the node is configured to display the
+      // signup form on a separate tab, and if the node has signup output.
+      return (user_access('sign up for content') && variable_get('signup_form_location', 'node') == 'tab') && _signup_needs_output($node);
 
-    case 'email':
-      $email_all = user_access('email all signed up users');
-      $email_own = user_access('email users signed up for own content') && ($user->uid == $node->uid);
-      return $email_all || $email_own;
+    case 'list':
+      // See if this user can view signups, and if the site is configured to
+      // display the signup user list at all.
+      return (user_access('view all signups') && (variable_get('signup_display_signup_user_list', 'signup') != 'none') && _signup_needs_output($node));
 
     case 'admin':
       $admin_all = user_access('administer all signups');
       $admin_own = user_access('administer signups for own content') && ($user->uid == $node->uid);
       return $admin_all || $admin_own;
 
+    case 'admin-add':
+      return ($node->signup_status && _signup_menu_access($node, 'admin'));
+
+    case 'email':
+      $email_all = user_access('email all signed up users');
+      $email_own = user_access('email users signed up for own content') && ($user->uid == $node->uid);
+      return $email_all || $email_own;
+
+    case 'any':
+      $signup = _signup_menu_access($node, 'signup');
+      $list = _signup_menu_access($node, 'list');
+      $admin = _signup_menu_access($node, 'admin');
+      $email = _signup_menu_access($node, 'email');
+      return $signup || $list || $admin || $email;
   }
 }
 
 function _signup_user_menu_access($account) {
   global $user;
   return user_access('administer all signups') || $account->uid == $user->uid;
+}
+
+/**
+ * Menu callback to handle the default tab at node/N/signups
+ *
+ * This tests the user's permission to see what tab they should really see.
+ * If they have permission to signup for nodes and the site is configured to
+ * put the signup form on a separate tab from the node itself, display the
+ * current user's signup info (either a form to signup, or their current
+ * signup).  If not, see if they can view a signup user list, and redirect
+ * there.  If not, see if they can administer signups and redirect there.
+ * Finally, if they can at least send a signup broadcast, go there.
+ *
+ * @param $node
+ *   Fully loaded node object to generate the node/N/signup menu handler for.
+ *
+ * @return
+ *   Either the output of the default task ("Sign up") or redirect to a tab.
+ *
+ * @see signup_menu()
+ * @see _signup_menu_access()
+ * @see _signup_current_user_signup();
+ */
+function signup_node_tab_page($node) {
+  $signup = _signup_menu_access($node, 'signup');
+  $list = _signup_menu_access($node, 'list');
+  $admin = _signup_menu_access($node, 'admin');
+  $email = _signup_menu_access($node, 'email');
+  if ($signup) {
+    module_load_include('inc', 'signup', 'includes/node_output');
+    return _signup_current_user_signup($node, 'tab');
+  }
+  elseif ($list) {
+    drupal_goto("node/$node->nid/signups/list");
+  }
+  elseif ($admin) {
+    drupal_goto("node/$node->nid/signups/admin");
+  }
+  elseif ($email) {
+    drupal_goto("node/$node->nid/signups/broadcast");
+  }
 }
 
 /**
