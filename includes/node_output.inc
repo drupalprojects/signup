@@ -29,8 +29,17 @@
  *
  */
 function _signup_node_output($node, $type = 'node') {
-  global $user;
   $output = theme('signup_node_output_header', $node);
+  $output .= _signup_current_user_signup($node, $type);
+  return $output;
+}
+
+/**
+ * Helper function to generate the output for the current user's signup.
+ */
+function _signup_current_user_signup($node, $type = 'node') {
+  global $user;
+  $output = '';
   // The node has been closed for signups, and the user has
   // signup permissions.  Let them know it's closed.
   if (!$node->signup_status) {
@@ -98,6 +107,14 @@ function _signup_node_output($node, $type = 'node') {
       }
     }
   }
+  return $output;
+}
+
+/**
+ * Helper function to generate the list of users signed up for a node.
+ */
+function signup_user_list_page($node) {
+  $output = '';
 
   // How should the list of signed-up users be displayed, if at all?
   $display_list = variable_get('signup_display_signup_user_list', 'signup');

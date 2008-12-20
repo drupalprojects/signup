@@ -318,7 +318,7 @@ function signup_views_default_views() {
     'default' => 'signup_time',
   ));
   $handler = $view->new_display('page', 'Page', 'page_1');
-  $handler->override_option('path', 'node/%/signup-list');
+  $handler->override_option('path', 'node/%/signups/list');
   $handler->override_option('menu', array(
     'type' => 'tab',
     'title' => 'Signup list',

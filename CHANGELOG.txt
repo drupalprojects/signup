@@ -4,6 +4,16 @@ $Id$
 6.x-1.x-dev
 -----------
 New features since 6.x-1.0-rc2:
+= #349292 by dww: Completely reorganized the signup node tabs.  All tabs
+  added by this module now appear as sub-tabs under the "Signups" tab at
+  node/N/signups.  If the signup form is configured as a tab, it is the
+  default task under 'Signups'.  The list of current signups (for those
+  with 'view all signups') is now at node/N/signups/list, and is the
+  default task if the signup form is still on the node itself.  The
+  "signup-broadcast" tab has been moved to node/N/signups/broadcast.
+  Finally, the admin form to add another user has been split off from
+  the administrative tab (what was node/N/signups) and is now a separate
+  tab at node/N/signups/add.
 = #55168 by dww: Added a way to track actual attendance at node/N/signups,
   including Views handlers to display, sort, and filter by attendance.
 = #348559 by dww: Added a new "cancel signups" permission so that a role
