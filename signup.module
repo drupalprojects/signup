@@ -459,6 +459,7 @@ function _signup_initialize_scheduler_backend() {
 function signup_perm() {
   return array(
     'sign up for content',
+    'cancel signups',
     'cancel own signups',
     'view all signups',
     'administer all signups',

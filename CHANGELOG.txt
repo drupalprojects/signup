@@ -6,6 +6,13 @@ $Id$
 New features since 6.x-1.0-rc2:
 = #55168 by dww: Added a way to track actual attendance at node/N/signups,
   including Views handlers to display, sort, and filter by attendance.
+= #348559 by dww: Added a new "cancel signups" permission so that a role
+  could be configured to view signups and record attendance, but not be
+  able to destroy signup data by canceling other people's signups.
+  There is no automatic upgrade that adds this new permission, so if
+  you want to give any roles the ability to cancel other users'
+  signups, you must visit admin/user/permissions and manually assign
+  this new permission to the appropriate roles.
 
 Bugs fixed since 6.x-1.0-rc2:
 = #347234 by dww: Fixed fatal SQL error at admin/content/signup when

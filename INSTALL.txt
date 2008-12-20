@@ -85,6 +85,10 @@ the Drupal package and read the online documentation.
      Allows users to view who has signed up, to cancel signups of
      other users, and to close signups for any nodes that the user owns.
 
+   'cancel signups':
+     Allows users that can administer signups for a given node to
+     cancel the signups of other users from the node/N/signups page. 
+
    Viewing the signup report (Administer > Content management > Signup),
    and configuring the module (Administer > Site configuration > Signup)
    are restricted to users who have the 'access administration pages'
