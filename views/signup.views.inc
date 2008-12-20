@@ -139,6 +139,14 @@ function signup_views_data() {
       ),
   );
 
+  $data['signup']['node_link'] = array(
+    'title' => t('Node: Signup link'),
+    'field' => array(
+      'handler' => 'signup_handler_field_signup_node_link',
+      'help' => t('Link to one of the signup-related tabs on each node.'),
+    ),
+  );
+
   // Define base group for signup_log table.
   $data['signup_log']['table']['group'] = t('Signup');
 
@@ -258,6 +266,9 @@ function signup_views_handlers() {
     'handlers' => array(
       'signup_handler_argument_signup_user_uid' => array(
         'parent' => 'views_handler_argument_numeric',
+      ),
+      'signup_handler_field_signup_node_link' => array(
+        'parent' => 'views_handler_field_node_link',
       ),
       'signup_handler_field_signup_send_confirmation' => array(
         'parent' => 'views_handler_field',
