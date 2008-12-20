@@ -14,7 +14,9 @@ New features since 6.x-1.0-rc2:
   Finally, the admin form to add another user has been split off from
   the administrative tab (what was node/N/signups) and is now a separate
   tab at node/N/signups/add.
-= #55168 by dww: Added a way to track actual attendance at node/N/signups,
+= #348277 by dww, scottrigby and stBorchert: Added a view field handler
+  to provide links to any of the tabs under node/N/signups (#349292).
+= #55168 by dww: Added a way to track attendance at node/N/signups/admin,
   including Views handlers to display, sort, and filter by attendance.
 = #348559 by dww: Added a new "cancel signups" permission so that a role
   could be configured to view signups and record attendance, but not be
