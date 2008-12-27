@@ -1,6 +1,13 @@
 $Id$
 
 -----------
+6.x-1.x-dev
+-----------
+Changes since 6.x-1.0-rc3:
+= #349727 by dww: Removed ancient DB update functions from before D5.
+
+
+-----------
 6.x-1.0-rc3
 -----------
 New features since 6.x-1.0-rc2:
