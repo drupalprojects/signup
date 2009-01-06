@@ -3,7 +3,13 @@ $Id$
 -----------
 6.x-1.x-dev
 -----------
-Changes since 6.x-1.0-rc3:
+Bugs fixed since 6.x-1.0-rc3:
+= #350872 by gargoyle and dww: Fixed bug where node type names were used
+  unquoted as table aliases in the SQL for the admin/content/signup page.
+  If you had a node type named after an SQL reserved word (e.g. 'match'),
+  you'd get SQL errors.  Now, node type names are properly quoted.
+
+Other changes since 6.x-1.0-rc3:
 = #349727 by dww: Removed ancient DB update functions from before D5.
 
 
