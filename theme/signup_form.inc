@@ -19,12 +19,14 @@
  * 'Name' field in this function, you will probably have to implement a
  * version of theme_signup_email_token_anonymous_username() for your site.
  *
- * In order for the form to be rendered properly, the name of the form
- * element must be $form['signup_form_data']['NameOfDataField'], where
- * NameOfDataField is replaced with the actual name of the data field.
- * We suggest that the displayed name of the field (the '#title'
- * property) be the same as the name of the data field, but it's not
- * required.  See below for examples.
+ * In order for the form to be rendered properly and for the custom
+ * fields to be fully translatable when printed in other parts of the
+ * Signup module (displayed in signup lists, emails, etc), the name of
+ * the form element must be $form['signup_form_data']['NameOfDataField'],
+ * where NameOfDataField is replaced with the actual name of the data
+ * field.  For translation to work, the displayed name of the field
+ * (the '#title' property) be the same as the name of the data field,
+ * but wrapped in t().  See below for examples.
  *
  * Fieldsets are not currently supported in this form.  Any
  * '#default_value' will be filled in by default when the form is
