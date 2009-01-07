@@ -59,6 +59,14 @@ function signup_theme() {
         'data' => NULL,
       ),
     ),
+    'signup_custom_data_field_text' => array(
+      'file' => 'email.inc',
+      'path' => $path,
+      'arguments' => array(
+        'key' => NULL,
+        'value' => NULL,
+      ),
+    ),
     'signup_broadcast_sender_copy' => array(
       'file' => 'email.inc',
       'path' => $path,

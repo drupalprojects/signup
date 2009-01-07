@@ -45,10 +45,33 @@ function theme_signup_custom_data_email($data) {
       $output .= "\n\r". call_user_func(__FUNCTION__, $value) ."\n\r";
     }
     else {
-      $output .= $key .': '. $value ."\n\r";
+      $output .= theme('signup_custom_data_field_text', $key, $value) ."\n\r";
     }
   }
   return $output;
+}
+
+/**
+ * Renders a single custom signup form field into unfiltered output.
+ *
+ * @param $key
+ *   Name of the custom signup field (the array key).
+ * @param $value
+ *   Value of the custom signup field (the array value).
+ *
+ * @return
+ *   Plain text output to display this key/value pair.
+ *
+ * @see theme_signup_user_form()
+ */
+function theme_signup_custom_data_field_text($key, $value) {
+  // All of the possible array key values should already be translated as
+  // string literals in theme_signup_user_form() via the #title attributes, so
+  // passing a variable to t() is actually safe here.  However, to avoid
+  // warnings when extracting strings, "hide" the call to t() by using a
+  // variable to hold the function name.
+  $tr = 't';
+  return $tr($key) .': '. $value;
 }
 
 /**

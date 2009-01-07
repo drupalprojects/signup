@@ -116,6 +116,12 @@ function theme_signup_custom_data_table($data) {
  */
 function theme_signup_custom_data_rows($data) {
   $rows = array();
+  // All of the possible array key values should already be translated as
+  // string literals in theme_signup_user_form() via the #title attributes, so
+  // passing a variable to t() is actually safe here.  However, to avoid
+  // warnings when extracting strings, "hide" the call to t() by using a
+  // variable to hold the function name.
+  $tr = 't';
   // Loop through each first level element.
   foreach ($data as $key => $value) {
     if (is_array($value)) {
@@ -124,7 +130,7 @@ function theme_signup_custom_data_rows($data) {
       $rows += call_user_func(__FUNCTION__, $value);
     }
     else {
-      $rows[] = array($key .':', check_plain($value));
+      $rows[] = array($tr($key) .':', check_plain($value));
     }
   }
   return $rows;

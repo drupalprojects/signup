@@ -110,6 +110,12 @@ function theme_signup_node_admin_details_form($form) {
  */
 function theme_signup_custom_data($data) {
   $output = '';
+  // All of the possible array key values should already be translated as
+  // string literals in theme_signup_user_form() via the #title attributes, so
+  // passing a variable to t() is actually safe here.  However, to avoid
+  // warnings when extracting strings, "hide" the call to t() by using a
+  // variable to hold the function name.
+  $tr = 't';
   // Loop through each first level element.
   foreach ($data as $key => $value) {
     $output .= '<div id="'. signup_id_safe($key) .'">';
@@ -119,7 +125,7 @@ function theme_signup_custom_data($data) {
       $output .= call_user_func(__FUNCTION__, $value);
     }
     else {
-      $output .= $key .': '. check_plain($value);
+      $output .= $tr($key) .': '. check_plain($value);
     }
     $output .= "</div>\n";
   }
