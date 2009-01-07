@@ -210,12 +210,6 @@ function signup_theme() {
  */
 function signup_init() {
   _signup_initialize_scheduler_backend();
-
-  // Conditionally load either the views support, or the code that
-  // only should happen if views is not enabled.
-  if (module_exists('views')) {
-    module_load_include('inc', 'signup', 'views/views');
-  }
 }
 
 /**
