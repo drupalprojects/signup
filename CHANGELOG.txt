@@ -12,6 +12,10 @@ Bugs fixed since 6.x-1.0-rc3:
   fields were not properly translatable when this data was displayed in
   other places (when viewing your own signup info, etc).
 
+New features since 6.x-1.0-rc3:
+= #355152 by dww: Added the ability to create "user views" that include
+  signup data by exposing more JOIN and relationship info to views.
+
 Other changes since 6.x-1.0-rc3:
 = #349727 by dww: Removed ancient DB update functions from before D5.
 

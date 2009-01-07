@@ -155,6 +155,20 @@ function signup_views_data() {
       'left_field' => 'nid',
       'field' => 'nid',
     ),
+    'users' => array(
+      'left_field' => 'uid',
+      'field' => 'uid',
+    ),
+  );
+
+  $data['signup_log']['nid'] = array(
+    'title' => t('Node'),
+    'help' => t('The node a user signed up to.'),
+    'relationship' => array(
+      'base' => 'node',
+      'handler' => 'views_handler_relationship',
+      'label' => t('Signup node'),
+    ),
   );
 
   $data['signup_log']['uid'] = array(
