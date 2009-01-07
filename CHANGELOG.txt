@@ -13,6 +13,9 @@ Bugs fixed since 5.x-2.7:
   unquoted as table aliases in the SQL for the admin/content/signup page.
   If you had a node type named after an SQL reserved word (e.g. 'match'),
   you'd get SQL errors.  Now, node type names are properly quoted.
+= #181272 by dww: Fixed bug where the labels on the custom signup form
+  fields were not properly translatable when this data was displayed in
+  other places (when viewing your own signup info, etc).
 
 
 -------
