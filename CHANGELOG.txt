@@ -4,6 +4,8 @@ $Id$
 6.x-1.x-dev
 -----------
 Bugs fixed since 6.x-1.0-rc3:
+= #354944 by stBorchert: Fixed bug where changes to signup settings were
+  lost during node previews (in Drupal 6.x only).
 = #350872 by gargoyle and dww: Fixed bug where node type names were used
   unquoted as table aliases in the SQL for the admin/content/signup page.
   If you had a node type named after an SQL reserved word (e.g. 'match'),

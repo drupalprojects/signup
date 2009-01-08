@@ -131,8 +131,12 @@ function signup_save_node($node, $op) {
 function signup_alter_node_form(&$form, &$form_state, $form_id) {
   global $user;
 
+  // Node is not saved but previewed (nid is empty). 
+  if (isset($form['#node']->build_mode) && $form['#node']->build_mode == NODE_BUILD_PREVIEW) {
+    $node = $form['#node'];
+  }
   // Load the node if it already exists.
-  if (!empty($form['nid']['#value'])) {
+  elseif (!empty($form['nid']['#value'])) {
     $node = node_load($form['nid']['#value']);
   }
   else {
@@ -141,7 +145,7 @@ function signup_alter_node_form(&$form, &$form_state, $form_id) {
   $node_type = $form['type']['#value'];
 
   $signup_type_default = variable_get('signup_node_default_state_'. $node_type, 'disabled');
-  if (!empty($node)) {
+  if (!empty($node) && !empty($node->nid)) {
     $node_scheduler = _signup_get_node_scheduler($node);
   }
   else {
@@ -158,7 +162,7 @@ function signup_alter_node_form(&$form, &$form_state, $form_id) {
   // node type, or if this node is already signup-enabled (in case an
   // admin erroneously marks a node-type to disallow signups when there
   // are already nodes of that type with signups enabled).
-  $signups_possible = $signup_type_default != 'disabled' || (!empty($node) && !empty($node->signup));
+  $signups_possible = $signup_type_default != 'disabled' || (!empty($node) && !empty($node->nid) && !empty($node->signup));
   $admin_all = user_access('administer all signups');
   $admin_own = user_access('administer signups for own content') && (empty($node) || ($node->uid == $user->uid));
   if ($signups_possible && ($admin_all || $admin_own)) {
