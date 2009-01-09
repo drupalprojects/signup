@@ -4,6 +4,8 @@ $Id$
 6.x-1.x-dev
 -----------
 Bugs fixed since 6.x-1.0-rc3:
+= #350548 by dww: Fixed logic bug in the support for Event module which
+  would close signups prematurely if you edited event nodes in the future.
 = #354944 by stBorchert: Fixed bug where changes to signup settings were
   lost during node previews (in Drupal 6.x only).
 = #350872 by gargoyle and dww: Fixed bug where node type names were used
