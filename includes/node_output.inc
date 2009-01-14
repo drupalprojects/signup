@@ -142,6 +142,7 @@ function signup_user_list_page($node) {
       $view_name = $signup_view_parts[0];
       $view_display = $signup_view_parts[1];
       $view = views_get_view($view_name);
+      $view->override_path = 'node/%/signups/list';
       $view_args = array($node->nid);
       $output .=  $view->preview($view_display, $view_args);
     }
