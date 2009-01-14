@@ -15,6 +15,7 @@ Bugs fixed since 6.x-1.0-rc3:
 = #181272 by dww: Fixed bug where the labels on the custom signup form
   fields were not properly translatable when this data was displayed in
   other places (when viewing your own signup info, etc).
+= #358787 by dww: Fixed bug with exposed filters in signup's embedded views.
 
 New features since 6.x-1.0-rc3:
 = #355152 by dww: Added the ability to create "user views" that include

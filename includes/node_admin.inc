@@ -40,6 +40,7 @@ function signup_node_admin_page($node) {
     $view_name = $signup_view_parts[0];
     $view_display = $signup_view_parts[1];
     $view = views_get_view($view_name);
+    $view->override_path = 'node/%/signups/admin';
     $view_args = array($node->nid);
     $signup_node_admin_details_form = $view->preview($view_display, $view_args);
   }
