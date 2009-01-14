@@ -19,6 +19,12 @@ Bugs fixed since 6.x-1.0-rc3:
 New features since 6.x-1.0-rc3:
 = #355152 by dww: Added the ability to create "user views" that include
   signup data by exposing more JOIN and relationship info to views.
+= #352328 by dww: Added the ability to create "signup views" by exposing
+  {signup_log} as a valid base table for views.
+= #352328 by dww: Added support for Views Bulk Operations (VBO).
+  - Exposed some actions on signup objects (cancel, mark attendance, etc).
+  - Added a setting to embed a view for admin/N/signups/admin.
+  - Added a new default VBO view to embed when VBO is enabled.
 
 Other changes since 6.x-1.0-rc3:
 = #349727 by dww: Removed ancient DB update functions from before D5.

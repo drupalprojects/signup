@@ -150,6 +150,17 @@ function signup_views_data() {
   // Define base group for signup_log table.
   $data['signup_log']['table']['group'] = t('Signup');
 
+  // Advertise this table as a possible base table so that we can have
+  // "Signup" views. This is essential for Views Bulk Operations to work,
+  // since we need operations on the signups themselves, not the users or
+  // nodes they point to.  With proper use of relationships, we can get
+  // everything on signup views we'd want from either node or user views.
+  $data['signup_log']['table']['base'] = array(
+    'field' => 'sid',
+    'title' => t('Signup'),
+    'help' => t('A signup represents a relationship between a user and a node.'),
+  );
+
   $data['signup_log']['table']['join'] = array(
     'node' => array(
       'left_field' => 'nid',

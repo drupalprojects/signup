@@ -758,6 +758,123 @@ function _signup_needs_output($node) {
 }
 
 /**
+ * Implementation of hook_action_info().
+ */
+function signup_action_info() {
+  return array(
+    'signup_cancel_action' => array(
+      'type' => 'signup',
+      'description' => t('Cancel signup'),
+      'configurable' => FALSE,
+    ),
+    'signup_mark_attended_action' => array(
+      'type' => 'signup',
+      'description' => t('Mark signup attended'),
+      'configurable' => FALSE,
+    ),
+    'signup_mark_not_attended_action' => array(
+      'type' => 'signup',
+      'description' => t('Mark signup did not attend'),
+      'configurable' => FALSE,
+    ),
+  );
+}
+
+/**
+ * Action callback to cancel a given signup.
+ *
+ * @param $signup
+ *   Reference to a fully-loaded signup object to cancel.
+ * 
+ * @see signup_load_signup()
+ * @see signup_cancel_signup()
+ */
+function signup_cancel_action($signup) {
+  signup_cancel_signup($signup);
+  watchdog('action', 'Canceled signup @signup_id.', array('@signup_id' => $signup->sid));
+}
+
+/**
+ * Action callback to mark a given signup that the user attended the node.
+ *
+ * @param $signup
+ *   Reference to a fully-loaded signup object to record attendance on.
+ *
+ * @return
+ *   Nothing: $signup object is modified by reference and the {signup_log}
+ *   table is directly UPDATE'ed in the database.
+ */
+function signup_mark_attended_action(&$signup) {
+  db_query("UPDATE {signup_log} SET attended = %d WHERE sid = %d", TRUE, $signup->sid);
+  $signup->attended = TRUE;
+  watchdog('action', 'Marked signup @signup_id attended.', array('@signup_id' => $signup->sid));
+}
+
+/**
+ * Action callback to mark a given signup that the user didn't attend the node.
+ *
+ * @param $signup
+ *   Reference to a fully-loaded signup object to record attendance on.
+ *
+ * @return
+ *   Nothing: $signup object is modified by reference and the {signup_log}
+ *   table is directly UPDATE'ed in the database.
+ */
+function signup_mark_not_attended_action(&$signup) {
+  db_query("UPDATE {signup_log} SET attended = %d WHERE sid = %d", FALSE, $signup->sid);
+  $signup->attended = FALSE;
+  watchdog('action', 'Marked signup @signup_id did not attend.', array('@signup_id' => $signup->sid));
+}
+
+/**
+ * Implementation of hook_object_info().
+ *
+ * Exports information to VBO about what kinds of objects to do operations on.
+ */
+function signup_object_info() {
+  return array(
+    'signup' => array(
+      'type' => 'signup',
+      'base_table' => 'signup_log',
+      'load' => 'signup_load_signup',
+      'title' => 'label',
+    ),
+  );
+}
+
+/**
+ * Load a $signup object from the given Signup ID (sid).
+ *
+ * In addition to pulling all the fields from the {signup_log} table, this
+ * method also adds a "label" member to the object which is used by Views bulk
+ * operations (VBO) in various parts of its UI.
+ *
+ * @param $sid
+ *   Signup ID to load.
+ *
+ * @return
+ *   Fully loaded $signup object corresponding to the given ID.
+ */ 
+function signup_load_signup($sid) {
+  $signup = db_fetch_object(db_query("SELECT sl.*, n.title, u.name FROM {signup_log} sl INNER JOIN {node} n ON sl.nid = n.nid INNER JOIN {users} u ON sl.uid = u.uid WHERE sl.sid = %d", $sid));
+  // This label is escaped by VBO, so it needs to be plain text, not HTML.
+  $signup->label = t("!user signup for '!title'", array('!user' => $signup->name, '!title' => $signup->title));
+  return $signup;
+}
+
+/**
+ * Save a $signup object to the database.
+ *
+ * @param $signup
+ *   Fully-loaded signup object to save.
+ *
+ * @see signup_load_signup()
+ */
+function signup_save_signup($signup) {
+  drupal_write_record('signup_log', $signup, array('sid'));
+}
+
+/**
  * Implementation of hook_content_extra_fields().
  */
 function signup_content_extra_fields($type_name) {
@@ -1231,5 +1348,16 @@ function signup_panels_include_directory($plugin_type) {
   if ($plugin_type == 'content_types') {
     return 'panels/'. $plugin_type;
   }
+}
+
+/**
+ * Private helper function to return the 'signup_admin_list_view' variable.
+ *
+ * This has special logic to provide a different default depending on if Views
+ * bulk operations (VBO) is enabled or not.
+ */
+function _signup_get_admin_list_view() {
+  $default = module_exists('views_bulk_operations') ? 'signup_user_vbo_admin_list:default' : 'signup_user_admin_list:default';
+  return variable_get('signup_admin_list_view', $default);
 }
 
