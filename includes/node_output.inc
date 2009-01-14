@@ -137,7 +137,7 @@ function signup_user_list_page($node) {
       $output .= theme('signup_user_list', $node, $registered_signups, $anon_signups);
     }
     elseif ($display_list == 'embed-view' && module_exists('views')) {
-      $signup_view = variable_get('signup_user_list_view', 'signup_user_list:page');
+      $signup_view = variable_get('signup_user_list_view', 'signup_user_list:default');
       $signup_view_parts = explode(':', $signup_view);
       $view_name = $signup_view_parts[0];
       $view_display = $signup_view_parts[1];
