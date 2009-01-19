@@ -875,6 +875,25 @@ function signup_save_signup($signup) {
 }
 
 /**
+ * Retrieve a list of all users who have signed up for a node.
+ *
+ * @param $nid
+ *   The node ID to retrieve signups for.
+ *
+ * @return
+ *   An array of $signup objects containing all columns from {signup_log}
+ *   along with the 'name', 'mail', and 'language' columns from {users}.
+ */
+function signup_get_signups($nid) {
+  $signups = array();
+  $query = db_query("SELECT u.uid, u.name, u.mail, u.language, s_l.* FROM {signup_log} s_l INNER JOIN {users} u ON u.uid = s_l.uid WHERE s_l.nid = %d", $nid);
+  while ($signup = db_fetch_object($query)) {
+    $signups[] = $signup;
+  }
+  return $signups;
+}
+
+/**
  * Implementation of hook_content_extra_fields().
  */
 function signup_content_extra_fields($type_name) {

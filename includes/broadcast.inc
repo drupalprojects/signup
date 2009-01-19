@@ -14,8 +14,8 @@
  *   The node that the broadcast form is being attached to.
  */
 function signup_broadcast_form($form_state, $node) {
-  $addresses = signup_get_email_addresses($node->nid);
-  if (empty($addresses)) {
+  $signups = signup_get_signups($node->nid);
+  if (empty($signups)) {
     $form['no_users'] = array(
       '#value' => t('No users have signup up for this %node_type.', array('%node_type' => node_get_types('name', $node->type))),
     );
@@ -86,43 +86,69 @@ function signup_broadcast_form($form_state, $node) {
 }
 
 /**
- * Retrieve a list of all users who have signed up for a node.
+ * Submit callback for the signup broadcast form.
  *
- * @param $nid
+ * @param $form
+ *   The broadcast form being submitted.
+ * @param $form_state
+ *   The state of the submitted form (including values).
  *
- * @return An array of objects containing signup data
- */
-function signup_get_email_addresses($nid) {
-  $signup_data = array();
-  $signups = db_query("SELECT u.uid, u.name, u.mail, s_l.sid, s_l.anon_mail, s_l.form_data FROM {signup_log} s_l INNER JOIN {users} u ON u.uid = s_l.uid WHERE s_l.nid = %d", $nid);
-  while ($signup_entry = db_fetch_object($signups)) {
-    $signup_data[] = $signup_entry;
-  }
-  return $signup_data;
-}
-
-/**
- * Send an email message to all those signed up to a node.
- *
- * @param $form_id
- * @param $form_values
+ * @see signup_send_broadcast()
  */
 function signup_broadcast_form_submit($form, &$form_state) {
   global $user;
-  $addresses = signup_get_email_addresses($form_state['values']['nid']);
-  if (is_array($addresses)) {
-    if (user_access('administer site configuration')) {
-      $from = $form_state['values']['from'];
-    }
-    else {
-      $from = $user->mail;
-    }
-    $node = node_load($form_state['values']['nid']);
-    foreach ($addresses as $signup) {
+  if (user_access('administer site configuration')) {
+    $from = $form_state['values']['from'];
+  }
+  else {
+    $from = $user->mail;
+  }
+  signup_send_broadcast($form_state['values']['nid'], $form_state['values']['subject'], $form_state['values']['message'], $from, !empty($form_state['values']['copy']));
+}
+
+/**
+ * Send an email message to users who have signed up to a node.
+ *
+ * @param $nid
+ *   Node ID of the signup node to send a broadcast about.
+ * @param $subject
+ *   The subject of the broadcast message to send.
+ * @param $body
+ *   The body of the broadcast message to send.
+ * @param $from
+ *   The from address to use when sending the broadcast message.
+ * @param $copy
+ *   Optional boolean indicating if the current user should get a copy.
+ * @param $signups
+ *   Optional array of signup objects to send the broadcast to.  Each object
+ *   in the array should at least contain the following fields:
+ *   - "sid": The unique signup ID
+ *   - "mail" or "anon_mail": E-mail address to send to depending on if it's
+ *     an authenticated or anonymous signup.
+ *   - "name": Username of an authenticated signup.
+ *   - "form_data": The optional custom signup form data for this signup.
+ *   - "language": The user's prefered language (if known).
+ *
+ * @see signup_get_signup()
+ * @see _signup_get_email()
+ * @see _signup_get_email_tokens()
+ */
+function signup_send_broadcast($nid, $subject, $body, $from, $copy = FALSE, $signups = array()) {
+  global $user;
+  $send_all = FALSE;
+  // If the parameter isn't defined, grab all users who signed up to the node.
+  if (empty($signups)) {
+    $signups = signup_get_signups($nid);
+    $send_all = TRUE;
+  }
+  // Make sure that signup_get_signups() returned something for this node.
+  if (!empty($signups)) {
+    $node = node_load($nid);
+    foreach ($signups as $signup) {
       $user_mail = _signup_get_email($signup);
       $params = array(
-        'subject' => $form_state['values']['subject'],
-        'body' => $form_state['values']['message'],
+        'subject' => $subject,
+        'body' => $body,
         'node' => $node,
         'signup' => $signup,
       );
@@ -133,17 +159,17 @@ function signup_broadcast_form_submit($form, &$form_state) {
       drupal_mail('signup', 'signup_broadcast_mail', $user_mail, $language, $params, $from);
       watchdog('signup', 'Broadcast email for %title sent to %email.', array('%title' => $node->title, '%email' => $user_mail), WATCHDOG_NOTICE, l(t('view'), 'node/'. $node->nid));
     }
-    if ($form_state['values']['copy']) {
+    if ($copy) {
       $sender_email = _signup_get_email($user);
       $signup_tokens = _signup_get_email_tokens($node, $user);
-      $message = strtr($form_state['values']['message'], $signup_tokens);
+      $message = strtr($body, $signup_tokens);
       if (module_exists('token')) {
         // If the token.module is enabled, also handle any tokens it provides.
         $message = token_replace($message, 'node', $node);
       }
-      $final_text = theme('signup_broadcast_sender_copy', $form_state['values']['message'], $message);
+      $final_text = theme('signup_broadcast_sender_copy', $body, $message);
       $params = array(
-        'subject' => $form_state['values']['subject'],
+        'subject' => $subject,
         'body' => $final_text,
         'ignore_tokens' => TRUE,
       );
@@ -153,6 +179,11 @@ function signup_broadcast_form_submit($form, &$form_state) {
       drupal_set_message(t('Sent a copy of this message to %email', array('%email' => $sender_email)));
     }
   }
-  drupal_set_message(t('Message sent to all users who have signed up'));
+  if ($send_all) {
+    drupal_set_message(t('Message sent to all users who have signed up'));
+  }
+  else {
+    drupal_set_message(t('Message sent to selected users who have signed up'));
+  }
 }
 

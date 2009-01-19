@@ -27,6 +27,11 @@ New features since 6.x-1.0-rc3:
   - Added a setting to embed a view for admin/N/signups/admin.
   - Added a new default VBO view to embed when VBO is enabled.
 
+API changes since 6.x-1.0-rc3:
+= #357655 by dww: [API change]: Added a signup_send_broadcast() function
+  that can be shared, and renamed signup_get_email_addresses() to
+  signup_get_signups() to be more accurate and more easily reused.
+
 Other changes since 6.x-1.0-rc3:
 = #349727 by dww: Removed ancient DB update functions from before D5.
 
