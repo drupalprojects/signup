@@ -18,6 +18,13 @@ Bugs fixed since 6.x-1.0-rc3:
 = #358787 by dww: Fixed bug with exposed filters in signup's embedded views.
 
 New features since 6.x-1.0-rc3:
+= #51226 by dww: Added the ability to edit existing signups.
+  - Added an "edit own signups" permission.
+  - The current signup information is now displayed via a form, not a table.
+    The form is disabled at first, but if the user has permission to
+    edit their signup, there's an "Edit" button that they can click
+    which enables all the form elements and renames itself "Save".
+  - Added an "User: Edit signup link" views field handler.
 = #355152 by dww: Added the ability to create "user views" that include
   signup data by exposing more JOIN and relationship info to views.
 = #352328 by dww: Added the ability to create "signup views" by exposing
@@ -28,9 +35,17 @@ New features since 6.x-1.0-rc3:
   - Added a new default VBO view to embed when VBO is enabled.
 
 API changes since 6.x-1.0-rc3:
-= #357655 by dww: [API change]: Added a signup_send_broadcast() function
-  that can be shared, and renamed signup_get_email_addresses() to
+= #357655 by dww: Added a signup_send_broadcast() function that can be
+  shared, and renamed signup_get_email_addresses() to
   signup_get_signups() to be more accurate and more easily reused.
+= #51226 by dww: API changes related to editing existing signups:
+  - Canceling your own signup is now handled via the "signup_edit_form"
+    instead of a separate "signup_cancel_form".
+  - Removed a bunch of deprecated theme functions since the signup is
+    now displayed via a form, not a table: theme_signup_current_signup(),
+    theme_signup_custom_data_table(), and theme_signup_custom_data_rows().
+  - Renamed theme_signup_email_token_anonymous_username() to be
+    theme_signup_anonymous_username() since it's now used for other things.
 
 Other changes since 6.x-1.0-rc3:
 = #349727 by dww: Removed ancient DB update functions from before D5.

@@ -274,6 +274,14 @@ function signup_views_data() {
     ),
   );
 
+  $data['signup_log']['edit_link'] = array(
+    'title' => t('User: Edit signup link'),
+    'field' => array(
+      'handler' => 'signup_handler_field_signup_edit_link',
+      'help' => t('Link to edit this particular signup.'),
+    ),
+  );
+
   return $data;
 }
 
@@ -291,6 +299,9 @@ function signup_views_handlers() {
     'handlers' => array(
       'signup_handler_argument_signup_user_uid' => array(
         'parent' => 'views_handler_argument_numeric',
+      ),
+      'signup_handler_field_signup_edit_link' => array(
+        'parent' => 'views_handler_field_node_link',
       ),
       'signup_handler_field_signup_node_link' => array(
         'parent' => 'views_handler_field_node_link',

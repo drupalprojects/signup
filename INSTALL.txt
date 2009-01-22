@@ -63,6 +63,12 @@ the Drupal package and read the online documentation.
      NOTE: Anonymous users aren't allowed cancel their signups even if
      this permission is granted to the role 'anonymous user'.
 
+   'edit own signups':
+     Allows users to edit their own signups.  When viewing their own
+     signup information, users will be able to update the values.
+     NOTE: Anonymous users aren't allowed edit their signups even if
+     this permission is granted to the role 'anonymous user'.
+
    'view all signups':
      Allows users to view all of the users who have signed up for any
      signup-enabled content on the site.
