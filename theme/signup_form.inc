@@ -17,7 +17,7 @@
  *
  * WARNING: If your site allows anonymous signups and you alter the
  * 'Name' field in this function, you will probably have to implement a
- * version of theme_signup_email_token_anonymous_username() for your site.
+ * version of theme_signup_anonymous_username() for your site.
  *
  * In order for the form to be rendered properly and for the custom
  * fields to be fully translatable when printed in other parts of the
@@ -42,7 +42,7 @@
  * @return
  *   Array defining the form to present to the user to signup for a node.
  *
- * @see theme_signup_email_token_anonymous_username()
+ * @see theme_signup_anonymous_username()
  */
 function theme_signup_user_form($node) {
   global $user;
@@ -73,11 +73,14 @@ function theme_signup_user_form($node) {
 }
 
 /**
- * Returns the value to use for the %user_name email token for anonymous users.
+ * Returns the value to use for the user name for anonymous signups.
  *
  * WARNING: If you implemented your own version of theme_signup_form_data()
  * that changed or removed the custom 'Name' field and your site
  * allows anonymous signups, you will need to modify this, too.
+ *
+ * This value is used for the %user_name email token for anonymous users, and
+ * also to identify a particular anonymous signup in various places in the UI.
  *
  * @param $form_data
  *   Array of custom signup form values for the current signup.
@@ -88,7 +91,7 @@ function theme_signup_user_form($node) {
  *
  * @see theme_signup_user_form()
  */
-function theme_signup_email_token_anonymous_username($form_data, $email) {
+function theme_signup_anonymous_username($form_data, $email) {
   // In some cases, the best you can do is to use the anonymous user's
   // supplied email address, in which case, you should uncomment this:
   //return $email;
@@ -97,3 +100,4 @@ function theme_signup_email_token_anonymous_username($form_data, $email) {
   // your site's version of theme_signup_user_form().
   return $form_data['Name'];
 }
+
