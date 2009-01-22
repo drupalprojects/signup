@@ -70,6 +70,21 @@ function signup_edit_form($form_state, $signup, $type) {
     $form['#validate'][] = 'signup_validate_anon_mail';
   }
 
+  if ($type == 'admin') {
+    $options = array();
+    if (1|| !isset($signup->attended)) {
+      $options[-1] = t('Not recorded');
+    }
+    $options[0] = theme('signup_attended_text', 0);
+    $options[1] = theme('signup_attended_text', 1);
+    $form['elements']['attended'] = array(
+      '#type' => 'select',
+      '#title' => t('Attendance'),
+      '#default_value' => isset($signup->attended) ? $signup->attended : -1,
+      '#options' => $options
+    );
+  }
+
   // Build the themed signup form for this site and include that.
   $site_form = theme('signup_user_form', $node);
   $form_data = unserialize($signup->form_data);
@@ -135,6 +150,17 @@ function signup_edit_form_save_submit($form, $form_state) {
   if (!empty($form_state['values']['signup_anon_mail'])) {
     $values[] = "anon_mail = '%s'";
     $args[] = $form_state['values']['signup_anon_mail'];
+  }
+
+  // If the form contains attendance info, save it.
+  if (isset($form_state['values']['attended'])) {
+    if ($form_state['values']['attended'] == -1) {
+      $values[] = "attended = NULL";
+    }
+    else {
+      $values[] = "attended = %d";
+      $args[] = $form_state['values']['attended'];
+    }
   }
 
   /// @TODO invoke a hook?
