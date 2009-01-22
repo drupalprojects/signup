@@ -388,6 +388,15 @@ function signup_views_default_views() {
         'field' => 'attended',
         'relationship' => 'none',
       ),
+      'edit_link' => array(
+        'label' => 'Operations',
+        'text' => '',
+        'exclude' => 0,
+        'id' => 'edit_link',
+        'table' => 'signup_log',
+        'field' => 'edit_link',
+        'relationship' => 'none',
+      ),
     ));
     $handler->override_option('arguments', array(
       'nid' => array(
@@ -435,6 +444,7 @@ function signup_views_default_views() {
         'signup_time' => 'signup_time',
         'form_data' => 'form_data',
         'attended' => 'attended',
+        'edit_link' => 'edit_link',
       ),
       'info' => array(
         'name' => array(
@@ -450,6 +460,9 @@ function signup_views_default_views() {
         ),
         'attended' => array(
           'sortable' => 1,
+          'separator' => '',
+        ),
+        'edit_link' => array(
           'separator' => '',
         ),
       ),
@@ -535,6 +548,15 @@ function signup_views_default_views() {
       'field' => 'attended',
       'relationship' => 'none',
     ),
+    'edit_link' => array(
+      'label' => 'Operations',
+      'text' => '',
+      'exclude' => 0,
+      'id' => 'edit_link',
+      'table' => 'signup_log',
+      'field' => 'edit_link',
+      'relationship' => 'none',
+    ),
   ));
   $handler->override_option('arguments', array(
     'nid' => array(
@@ -582,6 +604,7 @@ function signup_views_default_views() {
       'signup_time' => 'signup_time',
       'form_data' => 'form_data',
       'attended' => 'attended',
+      'edit_link' => 'edit_link',
     ),
     'info' => array(
       'name' => array(
@@ -597,6 +620,9 @@ function signup_views_default_views() {
       ),
       'attended' => array(
         'sortable' => 1,
+        'separator' => '',
+      ),
+      'edit_link' => array(
         'separator' => '',
       ),
     ),

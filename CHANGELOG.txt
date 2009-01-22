@@ -24,7 +24,8 @@ New features since 6.x-1.0-rc3:
     The form is disabled at first, but if the user has permission to
     edit their signup, there's an "Edit" button that they can click
     which enables all the form elements and renames itself "Save".
-  - Added an "User: Edit signup link" views field handler.
+  - Added an "User: Edit signup link" views field handler.  A column
+    of "Edit signup" links is now included in the default admin views.
 = #355152 by dww: Added the ability to create "user views" that include
   signup data by exposing more JOIN and relationship info to views.
 = #352328 by dww: Added the ability to create "signup views" by exposing
