@@ -73,10 +73,10 @@ function signup_edit_form($form_state, $signup, $type) {
   if ($type == 'admin') {
     $options = array();
     if (1|| !isset($signup->attended)) {
-      $options[-1] = t('Not recorded');
+      $options[-1] = t('- Not recorded -');
     }
-    $options[0] = theme('signup_attended_text', 0);
     $options[1] = theme('signup_attended_text', 1);
+    $options[0] = theme('signup_attended_text', 0);
     $form['elements']['attended'] = array(
       '#type' => 'select',
       '#title' => t('Attendance'),
