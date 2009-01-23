@@ -51,7 +51,7 @@ function _signup_current_user_signup($node, $type = 'node') {
       if ($user->uid) {
         $signup = db_fetch_object(db_query("SELECT sl.*, n.title, u.name FROM {signup_log} sl INNER JOIN {node} n ON sl.nid = n.nid INNER JOIN {users} u ON sl.uid = u.uid WHERE sl.uid = %d AND sl.nid = %d", $user->uid, $node->nid));
         if (!empty($signup)) {
-          $output .= _signup_render_signup_edit_form($signup, $type);
+          $current_signup = _signup_render_signup_edit_form($signup, $type);
         }
       }
       $output .= theme('signup_signups_closed', $node, $current_signup);
