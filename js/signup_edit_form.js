@@ -7,9 +7,6 @@
  * except for the 'Update signup' button.  When a user clicks that,
  * the other form elements are enabled, and the 'Update signup' button
  * text changes into 'Save changes'.
- *
- * We also have to enable the form elements whenever the form is
- * submitted so that the cancel button works properly.
  */
 Drupal.behaviors.enableSignupEditForm = function(context) {
   var $button = $('#edit-save', context).click(enableSave);
@@ -19,17 +16,11 @@ Drupal.behaviors.enableSignupEditForm = function(context) {
  
   $form_elements.attr('disabled', 'disabled');
   $button.attr('disabled', '').val(Drupal.t('Edit'));
-  $('#edit-cancel-signup').attr('disabled', '')
-  $form.submit(enableElements);
  
   function enableSave() {
     $form_elements.attr('disabled', '');
     $button.unbind('click', enableSave).val(original_button_title);
     return false;
-  }
- 
-  function enableElements() {
-    $form_elements.attr('disabled', '');
   }
 }
 

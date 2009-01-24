@@ -36,6 +36,10 @@ New features since 6.x-1.0-rc3:
   - Exposed some actions on signup objects (cancel, mark attendance, etc).
   - Added a setting to embed a view for admin/N/signups/admin.
   - Added a new default VBO view to embed when VBO is enabled.
+= #361073 by dww: Improved the UI for canceling your own signup:
+  - The cancel operation is now triggered by a text link, not a button.
+  - The link goes to the confirm form used for the cancel URL (#325237).
+  - The "Keep signup" link honors any destination set via the URL.
 = #363337 by dww: Improved the UI for the advanced settings by trimming
   the description of views to embed if they get too long.
 
