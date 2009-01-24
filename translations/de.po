@@ -185,9 +185,9 @@ msgstr "eMai"
 msgid "An e-mail address is required for users who are not registered at this site. If you are a registered user at this site, please !login to sign up for this event."
 msgstr "Für nicht registrierte Besucher wird eine eMail-Adresse benötigt. Wenn Sie bereits registriert sind, melden Sie sich bitte an, um diesen Inhalt zu registrieren."
 
-#: signup.module:576
-msgid "Please !login or !register to sign up for this event."
-msgstr "Bitte Anmelden oder Registrieren, um diesen Inhalt zu Registrieren."
+#: includes/node_output.inc:84
+msgid "Please !login or !register to sign up for this %node_type."
+msgstr "Bitte !login oder !register, um diesen Inhalt zu Registrieren."
 
 #: signup.module:600
 msgid "Your signup information"
