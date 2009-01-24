@@ -22,6 +22,8 @@ Bugs fixed since 5.x-2.7:
 Other changes since 5.x-2.7:
 = #363337 by dww: Improved the UI for the advanced settings by trimming
   the description of views to embed if they get too long.
+= #341835 by dww: Exposed the filter for the "Signup status" in the
+  default view of a user's current signups ("signup_current_signups").
 
 
 -------

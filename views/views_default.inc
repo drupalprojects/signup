@@ -25,7 +25,7 @@ function _signup_views_default_views() {
   $view->page_header_format = '1';
   $view->page_footer = '';
   $view->page_footer_format = '1';
-  $view->page_empty = t('This user has not signed up for any content.');
+  $view->page_empty = t('This user has not signed up for any matching content.');
   $view->page_empty_format = '1';
   $view->page_type = 'list';
   $view->url = 'user/$arg/signups/current';
@@ -94,7 +94,17 @@ print l(t("View signup schedule"), "user/$user->uid/signups");
       'value' => '1',
     ),
   );
-  $view->exposed_filter = array();
+  $view->exposed_filter = array(
+    array(
+      'tablename' => 'signup',
+      'field' => 'status',
+      'label' => 'Signup status',
+      'optional' => '1',
+      'is_default' => '0',
+      'operator' => '1',
+      'single' => '1',
+    ),
+  );
   $view->requires = array(node, signup);
   $views[$view->name] = $view;
 
