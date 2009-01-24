@@ -111,7 +111,7 @@ function _signup_current_user_signup($node, $type = 'node') {
 /**
  * Helper function to generate the list of users signed up for a node.
  */
-function signup_user_list_page($node) {
+function signup_user_list_output($node) {
   $output = '';
 
   // How should the list of signed-up users be displayed, if at all?
@@ -120,7 +120,7 @@ function signup_user_list_page($node) {
   // If the user has the view signups perm and the admin decides to display
   // the list at the bottom of the page, display the current signups.
   if (user_access('view all signups')) {
-    if ($display_list == 'signup') {
+    if ($display_list == 'signup' || $display_list == 'signup-tab') {
       // Admin wants the hard-coded signup listing.
       $registered_query = db_query("SELECT u.uid, u.name, s.signup_time, s.form_data FROM {signup_log} s INNER JOIN {users} u ON u.uid = s.uid WHERE s.nid = %d AND u.uid <> 0", $node->nid);
       $registered_signups = array();
@@ -134,13 +134,18 @@ function signup_user_list_page($node) {
       }
       $output .= theme('signup_user_list', $node, $registered_signups, $anon_signups);
     }
-    elseif ($display_list == 'embed-view' && module_exists('views')) {
+    elseif (($display_list == 'embed-view' || $display_list == 'embed-view-tab') && module_exists('views')) {
       $signup_view = variable_get('signup_user_list_view', 'signup_user_list:default');
       $signup_view_parts = explode(':', $signup_view);
       $view_name = $signup_view_parts[0];
       $view_display = $signup_view_parts[1];
       $view = views_get_view($view_name);
-      $view->override_path = 'node/%/signups/list';
+      if ($display_list == 'embed-view-tab') {
+        $view->override_path = 'node/%/signups/list';
+      }
+      else {
+        $view->override_path = 'node/%';
+      }
       $view_args = array($node->nid);
       $output .=  $view->preview($view_display, $view_args);
     }

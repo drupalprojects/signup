@@ -58,7 +58,7 @@ function signup_settings_form() {
     '#title' => t('Location of the signup form'),
     '#type' => 'radios',
     '#options' => array(
-      'node' => t('At the bottom of each node'),
+      'node' => t('Included on each node'),
       'tab' => t('Under the %signups tab', array('%signups' => t('Signups'))),
       'none' => t('Do not display signup form'),
     ),
@@ -86,40 +86,46 @@ function signup_settings_form() {
     '#type' => 'radios',
     '#options' => array(1 => t('Collapsed'), 0 => t('Expanded')),
     '#default_value' => variable_get('signup_fieldset_collapsed', 1),
-    '#description' => t('If the signup form is included at the bottom of each node, the signup form will be encapsulated in a collapsible fieldset. This setting controls if that fieldset is expanded or collapsed by default.'),
+    '#description' => t('If the signup form is included on each node, the signup form will be encapsulated in a collapsible fieldset. This setting controls if that fieldset is expanded or collapsed by default.'),
     '#prefix' => '<div class="'. $class .'">',
     '#suffix' => '</div>',
   );
 
-  // If views.module is enabled provide the option to display the list
-  // of signed-up users in a tab and/or at the bottom of the node.
-  $display_options = array();
-  $display_options['signup'] = t('Use the built-in listing');
+  $list_options = array();
+  $list_options['signup'] = t('Use the signup-provided listing on each node');
+  $list_options['signup-tab'] = t('Use the signup-provided listing under the %signups tab', array('%signups' => t('Signups')));
   $views_help_text = '';
   if (module_exists('views')) {
-    $display_options['embed-view'] = t('Embed a view');
+    $list_options['embed-view'] = t('Embed a view on each node');
+    $list_options['embed-view-tab'] = t('Embed a view under the %signups tab', array('%signups' => t('Signups')));
     $views_help_text = t('If you choose to embed a view, you will be able to select which view you want to use below. The view you select will have a single argument passed in, the node id (nid) of the signup-enabled node being viewed. You can also use views to display this listing on its own tab or in a block if you disable this setting.');
   }
   else {
     $views_help_text = t('If you enable the !views_url, you will be able to embed a view directly onto the page for this listing.', array('!views_url' => l(t('Views module'), 'http://drupal.org/project/views', array('absolute' => TRUE))));
   }
-  $display_options['none'] = t('Do not display a listing at all');
+  $list_options['none'] = t('Do not display a listing at all');
 
   $form['adv_settings']['signup_display_signup_user_list'] = array(
     '#title' => t('How to display the list of signed-up users'),
     '#type' => 'radios',
-    '#options' => $display_options,
+    '#options' => $list_options,
     '#default_value' => variable_get('signup_display_signup_user_list', 'signup'),
-    '#description' => t('Users with the %view_signups permission can be presented with a list of all users who have signed up. This setting controls if and how that list should be generated. !views_help_text', array('%view_signups' => t('view all signups'), '!views_help_text' => $views_help_text)),
+    '#description' => t('Users with the %view_signups permission can be presented with a list of all users who have signed up. This setting controls if, how, and where that list should be generated. !views_help_text', array('%view_signups' => t('view all signups'), '!views_help_text' => $views_help_text)),
     '#prefix' => '<div class="signup-display-signup-user-list-setting">',
     '#suffix' => '</div>',
     '#weight' => 1,
   );
 
+  $admin_options = array();
+  $admin_options['signup'] = t('Use the signup-provided listing');
+  if (module_exists('views')) {
+    $admin_options['embed-view'] = t('Embed a view');
+  }
+  $admin_options['none'] = t('Do not display a listing at all');
   $form['adv_settings']['signup_display_signup_admin_list'] = array(
     '#title' => t('How to display the administrative list of signed-up users'),
     '#type' => 'radios',
-    '#options' => $display_options,
+    '#options' => $admin_options,
     '#default_value' => variable_get('signup_display_signup_admin_list', 'signup'),
     '#description' => t('Users with permission to administer signups for a given node will see a list of users  of all users who have signed up. This setting controls if and how that list should be generated. !views_help_text', array('%view_signups' => t('view all signups'), '!views_help_text' => $views_help_text)),
     '#prefix' => '<div class="signup-display-signup-admin-list-setting">',
@@ -129,7 +135,8 @@ function signup_settings_form() {
 
   if (module_exists('views')) {
     $class = 'signup-user-list-view-settings';
-    if (variable_get('signup_form_location', 'node') == 'none' || variable_get('signup_display_signup_user_list', 'signup') != 'embed-view') {
+    $user_list = variable_get('signup_display_signup_user_list', 'signup');
+    if ($user_list != 'embed-view' && $user_list != 'embed-view-tab') {
       $class .= ' js-hide';
     }
     $form['adv_settings']['view_settings'] = array(
@@ -227,8 +234,10 @@ function signup_settings_form_submit($form, &$form_state) {
   // Remove the hidden element from signup_node_settings_form(), too.
   unset($form_state['values']['signup']);
 
-  // Finally, let system_settings_form_submit() do its magic with the
-  // rest of the settings.
+  // Since the advanced settings can mess with the menu, rebuild that.
+  menu_rebuild();
+
+  // Let system_settings_form_submit() do its magic with everything else.
   system_settings_form_submit($form, $form_state);
 }
 

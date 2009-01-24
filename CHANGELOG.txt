@@ -29,6 +29,12 @@ New features since 6.x-1.0-rc3:
     which enables all the form elements and renames itself "Save".
   - Added an "User: Edit signup link" views field handler.  A column
     of "Edit signup" links is now included in the default admin views.
+= #361446 by dww: Restored the ability to have the signup user list
+  embedded directly on each node, instead of forcing it into a subtab
+  at node/N/signups/list (#349292).  There are now extra options for
+  the "How to display the list of signed-up users" advanced setting,
+  and the signup user list is now a separate entry in each node's
+  content[] array so it can be ordered independently of the signup form.
 = #355152 by dww: Added the ability to create "user views" that include
   signup data by exposing more JOIN and relationship info to views.
 = #352328 by dww: Added the ability to create "signup views" by exposing
