@@ -114,7 +114,6 @@ function signup_edit_form($form_state, $signup, $type) {
   if ($can_cancel) {
     if (isset($_REQUEST['destination'])) {
       $destination = drupal_get_destination();
-      unset($_REQUEST['destination']);
     }
     else {
       // If there's no destination already set, redirect to the node.
