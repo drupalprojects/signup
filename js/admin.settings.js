@@ -29,7 +29,7 @@ Drupal.behaviors.signupShowFormLocationSetting = function () {
  */
 Drupal.behaviors.signupShowUserListViewSetting = function () {
   $('div.signup-display-signup-user-list-setting input.form-radio').click(function () {
-    if (this.value == 'embed-view') {
+    if (this.value == 'embed-view' || this.value == 'embed-view-tab') {
       $('div.signup-user-list-view-settings').show();
     }
     else {
