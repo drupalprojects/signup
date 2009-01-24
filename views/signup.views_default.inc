@@ -79,12 +79,29 @@ function signup_views_default_views() {
       'table' => 'node',
       'field' => 'status_extra',
     ),
+    'status' => array(
+      'operator' => '=',
+      'value' => 'All',
+      'group' => '0',
+      'exposed' => TRUE,
+      'expose' => array(
+        'operator' => '',
+        'identifier' => 'status',
+        'label' => 'Signup status',
+        'optional' => 1,
+        'remember' => 0,
+      ),
+      'id' => 'status',
+      'table' => 'signup',
+      'field' => 'status',
+      'relationship' => 'none',
+    ),
   ));
   $handler->override_option('access', array(
     'type' => 'none',
   ));
   $handler->override_option('title', 'Current Signups');
-  $handler->override_option('empty', 'This user has not signed up for any content.');
+  $handler->override_option('empty', 'This user has not signed up for any matching content.');
   $handler->override_option('empty_format', '1');
   $handler->override_option('items_per_page', 20);
   $handler->override_option('use_pager', '1');
