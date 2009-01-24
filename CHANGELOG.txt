@@ -34,6 +34,8 @@ New features since 6.x-1.0-rc3:
   - Exposed some actions on signup objects (cancel, mark attendance, etc).
   - Added a setting to embed a view for admin/N/signups/admin.
   - Added a new default VBO view to embed when VBO is enabled.
+= #363337 by dww: Improved the UI for the advanced settings by trimming
+  the description of views to embed if they get too long.
 
 API changes since 6.x-1.0-rc3:
 = #357655 by dww: Added a signup_send_broadcast() function that can be
