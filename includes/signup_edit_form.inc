@@ -98,9 +98,6 @@ function signup_edit_form($form_state, $signup, $type) {
       if (!$can_edit) {
         // If they can't edit, mark all the fields as disabled.
         $site_form['signup_form_data'][$key]['#disabled'] = TRUE;
-        // Also, remove the required attribute from all fields (so that the
-        // cancel button, if it exists, will work).
-        $site_form['signup_form_data'][$key]['#required'] = FALSE;
       }
     }
   }
@@ -115,10 +112,18 @@ function signup_edit_form($form_state, $signup, $type) {
     );
   }
   if ($can_cancel) {
+    if (isset($_REQUEST['destination'])) {
+      $destination = drupal_get_destination();
+      unset($_REQUEST['destination']);
+    }
+    else {
+      // If there's no destination already set, redirect to the node.
+      $destination = 'destination='. urlencode("node/$signup->nid");
+    }
+    $signup_token = signup_get_token($signup->sid, 'cancel');
     $form['elements']['cancel-signup'] = array(
-      '#type' => 'submit',
-      '#value' => t('Cancel signup'),
-      '#submit' => array('signup_edit_form_cancel_submit'),
+      '#type' => 'markup',
+      '#value' => l(t('Cancel signup'), "signup/cancel/$signup->sid/$signup_token", array('query' => $destination)),
     );
   }
 
@@ -169,17 +174,6 @@ function signup_edit_form_save_submit($form, $form_state) {
   $args[] = $form['#signup']->sid;
   db_query("UPDATE {signup_log} SET $updates WHERE sid = %d", $args);
   drupal_set_message(t('Signup information updated.'));
-}
-
-/**
- * Submit callback to cancel the signup when editing an existing signup.
- */
-function signup_edit_form_cancel_submit($form, &$form_state) {
-  signup_cancel_signup($form['#signup']->sid);
-  if (empty($_REQUEST['destination'])) {
-    // If there's no destination already set, redirect to the node.
-    $form_state['redirect'] = 'node/'. $form['#signup']->nid;
-  }
 }
 
 /**

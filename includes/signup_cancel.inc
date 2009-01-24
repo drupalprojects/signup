@@ -29,12 +29,14 @@ function signup_cancel_link_confirm_form($form_state, $sid) {
   );
   $form['#submit'][] = 'signup_cancel_link_confirm_form_submit';
 
+  $abort_url = isset($_REQUEST['destination']) ? $_REQUEST['destination'] : "node/$info->nid";
+
   // TODO: Should this include information to identify the username,
   // anon_mail, and possibly the custom signup form data, too?
   return confirm_form(
     $form,
     t('Are you sure you want to cancel the signup to %node_title?', array('%node_title' => $info->title)),
-    'node/'. $info->nid,
+    $abort_url,
     t('This action cannot be undone.'),
     t('Cancel signup'), t('Keep signup')
   );
