@@ -1295,7 +1295,7 @@ function signup_mail($key, &$message, $params) {
     $subject = $params['subject'];
   }
   $message['subject'] .= str_replace(array("\r", "\n"), '', $subject);
-  $message['body'][] = drupal_html_to_text($body);
+  $message['body'][] = $body;
 }
 
 /**

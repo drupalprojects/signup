@@ -16,6 +16,9 @@ Bugs fixed since 6.x-1.0-rc3:
   fields were not properly translatable when this data was displayed in
   other places (when viewing your own signup info, etc).
 = #358787 by dww: Fixed bug with exposed filters in signup's embedded views.
+= #356968 by dww and elonen: Fixed bug where line endings were stripped
+  from signup-generated emails since drupal_html_to_text() was being
+  called even though the signup email templates only support plain text.
 
 New features since 6.x-1.0-rc3:
 = #51226 by dww: Added the ability to edit existing signups.
