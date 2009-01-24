@@ -46,6 +46,14 @@ function signup_settings_form() {
     '#default_value' => variable_get('signup_date_format', 'small'),
     '#description' => t('Whenever this module needs to print a date (both in the administrative interface, and in the various e-mail messages it can send), this setting controls which date format string to use. The format strings are defined at the <a href="!settings_url">Date and time settings page</a>.', array('!settings_url' => url('admin/settings/date-time'))),
   );
+  if (!module_exists('views')) {
+    $form['adv_settings']['signup_no_views_user_info'] = array(
+      '#title' => t('Display signup information on user profile pages'),
+      '#type' => 'checkbox',
+      '#default_value' => variable_get('signup_no_views_user_info', TRUE),
+    );
+  }
+
   $form['adv_settings']['signup_form_location'] = array(
     '#title' => t('Location of the signup form'),
     '#type' => 'radios',

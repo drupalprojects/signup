@@ -58,7 +58,7 @@ function _signup_user_no_views($op, &$edit, &$user, $category = NULL) {
     case 'view':
       // grab list of nodes the user signed up for.
       $signups = signup_list_user_signups($user->uid);
-      if (count($signups)) {
+      if (count($signups) && variable_get('signup_no_views_user_info', TRUE)) {
         $user->content['signup'] = array(
           '#type' => 'user_profile_category',
           '#attributes' => array('class' => 'signup'),
@@ -94,10 +94,14 @@ function signup_no_views_menu(&$items) {
     'page callback' => 'signup_user_schedule',
     'page arguments' => array(1),
     'type' => MENU_CALLBACK,
-    'access callback' => '_signup_user_menu_access',
+    'access callback' => '_signup_no_views_user_menu_access',
     'access arguments' => array(1),
     'file' => 'includes/no_views.inc',
   );
+}
+
+function _signup_no_views_user_menu_access($account) {
+  return variable_get('signup_no_views_user_info', TRUE) && _signup_user_menu_access($account);
 }
 
 /**

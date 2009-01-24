@@ -44,6 +44,8 @@ New features since 6.x-1.0-rc3:
   the description of views to embed if they get too long.
 = #341835 by dww: Added an exposed filter for the "Signup status" to the
   default view of a user's current signups ("signup_current_signups").
+= #360009 by dww: Added a checkbox setting to disable printing the
+  signup information on user profile pages when Views is not enabled.
 
 API changes since 6.x-1.0-rc3:
 = #357655 by dww: Added a signup_send_broadcast() function that can be
