@@ -1659,8 +1659,12 @@ function theme_signup_view_label($view) {
   if (!empty($view->block)) {
     $display_types[] = t('Block');
   }
-  $label = check_plain($view->name .': '. $view->description);
-  $label .= ' ['. implode(', ', $display_types) .']';
+  $label = check_plain($view->name);
+  $label .= ' ['. implode(', ', $display_types) .']: ';
+  $label .= check_plain($view->description);
+  if (drupal_strlen($label) > 90) {
+    $label = drupal_substr($label, 0, 90) .'...';
+  }
   return $label;
 }
 

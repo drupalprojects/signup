@@ -19,6 +19,10 @@ Bugs fixed since 5.x-2.7:
   fields were not properly translatable when this data was displayed in
   other places (when viewing your own signup info, etc).
 
+Other changes since 5.x-2.7:
+= #363337 by dww: Improved the UI for the advanced settings by trimming
+  the description of views to embed if they get too long.
+
 
 -------
 5.x-2.7
