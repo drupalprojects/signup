@@ -24,6 +24,8 @@ Other changes since 5.x-2.7:
   the description of views to embed if they get too long.
 = #341835 by dww: Exposed the filter for the "Signup status" in the
   default view of a user's current signups ("signup_current_signups").
+= #360009 by dww: Added a checkbox setting to disable printing the
+  signup information on user profile pages when Views is not enabled.
 
 
 -------

@@ -58,7 +58,7 @@ function _signup_user_no_views($op, &$edit, &$user, $category = NULL) {
     case 'view':
       // grab list of nodes the user signed up for.
       $signups = signup_list_user_signups($user->uid);
-      if (count($signups)) {
+      if (count($signups) && variable_get('signup_no_views_user_info', TRUE)) {
         $output = '<h4>'. t('Current signups') .' -- '. l(t('view signup schedule'), "user/$user->uid/signups") .'</h4>'. theme_item_list($signups);
       }
       if (isset($output)) {
@@ -78,7 +78,7 @@ function signup_no_views_menu(&$items, $may_cache) {
     // User signup schedule callback
     $items[] = array(
       'path' => 'user/'. arg(1) .'/signups',
-      'access' => ($access || ($user->uid == arg(1))),
+      'access' => variable_get('signup_no_views_user_info', TRUE) && ($access || ($user->uid == arg(1))),
       'type' => MENU_CALLBACK,
       'callback' => 'signup_user_schedule',
       'callback arguments' => array($uid => arg(1)),
