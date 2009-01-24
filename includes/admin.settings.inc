@@ -244,6 +244,9 @@ function theme_signup_settings_view_label($view, $display_id) {
   $label = $view->name;
   $label .= ' ['. $display_title .']: ';
   $label .= $view->description;
+  if (drupal_strlen($label) > 90) {
+    $label = drupal_substr($label, 0, 90) .'...';
+  }
   return $label;
 }
 
