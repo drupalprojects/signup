@@ -15,7 +15,7 @@ function signup_views_default_views() {
   $view = new view;
   $view->name = 'signup_current_signups';
   $view->description = 'A list of all signups for the current user';
-  $view->tag = 'signups';
+  $view->tag = 'Signup';
   $view->view_php = '';
   $view->base_table = 'node';
   $view->is_cacheable = FALSE;
@@ -131,7 +131,7 @@ function signup_views_default_views() {
   $view = new view;
   $view->name = 'signup_available_signups';
   $view->description = 'A view of all available signups (signup-enabled content the user has not replied to).';
-  $view->tag = 'signups';
+  $view->tag = 'Signup';
   $view->view_php = '';
   $view->base_table = 'node';
   $view->is_cacheable = FALSE;
