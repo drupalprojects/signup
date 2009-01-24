@@ -219,9 +219,9 @@ function signup_views_default_views() {
   $view = new view;
   $view->name = 'signup_user_list';
   $view->description = 'List of all users signed up for a given node';
-  $view->tag = 'signups';
+  $view->tag = 'Signup';
   $view->view_php = '';
-  $view->base_table = 'node';
+  $view->base_table = 'signup_log';
   $view->is_cacheable = FALSE;
   $view->api_version = 2;
   $view->disabled = FALSE;
@@ -233,6 +233,14 @@ function signup_views_default_views() {
       'id' => 'uid',
       'table' => 'signup_log',
       'field' => 'uid',
+      'relationship' => 'none',
+    ),
+    'nid' => array(
+      'label' => 'Signup node',
+      'required' => 1,
+      'id' => 'nid',
+      'table' => 'signup_log',
+      'field' => 'nid',
       'relationship' => 'none',
     ),
   ));
@@ -247,7 +255,7 @@ function signup_views_default_views() {
       'relationship' => 'uid',
     ),
     'signup_time' => array(
-      'label' => 'User: Signup Time',
+      'label' => 'Signup time',
       'date_format' => 'small',
       'custom_date_format' => '',
       'exclude' => 0,
@@ -274,21 +282,19 @@ function signup_views_default_views() {
       'id' => 'nid',
       'table' => 'node',
       'field' => 'nid',
-      'relationship' => 'none',
+      'relationship' => 'nid',
       'default_options_div_prefix' => '',
       'default_argument_user' => 0,
       'default_argument_fixed' => '',
       'default_argument_php' => '',
       'validate_argument_node_type' => array(),
-      'validate_argument_node_access' => 1,
+      'validate_argument_node_access' => 0,
       'validate_argument_nid_type' => 'nid',
       'validate_argument_vocabulary' => array(),
       'validate_argument_type' => 'tid',
-      'validate_argument_php' => '',
-      'override' => array(
-        'button' => 'Override',
-      ),
       'validate_argument_signup_status' => 'any',
+      'validate_argument_signup_node_access' => 1,
+      'validate_argument_php' => '',
     ),
   ));
   $handler->override_option('access', array(
@@ -300,7 +306,7 @@ function signup_views_default_views() {
     'grouping' => '',
     'override' => 1,
     'sticky' => 0,
-    'order' => 'desc',
+    'order' => 'asc',
     'columns' => array(
       'name' => 'name',
       'signup_time' => 'signup_time',

@@ -30,6 +30,8 @@ New features since 6.x-1.0-rc3:
   signup data by exposing more JOIN and relationship info to views.
 = #352328 by dww: Added the ability to create "signup views" by exposing
   {signup_log} as a valid base table for views.
+= #356390 by dww: Converted the "signup_user_list" default view into a
+  "signup view" instead of a "node view", since it's a view of signups.
 = #352328 by dww: Added support for Views Bulk Operations (VBO).
   - Exposed some actions on signup objects (cancel, mark attendance, etc).
   - Added a setting to embed a view for admin/N/signups/admin.
