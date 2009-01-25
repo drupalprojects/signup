@@ -73,6 +73,7 @@ Other changes since 6.x-1.0-rc3:
 = #349727 by dww: Removed ancient DB update functions from before D5.
 = #363760 by dww: Ported to the new hook_views_bulk_operations_object_info()
   API (#362534), but still supporting the old hook_object_info() API for now.
+= #359408 by dww: Documented all hooks invoked by Signup in signup.api.php.
 
 
 -----------
