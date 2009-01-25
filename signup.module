@@ -876,11 +876,11 @@ function signup_mark_not_attended_action(&$signup) {
 }
 
 /**
- * Implementation of hook_object_info().
+ * Implementation of hook_views_bulk_operations_object_info().
  *
  * Exports information to VBO about what kinds of objects to do operations on.
  */
-function signup_object_info() {
+function signup_views_bulk_operations_object_info() {
   return array(
     'signup' => array(
       'type' => 'signup',
@@ -889,6 +889,19 @@ function signup_object_info() {
       'title' => 'label',
     ),
   );
+}
+
+/**
+ * Deprecated implmentation of hook_object_info().
+ *
+ * This is the old name for hook_views_bulk_operations_object_info().  It was
+ * renamed in VBO at http://drupal.org/node/362534 to prevent possible
+ * namespace colisions.  However, it means that modules supporting VBO need to
+ * have both implementations during the transition while users upgrade to VBO
+ * version 6.x-1.4.  Once 6.x-1.4 is ubiquitous, this can be removed.
+ */
+function signup_object_info() {
+  return signup_views_bulk_operations_object_info();
 }
 
 /**
