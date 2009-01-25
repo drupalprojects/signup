@@ -319,10 +319,11 @@ function signup_menu() {
     'file path' => $path,
   );
 
-  $items['signup/cancel/%/%'] = array(
+  $items['signup/cancel/%signup_menu/%'] = array(
     'description' => 'View all signup-enabled posts, and open or close signups on them.',
     'type' => MENU_CALLBACK,
-    'access arguments' => array('cancel own signups'),
+    'access callback' => '_signup_menu_signup_access',
+    'access arguments' => array(2, 'cancel'),
     'page callback' => 'signup_cancel_signup_page',
     'page arguments' => array(2, 3),
     'file' => 'signup_cancel.inc',
@@ -332,8 +333,8 @@ function signup_menu() {
     'title' => 'Edit signup',
     'page callback' => 'signup_edit_page',
     'page arguments' => array(2),
-    'access callback' => '_signup_edit_menu_access',
-    'access arguments' => array(2),
+    'access callback' => '_signup_menu_signup_access',
+    'access arguments' => array(2, 'edit'),
     'type' => MENU_LOCAL_TASK,
     'file' => 'signup_edit_form.inc',
     'file path' => $path,
@@ -517,13 +518,30 @@ function signup_menu_load($sid) {
   return $signup;
 }
 
-function _signup_edit_menu_access($signup) {
+/**
+ * Determine menu access callback for a specific signup.
+ *
+ * @param $signup
+ *   The fully-loaded signup object that would be affected.
+ * @param $op
+ *   The operation the menu item would perform. Can be 'edit' or 'cancel'.
+ *
+ * @return
+ *   TRUE if the operation should be permitted, otherwise FALSE.
+ */
+function _signup_menu_signup_access($signup, $op) {
   global $user;
-  if (user_access('edit own signups') && !empty($user->uid) && ($user->uid == $signup->uid)) {
+  $node = node_load($signup->nid);
+  // Ensure the user still has access to view the node they signed up for.
+  if (!node_access('view', $node)) {
+    return FALSE;
+  }
+  // See if the user is allowed to perform the operation on their own signup.
+  $permission = "$op own signups";
+  if (user_access($permission) && ($user->uid == $signup->uid)) {
     return TRUE;
   }
   // Check admin powers for this signup.
-  $node = node_load($signup->nid);
   if (_signup_menu_access($node, 'admin')) {
     return TRUE;
   }

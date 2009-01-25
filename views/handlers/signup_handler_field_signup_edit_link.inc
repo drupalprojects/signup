@@ -19,7 +19,7 @@ class signup_handler_field_signup_edit_link extends views_handler_field_node_lin
     $signup->sid = $values->{$this->aliases['sid']};
     $signup->nid = $values->{$this->aliases['nid']};
     $signup->uid = $values->{$this->aliases['uid']};
-    if (!_signup_edit_menu_access($signup)) {
+    if (!_signup_menu_signup_access($signup, 'edit')) {
       return;
     }
 
