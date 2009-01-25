@@ -7,9 +7,9 @@
  * Code for the page to cancel a signup from a secure link.
  */
 
-function signup_cancel_signup_page($sid, $token) {
-  if (signup_valid_token($token, $sid, 'cancel')) {
-    return drupal_get_form('signup_cancel_link_confirm_form', $sid);
+function signup_cancel_signup_page($signup, $token) {
+  if (signup_valid_token($token, $signup->sid, 'cancel')) {
+    return drupal_get_form('signup_cancel_link_confirm_form', $signup->sid);
   }
   drupal_set_message(t('Invalid link to cancel a signup.'), 'error');
   drupal_goto();
