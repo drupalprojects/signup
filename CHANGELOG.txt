@@ -1,7 +1,7 @@
 $Id$
 
 -----------
-6.x-1.x-dev
+6.x-1.0-rc4
 -----------
 Bugs fixed since 6.x-1.0-rc3:
 = #350548 by dww: Fixed logic bug in the support for Event module which
