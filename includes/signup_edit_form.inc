@@ -70,7 +70,7 @@ function signup_edit_form($form_state, $signup, $type) {
     $form['#validate'][] = 'signup_validate_anon_mail';
   }
 
-  if ($type == 'admin') {
+  if ($admin) {
     $options = array();
     if (1|| !isset($signup->attended)) {
       $options[-1] = t('- Not recorded -');

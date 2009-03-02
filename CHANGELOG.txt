@@ -19,6 +19,8 @@ Bugs fixed since 6.x-1.0-rc3:
 = #356968 by dww and elonen: Fixed bug where line endings were stripped
   from signup-generated emails since drupal_html_to_text() was being
   called even though the signup email templates only support plain text.
+= #367937 by dww: Fixed bug where any user who can edit their own signup
+  could record their own attendance at signup/edit/[sid].
 
 New features since 6.x-1.0-rc3:
 = #51226 by dww: Added the ability to edit existing signups.
