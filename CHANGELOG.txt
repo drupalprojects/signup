@@ -76,6 +76,8 @@ Other changes since 6.x-1.0-rc3:
 = #363760 by dww: Ported to the new hook_views_bulk_operations_object_info()
   API (#362534), but still supporting the old hook_object_info() API for now.
 = #359408 by dww: Documented all hooks invoked by Signup in signup.api.php.
+= #373260 by dww: Changed access logic so that users that can administer
+  signups on a given node can always view the signup attendees on that node.
 
 
 -----------

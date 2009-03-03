@@ -475,7 +475,9 @@ function _signup_menu_access($node, $menu_type = 'node') {
       else {
         $user_list_tab = FALSE;
       }
-      return (user_access('view all signups') && $user_list_tab && _signup_needs_output($node));
+      $view_all = user_access('view all signups');
+      $admin = _signup_menu_access($node, 'admin');
+      return (($view_all || $admin) && $user_list_tab && _signup_needs_output($node));
 
     case 'admin':
       $admin_all = user_access('administer all signups');
