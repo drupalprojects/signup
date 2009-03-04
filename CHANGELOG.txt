@@ -24,6 +24,9 @@ Bugs fixed since 6.x-1.0-rc3:
 = #389952 by dww: Fixed a bunch of bugs in the "signup node link" views field.
 = #390000 by KarenS, dww: Ported signup to the Date 6.x-2.0 API for date
   format strings that was introduced at #318008.
+= #375573 by dww: Fixed bug where the %user_signup_info token was not
+  being used in the signup_forwarding_email message (the "Send signups
+  to" field for notifications on new signups).
 
 New features since 6.x-1.0-rc3:
 = #51226 by dww: Added the ability to edit existing signups.
