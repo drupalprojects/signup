@@ -1215,8 +1215,8 @@ function signup_sign_up_user($signup_form) {
         // For anonymous users, their email is all we've got, so disclose it.
         $message .= "\n\r". t('E-mail: !email', array('!email' => $user_mail));
       }
-      if (!empty($signup_tokens['%user_signup_info'])) {
-        $message .= "\n\r\n\r". $signup_tokens['%user_signup_info'];
+      if (!empty($signup->form_data)) {
+        $message .= "\n\r\n\r". theme('signup_email_token_custom_data', $signup->form_data);
       }
       $params = array(
         'subject' => t('Signup confirmation for !node_type: !title', array('!node_type' => $node_type_name, '!title' => $node->title)),
