@@ -526,7 +526,8 @@ function _signup_date_format_date($node, $include_to_date = FALSE) {
   if ($db_tz != $display_tz) {
     date_timezone_set($date, timezone_open($display_tz));
   }
-  $date_out = date_format_date($date, 'custom', $field['output_format_date']);
+  $format = date_formatter_format('default', $field['field_name']);
+  $date_out = date_format_date($date, 'custom', $format);
 
   if ($include_to_date) {
     if (isset($node->{$field['field_name']})) {
@@ -539,9 +540,9 @@ function _signup_date_format_date($node, $include_to_date = FALSE) {
     if ($db_tz != $display_tz) {
       date_timezone_set($date, timezone_open($display_tz));
     }
-    $date = date_format_date($date, 'custom', $field['output_format_date']);
+    $date = date_format_date($date, 'custom', $format);
     if ($date_value) {
-      $date_out .= t(' to ') . date_format_date(date_make_date($date_value), 'custom', $field['output_format_date']);
+      $date_out .= t(' to ') . date_format_date(date_make_date($date_value), 'custom', $format);
     }
   }
 
