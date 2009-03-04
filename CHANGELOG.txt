@@ -21,6 +21,7 @@ Bugs fixed since 6.x-1.0-rc3:
   called even though the signup email templates only support plain text.
 = #367937 by dww: Fixed bug where any user who can edit their own signup
   could record their own attendance at signup/edit/[sid].
+= #389952 by dww: Fixed a bunch of bugs in the "signup node link" views field.
 
 New features since 6.x-1.0-rc3:
 = #51226 by dww: Added the ability to edit existing signups.
