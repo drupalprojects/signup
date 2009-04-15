@@ -8,7 +8,7 @@
  * hide the date field setting.  Otherwise, show it.
  */
 Drupal.behaviors.signupShowDateField = function () {
-  $('div.signup-node-default-state-radios input[@type=radio], div.event-nodeapi-radios input[@type=radio]').click(function () {
+  $('div.signup-node-default-state-radios input[type=radio], div.event-nodeapi-radios input[type=radio]').click(function () {
     var eventEnabled = false;
     var signupDisabled = true;
     $('div.event-nodeapi-radios input.form-radio').each(function() {

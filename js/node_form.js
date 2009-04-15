@@ -6,7 +6,7 @@
  * otherwise, hide them.
  */
 Drupal.behaviors.signupShowNodeSettings = function () {
-  $('div.signup-allow-radios input[@type=radio]').click(function () {
+  $('div.signup-allow-radios input[type=radio]').click(function () {
     $('div.signup-node-settings')[['hide', 'show', 'hide'][this.value]]();
   });
 };
