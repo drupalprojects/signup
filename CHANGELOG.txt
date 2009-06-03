@@ -4,6 +4,10 @@ $Id$
 6.x-1.0-rc4
 -----------
 Bugs fixed since 6.x-1.0-rc3:
+= #370397 by ezra-g: Fixed critical data-loss bug where all anonymous
+  signups would be destroyed if any authenticated user was deleted.
+  This bug was introduced during the port to Drupal 6 core, due to an
+  undocumented API change between Drupal core versions 5 and 6.
 = #350548 by dww: Fixed logic bug in the support for Event module which
   would close signups prematurely if you edited event nodes in the future.
 = #354944 by stBorchert: Fixed bug where changes to signup settings were

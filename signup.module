@@ -637,7 +637,7 @@ function signup_user($type, &$edit, &$user, $category = NULL) {
       }
       else {
         // A single-user delete from the edit tab on the user's profile.
-        $uids[] = $edit['uid'];
+        $uids[] = $edit['_account']->uid;
       }
       foreach ($uids as $uid) {
         $query = db_query("SELECT * FROM {signup_log} WHERE uid = %d", $uid);
