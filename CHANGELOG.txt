@@ -33,6 +33,9 @@ Bugs fixed since 6.x-1.0-rc3:
   to" field for notifications on new signups).
 = #367297 by dww: Changed the default signup views so that only the user
   (and signup administrators) can view their own signups.
+= #471562 by dww: Fixed broken link to the signup broadcast tab on the
+  signup administration page at admin/content/signup (this bug was
+  introduced in version 6.x-1.0-rc3 via #349292).
 
 New features since 6.x-1.0-rc3:
 = #51226 by dww: Added the ability to edit existing signups.
