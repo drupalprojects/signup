@@ -87,6 +87,8 @@ API changes since 6.x-1.0-rc3:
     theme_signup_custom_data_table(), and theme_signup_custom_data_rows().
   - Renamed theme_signup_email_token_anonymous_username() to be
     theme_signup_anonymous_username() since it's now used for other things.
+= #424338 by rjl, ezra-g, dww: Changed the API in signup_sign_up_user()
+  to return the new signup ID (SID) for any successful signup.
 
 Other changes since 6.x-1.0-rc3:
 = #349727 by dww: Removed ancient DB update functions from before D5.
