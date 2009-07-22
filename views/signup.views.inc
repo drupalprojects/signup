@@ -341,12 +341,22 @@ function signup_views_handlers() {
  * Implementation of hook_views_plugins().
  */
 function signup_views_plugins() {
+  $path = drupal_get_path('module', 'signup') .'/views/plugins';
   return array(
     'argument validator' => array(
       'signup_status' => array(
         'title' => t('Signup status'),
         'handler' => 'signup_plugin_argument_validate_signup_status',
-        'path' => drupal_get_path('module', 'signup') .'/views/plugins',
+        'path' => $path,
+      ),
+    ),
+    'access' => array(
+      'user_signup_list' => array(
+        'title' => t('View per-user signup lists'),
+        'help' => t("Access will be granted to users viewing their own signup list or with the 'view all signups' permission."),
+        'handler' => 'signup_plugin_access_user_signup_list',
+        'uses options' => TRUE,
+        'path' => $path,
       ),
     ),
   );

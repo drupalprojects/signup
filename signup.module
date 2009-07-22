@@ -1505,3 +1505,33 @@ function _signup_get_admin_list_view() {
   return variable_get('signup_admin_list_view', $default);
 }
 
+/**
+ * Menu access callback for the signup_plugin_access_user_signup_list plugin.
+ */
+function signup_view_user_list_access($view_name, $display_id, $argument_name) {
+  global $user;
+  if (user_access('view all signups')) {
+    return TRUE;
+  }
+  $view = views_get_view($view_name);
+  $view->set_display($display_id);
+  $view->init_handlers();
+
+  // Find the values for any arguments embedded in the path via '%'.
+  $i = 0;
+  foreach (explode('/', $view->display_handler->get_option('path')) as $element) {
+    if ($element == '%') {
+      $view->args[] = arg($i);
+    }
+    $i++;
+  }
+  // Now handle any implicit arguments from the end of the path.
+  $num_arguments = count($view->argument);
+  while (count($view->args) < $num_arguments) {
+    $view->args[] = arg($i);
+    $i++;
+  }
+
+  return $user->uid == $view->argument[$argument_name]->get_value();
+}
+
