@@ -36,6 +36,8 @@ Bugs fixed since 6.x-1.0-rc3:
 = #471562 by dww: Fixed broken link to the signup broadcast tab on the
   signup administration page at admin/content/signup (this bug was
   introduced in version 6.x-1.0-rc3 via #349292).
+= #480278 by ezra-g: Removed a superfluous user_access() check inside
+  signup_sign_up_user() that can prevent proper programmatic signups.
 
 New features since 6.x-1.0-rc3:
 = #51226 by dww: Added the ability to edit existing signups.
