@@ -1168,8 +1168,8 @@ function signup_sign_up_user($signup_form) {
 
     // Figure out if confirmation or reminder emails will be sent and
     // inform the user.
-    $confirmation_email = $node->signup_send_confirmation ? '  '. t('You will receive a confirmation email shortly which contains further information about this %node_type.', array('%node_type' => node_get_types('name', $node->type))) : '';
-    $reminder_email = $node->signup_send_reminder ? '  '. t('You will receive a reminder email !number !days before the %node_type.', array('!number' => $node->signup_reminder_days_before, '!days' => format_plural($node->signup_reminder_days_before, 'day', 'days'), '%node_type' => node_get_types('name', $node->type))) : '';
+    $confirmation_email = $node->signup_send_confirmation ? '  '. t('A confirmation email will be sent shortly containing further information about this %node_type.', array('%node_type' => node_get_types('name', $node->type))) : '';
+    $reminder_email = $node->signup_send_reminder ? '  '. t('A reminder email will be sent !number !days before the %node_type.', array('!number' => $node->signup_reminder_days_before, '!days' => format_plural($node->signup_reminder_days_before, 'day', 'days'), '%node_type' => node_get_types('name', $node->type))) : '';
 
     // Insert the user into the signup_log.
     db_query("INSERT INTO {signup_log} (uid, nid, anon_mail, signup_time, form_data) VALUES (%d, %d, '%s', %d, '%s')", $signup_form['uid'], $signup_form['nid'], $signup_anon_mail, $curtime, $signup_form_data);
