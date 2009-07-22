@@ -1112,6 +1112,10 @@ function signup_content_types() {
  *   that function's validation logic prior to passing in this element!
  * $signup_form['signup_form_data'] : an array of key/value pairs --
  *   key is the data category, value is the user input
+ *
+ * @return
+ *   The signup id (SID) if the user was successfully signed up, FALSE if the
+ *   user is already signed up or signups are not allowed on the given node.
  */
 function signup_sign_up_user($signup_form) {
   $node = node_load($signup_form['nid']);
@@ -1240,6 +1244,7 @@ function signup_sign_up_user($signup_form) {
     if ($node->signup_close_signup_limit) {
       _signup_check_limit($node, 'total');
     }
+    return $sid;
   }
   else {
     drupal_access_denied();
