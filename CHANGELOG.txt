@@ -31,6 +31,8 @@ Bugs fixed since 6.x-1.0-rc3:
 = #375573 by dww: Fixed bug where the %user_signup_info token was not
   being used in the signup_forwarding_email message (the "Send signups
   to" field for notifications on new signups).
+= #367297 by dww: Changed the default signup views so that only the user
+  (and signup administrators) can view their own signups.
 
 New features since 6.x-1.0-rc3:
 = #51226 by dww: Added the ability to edit existing signups.
