@@ -1096,6 +1096,8 @@ function signup_content_types() {
 /**
  * Signs up a user to a node.
  *
+ * Caution: This function does not perform any access checking.
+ *
  * NOTE: other modules can call this function. To do so, $signup_form
  * must be as follows:
  *
@@ -1145,7 +1147,7 @@ function signup_sign_up_user($signup_form) {
   // If we made it this far, we're going to need the full $user object.
   $user = user_load(array('uid' => $signup_form['uid']));
 
-  if (user_access('sign up for content') && $node->signup_status) {
+  if ($node->signup_status) {
     // Grab the current time once, since we need it in a few places.
     $curtime = time();
 
