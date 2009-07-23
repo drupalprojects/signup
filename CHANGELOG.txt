@@ -101,6 +101,7 @@ Other changes since 6.x-1.0-rc3:
   successful signup more user-generic to work better for programmatic
   signups and cases where administrators sign up other users.
 = #376330 by joostvdl: Added a Dutch (nl) translation.
+= #439784 by seals: Added Swedish (sv) translation.
 
 
 -----------
