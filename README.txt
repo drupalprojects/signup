@@ -14,13 +14,16 @@ selected roles and content types.
 
 There is support for both registered and anonymous users to sign up.
 Both can receive confirmation and reminder emails, and registered
-users are also able to cancel their signups and view listings of their
-current signups.
+users are optionally able to cancel or edit their own signups and view
+listings of their current signups.
 
 There is extensive integration with the Views module
 (http://druapl.org/project/views), and also support to embed the
 signup form as a pane using panels (http://druapl.org/project/panels).
 
+Some add-on modules that enhance the basic functionality are available
+in the "modules" subdirectory, and there is a listing of other add-on
+modules on the Signup project page (http://druapl.org/project/signup).
 
 For installation instructions, see INSTALL.txt.
 
@@ -29,7 +32,7 @@ For instructions on upgrading, see UPGRADE.txt.
 For information about theming, see theme/README.txt.
 
 Send feature requests and bug reports to the issue tracking system for
-the signup module: http://drupal.org/node/add/project_issue/signup.
+the signup module: http://drupal.org/node/add/project-issue/signup.
 For a list of future work, also see http://groups.drupal.org/node/5044.
 
 This module was originally co-developed by Chad Phillips and Jeff
