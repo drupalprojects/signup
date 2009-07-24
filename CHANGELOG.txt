@@ -74,6 +74,11 @@ New features since 6.x-1.0-rc3:
   default view of a user's current signups ("signup_current_signups").
 = #360009 by dww: Added a checkbox setting to disable printing the
   signup information on user profile pages when Views is not enabled.
+= #529250 by dww: Added a separate module that injects an e-mail address
+  field on the signup form for authenticated users to verify the address
+  stored in their profile. If the user changes this field while signing up
+  (or editing an existing signup), they are presented with a confirmation
+  form. If they approve, the e-mail address in their profile is updated.
 
 API changes since 6.x-1.0-rc3:
 = #357655 by dww: Added a signup_send_broadcast() function that can be
