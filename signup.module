@@ -371,7 +371,7 @@ function signup_menu() {
     'page callback' => 'signup_user_list_output',
     'page arguments' => array(1),
     'access callback' => '_signup_menu_access',
-    'access arguments' => array(1, 'list'),
+    'access arguments' => array(1, 'list-tab'),
     'type' => MENU_LOCAL_TASK,
     'weight' => -5,
     'file' => 'node_output.inc',
@@ -441,12 +441,13 @@ function signup_menu() {
  *   String specifying what kind of menu item to test access for.  Can be:
  *   'signup': the signup form
  *   'list': the signup attendee listing
+ *   'list-tab': the signup attendee listing tab
  *   'admin': the signup administration tab
  *   'add': the signup administration tab to add other users (requires
  *          that signups are currently open on the given node).
  *   'broadcast': for the broadcast tab
  *   'any': if the user has permission to see any of these
- *   
+ *
  * @return
  *   TRUE if the current node is signup enabled and the current user has
  *   permisison to access to requested menu item, otherwise FALSE.
@@ -459,6 +460,23 @@ function _signup_menu_access($node, $menu_type = 'node') {
   if (empty($node->signup)) {
     return FALSE;
   }
+
+  // For certain menu types, invoke a hook to allow other modules to alter the
+  // access behavior for signup menu items. Just relying on hook_menu_alter()
+  // for this won't work, since there are places outside of the menu system,
+  // where we call this function to decide if a user should have access to
+  // something. If multiple modules return a value, the logical OR is used, so
+  // if anyone returns TRUE, access is granted.
+  if (in_array($menu_type, array('signup', 'list', 'admin', 'add', 'broadcast'))) {
+    $access_array = module_invoke_all('signup_menu_access', $node, $menu_type);
+    if (!empty($access_array)) {
+      // Return TRUE if any values are TRUE, otherwise, FALSE.
+      return in_array(TRUE, $access_array);
+    }
+  }
+
+  // No module returned a value in hook_signup_menu_access, so continue with
+  // the main logic.
   switch ($menu_type) {
     case 'signup':
       // See if this user can signup, if the node is configured to display the
@@ -466,6 +484,9 @@ function _signup_menu_access($node, $menu_type = 'node') {
       return (user_access('sign up for content') && variable_get('signup_form_location', 'node') == 'tab') && _signup_needs_output($node);
 
     case 'list':
+      return user_access('view all signups') || _signup_menu_access($node, 'admin');
+
+    case 'list-tab':
       // See if this user can view signups, and if the site is configured to
       // display the signup user list as a tab.
       $user_list = variable_get('signup_display_signup_user_list', 'signup');
@@ -475,9 +496,8 @@ function _signup_menu_access($node, $menu_type = 'node') {
       else {
         $user_list_tab = FALSE;
       }
-      $view_all = user_access('view all signups');
-      $admin = _signup_menu_access($node, 'admin');
-      return (($view_all || $admin) && $user_list_tab && _signup_needs_output($node));
+      $list_access = _signup_menu_access($node, 'list');
+      return $list_access && $user_list_tab && _signup_needs_output($node);
 
     case 'admin':
       $admin_all = user_access('administer all signups');
@@ -494,7 +514,7 @@ function _signup_menu_access($node, $menu_type = 'node') {
 
     case 'any':
       $signup = _signup_menu_access($node, 'signup');
-      $list = _signup_menu_access($node, 'list');
+      $list = _signup_menu_access($node, 'list-tab');
       $admin = _signup_menu_access($node, 'admin');
       $email = _signup_menu_access($node, 'broadcast');
       return $signup || $list || $admin || $email;

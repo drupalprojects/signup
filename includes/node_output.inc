@@ -117,10 +117,8 @@ function signup_user_list_output($node) {
   // How should the list of signed-up users be displayed, if at all?
   $display_list = variable_get('signup_display_signup_user_list', 'signup');
 
-  // If the user has the view signups permission, or can adminisiter signups
-  // on this node, and the site admin decides to display the list at the
-  // bottom of the page, display the current signups.
-  if (user_access('view all signups') || _signup_menu_access($node, 'admin')) {
+  // Ensure the user has permission to view the signup list for this node.
+  if (_signup_menu_access($node, 'list')) {
     if ($display_list == 'signup' || $display_list == 'signup-tab') {
       // Admin wants the hard-coded signup listing.
       $registered_query = db_query("SELECT u.uid, u.name, s.signup_time, s.form_data FROM {signup_log} s INNER JOIN {users} u ON u.uid = s.uid WHERE s.nid = %d AND u.uid <> 0", $node->nid);
