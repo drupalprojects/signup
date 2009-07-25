@@ -138,3 +138,39 @@ function hook_signup_suppress($node) {
   }
 }
 
+/**
+ * Hook invoked to control access to signup menu items.
+ *
+ * This hook is invoked to check access for signup menu items, in particular,
+ * the signup-related tabs on signup-enabled nodes. If no value is returned
+ * (NULL), the hook is ignored and the usual access logic is enforced via the
+ * Signup module. If multiple modules return a value, the logical OR is used,
+ * so if anyone returns TRUE, access is granted. If everyone returns FALSE,
+ * access is denied (even if the Signup module would normally grant access).
+ *
+ * @param $node
+ *   The fully-loaded node object where the menu items would be attached.
+ * @param $menu_type
+ *   String specifying what kind of menu item to test access for. Can be:
+ *   'signup': the signup form
+ *   'list': the signup attendee listing
+ *   'admin': the signup administration tab
+ *   'add': the signup administration tab to add other users (requires
+ *          that signups are currently open on the given node).
+ *   'broadcast': for the broadcast tab
+ *
+ * @return
+ *   TRUE if you want to allow access to the requested menu item, FALSE if you
+ *   want to deny access (although if another hook implementation returns
+ *   TRUE, that will take precedence), or NULL if you don't care and want to
+ *   let Signup module itself decide access based on its own logic.
+ *
+ * @see _signup_menu_access()
+ */
+function hook_signup_menu_access($node, $menu_type) {
+  // For example, you might want to test that the current user is the
+  // administrator of the organic group that a signup-enabled node belongs to,
+  // in which case, you'd return TRUE here to give that user full signup
+  // powers over events in their group.
+}
+
