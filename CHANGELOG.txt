@@ -95,6 +95,10 @@ API changes since 6.x-1.0-rc3:
 = #424338 by rjl, ezra-g, dww: Changed the API in signup_sign_up_user()
   to return the new signup ID (SID) for any successful signup.
 = #529478 by dww: Added a hook to alter access to the signup node tabs.
+= #481134 by ezra-g, dww: Made signup confirmation and cancellation
+  messages optional for programmatic signups, and added helper functions
+  to generate and send those messages: signup_send_confirmation_mail()
+  and signup_send_forwarding_mail().
 
 Other changes since 6.x-1.0-rc3:
 = #349727 by dww: Removed ancient DB update functions from before D5.

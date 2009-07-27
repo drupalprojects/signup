@@ -1029,8 +1029,11 @@ function signup_content_extra_fields($type_name) {
  *   Information about the signup to cancel. Can be either the integer signup
  *   ID (sid), or a full object of data about the signup (a complete row from
  *   the {signup_log} table.
+ * @param $notify_user
+ *   When set to TRUE, a confirmation message is displayed via
+ *   drupal_set_message().
  */
-function signup_cancel_signup($signup) {
+function signup_cancel_signup($signup, $notify_user = TRUE) {
   // If we only have a numeric sid argument, load the full signup object.
   if (is_numeric($signup)) {
     $query = db_query('SELECT * FROM {signup_log} WHERE sid = %d', $signup);
@@ -1045,9 +1048,9 @@ function signup_cancel_signup($signup) {
 
   // Delete the record from the {signup_log} table.
   db_query('DELETE FROM {signup_log} WHERE sid = %d', $signup->sid);
-
-  drupal_set_message(t('Signup to !title cancelled.', array('!title' => l($node->title, "node/$node->nid"))));
-
+  if ($notify_user) {
+    drupal_set_message(t('Signup to !title cancelled.', array('!title' => l($node->title, "node/$node->nid"))));
+  }
   // See if signups should be re-opened if the total dropped below the limit.
   _signup_check_limit($node, 'total');
 }
@@ -1133,11 +1136,16 @@ function signup_content_types() {
  * $signup_form['signup_form_data'] : an array of key/value pairs --
  *   key is the data category, value is the user input
  *
+ * @param $notify_user
+ *   When set to TRUE, confirmation messages are displayed via
+ *   drupal_set_message() and confirmation/forwarding emails are sent if
+ *   enabled for the current node.
+ *
  * @return
  *   The signup id (SID) if the user was successfully signed up, FALSE if the
  *   user is already signed up or signups are not allowed on the given node.
  */
-function signup_sign_up_user($signup_form) {
+function signup_sign_up_user($signup_form, $notify_user = TRUE) {
   $node = node_load($signup_form['nid']);
 
   // Since this is an API call, we need to validate that there are no
@@ -1195,8 +1203,6 @@ function signup_sign_up_user($signup_form) {
     db_query("INSERT INTO {signup_log} (uid, nid, anon_mail, signup_time, form_data) VALUES (%d, %d, '%s', %d, '%s')", $signup_form['uid'], $signup_form['nid'], $signup_anon_mail, $curtime, $signup_form_data);
     $sid = db_last_insert_id('signup_log', 'sid');
 
-    $from = variable_get('site_mail', ini_get('sendmail_from'));
-
     // Get the hard-coded tokens provided by the signup module to use
     // for the confirmation and/or forwarding emails.  We need to create
     // an object representing the user's signup to get the right values.
@@ -1206,59 +1212,20 @@ function signup_sign_up_user($signup_form) {
     if (!empty($signup_anon_mail)) {
       $signup->anon_mail = $signup_anon_mail;
     }
-    $user_mail = _signup_get_email($signup);
-    $node_type_name = node_get_types('name', $node->type);
-    // If a confirmation is to be sent, compose the mail message,
-    // replace the tokens with the right values, and send it.
-    if ($node->signup_send_confirmation && $user_mail) {
-      $params = array(
-        'subject' => t('Signup confirmation for !node_type: !title', array('!node_type' => $node_type_name, '!title' => $node->title)),
-        'body' => $node->signup_confirmation_email,
-        'node' => $node,
-        'signup' => $signup,
-      );
-      if (module_exists('token')) {
-        $params['body'] = token_replace($params['body'], 'node', $node);
+
+    // See if we should generate any notifications from this signup.
+    if ($notify_user) {
+      // Confirmation e-mail to the user who signed up.
+      if ($node->signup_send_confirmation) {
+        signup_send_confirmation_mail($signup, $node);
       }
-      $language = user_preferred_language($signup);
-      drupal_mail('signup', 'signup_confirmation_mail', $user_mail, $language, $params, $from);
+
+      // Notification email to an administrator or coordinator.
+      signup_send_forwarding_mail($signup, $node);
+
+      // Message to the screen for the user who signed up.
+      drupal_set_message(t('Signup to !title confirmed.', array('!title' => l($node->title, "node/$node->nid"))) . $confirmation_email . $reminder_email);
     }
-
-    // If a forwarding email is to be sent, compose the mail message,
-    // replace the tokens with the right values, and send it.
-    if ($node->signup_forwarding_email) {
-      $message = t('The following information was submitted as a signup for !title', array('!title' => $node->title));
-      if (_signup_get_node_scheduler($node) != 'none') {
-        $message .= "\n\r". t('Date/Time: !time', array('!time' => signup_format_date($node)));
-      }
-
-      $message .= "\n\r\n\r". t('Username: !name', array('!name' => empty($user->uid) ? variable_get('anonymous', t('Anonymous')) : $user->name));
-      if (!empty($user->uid)) {
-        // For authenticated users, just include a link to their profile page.
-        $message .= "\n\r". t('Profile page: !url', array('!url' => url('user/'. $user->uid, array('absolute' => TRUE))));
-      }
-      else {
-        // For anonymous users, their email is all we've got, so disclose it.
-        $message .= "\n\r". t('E-mail: !email', array('!email' => $user_mail));
-      }
-      if (!empty($signup->form_data)) {
-        $message .= "\n\r\n\r". theme('signup_email_token_custom_data', $signup->form_data);
-      }
-      $params = array(
-        'subject' => t('Signup confirmation for !node_type: !title', array('!node_type' => $node_type_name, '!title' => $node->title)),
-        'body' => $message,
-        'node' => $node,
-        'signup' => $signup,
-        'header' => array('From' => t('New !node_type Signup', array('!node_type' => $node_type_name)) ."<$from>"),
-      );
-      if (module_exists('token')) {
-        $params['body'] = token_replace($params['body'], 'node', $node);
-      }
-      $language = user_preferred_language($signup);
-      drupal_mail('signup', 'signup_forwarding_mail', $node->signup_forwarding_email, $language, $params, $from);
-    }
-
-    drupal_set_message(t('Signup to !title confirmed.', array('!title' => l($node->title, "node/$node->nid"))) . $confirmation_email . $reminder_email);
 
     $node->signup_total++;
     if ($node->signup_close_signup_limit) {
@@ -1269,6 +1236,103 @@ function signup_sign_up_user($signup_form) {
   else {
     drupal_access_denied();
   }
+}
+
+/**
+ * Send the signup comfirmation e-mail to a user who signs up for something.
+ * 
+ * Note: Each signup-enabled node can be configured to send confirmation
+ * e-mails or not, along with the body of the confirmation message to use.
+ * If callers wish to honor this configuration, they must test
+ * $node->signup_send_confirmation themselves.
+ *
+ * @param $signup
+ *   The fully-loaded signup object representing the user's signup.
+ * @param $node
+ *   The fully-loaded node object which the user signed up to.
+ *   
+ * @return
+ *   The return value from drupal_mail() if the mail is sent, or FALSE if the
+ *   confirmation was aborted for some reason (node not configured to send it,
+ *   user doesn't have a valid e-mail address, etc).
+ *  
+ * @see signup_sign_up_user()
+ * @see drupal_mail()
+ */
+function signup_send_confirmation_mail($signup, $node) {
+  $user_mail = _signup_get_email($signup);
+  if (empty($user_mail)) {
+    return FALSE;
+  }
+  $node_type_name = node_get_types('name', $node->type);
+  $params = array(
+    'subject' => t('Signup confirmation for !node_type: !title', array('!node_type' => $node_type_name, '!title' => $node->title)),
+    'body' => $node->signup_confirmation_email,
+    'node' => $node,
+    'signup' => $signup,
+  );
+  if (module_exists('token')) {
+    $params['body'] = token_replace($params['body'], 'node', $node);
+  }
+  $language = user_preferred_language($signup);
+  return  drupal_mail('signup', 'signup_confirmation_mail', $user_mail, $language, $params);
+}
+
+/**
+ * Send the signup forwarding mail when a user signs up for something.
+ *
+ * @param $signup
+ *   The fully-loaded signup object representing the user's signup.
+ * @param $node
+ *   The fully-loaded node object which the user signed up to.
+ *
+ * @return
+ *   The return value from drupal_mail() if the mail is sent, or FALSE if the
+ *   messsage is aborted for some reason (node not configured to send it,
+ *   user doesn't have a valid e-mail address, etc).
+ *
+ * @see signup_sign_up_user()
+ * @see drupal_mail()
+ */
+function signup_send_forwarding_mail($signup, $node) {
+  if (!$node->signup_forwarding_email) {
+    return FALSE;
+  }
+  $user_mail = _signup_get_email($signup);
+  if (empty($user_mail)) {
+    return FALSE;
+  }
+  $message = t('The following information was submitted as a signup for !title', array('!title' => $node->title));
+  if (_signup_get_node_scheduler($node) != 'none') {
+    $message .= "\n\r". t('Date/Time: !time', array('!time' => signup_format_date($node)));
+  }
+
+  $message .= "\n\r\n\r". t('Username: !name', array('!name' => empty($signup->uid) ? variable_get('anonymous', t('Anonymous')) : $signup->name));
+  if (!empty($signup->uid)) {
+    // For authenticated users, just include a link to their profile page.
+    $message .= "\n\r". t('Profile page: !url', array('!url' => url('user/'. $signup->uid, array('absolute' => TRUE))));
+  }
+  else {
+    // For anonymous users, their email is all we've got, so disclose it.
+    $message .= "\n\r". t('E-mail: !email', array('!email' => $user_mail));
+  }
+  if (!empty($signup->form_data)) {
+    $message .= "\n\r\n\r". theme('signup_email_token_custom_data', $signup->form_data);
+  }
+  $node_type_name = node_get_types('name', $node->type);
+  $from = variable_get('site_mail', ini_get('sendmail_from'));
+  $params = array(
+    'subject' => t('Signup confirmation for !node_type: !title', array('!node_type' => $node_type_name, '!title' => $node->title)),
+    'body' => $message,
+    'node' => $node,
+    'signup' => $signup,
+    'header' => array('From' => t('New !node_type Signup', array('!node_type' => $node_type_name)) ."<$from>"),
+  );
+  if (module_exists('token')) {
+    $params['body'] = token_replace($params['body'], 'node', $node);
+  }
+  $language = user_preferred_language($signup);
+  return drupal_mail('signup', 'signup_forwarding_mail', $node->signup_forwarding_email, $language, $params, $from);
 }
 
 /**
