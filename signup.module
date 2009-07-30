@@ -593,7 +593,7 @@ function _signup_menu_signup_access($signup, $op) {
  */
 function signup_node_tab_page($node) {
   $signup = _signup_menu_access($node, 'signup');
-  $list = _signup_menu_access($node, 'list');
+  $list = _signup_menu_access($node, 'list-tab');
   $admin = _signup_menu_access($node, 'admin');
   $broadcast = _signup_menu_access($node, 'broadcast');
   if ($signup) {
