@@ -1,15 +1,6 @@
 $Id$
 
 -----------
-6.x-1.x-dev
------------
-Bugs fixed since 6.x-1.0-rc4:
-= #533970 by dww: Fixed bug that caused the "signups" tab on nodes to
-  generate an "Access denied" message unless the signup attendee list
-  was configured to appear as a tab (introduced in RC4 via #529478).
-
-
------------
 6.x-1.0-rc4
 -----------
 Bugs fixed since 6.x-1.0-rc3:

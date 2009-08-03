@@ -9,15 +9,13 @@
  * text changes into 'Save changes'.
  */
 Drupal.behaviors.enableSignupEditForm = function(context) {
-  if (!Drupal.settings.signupEditFormErrors) {
-    var $button = $('#edit-save', context).click(enableSave);
-    var $form = $button.parents('form:first');
-    var $form_elements = $form.find('input:not(:hidden), textarea, select');
-    var original_button_title = $button.val();
-
-    $form_elements.attr('disabled', 'disabled');
-    $button.attr('disabled', '').val(Drupal.t('Edit'));
-  }
+  var $button = $('#edit-save', context).click(enableSave);
+  var $form = $button.parents('form:first');
+  var $form_elements = $form.find('input:not(:hidden), textarea, select');
+  var original_button_title = $button.val();
+ 
+  $form_elements.attr('disabled', 'disabled');
+  $button.attr('disabled', '').val(Drupal.t('Edit'));
  
   function enableSave() {
     $form_elements.attr('disabled', '');

@@ -184,9 +184,6 @@ function _signup_render_signup_edit_form($signup, $type) {
   }
   drupal_add_js("$path/js/signup_edit_form.js");
   module_load_include('inc', 'signup', 'includes/signup_edit_form');
-  $form = drupal_get_form('signup_edit_form', $signup, $type);
-  $form_errors = form_get_errors() ? TRUE : FALSE;
-  drupal_add_js(array('signupEditFormErrors' => $form_errors), 'setting');
-  return $form;
+  return drupal_get_form('signup_edit_form', $signup, $type);
 }
 
