@@ -7,6 +7,11 @@ Bugs fixed since 6.x-1.0-rc4:
 = #533970 by dww: Fixed bug that caused the "signups" tab on nodes to
   generate an "Access denied" message unless the signup attendee list
   was configured to appear as a tab (introduced in RC4 via #529478).
+= #534948 by dww: Fixed bugs where signup_confirm_email.module breaks
+  signup_status.module due to the unorthodox way it was trying to
+  hijack the signup form for the confirmation.  Now, confirmation is
+  handled via a checkbox (which is only shown if needed via JavaScript)
+  instead of trying to redirect to a separate confirmation form.
 
 
 -----------
