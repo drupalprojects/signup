@@ -114,7 +114,7 @@ function signup_user_schedule($account) {
   drupal_set_title(t('Signups for @user', array('@user' => $account->name)));
   $titles = signup_list_user_signups($account->uid);
   foreach ($titles as $nid => $title) {
-    $node = node_load(array('nid' => $nid));
+    $node = node_load($nid);
     $output .= theme('signup_user_schedule', $node);
   }
   return $output;

@@ -12,6 +12,8 @@ Bugs fixed since 6.x-1.0-rc4:
   hijack the signup form for the confirmation.  Now, confirmation is
   handled via a checkbox (which is only shown if needed via JavaScript)
   instead of trying to redirect to a separate confirmation form.
+= #544882 by dereine: Fixed a few places that called node_load() so that
+  they can now make use of the node caching feature.
 
 
 -----------

@@ -1094,7 +1094,7 @@ function signup_close_signup($nid, $cron = 'no') {
 function signup_open_signup($nid, $cron = 'no') {
   db_query("UPDATE {signup} SET status = 1 WHERE nid = %d", $nid);
   if ($cron == 'no') {
-    $node = node_load(array('nid' => $nid));
+    $node = node_load($nid);
     foreach (module_implements('signup_open') as $module) {
       $function = $module .'_signup_open';
       $function($node);
