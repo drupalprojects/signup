@@ -15,6 +15,9 @@ Bugs fixed since 6.x-1.0-rc4:
 = #544882 by dereine: Fixed a few places that called node_load() so that
   they can now make use of the node caching feature.
 
+New features since 6.x-1.0-rc4:
+= #549646 by dww: Exposed signup-related node and signup data to token.module.
+
 
 -----------
 6.x-1.0-rc4
