@@ -19,6 +19,7 @@ function _signup_token_help(&$form, $element_name) {
   $form[$element_name] = array(
     '#type' => 'fieldset',
     '#title' => t('Replacement tokens'),
+    '#description' => t("Since these tokens will be used in plain text e-mail, it is better to use the '-raw' versions of any tokens that provide them."),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
   );
@@ -35,33 +36,7 @@ function _signup_token_help(&$form, $element_name) {
 function _signup_build_token_help() {
   static $help_html = '';
   if (empty($help_html)) {
-    $patterns = token_get_list('node');
-    foreach ($patterns as $type => $pattern_set) {
-      foreach ($pattern_set as $pattern => $description) {
-        $tokens[$pattern] = $description;
-      }
-    }
-    $help_html = theme('signup_token_help', $tokens);
+    $help_html = theme('token_help', array('signup', 'node', 'global'));
   }
   return $help_html;
 }
-
-/**
- * theme_signup_token_help()
- *
- * @param $tokens
- *   An array of token patterns mapping to their description
- *
- * @return The themed representation of the tokens.
- */
-function theme_signup_token_help($tokens) {
-  $tokens_html = "<dl>\n";
-  foreach ($tokens as $name => $description) {
-    $tokens_html .= '<dt>['. $name .']</dt>';
-    $tokens_html .= '<dd>'. $description ."</dd>\n";
-  }
-  $tokens_html .= "</dl>\n";
-
-  return $tokens_html;
-}
-

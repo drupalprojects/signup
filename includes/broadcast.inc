@@ -153,7 +153,7 @@ function signup_send_broadcast($nid, $subject, $body, $from, $copy = FALSE, $sig
         'signup' => $signup,
       );
       if (module_exists('token')) {
-        $params['body'] = token_replace($params['body'], 'node', $node);
+        $params['body'] = token_replace_multiple($params['body'], array('node' => $node, 'signup' => $signup, 'global' => NULL));
       }
       $language = user_preferred_language($signup);
       drupal_mail('signup', 'signup_broadcast_mail', $user_mail, $language, $params, $from);
@@ -165,7 +165,7 @@ function signup_send_broadcast($nid, $subject, $body, $from, $copy = FALSE, $sig
       $message = strtr($body, $signup_tokens);
       if (module_exists('token')) {
         // If the token.module is enabled, also handle any tokens it provides.
-        $message = token_replace($message, 'node', $node);
+        $message = token_replace_multiple($message, array('node' => $node, 'signup' => $signup, 'global' => NULL));
       }
       $final_text = theme('signup_broadcast_sender_copy', $body, $message);
       $params = array(

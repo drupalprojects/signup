@@ -173,13 +173,6 @@ function signup_theme() {
         'view' => NULL,
       ),
     ),
-    'signup_token_help' => array(
-      'file' => 'token_help.inc',
-      'path' => drupal_get_path('module', 'signup') .'/includes',
-      'arguments' => array(
-        'tokens' => NULL,
-      ),
-    ),
   );
 }
 
@@ -1181,7 +1174,7 @@ function signup_sign_up_user($signup_form, $notify_user = TRUE) {
 
   if ($node->signup_status) {
     // Grab the current time once, since we need it in a few places.
-    $curtime = time();
+    $current_time = time();
 
     // Allow other modules to inject data into the user's signup data.
     $extra = module_invoke_all('signup_sign_up', $node, $user);
@@ -1200,7 +1193,7 @@ function signup_sign_up_user($signup_form, $notify_user = TRUE) {
     $reminder_email = $node->signup_send_reminder ? '  '. t('A reminder email will be sent !number !days before the %node_type.', array('!number' => $node->signup_reminder_days_before, '!days' => format_plural($node->signup_reminder_days_before, 'day', 'days'), '%node_type' => node_get_types('name', $node->type))) : '';
 
     // Insert the user into the signup_log.
-    db_query("INSERT INTO {signup_log} (uid, nid, anon_mail, signup_time, form_data) VALUES (%d, %d, '%s', %d, '%s')", $signup_form['uid'], $signup_form['nid'], $signup_anon_mail, $curtime, $signup_form_data);
+    db_query("INSERT INTO {signup_log} (uid, nid, anon_mail, signup_time, form_data) VALUES (%d, %d, '%s', %d, '%s')", $signup_form['uid'], $signup_form['nid'], $signup_anon_mail, $current_time, $signup_form_data);
     $sid = db_last_insert_id('signup_log', 'sid');
 
     // Get the hard-coded tokens provided by the signup module to use
@@ -1209,6 +1202,7 @@ function signup_sign_up_user($signup_form, $notify_user = TRUE) {
     $signup = $user;
     $signup->form_data = $signup_info;
     $signup->sid = $sid;
+    $signup->signup_time = $current_time;
     if (!empty($signup_anon_mail)) {
       $signup->anon_mail = $signup_anon_mail;
     }
@@ -1272,7 +1266,7 @@ function signup_send_confirmation_mail($signup, $node) {
     'signup' => $signup,
   );
   if (module_exists('token')) {
-    $params['body'] = token_replace($params['body'], 'node', $node);
+    $params['body'] = token_replace_multiple($params['body'], array('node' => $node, 'signup' => $signup, 'global' => NULL));
   }
   $language = user_preferred_language($signup);
   return  drupal_mail('signup', 'signup_confirmation_mail', $user_mail, $language, $params);
@@ -1329,7 +1323,7 @@ function signup_send_forwarding_mail($signup, $node) {
     'header' => array('From' => t('New !node_type Signup', array('!node_type' => $node_type_name)) ."<$from>"),
   );
   if (module_exists('token')) {
-    $params['body'] = token_replace($params['body'], 'node', $node);
+    $params['body'] = token_replace_multiple($params['body'], array('node' => $node, 'signup' => $signup, 'global' => NULL));
   }
   $language = user_preferred_language($signup);
   return drupal_mail('signup', 'signup_forwarding_mail', $node->signup_forwarding_email, $language, $params, $from);
@@ -1626,3 +1620,73 @@ function signup_view_user_list_access($view_name, $display_id, $argument_name) {
   return $user->uid == $view->argument[$argument_name]->get_value();
 }
 
+/**
+ * Implement hook_token_list() (from token.module)
+ */
+function signup_token_list($type) {
+  $tokens = array();
+  if ($type == 'node') {
+    $tokens['node'] = array(
+      'node_signup_enabled' => t('True/False for if signups are enabled on a node'),
+      'node_signup_status' => t("Are signups 'open' or 'closed' for this node."),
+      'node_signup_limit' => t('The signup limit for this node'),
+    );
+  }
+  elseif ($type == 'signup') {
+    $tokens['signup'] = array(
+      'signup_user_data' => t('Any custom fields the user filled out when signing up, rendered as HTML.'),
+      'signup_user_data-raw' => t('Any custom fields the user filled out when signing up, rendered as unfiltered plain text (e.g. for ASCII e-mail).'),
+      'signup_date_short' => t('The date/time when the user signed up, short date format.'),
+      'signup_date_medium' => t('The date/time when the user signed up, medium date format.'),
+      'signup_date_long' => t('The date/time when the user signed up, long date format.'),
+      'signup_cancel_url' => t('The URL for a user to cancel their signup (if they have permission to do so).'),
+      'signup_email' => t('The e-mail address for the signup (either anonymous or authenticated).'),
+      'signup_anonymous_email' => t('The e-mail addressed entered for an anonymous signup, or an empty string if an authenticated user signed up.'),
+      'signup_attendence' => t('If the user attended the thing they signed up for.'),
+    );
+  }
+  return $tokens;
+}
+
+/**
+ * Implement hook_token_values() (from token.module)
+ */
+function signup_token_values($type = 'all', $object = NULL) {
+  $values = array();
+  if ($type == 'node') {
+    if (empty($object->signup)) {
+      $values['node_signup_enabled'] = t('disabled');
+      $values['node_signup_status'] = '';
+      $values['node_signup_limit'] = '';
+    }
+    else {
+      $values['node_signup_enabled'] = t('enabled');
+      $values['node_signup_status'] = $object->signup_status ? t('open') : t('closed');
+      $values['node_signup_limit'] = (int)$object->signup_close_signup_limit;
+    }
+  }
+  elseif ($type == 'signup') {
+    $signup_data = array();
+    if (!empty($object->form_data)) {
+      if (is_array($object->form_data)) {
+        $signup_data = $object->form_data;
+      }
+      else {
+        $signup_data = unserialize($object->form_data);
+      }
+    }
+    $values['signup_user_data'] = theme('signup_custom_data', $signup_data);
+    $values['signup_user_data-raw'] = theme('signup_email_token_custom_data', $signup_data);
+    $values['signup_date_short'] = format_date($object->signup_time, 'small');
+    $values['signup_date_medium'] = format_date($object->signup_time, 'medium');
+    $values['signup_date_long'] = format_date($object->signup_time, 'large');
+'';
+    $values['signup_cancel_url'] = _signup_get_cancel_link($object->sid);
+    $values['signup_email'] = !empty($object->anon_mail) ? $object->anon_mail : $object->mail;
+    $values['signup_anonymous_email'] = !empty($object->anon_mail) ? $object->anon_mail : '';
+    $attended = isset($signup->attended) ? $signup->attended : NULL;
+    $values['signup_attendence'] = check_plain(theme('signup_attended_text', $attended));
+
+  }
+  return $values;
+}
