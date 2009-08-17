@@ -1627,22 +1627,22 @@ function signup_token_list($type) {
   $tokens = array();
   if ($type == 'node') {
     $tokens['node'] = array(
-      'node_signup_enabled' => t('True/False for if signups are enabled on a node'),
-      'node_signup_status' => t("Are signups 'open' or 'closed' for this node."),
-      'node_signup_limit' => t('The signup limit for this node'),
+      'node-signup-enabled' => t('True/False for if signups are enabled on a node'),
+      'node-signup-status' => t("Are signups 'open' or 'closed' for this node."),
+      'node-signup-limit' => t('The signup limit for this node'),
     );
   }
   elseif ($type == 'signup') {
     $tokens['signup'] = array(
-      'signup_user_data' => t('Any custom fields the user filled out when signing up, rendered as HTML.'),
-      'signup_user_data-raw' => t('Any custom fields the user filled out when signing up, rendered as unfiltered plain text (e.g. for ASCII e-mail).'),
-      'signup_date_short' => t('The date/time when the user signed up, short date format.'),
-      'signup_date_medium' => t('The date/time when the user signed up, medium date format.'),
-      'signup_date_long' => t('The date/time when the user signed up, long date format.'),
-      'signup_cancel_url' => t('The URL for a user to cancel their signup (if they have permission to do so).'),
-      'signup_email' => t('The e-mail address for the signup (either anonymous or authenticated).'),
-      'signup_anonymous_email' => t('The e-mail addressed entered for an anonymous signup, or an empty string if an authenticated user signed up.'),
-      'signup_attendence' => t('If the user attended the thing they signed up for.'),
+      'signup-user-data' => t('Any custom fields the user filled out when signing up, rendered as HTML.'),
+      'signup-user-data-raw' => t('Any custom fields the user filled out when signing up, rendered as unfiltered plain text (e.g. for ASCII e-mail).'),
+      'signup-date-short' => t('The date/time when the user signed up, short date format.'),
+      'signup-date-medium' => t('The date/time when the user signed up, medium date format.'),
+      'signup-date-long' => t('The date/time when the user signed up, long date format.'),
+      'signup-cancel-url' => t('The URL for a user to cancel their signup (if they have permission to do so).'),
+      'signup-email' => t('The e-mail address for the signup (either anonymous or authenticated).'),
+      'signup-anonymous-email' => t('The e-mail addressed entered for an anonymous signup, or an empty string if an authenticated user signed up.'),
+      'signup-attendence' => t('If the user attended the thing they signed up for.'),
     );
   }
   return $tokens;
@@ -1655,14 +1655,14 @@ function signup_token_values($type = 'all', $object = NULL) {
   $values = array();
   if ($type == 'node') {
     if (empty($object->signup)) {
-      $values['node_signup_enabled'] = t('disabled');
-      $values['node_signup_status'] = '';
-      $values['node_signup_limit'] = '';
+      $values['node-signup-enabled'] = t('disabled');
+      $values['node-signup-status'] = '';
+      $values['node-signup-limit'] = '';
     }
     else {
-      $values['node_signup_enabled'] = t('enabled');
-      $values['node_signup_status'] = $object->signup_status ? t('open') : t('closed');
-      $values['node_signup_limit'] = (int)$object->signup_close_signup_limit;
+      $values['node-signup-enabled'] = t('enabled');
+      $values['node-signup-status'] = $object->signup_status ? t('open') : t('closed');
+      $values['node-signup-limit'] = (int)$object->signup_close_signup_limit;
     }
   }
   elseif ($type == 'signup') {
@@ -1675,17 +1675,17 @@ function signup_token_values($type = 'all', $object = NULL) {
         $signup_data = unserialize($object->form_data);
       }
     }
-    $values['signup_user_data'] = theme('signup_custom_data', $signup_data);
-    $values['signup_user_data-raw'] = theme('signup_email_token_custom_data', $signup_data);
-    $values['signup_date_short'] = format_date($object->signup_time, 'small');
-    $values['signup_date_medium'] = format_date($object->signup_time, 'medium');
-    $values['signup_date_long'] = format_date($object->signup_time, 'large');
+    $values['signup-user-data'] = theme('signup_custom_data', $signup_data);
+    $values['signup-user-data-raw'] = theme('signup_email_token_custom_data', $signup_data);
+    $values['signup-date-short'] = format_date($object->signup_time, 'small');
+    $values['signup-date-medium'] = format_date($object->signup_time, 'medium');
+    $values['signup-date-long'] = format_date($object->signup_time, 'large');
 '';
-    $values['signup_cancel_url'] = _signup_get_cancel_link($object->sid);
-    $values['signup_email'] = !empty($object->anon_mail) ? $object->anon_mail : $object->mail;
-    $values['signup_anonymous_email'] = !empty($object->anon_mail) ? $object->anon_mail : '';
+    $values['signup-cancel-url'] = _signup_get_cancel_link($object->sid);
+    $values['signup-email'] = !empty($object->anon_mail) ? $object->anon_mail : $object->mail;
+    $values['signup-anonymous-email'] = !empty($object->anon_mail) ? $object->anon_mail : '';
     $attended = isset($signup->attended) ? $signup->attended : NULL;
-    $values['signup_attendence'] = check_plain(theme('signup_attended_text', $attended));
+    $values['signup-attendence'] = check_plain(theme('signup_attended_text', $attended));
 
   }
   return $values;
