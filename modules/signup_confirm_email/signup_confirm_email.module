@@ -18,7 +18,7 @@
 function signup_confirm_email_form_alter(&$form, &$form_state, $form_id) {
   if ($form_id == 'signup_form' || $form_id == 'signup_edit_form') {
     module_load_include('inc', 'signup_confirm_email', 'signup_confirm_email');
-    signup_confirm_email_alter_signup_form(&$form, &$form_state, $form_id);
+    signup_confirm_email_alter_signup_form($form, $form_state, $form_id);
   }
 }
 
