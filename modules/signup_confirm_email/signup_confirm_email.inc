@@ -15,6 +15,19 @@
 function signup_confirm_email_alter_signup_form(&$form, &$form_state, $form_id) {
   global $user;
 
+  if ($form_id == 'signup_edit_form') {
+    // Ensure the user has permission to edit their own signups, or the rest
+    // of this is wasted effort for a form that can't be submitted.
+    $signup = $form['#signup'];
+    $node = node_load($signup->nid);
+    $admin = _signup_menu_access($node, 'admin');
+    $own = !empty($user->uid) && $user->uid == $signup->uid;
+    $can_edit = $admin || (user_access('edit own signups') && $own);
+    if (!$can_edit) {
+      return;
+    }
+  }
+
   // We only need to do this for authenticated users signing up
   // themselves. We already collect the (presumably current) e-mail for
   // "anonymous" signups. If an administrator is signing up another user,
