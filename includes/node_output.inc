@@ -90,7 +90,7 @@ function _signup_current_user_signup($node, $type = 'node') {
       // An authenticated user.
 
       // See if the user is already signed up for this node.
-      $signup = db_fetch_object(db_query("SELECT sl.*, n.title, u.name FROM {signup_log} sl INNER JOIN {node} n ON sl.nid = n.nid INNER JOIN {users} u ON sl.uid = u.uid WHERE sl.uid = %d AND sl.nid = %d", $user->uid, $node->nid));
+      $signup = db_fetch_object(db_query("SELECT sl.*, n.title, u.name, u.mail FROM {signup_log} sl INNER JOIN {node} n ON sl.nid = n.nid INNER JOIN {users} u ON sl.uid = u.uid WHERE sl.uid = %d AND sl.nid = %d", $user->uid, $node->nid));
       if (empty($signup)) {
         // Not yet signed up
         if (user_access('sign up for content')) {
