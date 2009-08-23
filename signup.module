@@ -951,7 +951,7 @@ function signup_object_info() {
  *   Fully loaded $signup object corresponding to the given ID.
  */ 
 function signup_load_signup($sid) {
-  $signup = db_fetch_object(db_query("SELECT sl.*, n.title, u.name FROM {signup_log} sl INNER JOIN {node} n ON sl.nid = n.nid INNER JOIN {users} u ON sl.uid = u.uid WHERE sl.sid = %d", $sid));
+  $signup = db_fetch_object(db_query("SELECT sl.*, n.title, u.name, u.mail FROM {signup_log} sl INNER JOIN {node} n ON sl.nid = n.nid INNER JOIN {users} u ON sl.uid = u.uid WHERE sl.sid = %d", $sid));
   if (!empty($signup)) {
     // This label is escaped by VBO, so it needs to be plain text, not HTML.
     $signup->label = t("!user signup for '!title'", array('!user' => $signup->name, '!title' => $signup->title));
@@ -1682,7 +1682,15 @@ function signup_token_values($type = 'all', $object = NULL) {
     $values['signup-date-long'] = format_date($object->signup_time, 'large');
 '';
     $values['signup-cancel-url'] = _signup_get_cancel_link($object->sid);
-    $values['signup-email'] = !empty($object->anon_mail) ? $object->anon_mail : $object->mail;
+    if (!empty($object->anon_mail)) {
+      $values['signup-email'] = $object->anon_mail;
+    }
+    elseif (!empty($object->mail)) {
+      $values['signup-email'] = $object->mail;
+    }
+    else {
+      $values['signup-email'] = '';
+    }
     $values['signup-anonymous-email'] = !empty($object->anon_mail) ? $object->anon_mail : '';
     $attended = isset($signup->attended) ? $signup->attended : NULL;
     $values['signup-attendence'] = check_plain(theme('signup_attended_text', $attended));
