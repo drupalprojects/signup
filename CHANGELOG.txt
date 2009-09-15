@@ -1,6 +1,15 @@
 $Id$
 
 -----------
+6.x-1.x-dev
+-----------
+Bugs fixed since 6.x-1.0-rc5:
+= #439294 by dww: Fixed bug where %user_signup_info was not being
+  replaced with an empty string on sites that do not define any extra
+  fields on the signup form.
+
+
+-----------
 6.x-1.0-rc5
 -----------
 Bugs fixed since 6.x-1.0-rc4:
