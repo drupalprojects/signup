@@ -18,6 +18,9 @@ Bugs fixed since 5.x-2.7:
 = #181272 by dww: Fixed bug where the labels on the custom signup form
   fields were not properly translatable when this data was displayed in
   other places (when viewing your own signup info, etc).
+= #439294 by dww: Fixed bug where %user_signup_info was not being
+  replaced with an empty string on sites that do not define any extra
+  fields on the signup form.
 
 Other changes since 5.x-2.7:
 = #363337 by dww: Improved the UI for the advanced settings by trimming
