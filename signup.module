@@ -1497,6 +1497,9 @@ function _signup_get_email_tokens($node, $signup) {
     }
     $tokens['%user_signup_info'] = theme('signup_email_token_custom_data', $signup_data);
   }
+  else {
+    $tokens['%user_signup_info'] = '';
+  }
 
   $tokens['%user_name'] = _signup_get_username($signup);
   $tokens['%user_mail'] = _signup_get_email($signup);
