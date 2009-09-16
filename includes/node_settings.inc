@@ -21,12 +21,14 @@
  *   Boolean flag indicating if this node (or site) has signup-aware
  *   date functionality, which is required for reminder emails to be in
  *   the form.
+ * @param $include_buttons
+ *   Boolean flag indicating if the form should include its own submit buttons.
  *
  * @return
  *   The form array for the per-node signup settings.
  *
  */
-function signup_node_settings_form($form_state, $node = NULL, $node_type = NULL, $has_date = FALSE) {
+function signup_node_settings_form($form_state, $node = NULL, $node_type = NULL, $has_date = FALSE, $include_buttons = FALSE) {
   if (module_exists('token')) {
     $signup_token_description = t('Supported string substitutions: %node_title, %node_url, %node_start_time, %user_name, %user_mail, %user_signup_info (additional information from the signup form), %cancel_signup_url (access to this link is denied to users without the "%cancel_own_signups" permission), and any tokens in the %replacement_tokens list.', array('%replacement_tokens' => t('Replacement tokens'), '%cancel_own_signups' => t('cancel own signups')));
   }
@@ -115,6 +117,76 @@ function signup_node_settings_form($form_state, $node = NULL, $node_type = NULL,
   );
   $form['signup'] = array('#type' => 'hidden', '#value' => 1);
 
+  if ($include_buttons) {
+    $form['#node'] = $node;
+    $form['buttons']['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Save configuration'),
+    );
+    $form['buttons']['reset'] = array(
+      '#type' => 'submit',
+      '#value' => t('Reset to defaults'),
+    );
+    $form['#submit'][] = 'signup_node_settings_form_submit';
+  }
+
   return $form;
+}
+
+/**
+ * Page callback for the node/N/signups/settings subtab.
+ */
+function signup_node_settings_page($node) {
+  $node_scheduler = _signup_get_node_scheduler($node);
+  $node_has_date = $node_scheduler != 'none';
+  return drupal_get_form('signup_node_settings_form', $node, $node->type, $node_has_date, TRUE);
+}
+
+/**
+ * Submit handler for the per-node signup settings form.
+ *
+ * @param $form_id
+ *   The ID of the form being submitted.
+ * @param $form_values
+ *   The constructed form values array of the submitted form.
+ */
+function signup_node_settings_form_submit($form, &$form_state) {
+  $op = isset($form_state['values']['op']) ? $form_state['values']['op'] : '';
+  if ($op == t('Reset to defaults')) {
+    // If we're resetting, we just want to grab the site-wide defaults.
+    $values = db_fetch_array(db_query("SELECT forwarding_email, send_confirmation, confirmation_email, close_signup_limit, send_reminder, reminder_days_before, reminder_email FROM {signup} WHERE nid = 0"));
+  }
+  else {
+    // Populate $values from $form_state.
+    foreach (array('forwarding_email', 'send_confirmation', 'confirmation_email', 'close_signup_limit') as $setting) {
+      $values[$setting] = $form_state['values']["signup_$setting"];
+    }
+    // If we're dealing with a node that doesn't have a start time, these
+    // fields are missing from the signup settings form, so we can't assume
+    // they're defined.
+    $values['send_reminder'] = isset($form_state['values']['signup_send_reminder']) ? $form_state['values']['signup_send_reminder'] : 0;
+    $values['reminder_days_before'] = isset($form_state['values']['signup_reminder_days_before']) ? $form_state['values']['signup_reminder_days_before'] : 0;
+    $values['reminder_email'] = isset($form_state['values']['signup_reminder_email']) ? $form_state['values']['signup_reminder_email'] : '';
+  }
+
+  // Either way, we want to make sure we're updating the values for the
+  // current node, not nid 0...
+  $node = $form['#node'];
+  $values[] = $node->nid;
+  db_query("UPDATE {signup} SET forwarding_email = '%s', send_confirmation = %d, confirmation_email = '%s', close_signup_limit = %d, send_reminder = %d, reminder_days_before = %d, reminder_email = '%s' WHERE nid = %d", $values);
+
+  // See if the limit changed, and if so, take any necessary action.
+  if ($node->signup_close_signup_limit != $form_state['values']['signup_close_signup_limit']) {
+    $node->signup_close_signup_limit = $form_state['values']['signup_close_signup_limit'];
+    $node->signup_total = db_result(db_query("SELECT COUNT(*) FROM {signup_log} WHERE nid = %d", $node->nid));
+    _signup_check_limit($node, 'limit');
+  }
+
+  if ($op == t('Reset to defaults')) {
+    drupal_set_message(t('The configuration options have been reset to their default values.'));
+  }
+  else {
+    drupal_set_message(t('The configuration options have been saved.'));
+  }
 }
 

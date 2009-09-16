@@ -381,6 +381,17 @@ function signup_menu() {
     'file' => 'node_admin.inc',
     'file path' => $path,
   );
+  $items['node/%node/signups/settings'] = array(
+    'title' => 'Settings',
+    'page callback' => 'signup_node_settings_page',
+    'page arguments' => array(1),
+    'access callback' => '_signup_menu_access',
+    'access arguments' => array(1, 'admin'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 1,
+    'file' => 'node_settings.inc',
+    'file path' => $path,
+  );
   $items['node/%node/signups/confirm'] = array(
     'page callback' => 'drupal_get_form',
     'page arguments' => array('signup_cancel_multiple_confirm', 1),
