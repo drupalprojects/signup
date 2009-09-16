@@ -8,6 +8,10 @@ Bugs fixed since 6.x-1.0-rc5:
   replaced with an empty string on sites that do not define any extra
   fields on the signup form.
 
+Other changes since 6.x-1.0-rc5:
+= #578502 by dww: Moved signup-related settings from node/N/edit to a
+  new "Settings" subtab at node/N/signups/settings.
+
 
 -----------
 6.x-1.0-rc5
