@@ -976,10 +976,40 @@ function signup_load_signup($sid) {
  * @param $signup
  *   Fully-loaded signup object to save.
  *
+ * @return
+ *   The return value from drupal_write_record().
+ *
  * @see signup_load_signup()
+ * @see drupal_write_record()
  */
-function signup_save_signup($signup) {
-  drupal_write_record('signup_log', $signup, array('sid'));
+function signup_save_signup(&$signup) {
+  $rval = FALSE;
+  if (is_array($signup->form_data)) {
+    $form_data_array = $signup->form_data;
+    $signup->form_data = serialize($form_data_array);
+  }
+  if (empty($signup->sid)) {
+    $hook = 'signup_insert';
+    $update = array();
+  }
+  else {
+    $hook = 'signup_update';
+    $update = array('sid');
+  }
+  $rval = drupal_write_record('signup_log', $signup, $update);
+
+  // Restore $signup->form_data if we had to serialized it.
+  if (isset($form_data_array)) {
+    $signup->form_data = $form_data_array;
+  }
+
+  if (!empty($rval)) {
+    // If we successfully wrote a record, invoke the appropriate hook.
+    module_invoke_all($hook, $signup);
+  }
+
+  // Propagate the return value from drupal_write_record().
+  return $rval;
 }
 
 /**
@@ -1173,22 +1203,22 @@ function signup_sign_up_user($signup_form, $notify_user = TRUE) {
     // user_load() just so theme('username') can have the data it
     // needs for the error message we might print out.
     $result = db_query("SELECT sl.uid, u.name FROM {signup_log} sl INNER JOIN {users} u ON sl.uid = u.uid WHERE sl.uid = %d AND sl.nid = %d", $signup_form['uid'], $signup_form['nid']);
-    $user = db_fetch_object($result);
-    if (!empty($user)) {
-      drupal_set_message(t('User !user is already signed up for %title', array('!user' => theme('username', $user), '%title' => $node->title)), 'error');
+    $account = db_fetch_object($result);
+    if (!empty($account)) {
+      drupal_set_message(t('User !user is already signed up for %title', array('!user' => theme('username', $account), '%title' => $node->title)), 'error');
       return FALSE;
     }
   }
 
-  // If we made it this far, we're going to need the full $user object.
-  $user = user_load(array('uid' => $signup_form['uid']));
+  // If we made it this far, we're going to need the full user object.
+  $account = user_load(array('uid' => $signup_form['uid']));
 
   if ($node->signup_status) {
     // Grab the current time once, since we need it in a few places.
     $current_time = time();
 
     // Allow other modules to inject data into the user's signup data.
-    $extra = module_invoke_all('signup_sign_up', $node, $user);
+    $extra = module_invoke_all('signup_sign_up', $node, $account);
     $signup_info = array();
     if (!empty($signup_form['signup_form_data'])) {
       $signup_info = $signup_form['signup_form_data'];
@@ -1196,27 +1226,31 @@ function signup_sign_up_user($signup_form, $notify_user = TRUE) {
     if (!empty($extra)) {
       $signup_info = array_merge($signup_info, $extra);
     }
-    $signup_form_data = serialize($signup_info);
 
     // Figure out if confirmation or reminder emails will be sent and
     // inform the user.
     $confirmation_email = $node->signup_send_confirmation ? '  '. t('A confirmation email will be sent shortly containing further information about this %node_type.', array('%node_type' => node_get_types('name', $node->type))) : '';
     $reminder_email = $node->signup_send_reminder ? '  '. t('A reminder email will be sent !number !days before the %node_type.', array('!number' => $node->signup_reminder_days_before, '!days' => format_plural($node->signup_reminder_days_before, 'day', 'days'), '%node_type' => node_get_types('name', $node->type))) : '';
 
-    // Insert the user into the signup_log.
-    db_query("INSERT INTO {signup_log} (uid, nid, anon_mail, signup_time, form_data) VALUES (%d, %d, '%s', %d, '%s')", $signup_form['uid'], $signup_form['nid'], $signup_anon_mail, $current_time, $signup_form_data);
-    $sid = db_last_insert_id('signup_log', 'sid');
-
-    // Get the hard-coded tokens provided by the signup module to use
-    // for the confirmation and/or forwarding emails.  We need to create
-    // an object representing the user's signup to get the right values.
-    $signup = $user;
+    // Construct the appropriate $signup object representing this signup.
+    $signup = new stdClass;
+    $signup->nid = $node->nid;
+    // Grab the values from the $account object we care about
+    foreach (array('uid', 'name', 'mail') as $field) {
+      $signup->$field = $account->$field;
+    }
+    // Other special signup values.
     $signup->form_data = $signup_info;
-    $signup->sid = $sid;
     $signup->signup_time = $current_time;
     if (!empty($signup_anon_mail)) {
       $signup->anon_mail = $signup_anon_mail;
     }
+
+    // Invoke hook_signup_data_alter() to let other modules change this.
+    drupal_alter('signup_data', $signup, $signup_form);
+
+    // Insert the signup into the {signup_log} table.
+    signup_save_signup($signup);
 
     // See if we should generate any notifications from this signup.
     if ($notify_user) {
@@ -1236,7 +1270,7 @@ function signup_sign_up_user($signup_form, $notify_user = TRUE) {
     if ($node->signup_close_signup_limit) {
       _signup_check_limit($node, 'total');
     }
-    return $sid;
+    return $signup->sid;
   }
   else {
     drupal_access_denied();

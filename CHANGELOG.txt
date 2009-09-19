@@ -8,6 +8,12 @@ Bugs fixed since 6.x-1.0-rc5:
   replaced with an empty string on sites that do not define any extra
   fields on the signup form.
 
+API changes since 6.x-1.0-rc5:
+= #581734 by dww: Improved the Signup API by adding some much needed hooks:
+  - hook_signup_data_alter() to modify a $signup object before it's saved
+  - hook_signup_insert() invoked when a signup is inserted into the DB
+  - hook_signup_update() invoked when a signup is updated in the DB
+
 Other changes since 6.x-1.0-rc5:
 = #578502 by dww: Moved signup-related settings from node/N/edit to a
   new "Settings" subtab at node/N/signups/settings.
