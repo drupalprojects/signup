@@ -143,35 +143,39 @@ function signup_validate_anon_mail($form, &$form_state) {
  * Submit callback when saving changes to an existing signup.
  */
 function signup_edit_form_save_submit($form, $form_state) {
-  $signup_info = array();
+  $signup = $form['#signup'];
   if (!empty($form_state['values']['signup_form_data'])) {
-    $signup_info = $form_state['values']['signup_form_data'];
+    $signup->form_data = $form_state['values']['signup_form_data'];
   }
-  $values[] = "form_data = '%s'";
-  $args[] = serialize($signup_info);
 
   // If the form contains an e-mail address for an anonymous signup, save it.
   if (!empty($form_state['values']['signup_anon_mail'])) {
-    $values[] = "anon_mail = '%s'";
-    $args[] = $form_state['values']['signup_anon_mail'];
+    $signup->anon_mail = $form_state['values']['signup_anon_mail'];
   }
 
   // If the form contains attendance info, save it.
   if (isset($form_state['values']['attended'])) {
     if ($form_state['values']['attended'] == -1) {
-      $values[] = "attended = NULL";
+      unset($signup->attended);
     }
     else {
-      $values[] = "attended = %d";
-      $args[] = $form_state['values']['attended'];
+      $signup->attended = $form_state['values']['attended'];
     }
   }
 
-  /// @TODO invoke a hook?
-  /// @TODO should we have a "signup_update_time" field and update that, too?
-  $updates = implode(', ', $values);
-  $args[] = $form['#signup']->sid;
-  db_query("UPDATE {signup_log} SET $updates WHERE sid = %d", $args);
+  // Invoke hook_signup_data_alter() to let other modules change this.
+  drupal_alter('signup_data', $signup, $form_state['values']);
+
+  // Update the signup in the {signup_log} table.
+  signup_save_signup($signup);
+
+  // Because drupal_write_record() doesn't gracefully handle columns that can
+  // be NULL, if the attendence was cleared out by this edit, we need to
+  // manually set the DB record to NULL here.
+  if (!isset($signup->attended)) {
+    db_query("UPDATE {signup_log} SET attended = NULL WHERE sid = %d", $signup->sid);
+  }
+
   drupal_set_message(t('Signup information updated.'));
 }
 

@@ -8,6 +8,18 @@
  */
 
 /**
+ * Hook to alter signup data before a signup is inserted or updated.
+ *
+ * @param $signup
+ *   Reference to the fully-loaded signup object representing the signup.
+ * @param $form_values
+ *   Array of form values (if any) from the signup being inserted or updated.
+ */
+function hook_signup_data_alter(&$signup, $form_values) {
+  // TODO
+}
+
+/**
  * Hook invoked when a signup is being canceled.
  *
  * At the time this hook is invoked the record about the signup in the
@@ -41,6 +53,25 @@ function hook_signup_cancel($signup, $node) {
   drupal_set_message(theme('item_list', $info, t('Signup canceled for %node_title', array('%node_title' => $node->title))));
 }
 
+/**
+ * Hook invoked after a signup has been inserted.
+ *
+ * @param $signup
+ *   The fully-loaded signup object representing the new signup.
+ */
+function hook_signup_insert($signup) {
+  // TODO
+}
+
+/**
+ * Hook invoked after a signup has been updated.
+ *
+ * @param $signup
+ *   The fully-loaded signup object representing the updated signup.
+ */
+function hook_signup_update($signup) {
+  // TODO
+}
 
 /**
  * Hook invoked when a signup is being created to gather other signup data.
