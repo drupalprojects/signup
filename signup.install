@@ -127,6 +127,12 @@ function signup_schema() {
         'type' => 'int',
         'size' => 'tiny',
       ),
+      'count_towards_limit' => array(
+        'description' => t('How many slots (if any) this signup should use towards the total signup limit for this node'),
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 1,
+      ),
     ),
     'primary key' => array('sid'),
     'indexes' => array(
@@ -458,5 +464,21 @@ function signup_update_6002() {
   );
   db_add_field($ret, 'signup_log', 'attended', $field);
   return $ret;	
+}
+
+/**
+ * Add the 'count_towards_limit' field to the {signup_log} table.
+ *
+ * http://drupal.org/node/581652 for more infomation.
+ */
+function signup_update_6003() {
+  $ret = array();
+  $field = array(
+    'type' => 'int',
+    'not null' => TRUE,
+    'default' => 1,
+  );
+  db_add_field($ret, 'signup_log', 'count_towards_limit', $field);
+  return $ret;
 }
 

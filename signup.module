@@ -766,6 +766,7 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
         $node->signup_status = $signup->status;
         if ($node->nid) {
           $node->signup_total = db_result(db_query("SELECT COUNT(*) FROM {signup_log} WHERE nid = %d", $node->nid));
+          $node->signup_effective_total = db_result(db_query("SELECT SUM(count_towards_limit) FROM {signup_log} WHERE nid = %d", $node->nid));
         }
       }
       else {
@@ -1075,7 +1076,13 @@ function signup_cancel_signup($signup, $notify_user = TRUE) {
   }
 
   $node = node_load($signup->nid);
+
+  $effective_total_changed = FALSE;
   $node->signup_total--;
+  if (!empty($signup->count_towards_limit)) {
+    $node->signup_effective_total -= $signup->count_towards_limit;
+    $effective_total_changed = TRUE;
+  }
 
   // Invoke hook_signup_cancel().
   module_invoke_all('signup_cancel', $signup, $node);
@@ -1085,8 +1092,11 @@ function signup_cancel_signup($signup, $notify_user = TRUE) {
   if ($notify_user) {
     drupal_set_message(t('Signup to !title cancelled.', array('!title' => l($node->title, "node/$node->nid"))));
   }
-  // See if signups should be re-opened if the total dropped below the limit.
-  _signup_check_limit($node, 'total');
+
+  if ($effective_total_changed) {
+    // See if signups should be re-opened if the total dropped below the limit.
+    _signup_check_limit($node, 'total');
+  }
 }
 
 /**
@@ -1267,8 +1277,11 @@ function signup_sign_up_user($signup_form, $notify_user = TRUE) {
     }
 
     $node->signup_total++;
-    if ($node->signup_close_signup_limit) {
-      _signup_check_limit($node, 'total');
+    if (!empty($signup->count_towards_total)) {
+      $node->signup_effective_total += $signup->count_towards_total;
+      if ($node->signup_close_signup_limit) {
+        _signup_check_limit($node, 'total');
+      }
     }
     return $signup->sid;
   }
@@ -1398,7 +1411,7 @@ function _signup_check_limit($node, $type) {
   $node_link = l($node->title, "node/$node->nid");
   $limit = $node->signup_close_signup_limit;
   if ($limit) {
-    if ($node->signup_total >= $limit) {
+    if ($node->signup_effective_total >= $limit) {
       if ($node->signup_status) {
         signup_close_signup($node->nid);
         $status_change = -1;
@@ -1413,7 +1426,7 @@ function _signup_check_limit($node, $type) {
         $status_change = -1;
       }
     }
-    elseif (($node->signup_total < $limit) && (!$node->signup_status) && (!_signup_node_completed($node))) {
+    elseif (($node->signup_effective_total < $limit) && (!$node->signup_status) && (!_signup_node_completed($node))) {
       signup_open_signup($node->nid);
       $status_change = 1;
       if ($type == 'limit') {

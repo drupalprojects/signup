@@ -178,7 +178,7 @@ function signup_node_settings_form_submit($form, &$form_state) {
   // See if the limit changed, and if so, take any necessary action.
   if ($node->signup_close_signup_limit != $form_state['values']['signup_close_signup_limit']) {
     $node->signup_close_signup_limit = $form_state['values']['signup_close_signup_limit'];
-    $node->signup_total = db_result(db_query("SELECT COUNT(*) FROM {signup_log} WHERE nid = %d", $node->nid));
+    $node->signup_effective_total = db_result(db_query("SELECT SUM(count_towards_limit) FROM {signup_log} WHERE nid = %d", $node->nid));
     _signup_check_limit($node, 'limit');
   }
 

@@ -10,7 +10,7 @@
 function signup_node_admin_summary_form($form_state, $node) {
   $form = array();
   if ($node->signup_close_signup_limit &&
-    $node->signup_total >= $node->signup_close_signup_limit
+    $node->signup_effective_total >= $node->signup_close_signup_limit
   ) {
     $form['status'] = array(
       '#value' => t('Closed (limit reached)'),
@@ -29,7 +29,7 @@ function signup_node_admin_summary_form($form_state, $node) {
     '#size' => 4, '#maxlength' => 8,
   );
   $form['total'] = array(
-    '#value' => $node->signup_total,
+    '#value' => $node->signup_effective_total,
   );
   $form['submit'] = array(
     '#type' => 'submit',
