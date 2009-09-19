@@ -1,5 +1,6 @@
 ; $Id$
 name = Signup confirm e-mail
 description = "Adds a field to the signup form to confirm the user's e-mail address."
-core = 6.x
 dependencies[] = signup
+package = Signup
+core = 6.x
