@@ -39,7 +39,7 @@ class signup_handler_field_signup_node_link extends views_handler_field_node_lin
     $node->nid = $values->{$this->aliases['nid']};
     $node->uid = $values->{$this->aliases['uid']};
     $node->signup_status = $values->{$this->aliases['signup_status']};
-    $node->signup = !empty($node->signup_status);
+    $node->signup = isset($values->{$this->aliases['signup_status']});
 
     // Ensure the current user can access this link for the given node.
     if (!$this->check_access($node, $tab)) {
