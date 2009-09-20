@@ -12,7 +12,7 @@ Drupal.behaviors.enableSignupEditForm = function(context) {
   if (!Drupal.settings.signupEditFormErrors) {
     var $button = $('#edit-save', context).click(enableSave);
     var $form = $button.parents('form:first');
-    var $form_elements = $form.find('input:not(:hidden), textarea, select');
+    var $form_elements = $form.find(':visible');
     var original_button_title = $button.val();
 
     $form_elements.attr('disabled', 'disabled');
