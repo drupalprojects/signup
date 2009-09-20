@@ -10,6 +10,11 @@ Bugs fixed since 6.x-1.0-rc5:
 = #539052 by dww: Fixed jQuery bug when users edited their signups that
   was causing most of the form elements to be enabled before pressing
   the 'Edit' button (all form elements should be disabled at first).
+= #582626 by dww: Fixed bug in the visibility logic for the "Signup:
+  Node: Signup link" views field handler which used to think that if
+  signups were closed on a node that the node wasn't signup-enabled.
+  This would cause the Signup link fields to only appear on nodes where
+  signups were open.
 
 API and schema changes since 6.x-1.0-rc5:
 = #581734 by dww: Improved the Signup API by adding some much needed hooks:
