@@ -20,6 +20,7 @@ class signup_handler_field_signup_node_link extends views_handler_field_node_lin
         'signup' => t('Signup current user form'),
         'list' => t('Signup user list'),
         'admin' => t('Administer signups'),
+        'settings' => t('Signup settings'),
         'add' => t('Form to sign up other users'),
         'broadcast' => t('Signup broadcast form'),
       ),
@@ -66,6 +67,9 @@ class signup_handler_field_signup_node_link extends views_handler_field_node_lin
       case 'admin':
         return t('administer signups');
 
+      case 'settings':
+        return t('signup settings');
+
       case 'add':
         return t('signup other users');
 
@@ -89,6 +93,10 @@ class signup_handler_field_signup_node_link extends views_handler_field_node_lin
         $view_all = user_access('view all signups');
         $admin = _signup_menu_access($node, 'admin');
         return (($view_all || $admin) && _signup_needs_output($node));
+
+      case 'settings':
+        // There's no separate check for this, it just assumes 'admin' acces.
+        return _signup_menu_access($node, 'admin');
 
       default:
         // All the other tabs can just use _signup_menu_access() directly.
