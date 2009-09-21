@@ -13,28 +13,38 @@ function signup_node_admin_summary_form($form_state, $node) {
     $node->signup_effective_total >= $node->signup_close_signup_limit
   ) {
     $form['status'] = array(
+      '#type' => 'item',
+      '#title' => t('Signups are'),
       '#value' => t('Closed (limit reached)'),
     );
   }
   else {
     $form['status'] = array(
       '#type' => 'select',
+      '#title' => t('Signups are'),
       '#options' => array(0 => t('Closed'), 1 => t('Open')),
       '#default_value' => $node->signup_status,
     );
+    $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Update'),
+      '#submit' => array('signup_node_admin_summary_form_submit'),
+    );
   }
+  $form['total_signups'] = array(
+    '#type' => 'item',
+    '#title' => t('Total signups'),
+    '#value' => isset($node->signup_total) ? $node->signup_total : 0,
+  );
+  $form['slots_used'] = array(
+    '#type' => 'item',
+    '#title' => t('Signup slots used'),
+    '#value' => isset($node->signup_effective_total) ? $node->signup_effective_total : 0,
+  );
   $form['limit'] = array(
-    '#type' => 'textfield',
-    '#default_value' => $node->signup_close_signup_limit,
-    '#size' => 4, '#maxlength' => 8,
-  );
-  $form['total'] = array(
-    '#value' => $node->signup_effective_total,
-  );
-  $form['submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Update'),
-    '#submit' => array('signup_node_admin_summary_form_submit'),
+    '#type' => 'item',
+    '#title' => t('Signup limit'),
+    '#value' => l($node->signup_close_signup_limit, 'node/'. $node->nid .'/signups/settings', array('fragment' => 'signup-limit')),
   );
   $form['nid'] = array(
     '#type' => 'value',
