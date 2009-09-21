@@ -15,6 +15,8 @@ Bugs fixed since 6.x-1.0-rc5:
   signups were closed on a node that the node wasn't signup-enabled.
   This would cause the Signup link fields to only appear on nodes where
   signups were open.
+= #578278 by neil.brown, dww: Fixed bug where the signup_confirm_email
+  field was shown to administrators editing another user's signup.
 
 API and schema changes since 6.x-1.0-rc5:
 = #581734 by dww: Improved the Signup API by adding some much needed hooks:

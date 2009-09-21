@@ -16,9 +16,17 @@ function signup_confirm_email_alter_signup_form(&$form, &$form_state, $form_id) 
   global $user;
 
   if ($form_id == 'signup_edit_form') {
+    $signup = $form['#signup'];
+
+    // Only display the email confirmation fields if an authenticated user is
+    // editing their own signup (anonymous signups already provide an email,
+    // and we shouldn't confirm email when an admin is editing another signup).
+    if (empty($user->uid) || $user->uid != $signup->uid) {
+      return;
+    } 
+    
     // Ensure the user has permission to edit their own signups, or the rest
     // of this is wasted effort for a form that can't be submitted.
-    $signup = $form['#signup'];
     $node = node_load($signup->nid);
     $admin = _signup_menu_access($node, 'admin');
     $own = !empty($user->uid) && $user->uid == $signup->uid;
@@ -59,6 +67,7 @@ function signup_confirm_email_alter_signup_form(&$form, &$form_state, $form_id) 
     }
     elseif ($form_id == 'signup_edit_form') {
       $form['elements']['email'] = $email;
+      $form['elements']['header']['#weight'] = -2;
       $form['elements']['save']['#submit'][] = 'signup_email_confirm_submit';
     }
     $form['#validate'][] = 'signup_email_confirm_validate';
