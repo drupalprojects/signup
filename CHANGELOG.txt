@@ -29,6 +29,9 @@ API and schema changes since 6.x-1.0-rc5:
 Other changes since 6.x-1.0-rc5:
 = #578502 by dww: Moved signup-related settings from node/N/edit to a
   new "Settings" subtab at node/N/signups/settings.
+= #578592 by dww: Cleaned up and fixed the "Signup summary" at the top
+  of the node/N/signups/admin. The UI also makes sense now for signups
+  that don't count towards the signup limit (#581652).
 = #578344 by dww: Added a "Signup" group on the module administration
   page (admin/build/modules) for all the signup-related modules.
 

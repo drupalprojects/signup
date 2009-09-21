@@ -92,11 +92,13 @@ function signup_admin_form($form_state) {
       '#value' => l($signup_node->title, "node/$signup_node->nid"),
     );
     $row['status'] = $node_admin_form['status'];
+    unset($row['status']['#title']);
     $row['total'] = array(
       '#type' => 'markup',
       '#value' => $signup_node->signup_total,
     );
     $row['limit'] = $node_admin_form['limit'];
+    unset($row['limit']['#title']);
     $op_links = l(t('View signups'), "node/$signup_node->nid/signups");
     if ($access_broadcast) {
       $op_links .= '<br />';

@@ -114,6 +114,8 @@ function signup_node_settings_form($form_state, $node = NULL, $node_type = NULL,
     '#default_value' => $node->signup_close_signup_limit,
     '#size' => 4, '#maxlength' => 8,
     '#description' => t('Maximum number of users who can sign up before signups are automatically closed. If set to 0, there is no limit.'),
+    '#prefix' => '<div id="signup-limit">',
+    '#suffix' => '</div>',
   );
   $form['signup'] = array('#type' => 'hidden', '#value' => 1);
 
