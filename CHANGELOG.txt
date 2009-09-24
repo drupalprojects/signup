@@ -1,8 +1,8 @@
 $Id$
 
------------
-6.x-1.x-dev
------------
+------------------------
+6.x-1.0-rc6 (2009-09-23)
+------------------------
 Bugs fixed since 6.x-1.0-rc5:
 = #439294 by dww: Fixed bug where %user_signup_info was not being
   replaced with an empty string on sites that do not define any extra
@@ -38,9 +38,9 @@ Other changes since 6.x-1.0-rc5:
   page (admin/build/modules) for all the signup-related modules.
 
 
------------
-6.x-1.0-rc5
------------
+------------------------
+6.x-1.0-rc5 (2009-08-23)
+------------------------
 Bugs fixed since 6.x-1.0-rc4:
 = #533970 by dww: Fixed bug that caused the "signups" tab on nodes to
   generate an "Access denied" message unless the signup attendee list
@@ -61,9 +61,9 @@ New features since 6.x-1.0-rc4:
 = #549646 by dww: Exposed signup-related node and signup data to token.module.
 
 
------------
-6.x-1.0-rc4
------------
+------------------------
+6.x-1.0-rc4 (2009-07-27)
+------------------------
 Bugs fixed since 6.x-1.0-rc3:
 = #370397 by ezra-g: Fixed critical data-loss bug where all anonymous
   signups would be destroyed if any authenticated user was deleted.
@@ -175,9 +175,9 @@ Other changes since 6.x-1.0-rc3:
 = #439784 by seals: Added Swedish (sv) translation.
 
 
------------
-6.x-1.0-rc3
------------
+------------------------
+6.x-1.0-rc3 (2008-12-20)
+------------------------
 New features since 6.x-1.0-rc2:
 = #349292 by dww: Completely reorganized the signup node tabs.  All tabs
   added by this module now appear as sub-tabs under the "Signups" tab at
@@ -228,9 +228,9 @@ Other changes since 6.x-1.0-rc2:
   version 6.x-2.2 or later.
 
 
------------
-6.x-1.0-rc2
------------
+------------------------
+6.x-1.0-rc2 (2008-12-01)
+------------------------
 Bugs fixed since 6.x-1.0-rc1:
 = #336255 by KarenS and dww: Fixed numerous bugs in usage of DateAPI
   that were breaking all time-based signup functionality for datestamp
@@ -279,9 +279,9 @@ Other changes since 6.x-1.0-rc1:
   type that need to be auto-closed and/or have reminder emails sent.
 
 
------------
-6.x-1.0-rc1
------------
+------------------------
+6.x-1.0-rc1 (2008-11-14)
+------------------------
 Changes since 6.x-1.0-beta1:
 = #330828 by dww: Split module code out into separate include files.
 
