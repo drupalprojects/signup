@@ -119,6 +119,7 @@ $handler->override_option('access', array(
   'type' => 'none',
 ));
 $handler->override_option('items_per_page', 100);
+$handler->override_option('use_pager', 1);
 $handler->override_option('style_plugin', 'bulk');
 $handler->override_option('style_options', array(
   'grouping' => '',

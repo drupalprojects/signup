@@ -6,6 +6,7 @@ $Id$
 Changes since 6.x-1.0-rc6:
 = #226204 by dww: Exposed the numeric signup ID (unique site-wide) as a token.
 = #594686 by dww: Split all default views into their own separate files.
+= #592202 by dww: Added a pager and increased items per page on default views.
 
 
 ------------------------
