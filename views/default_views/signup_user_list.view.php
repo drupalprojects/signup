@@ -91,6 +91,8 @@ $handler->override_option('access', array(
   'type' => 'perm',
   'perm' => 'view all signups',
 ));
+$handler->override_option('items_per_page', 100);
+$handler->override_option('use_pager', 1);
 $handler->override_option('style_plugin', 'table');
 $handler->override_option('style_options', array(
   'grouping' => '',
