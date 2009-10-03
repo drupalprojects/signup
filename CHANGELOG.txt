@@ -1,6 +1,13 @@
 $Id$
 
 ------------------------
+6.x-1.x-dev
+------------------------
+Changes since 6.x-1.0-rc6:
+= #226204 by dww: Exposed the numeric signup ID (unique site-wide) as a token.
+
+
+------------------------
 6.x-1.0-rc6 (2009-09-23)
 ------------------------
 Bugs fixed since 6.x-1.0-rc5:
