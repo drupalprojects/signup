@@ -1704,6 +1704,7 @@ function signup_token_list($type) {
       'signup-email' => t('The e-mail address for the signup (either anonymous or authenticated).'),
       'signup-anonymous-email' => t('The e-mail addressed entered for an anonymous signup, or an empty string if an authenticated user signed up.'),
       'signup-attendence' => t('If the user attended the thing they signed up for.'),
+      'signup-id' => t('Site-wide numeric identifier for the signup.'),
     );
   }
   return $tokens;
@@ -1755,7 +1756,7 @@ function signup_token_values($type = 'all', $object = NULL) {
     $values['signup-anonymous-email'] = !empty($object->anon_mail) ? $object->anon_mail : '';
     $attended = isset($signup->attended) ? $signup->attended : NULL;
     $values['signup-attendence'] = check_plain(theme('signup_attended_text', $attended));
-
+    $values['signup-id'] = $object->sid;
   }
   return $values;
 }
