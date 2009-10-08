@@ -1252,6 +1252,8 @@ function signup_sign_up_user($signup_form, $notify_user = TRUE) {
     // Other special signup values.
     $signup->form_data = $signup_info;
     $signup->signup_time = $current_time;
+    // By default, signups should count towards the limit.
+    $signup->count_towards_total = 1;
     if (!empty($signup_anon_mail)) {
       $signup->anon_mail = $signup_anon_mail;
     }
