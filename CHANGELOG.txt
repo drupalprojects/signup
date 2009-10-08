@@ -3,7 +3,11 @@ $Id$
 ------------------------
 6.x-1.x-dev
 ------------------------
-Changes since 6.x-1.0-rc6:
+Bugs fixed since 6.x-1.0-rc6:
+= #597808 by dww: Fixed bug that was causing signup limits to be ignored
+  unless the signup_status module is enabled (broken in rc6 by #581652).
+
+Other changes since 6.x-1.0-rc6:
 = #226204 by dww: Exposed the numeric signup ID (unique site-wide) as a token.
 = #594686 by dww: Split all default views into their own separate files.
 = #592202 by dww: Added a pager and increased items per page on default views.
