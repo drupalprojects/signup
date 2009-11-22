@@ -1,8 +1,9 @@
 msgid ""
-msgstr "Project-Id-Version: Signup\n"
-"POT-Creation-Date: 2009-11-02 23:18+0100\n"
-"PO-Revision-Date: 2009-11-02 23:23+0100\n"
-"Last-Translator: Thomas Zahreddin <thomas@voicehero.net>\n"
+msgstr ""
+"Project-Id-Version: Signup\n"
+"POT-Creation-Date: 2009-11-22 01:29+0100\n"
+"PO-Revision-Date: 2009-11-22 01:32+0100\n"
+"Last-Translator: Thomas Zahreddin <tz@it-arts.org>\n"
 "Language-Team: drupalcenter.de - Drupal Voice Channel <tz@it-arts.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -202,135 +203,139 @@ msgstr "Eine Bestätigungsemail mit weiteren Informationen zu %node_type wird in
 msgid "A reminder email will be sent !number !days before the %node_type."
 msgstr "In !number !days vor dem Start von %node_type wird eine Erinnerung per email verschickt."
 
-#: signup.module:1276
+#: signup.module:1278
 msgid "Signup to !title confirmed."
 msgstr "Anmeldung zu !title bestätigt."
 
-#: signup.module:1321;1377
+#: signup.module:1323;1379
 msgid "Signup confirmation for !node_type: !title"
 msgstr "Bestätigung für die Anmeldung zu !node_type: !title"
 
-#: signup.module:1357
+#: signup.module:1359
 msgid "The following information was submitted as a signup for !title"
 msgstr "Die folgenden Informationen wurden bei der Anmeldung für !title eingegeben"
 
-#: signup.module:1359
+#: signup.module:1361
 msgid "Date/Time: !time"
 msgstr "Datum/Zeit: !time"
 
-#: signup.module:1362
+#: signup.module:1364
 msgid "Username: !name"
 msgstr "Benutzername: !name"
 
-#: signup.module:1362
+#: signup.module:1364
 #: views/handlers/signup_handler_filter_signup_user_authenticated.inc:9
 msgid "Anonymous"
 msgstr "Gast"
 
-#: signup.module:1365
+#: signup.module:1367
 msgid "Profile page: !url"
 msgstr "Profile-Seite: !url"
 
-#: signup.module:1369
+#: signup.module:1371
 msgid "E-mail: !email"
 msgstr "Email: !email"
 
-#: signup.module:1381
+#: signup.module:1383
 msgid "New !node_type Signup"
 msgstr "Neue Anmeldung für !node_type"
 
-#: signup.module:1418
+#: signup.module:1420
 msgid "Signup limit reached for !title, signups closed."
 msgstr "Anmeldelimit für !title erreicht; Anmeldungen geschlossen."
 
-#: signup.module:1425
+#: signup.module:1427
 msgid "Signup limit reached."
 msgstr "Anmeldelimit erreicht."
 
-#: signup.module:1433
+#: signup.module:1435
 msgid "Signup limit increased for !title, signups re-opened."
 msgstr "Anmeldelimit für !title angehoben; Anmeldungen wiedereröffnet."
 
-#: signup.module:1436
+#: signup.module:1438
 msgid "Total signups for !title now below limit, signups re-opened."
 msgstr "Gesmatzahl Anmeldungen für !title jetzt unterhalb des Limits; Anmeldungen wiedereröffnet."
 
-#: signup.module:1440
+#: signup.module:1442
 msgid "Signup limit updated for !title."
 msgstr "Anmeldelimit für !title erreicht."
 
-#: signup.module:1448
+#: signup.module:1450
 msgid "Signup limit removed for !title, signups now open."
 msgstr "Anmeldelimit für !title entfernt; Anmeldungen sind jetzt offen."
 
-#: signup.module:1451
+#: signup.module:1453
 msgid "Signup limit removed for !title."
 msgstr "Anmeldelimit für !title entfernt."
 
-#: signup.module:1691
+#: signup.module:1693
 msgid "True/False for if signups are enabled on a node"
 msgstr "Filtern für aktivierte oder deaktivierte Anmeldung"
 
-#: signup.module:1692
+#: signup.module:1694
 msgid "Are signups 'open' or 'closed' for this node."
 msgstr "Sind Anmeldungen für diesen Beitrag noch möglich?"
 
-#: signup.module:1693
+#: signup.module:1695
 msgid "The signup limit for this node"
 msgstr "Limit für Anmeldungen zu diesem Beitrag"
 
-#: signup.module:1698
+#: signup.module:1700
 msgid "Any custom fields the user filled out when signing up, rendered as HTML."
 msgstr "Jedes benutzerdefinierte Feld, dass der Benutzer bei der Anmeldung  ausgefüllt hat, wird als HTML ausgegeben."
 
-#: signup.module:1699
+#: signup.module:1701
 msgid "Any custom fields the user filled out when signing up, rendered as unfiltered plain text (e.g. for ASCII e-mail)."
 msgstr "Jedes benutzerdefinierte Feld, dass der Benutzer bei der Anmeldung  ausgefüllt hat, wird als  ungefiltert Klartext (z. B. für ASCII-E-Mail) ausgegeben."
 
-#: signup.module:1700
+#: signup.module:1702
 msgid "The date/time when the user signed up, short date format."
 msgstr "Zeitpunktl, zu dem ein Benutzer sich für einen Beitrag angemeldet hat."
 
-#: signup.module:1701
+#: signup.module:1703
 msgid "The date/time when the user signed up, medium date format."
 msgstr "Zeitpunkt, zu dem der Benutzer sich angemeldet hat, in mittlerem Format."
 
-#: signup.module:1702
+#: signup.module:1704
 msgid "The date/time when the user signed up, long date format."
 msgstr "Zeitpunkt, zu dem der Benutzer sich angemeldet hat, in langem Format."
 
-#: signup.module:1703
+#: signup.module:1705
 msgid "The URL for a user to cancel their signup (if they have permission to do so)."
 msgstr "Die URL unter der ein Benutzer seine Anmeldung (wenn sie die Erlaubnis haben, dies zu tun) zurückziehen kann."
 
-#: signup.module:1704
+#: signup.module:1706
 msgid "The e-mail address for the signup (either anonymous or authenticated)."
 msgstr "Die E-mail-Adresse zu einer Anmeldung eines Nutzers (auch eines anonymen)."
 
-#: signup.module:1705
+#: signup.module:1707
 msgid "The e-mail addressed entered for an anonymous signup, or an empty string if an authenticated user signed up."
 msgstr "Die Emailadresse eines anonymen angemeldeten Nutzers oder ein leerer Text bei angemeldeten Nutzern."
 
-#: signup.module:1706
+#: signup.module:1708
 msgid "If the user attended the thing they signed up for."
 msgstr " Hat der angemeldete Benutzer tatsächlich an der Veranstaltung teilgenommen?"
 
-#: signup.module:1719
+#: signup.module:1709
+msgid "Site-wide numeric identifier for the signup."
+msgstr "Nummerischer, eindeutiger Schlüssel für Signup auf dieser Website."
+
+#: signup.module:1722
 msgid "disabled"
 msgstr "Deaktiviert"
 
-#: signup.module:1724
+#: signup.module:1727
 #: theme/admin.inc:50
 msgid "enabled"
 msgstr "aktiviert"
 
-#: signup.module:1725
+#: signup.module:1728
 #: includes/node_form.inc:150
 #: theme/admin.inc:42
 msgid "open"
 msgstr "offen"
 
-#: signup.module:1725
+#: signup.module:1728
 #: includes/node_form.inc:150
 #: theme/admin.inc:46
 msgid "closed"
@@ -651,7 +656,8 @@ msgstr "Anmeldeformular nicht anzeigen"
 msgid ""
 "On every signup-enabled node, users with permission to\n"
 " sign up can be presented with a form. This setting controls where this form should be displayed: either directly on the node itself, on a separate tab, or not at all."
-msgstr "Auf allen Beiträgen mit Anmeldungen können Benutzer mit der Berechtigung \n"
+msgstr ""
+"Auf allen Beiträgen mit Anmeldungen können Benutzer mit der Berechtigung \n"
 " zum Anmelden ein entsprechendes Formular ausfüllen. Diese Einstellung legt fest, wo dieses Formular erscheint: entweder direkt in der Node, in einem separaten Reiter oder überhaupt nicht."
 
 #: includes/admin.settings.inc:85
@@ -1579,13 +1585,13 @@ msgstr "Ansicht aller Anmeldungen pro Benutzer"
 msgid "Access will be granted to users viewing their own signup list or with the 'view all signups' permission."
 msgstr "Erlaubt es Benutzern ihre eigenen Anmeldungen aufzulisten, bzw. den Benutzern mit der entsprechenden Berechtigung alle Anmeldungen aufzulisten."
 
-#: views/signup.views_default.inc:434
-msgid "Per-node signup administration interface with checkboxes for bulk operations."
-msgstr "Administrative Oberfläche pro Node mit Checkboxen für mehrfache Operationen."
-
-#: views/signup.views_default.inc:594
+#: views/default_views/signup_user_admin_list.view.php:11
 msgid "Administrative list of all users signed up for a given node."
 msgstr "Administrative Links für alle an eine gegebene Node angemeldeten Benutzer."
+
+#: views/default_views/signup_user_vbo_admin_list.view.php:11
+msgid "Per-node signup administration interface with checkboxes for bulk operations."
+msgstr "Administrative Oberfläche pro Node mit Checkboxen für mehrfache Operationen."
 
 #: views/handlers/signup_handler_field_signup_node_link.inc:18
 msgid "Signup tab to link to"
