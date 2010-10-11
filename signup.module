@@ -651,7 +651,7 @@ function signup_perm() {
  *
  * @ingroup signup_core
  */
-function signup_user($type, &$edit, &$user, $category = NULL) {
+function signup_user($type, &$edit, &$account, $category = NULL) {
   switch ($type) {
     case 'delete':
       $uids = array();
@@ -661,12 +661,16 @@ function signup_user($type, &$edit, &$user, $category = NULL) {
       }
       else {
         // A single-user delete from the edit tab on the user's profile.
-        $uids[] = $edit['_account']->uid;
+        if (!empty($account->uid)) {
+          $uids[] = $account->uid;
+        }
       }
-      foreach ($uids as $uid) {
-        $query = db_query("SELECT * FROM {signup_log} WHERE uid = %d", $uid);
-        while ($signup = db_fetch_object($query)) {
-          signup_cancel_signup($signup);
+      if (!empty($uids) && is_array($uids)) {
+        foreach ($uids as $uid) {
+          $query = db_query("SELECT * FROM {signup_log} WHERE uid = %d", $uid);
+          while ($signup = db_fetch_object($query)) {
+            signup_cancel_signup($signup);
+          }
         }
       }
       break;
@@ -677,7 +681,7 @@ function signup_user($type, &$edit, &$user, $category = NULL) {
   // schedule to their user profile page.
   if (!module_exists('views')) {
     module_load_include('inc', 'signup', 'includes/no_views');
-    return _signup_user_no_views($type, $edit, $user, $category);
+    return _signup_user_no_views($type, $edit, $account, $category);
   }
 }
 
