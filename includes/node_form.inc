@@ -71,6 +71,11 @@ function signup_save_node($node, $op) {
   }
 
   $node = node_load($node->nid);
+  // We clear CCK's cache for this node due to an edge case bug:
+  // http://drupal.org/node/605594.
+  if (module_exists('content')) {
+    cache_clear_all('content:'. $node->nid .':'. $node->vid, content_cache_tablename());
+  }
   if (_signup_node_completed($node) && !empty($node->signup_status)) {
     // If this is an time-based node, and it's already past the close in
     // advance time (e.g. someone just changed the node start time), and
