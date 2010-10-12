@@ -1257,7 +1257,7 @@ function signup_sign_up_user($signup_form, $notify_user = TRUE) {
     $signup->form_data = $signup_info;
     $signup->signup_time = $current_time;
     // By default, signups should count towards the limit.
-    $signup->count_towards_total = 1;
+    $signup->count_towards_limit = 1;
     if (!empty($signup_anon_mail)) {
       $signup->anon_mail = $signup_anon_mail;
     }
@@ -1283,8 +1283,8 @@ function signup_sign_up_user($signup_form, $notify_user = TRUE) {
     }
 
     $node->signup_total++;
-    if (!empty($signup->count_towards_total)) {
-      $node->signup_effective_total += $signup->count_towards_total;
+    if (!empty($signup->count_towards_limit)) {
+      $node->signup_effective_total += $signup->count_towards_limit;
       if ($node->signup_close_signup_limit) {
         _signup_check_limit($node, 'total');
       }
