@@ -60,3 +60,36 @@ function signup_roles_form_alter(&$form, $form_state, $form_id) {
     }
   }
 }
+
+/**
+* Public function for removing roles if a user cancels.
+*
+* This function is not automatically invoked by Signup. You should call this
+* function from your own code if you wish to remove roles.
+*/
+function signup_roles_cancel($account) {
+  // We can't remove roles from anonymous users.
+  if (empty($account->uid)) {
+    return;
+  }
+  $remove_roles = variable_get('signup_roles_grant', array());
+  // Filter down to only those roles that are selected.
+  $remove_roles = array_filter($remove_roles);
+  // If no roles are selected, there's nothing to do here.
+  if (empty($remove_roles)) {
+    return;
+  }
+  // Confirm only current roles are being removed.
+  $site_roles = user_roles(TRUE);
+  $remove_roles = array_intersect_key($site_roles, $remove_roles);
+  $remove_roles_string = implode(', ', $remove_roles);
+  // Make sure not to remove other roles in the process of removing these.
+  $roles = array_diff_key($account->roles, $remove_roles);
+  user_save($account, array('roles' => $roles));
+  if ($account) {
+    watchdog('signup_roles', 'Removed roles %roles from %name.', array('%roles' => $remove_roles_string, '%name' => $account->name));
+  }
+  else {
+    watchdog('signup_roles', 'Error removing roles %roles from %name', array('%roles' => $remove_roles_string, '%name' => $account->name));
+  }
+}
