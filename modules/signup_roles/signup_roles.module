@@ -28,8 +28,8 @@ function signup_roles_signup_sign_up($node, $account) {
   // Make sure not to remove other roles in the process of granting new ones.
   $roles = $grant_roles;
   $roles += $account->roles;
-  user_save($account, array('roles' => $roles));
-  if ($account) {
+  $success = user_save($account, array('roles' => $roles));
+  if ($success) {
     watchdog('signup_roles', 'Granted roles %roles to %name.', array('%roles' => $grant_roles_string, '%name' => $account->name));
   }
   else {
@@ -85,11 +85,13 @@ function signup_roles_cancel($account) {
   $remove_roles_string = implode(', ', $remove_roles);
   // Make sure not to remove other roles in the process of removing these.
   $roles = array_diff_key($account->roles, $remove_roles);
-  user_save($account, array('roles' => $roles));
-  if ($account) {
+  $success = user_save($account, array('roles' => $roles));
+  if ($success) {
     watchdog('signup_roles', 'Removed roles %roles from %name.', array('%roles' => $remove_roles_string, '%name' => $account->name));
+    return TRUE;
   }
   else {
     watchdog('signup_roles', 'Error removing roles %roles from %name', array('%roles' => $remove_roles_string, '%name' => $account->name));
+    return FALSE;
   }
 }
