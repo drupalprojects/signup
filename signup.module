@@ -151,13 +151,6 @@ function signup_theme() {
         'node' => NULL,
       ),
     ),
-    'signup_user_form' => array(
-      'file' => 'signup_form.inc',
-      'path' => $path,
-      'arguments' => array(
-        'node' => NULL,
-      ),
-    ),
     'signup_anonymous_username' => array(
       'file' => 'signup_form.inc',
       'path' => $path,
@@ -172,6 +165,11 @@ function signup_theme() {
       'arguments' => array(
         'view' => NULL,
       ),
+    ),
+    'signup_node_settings_form_panes' => array(
+      'file' => 'node_settings.inc',
+      'path' => drupal_get_path('module', 'signup') . '/includes',
+      'arguments' => array('form'),
     ),
   );
 }
@@ -744,6 +742,7 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
     case 'delete':
         // Clean up the signup tables for the deleted node.
         db_query("DELETE FROM {signup} WHERE nid = %d", $node->nid);
+        db_query("DELETE FROM {signup_panes} WHERE nid = %d", $node->nid);
         db_query("DELETE FROM {signup_log} WHERE nid = %d", $node->nid);
       break;
 
@@ -767,6 +766,15 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
         if ($node->nid) {
           $node->signup_total = db_result(db_query("SELECT COUNT(*) FROM {signup_log} WHERE nid = %d", $node->nid));
           $node->signup_effective_total = db_result(db_query("SELECT SUM(count_towards_limit) FROM {signup_log} WHERE nid = %d", $node->nid));
+        }
+        // Load pane data
+        $result = db_query("SELECT * FROM {signup_panes} WHERE nid = %d ORDER BY weight", $node->nid);
+        $node->signup_form_panes = array();
+        while ($pane_data = db_fetch_array($result)) {
+          $node->signup_form_panes[$pane_data['pane_id']] = array(
+            'weight' => $pane_data['weight'],
+            'callback' => $pane_data['callback'],
+          );
         }
       }
       else {
@@ -1177,8 +1185,9 @@ function signup_content_types() {
  *   highly recommended to call the signup_validate_anon_email
  *   function in the external module's validation cycle or perform
  *   that function's validation logic prior to passing in this element!
- * $signup_form['signup_form_data'] : an array of key/value pairs --
- *   key is the data category, value is the user input
+ * $signup_form['signup_form_data'] : an associative array of extra data, 
+ *   keyed by signup form pane id. The value is itself an array in the same
+ *   format as a $form_values array, that is, form_element => value.
  *
  * @param $notify_user
  *   When set to TRUE, confirmation messages are displayed via
@@ -1261,11 +1270,23 @@ function signup_sign_up_user($signup_form, $notify_user = TRUE) {
     // Invoke hook_signup_data_alter() to let other modules change this.
     drupal_alter('signup_data', $signup, $signup_form);
 
+    // Altering modules may set $signup->block_signup = TRUE to prevent signup.
+    if ($signup->block_signup == TRUE) {
+      return FALSE;
+    }
+
     // Insert the signup into the {signup_log} table.
     signup_save_signup($signup);
 
     // See if we should generate any notifications from this signup.
     if ($notify_user) {
+      // Invoke hook_signup_form_data_display_alter() to let other modules
+      // (in particular pane modules) alter the data for output.
+      // This may involve internal data being removed.
+      $form_data = $signup->form_data;
+      drupal_alter('signup_form_data_display', $form_data, $node->nid, $signup->sid, $signup->uid, 'mail');
+      $signup->form_data = $form_data;
+
       // Confirmation e-mail to the user who signed up.
       if ($node->signup_send_confirmation) {
         signup_send_confirmation_mail($signup, $node);
@@ -1604,6 +1625,8 @@ function _signup_get_username($signup, $link = FALSE) {
       $signup_data = unserialize($signup->form_data);
     }
   }
+  // Allow other modules to add their data.
+  drupal_alter('signup_form_data_display', $signup_data, $signup->nid, $signup->sid, $signup->uid);
   // Determine if this is an anon signup or not, and get the right info.
   if (!empty($signup->anon_mail)) {
     $user_name = theme('signup_anonymous_username', $signup_data, $signup->anon_mail);

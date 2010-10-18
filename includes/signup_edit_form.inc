@@ -85,24 +85,43 @@ function signup_edit_form($form_state, $signup, $type) {
     );
   }
 
-  // Build the themed signup form for this site and include that.
-  $site_form = theme('signup_user_form', $node);
-  $form_data = unserialize($signup->form_data);
-
-  // This is sort of a hack, but we don't support nested arrays for the custom
-  // signup form anyway, so it works for now.  Obviously all this will change
-  // with signup_fields and friends, but for now it works.
-  foreach ($form_data as $key => $value) {
-    if (!empty($site_form['signup_form_data'][$key])) {
-      $site_form['signup_form_data'][$key]['#default_value'] = $value;
-      if (!$can_edit) {
-        // If they can't edit, mark all the fields as disabled.
-        $site_form['signup_form_data'][$key]['#disabled'] = TRUE;
+  // Build all the signup panes for this node.
+  if (isset($node->signup_form_panes)) {
+    $form['elements']['signup_form_data'] = array(
+      '#tree' => TRUE,
+    );
+    foreach (array_keys($node->signup_form_panes) as $pane_id) {
+      $callback = $node->signup_form_panes[$pane_id]['callback'];
+      if (function_exists($callback)) {
+        // Each pane goes into its own form element with #tree set
+        // to protect form values from clashing.
+        $form['elements']['signup_form_data'][$pane_id] = array(
+          '#tree' => TRUE,
+        );
+        // Add a validation function for each pane.
+        $form['elements']['signup_form_data']['#element_validate'][] = $callback . '_validate';
+        $form['elements']['signup_form_data'][$pane_id] += $callback($form, $form_state, $node, $signup, $pane_id, $signup_type);
       }
     }
   }
-  $form['elements'] += $site_form;
 
+  $form_data = unserialize($signup->form_data);
+  // This is *still* sort of a hack, and means that nested arrays in signup 
+  // form panes won't work. 
+  // Does Drupal FormAPI provide a means to re-fill a $form array with values
+  // from a $form_values array? It really should.
+  foreach ($form_data as $pane_id => $pane_data) {
+    foreach ($pane_data as $key => $value) {
+      if (!empty($form['elements']['signup_form_data'][$pane_id][$key])) {
+        // The pane callback may have provided its own default values: if so
+        // then don't clobber them.
+        if (!isset($form['elements']['signup_form_data'][$pane_id][$key]['#default_value'])) {
+          $form['elements']['signup_form_data'][$pane_id][$key]['#default_value'] = $value;
+        }
+      }
+    }
+  }
+  
   // Add the appropriate buttons based on permissions.
   if ($can_edit) {
     $form['elements']['save'] = array(
@@ -111,6 +130,11 @@ function signup_edit_form($form_state, $signup, $type) {
       '#submit' => array('signup_edit_form_save_submit'),
     );
   }
+  else {
+    // If they can't edit, mark all the fields as disabled.
+    _signup_form_element_disable_recursive($form['elements']['signup_form_data']);
+  }
+  
   if ($can_cancel) {
     if (isset($_REQUEST['destination'])) {
       $destination = drupal_get_destination();
@@ -127,6 +151,20 @@ function signup_edit_form($form_state, $signup, $type) {
   }
 
   return $form;
+}
+
+/**
+ * Helper function to recursively disable all elements of a form.
+ */
+function _signup_form_element_disable_recursive(&$form) {
+  if (isset($form['#type'])) {
+    $form['#disabled'] = TRUE;    
+  }
+  foreach (element_children($form) as $key) {
+    if (is_array($form[$key])) {
+      _signup_form_element_disable_recursive($form[$key]);
+    }
+  }
 }
 
 /**

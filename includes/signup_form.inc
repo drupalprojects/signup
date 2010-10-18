@@ -75,17 +75,27 @@ function signup_form(&$form_state, $node, $signup_type = 'auth', $fieldset = TRU
     $signup_form += $admin_form;
   }
 
-  // Build the themed signup form for this site and include that.
-  $signup_themed_form = theme('signup_user_form', $node);
-
-  if ($signup_type == 'admin') {
-    // Special case hack for the default signup form, where the current
-    // username is being filled in as the default for the 'Name' field.
-    if (!empty($signup_themed_form['signup_form_data']['Name']['#default_value'])) {
-      unset($signup_themed_form['signup_form_data']['Name']['#default_value']);
+  // Insert the form components provided by other modules.
+  if (isset($node->signup_form_panes)) {
+    $signup_form['signup_form_data'] = array(
+      '#tree' => TRUE,
+    );
+    // Add each pane to the form. The node settings are stored in the weighted
+    // order so there is no need for further sorting here.
+    foreach ($node->signup_form_panes as $pane_id => $pane_data) {
+      $callback = $pane_data['callback'];
+      if (function_exists($callback)) {
+        // Each pane goes into its own form element with #tree set
+        // to protect form values from clashing.
+        $signup_form['signup_form_data'][$pane_id] = array(
+          '#tree' => TRUE,
+        );
+        // Add a validation function for each pane.
+        $signup_form['signup_form_data']['#element_validate'][] = $callback . '_validate';
+        $signup_form['signup_form_data'][$pane_id] += $callback($signup_form, $form_state, $node, NULL, $pane_id, $signup_type);
+      }
     }
   }
-  $signup_form += $signup_themed_form;
 
   $form['collapse']['signup_user_form'] = $signup_form;
   $form['collapse']['submit'] = array(

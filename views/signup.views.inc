@@ -252,6 +252,20 @@ function signup_views_data() {
     'field' => array(
       'handler' => 'signup_handler_field_signup_user_form_data',
       'option' => 'string',
+      'additional fields' => array(
+        'sid' => array(
+          'table' => 'signup_log',
+          'field' => 'sid',
+        ),
+        'nid' => array(
+          'table' => 'signup_log',
+          'field' => 'nid',
+        ),
+        'uid' => array(
+          'table' => 'signup_log',
+          'field' => 'uid',
+        ),
+      ),
     ),
   );
 
