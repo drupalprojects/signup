@@ -482,3 +482,30 @@ function signup_update_6003() {
   return $ret;
 }
 
+/**
+ * Make views a required dependency.
+ */
+function signup_update_6004() {
+  $ret = array();
+
+  $user_list = variable_get('signup_display_signup_user_list', '');
+  if (!empty($user_list)) {
+    switch ($user_list) {
+      case 'signup':
+        variable_set('signup_display_signup_user_list', 'embed-view');
+        break;
+
+      case 'signup-tab':
+        variable_set('signup_display_signup_user_list', 'embed-view-tab');
+        break;
+    }
+  }
+
+  $admin_list = variable_get('signup_display_signup_admin_list', '');
+  if (!empty($admin_list) && $admin_list == 'signup') {
+    variable_set('signup_display_signup_admin_list', 'embed-view');
+  }
+
+  return $ret;
+}
+

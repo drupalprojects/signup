@@ -52,13 +52,6 @@ function signup_settings_form() {
     '#description' => t('Signup comes with Name and Phone fields that are separate from user profile fields. Ignore these fields if only authenticated users will be signing up on this site.'),
     '#default_value' => variable_get('signup_ignore_default_fields', 0),
   );
-  if (!module_exists('views')) {
-    $form['adv_settings']['signup_no_views_user_info'] = array(
-      '#title' => t('Display signup information on user profile pages'),
-      '#type' => 'checkbox',
-      '#default_value' => variable_get('signup_no_views_user_info', TRUE),
-    );
-  }
 
   $form['adv_settings']['signup_form_location'] = array(
     '#title' => t('Location of the signup form'),
@@ -97,96 +90,84 @@ function signup_settings_form() {
     '#suffix' => '</div>',
   );
 
-  $list_options = array();
-  $list_options['signup'] = t('Use the signup-provided listing on each node');
-  $list_options['signup-tab'] = t('Use the signup-provided listing under the %signups tab', array('%signups' => t('Signups')));
-  $views_help_text = '';
-  if (module_exists('views')) {
-    $list_options['embed-view'] = t('Embed a view on each node');
-    $list_options['embed-view-tab'] = t('Embed a view under the %signups tab', array('%signups' => t('Signups')));
-    $views_help_text = t('If you choose to embed a view, you will be able to select which view you want to use below. The view you select will have a single argument passed in, the node id (nid) of the signup-enabled node being viewed. You can also use views to display this listing on its own tab or in a block if you disable this setting.');
-  }
-  else {
-    $views_help_text = t('If you enable the !views_url, you will be able to embed a view directly onto the page for this listing.', array('!views_url' => l(t('Views module'), 'http://drupal.org/project/views', array('absolute' => TRUE))));
-  }
-  $list_options['none'] = t('Do not display a listing at all');
+  $list_options = array(
+    'embed-view' => t('Embed a view on each node'),
+    'embed-view-tab' => t('Embed a view under the %signups tab', array('%signups' => t('Signups'))),
+    'none' => t('Do not display a listing at all'),
+  );
 
   $form['adv_settings']['signup_display_signup_user_list'] = array(
     '#title' => t('How to display the list of signed-up users'),
     '#type' => 'radios',
     '#options' => $list_options,
-    '#default_value' => variable_get('signup_display_signup_user_list', 'signup'),
-    '#description' => t('Users with the %view_signups permission can be presented with a list of all users who have signed up. This setting controls if, how, and where that list should be generated. !views_help_text', array('%view_signups' => t('view all signups'), '!views_help_text' => $views_help_text)),
+    '#default_value' => variable_get('signup_display_signup_user_list', 'embed-view'),
+    '#description' => t('Users with the %view_signups permission can be presented with a list of all users who have signed up. This setting controls if, how, and where that list should be generated. If you choose to embed a view, you will be able to select which view you want to use below. The view you select will have a single argument passed in, the node id (nid) of the signup-enabled node being viewed. You can also use views to display this listing on its own tab or in a block if you disable this setting.', array('%view_signups' => t('view all signups'))),
     '#prefix' => '<div class="signup-display-signup-user-list-setting">',
     '#suffix' => '</div>',
     '#weight' => 1,
   );
 
-  $admin_options = array();
-  $admin_options['signup'] = t('Use the signup-provided listing');
-  if (module_exists('views')) {
-    $admin_options['embed-view'] = t('Embed a view');
-  }
-  $admin_options['none'] = t('Do not display a listing at all');
+  $admin_options = array(
+    'embed-view' => t('Embed a view'),
+    'none' => t('Do not display a listing at all'),
+  );
   $form['adv_settings']['signup_display_signup_admin_list'] = array(
     '#title' => t('How to display the administrative list of signed-up users'),
     '#type' => 'radios',
     '#options' => $admin_options,
-    '#default_value' => variable_get('signup_display_signup_admin_list', 'signup'),
-    '#description' => t('Users with permission to administer signups for a given node will see a list of users  of all users who have signed up. This setting controls if and how that list should be generated. !views_help_text', array('%view_signups' => t('view all signups'), '!views_help_text' => $views_help_text)),
+    '#default_value' => variable_get('signup_display_signup_admin_list', 'embed-view'),
+    '#description' => t('Users with permission to administer signups for a given node will see a list of users of all users who have signed up. This setting controls if and how that list should be generated. If you choose to embed a view, you will be able to select which view you want to use below. The view you select will have a single argument passed in, the node id (nid) of the signup-enabled node being viewed. You can also use views to display this listing on its own tab or in a block if you disable this setting.', array('%view_signups' => t('view all signups'))),
     '#prefix' => '<div class="signup-display-signup-admin-list-setting">',
     '#suffix' => '</div>',
     '#weight' => 5,
   );
 
-  if (module_exists('views')) {
-    $class = 'signup-user-list-view-settings';
-    $user_list = variable_get('signup_display_signup_user_list', 'signup');
-    if ($user_list != 'embed-view' && $user_list != 'embed-view-tab') {
-      $class .= ' js-hide';
-    }
-    $form['adv_settings']['view_settings'] = array(
-      '#prefix' => '<div class="'. $class .'">',
-      '#suffix' => '</div>',
-      '#weight' => 2,
-    );
+  $class = 'signup-user-list-view-settings';
+  $user_list = variable_get('signup_display_signup_user_list', 'embed-view');
+  if ($user_list == 'none') {
+    $class .= ' js-hide';
+  }
+  $form['adv_settings']['view_settings'] = array(
+    '#prefix' => '<div class="'. $class .'">',
+    '#suffix' => '</div>',
+    '#weight' => 2,
+  );
 
-    $views = views_get_all_views();
-    foreach ($views as $view) {
-      foreach (array_keys($view->display) as $display_id) {
-        if ($display_id != 'default' || 1) {
-          $key = $view->name .':'. $display_id;
-          $view_options[$key] = theme('signup_settings_view_label', $view, $display_id);
-        }
+  $views = views_get_all_views();
+  foreach ($views as $view) {
+    foreach (array_keys($view->display) as $display_id) {
+      if ($display_id != 'default' || 1) {
+        $key = $view->name .':'. $display_id;
+        $view_options[$key] = theme('signup_settings_view_label', $view, $display_id);
       }
     }
-    $form['adv_settings']['view_settings']['signup_user_list_view'] = array(
-      '#title' => t('View to embed for the signup user list'),
-      '#type' => 'select',
-      '#options' => $view_options,
-      '#default_value' => variable_get('signup_user_list_view', 'signup_user_list:default'),
-      '#description' => t("If the signup user list is being generated by embedding a view, this selects which view should be used. The view's name, description, and display(s) it defines are listed."),
-    );
-
-    $class = 'signup-admin-list-view-settings';
-    if (variable_get('signup_display_signup_admin_list', 'signup') != 'embed-view') {
-      $class .= ' js-hide';
-    }
-    $form['adv_settings']['admin_view_settings'] = array(
-      '#prefix' => '<div class="'. $class .'">',
-      '#suffix' => '</div>',
-      '#weight' => 6,
-    );
-
-    // $view_options is still initialized from above.
-    $form['adv_settings']['admin_view_settings']['signup_admin_list_view'] = array(
-      '#title' => t('View to embed for the signup administrative list'),
-      '#type' => 'select',
-      '#options' => $view_options,
-      '#default_value' => _signup_get_admin_list_view(),
-      '#description' => t("If the administer signups user list is being generated by embedding a view, this selects which view should be used. The view's name, description, and display(s) it defines are listed."),
-    );
   }
+  $form['adv_settings']['view_settings']['signup_user_list_view'] = array(
+    '#title' => t('View to embed for the signup user list'),
+    '#type' => 'select',
+    '#options' => $view_options,
+    '#default_value' => variable_get('signup_user_list_view', 'signup_user_list:default'),
+    '#description' => t("If the signup user list is being generated by embedding a view, this selects which view should be used. The view's name, description, and display(s) it defines are listed."),
+  );
+
+  $class = 'signup-admin-list-view-settings';
+  if (variable_get('signup_display_signup_admin_list', 'embed-view') != 'embed-view') {
+    $class .= ' js-hide';
+  }
+  $form['adv_settings']['admin_view_settings'] = array(
+    '#prefix' => '<div class="'. $class .'">',
+    '#suffix' => '</div>',
+    '#weight' => 6,
+  );
+
+  // $view_options is still initialized from above.
+  $form['adv_settings']['admin_view_settings']['signup_admin_list_view'] = array(
+    '#title' => t('View to embed for the signup administrative list'),
+    '#type' => 'select',
+    '#options' => $view_options,
+    '#default_value' => _signup_get_admin_list_view(),
+    '#description' => t("If the administer signups user list is being generated by embedding a view, this selects which view should be used. The view's name, description, and display(s) it defines are listed."),
+  );
 
   // Use our own submit handler, so we can do some processing before
   // we hand control to system_settings_form_submit.
