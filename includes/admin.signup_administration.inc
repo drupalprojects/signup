@@ -154,6 +154,7 @@ function signup_admin_form_sql() {
     'group_by' => array(
       'n.nid',
       'n.title',
+      'n.type',
       'signup_status',
       'signup_close_signup_limit',
     ),

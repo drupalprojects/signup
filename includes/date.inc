@@ -28,10 +28,11 @@ function _signup_date_admin_sql($content_type) {
   }
   // We need to quote the alias in case someone used a reserved word for the
   // machine-readable name of a content type.
-  $table = '{'. $field['database']['table'] .'} `'. $alias .'`';
+  $table = '{'. $field['database']['table'] .'} "'. $alias .'"';
   return array(
     'fields' => $fields,
     'joins' => array("LEFT JOIN $table ON $alias.vid = n.vid"),
+    'group_by' => $fields,
   );
 }
 
