@@ -84,7 +84,7 @@ function signup_content_type_fields() {
  */
 function _signup_date_get_node_scheduler($node) {
   $field = signup_date_field($node->type);
-  if (isset($node->{$field['field_name']})) {
+  if (!empty($node->{$field['field_name']}[0]['value'])) {
     return 'date';
   }
   if (isset($node->{$field['database']['columns']['value']['column']})) {
