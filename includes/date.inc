@@ -249,7 +249,7 @@ function signup_date_field_check_config($type, $name) {
         '%signup_date_field' => t('Date field to use with signup'),
         '@type_admin_url' => url('admin/content/node-type/'. $type_url),
         '@type_add_field_url' => url('admin/content/node-type/'. $type_url .'/fields'),
-        '%none' => t('<none>'),
+        '%none' => '<' . t('none') . '>',
       );
       // Administrator hasn't specifically turned off date support...
       if (signup_field_names($type)) {
@@ -281,12 +281,12 @@ function _signup_get_date_field_options($type) {
   $options = array();
   // Add "Not specified" if the user never selected a field.
   if (variable_get('signup_date_field_'. $type, 0) == 0) {
-    $options = array(0 => t('<Not specified>'));
+    $options = array(0 => '<' . t('Not specified') . '>');
   }
   // Add any date fields from this node type.
   $options += signup_field_names($type);
   // Always add 'None' as the final choice.
-  $options += array('none' => t('<None>'));
+  $options += array('none' => '<' . t('None') . '>');
   return $options;
 }
 
