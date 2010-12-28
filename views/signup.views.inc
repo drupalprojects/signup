@@ -248,7 +248,7 @@ function signup_views_data() {
 
   $data['signup_log']['form_data'] = array(
     'title' => t('User: Additional Signup Info'),
-    'help' => t('Enter the additional field name (from signup.theme) in the Option column.'),
+    'help' => t('Enter the additional field name (from theme/signup_form.inc) in the Option column.'),
     'field' => array(
       'handler' => 'signup_handler_field_signup_user_form_data',
       'option' => 'string',
