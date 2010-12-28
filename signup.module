@@ -1151,12 +1151,24 @@ function signup_content_types() {
  *   drupal_set_message() and confirmation/forwarding emails are sent if
  *   enabled for the current node.
  *
+ * @param $reset_node_load
+ *   When set to TRUE, node_load() is called with the optional reset
+ *   argument as TRUE. This can sometimes be helpful when signups
+ *   have been opened with signup_open_signup() since that function
+ *   can cause static caching of the node object, thus leading to the 
+ *   $node->signup_status check here failing when it should not.
+ *
  * @return
  *   The signup id (SID) if the user was successfully signed up, FALSE if the
  *   user is already signed up or signups are not allowed on the given node.
  */
-function signup_sign_up_user($signup_form, $notify_user = TRUE) {
-  $node = node_load($signup_form['nid']);
+function signup_sign_up_user($signup_form, $notify_user = TRUE, $reset_node_load = FALSE) {
+  if ($reset_node_load) { 
+    $node = node_load($signup_form['nid'], NULL, TRUE);
+  }
+  else {
+    $node = node_load($signup_form['nid']);
+  }
 
   // Since this is an API call, we need to validate that there are no
   // duplicate signups being generated, even though through the usual
