@@ -1279,7 +1279,13 @@ function signup_sign_up_user($signup_form, $notify_user = TRUE) {
       signup_send_forwarding_mail($signup, $node);
 
       // Message to the screen for the user who signed up.
-      drupal_set_message(t('Signup to !title confirmed.', array('!title' => l($node->title, "node/$node->nid"))) . $confirmation_email . $reminder_email);
+      // First, allow other modules to alter the messages.
+      $messages = array();
+      $messages['initial'] = 'Signup to !title confirmed.';
+      $messages['confirmation_email'] = $confirmation_email;
+      $messages['reminder_email'] = $reminder_email;
+      drupal_alter('signup_confirm_messages', $messages, $signup, $node);
+      drupal_set_message(t($messages['initial'], array('!title' => l($node->title, "node/$node->nid"))) . $messages['confirmation_email'] . $messages['reminder_email']);
     }
 
     $node->signup_total++;
