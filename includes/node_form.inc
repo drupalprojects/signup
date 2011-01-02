@@ -63,7 +63,7 @@ function signup_save_node($node, $op) {
       $needs_defaults = empty($has_record);
     }
   }
-  
+
   if ($needs_defaults) {
     $values = db_fetch_array(db_query("SELECT forwarding_email, send_confirmation, confirmation_email, close_signup_limit, send_reminder, reminder_days_before, reminder_email FROM {signup} WHERE nid = 0"));
     $values[] = $node->nid;
@@ -91,7 +91,7 @@ function signup_save_node($node, $op) {
 function signup_alter_node_form(&$form, &$form_state, $form_id) {
   global $user;
 
-  // Node is not saved but previewed (nid is empty). 
+  // Node is not saved but previewed (nid is empty).
   if (isset($form['#node']->build_mode) && $form['#node']->build_mode == NODE_BUILD_PREVIEW) {
     $node = $form['#node'];
   }
@@ -125,6 +125,7 @@ function signup_alter_node_form(&$form, &$form_state, $form_id) {
       '#collapsible' => TRUE,
       '#collapsed' => TRUE,
       '#weight' => 30,
+      '#group' => 'additional_settings',
     );
 
     // Figure out what the options should be.  If there are already
@@ -156,4 +157,3 @@ function signup_alter_node_form(&$form, &$form_state, $form_id) {
     );
   }
 }
-

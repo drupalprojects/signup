@@ -673,6 +673,7 @@ function signup_form_node_type_form_alter(&$form, &$form_state) {
     '#title' => t('Signup settings'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
+    '#group' => 'additional_settings',
   );
   $form['signup']['signup_node_default_state'] = array(
     '#type' => 'radios',
@@ -755,7 +756,7 @@ function signup_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
           $signup_info = _signup_node_output($node);
           if (!empty($signup_info)) {
             if (module_exists('content')) {
-              // Due to a bug in CCK (http://drupal.org/node/363456), we need 
+              // Due to a bug in CCK (http://drupal.org/node/363456), we need
               // to call this function twice to ensure we get the real value.
               // The bug is present when you first enable the setting to
               // display in the node instead of a separate tab, or when you
@@ -846,7 +847,7 @@ function signup_action_info() {
  *
  * @param $signup
  *   Reference to a fully-loaded signup object to cancel.
- * 
+ *
  * @see signup_load_signup()
  * @see signup_cancel_signup()
  */
@@ -928,7 +929,7 @@ function signup_object_info() {
  *
  * @return
  *   Fully loaded $signup object corresponding to the given ID.
- */ 
+ */
 function signup_load_signup($sid) {
   $signup = db_fetch_object(db_query("SELECT sl.*, n.title, u.name, u.mail FROM {signup_log} sl INNER JOIN {node} n ON sl.nid = n.nid INNER JOIN {users} u ON sl.uid = u.uid WHERE sl.sid = %d", $sid));
   if (!empty($signup)) {
@@ -1278,7 +1279,7 @@ function signup_sign_up_user($signup_form, $notify_user = TRUE, $reset_node_load
 
 /**
  * Send the signup comfirmation e-mail to a user who signs up for something.
- * 
+ *
  * Note: Each signup-enabled node can be configured to send confirmation
  * e-mails or not, along with the body of the confirmation message to use.
  * If callers wish to honor this configuration, they must test
@@ -1288,12 +1289,12 @@ function signup_sign_up_user($signup_form, $notify_user = TRUE, $reset_node_load
  *   The fully-loaded signup object representing the user's signup.
  * @param $node
  *   The fully-loaded node object which the user signed up to.
- *   
+ *
  * @return
  *   The return value from drupal_mail() if the mail is sent, or FALSE if the
  *   confirmation was aborted for some reason (node not configured to send it,
  *   user doesn't have a valid e-mail address, etc).
- *  
+ *
  * @see signup_sign_up_user()
  * @see drupal_mail()
  */
