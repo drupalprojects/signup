@@ -172,6 +172,26 @@ function signup_views_data() {
     ),
   );
 
+  $data['signup_log']['sid'] = array(
+    'title' => t('Signup ID'),
+    'help' => t('The signup entry ID'),
+    // Information for displaying the field
+    'field' => array(
+      'handler' => 'views_handler_field',
+      'click sortable' => TRUE,
+    ),
+    // Information for accepting sid as a filter
+    'filter' => array(
+      'label' => t('Signup entry id'),
+      'handler' => 'views_handler_filter_numeric',
+    ),
+    // Information for sorting on sid
+    'sort' => array(
+      'handler' => 'views_handler_sort',
+      'help' => t('Sort by signup ID.'),
+    )
+  );
+  
   $data['signup_log']['nid'] = array(
     'title' => t('Node'),
     'help' => t('The node a user signed up to.'),

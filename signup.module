@@ -1546,6 +1546,7 @@ function _signup_get_email_tokens($node, $signup) {
     $tokens['%user_signup_info'] = '';
   }
 
+  $tokens['%sid'] = $signup->sid;
   $tokens['%user_name'] = _signup_get_username($signup);
   $tokens['%user_mail'] = _signup_get_email($signup);
   $tokens['%cancel_signup_url'] = _signup_get_cancel_link($signup->sid);
@@ -1682,6 +1683,7 @@ function signup_token_list($type) {
   }
   elseif ($type == 'signup') {
     $tokens['signup'] = array(
+      'signup-sid' => t("The signup's unique ID number"),
       'signup-user-data' => t('Any custom fields the user filled out when signing up, rendered as HTML.'),
       'signup-user-data-raw' => t('Any custom fields the user filled out when signing up, rendered as unfiltered plain text (e.g. for ASCII e-mail).'),
       'signup-date-short' => t('The date/time when the user signed up, short date format.'),
@@ -1724,6 +1726,7 @@ function signup_token_values($type = 'all', $object = NULL) {
         $signup_data = unserialize($object->form_data);
       }
     }
+    $values['signup-sid'] = $object->sid;
     $values['signup-user-data'] = theme('signup_custom_data', $signup_data);
     $values['signup-user-data-raw'] = theme('signup_email_token_custom_data', $signup_data);
     $values['signup-date-short'] = format_date($object->signup_time, 'small');
