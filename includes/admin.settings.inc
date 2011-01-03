@@ -67,7 +67,12 @@ function signup_settings_form() {
     '#prefix' => '<div class="signup-form-location-radios">',
     '#suffix' => '</div>',
   );
-
+  $form['adv_settings']['signup_user_reg_form'] = array(
+    '#title' => t('Allow registering users to sign up for nodes from the user registration form'),
+    '#type' => 'checkbox',
+    '#default_value' => variable_get('signup_user_reg_form', 0),
+    '#description' => t('Users will see a checkbox for each event that they sign up for. Note that these checkboxes will appear even if anonymous users lack the "sign up for content" permission because they will be signed up once their account has been created and they are registered users.'),
+  );
   // The rest of the advanced settings are conditional on if/where the signup
   // form is being displayed.  We use jQuery to hide settings when they're not
   // relevant.
