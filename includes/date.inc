@@ -19,16 +19,15 @@ function _signup_date_admin_sql($content_type) {
   // content types, we'll potentially be JOINing on the same tables and
   // columns for different content types.  To defend against duplicate table
   // names or ambiguous columns in the query, use the content type to alias.
-  $alias = db_escape_table($content_type);
+  // Also, prefix it to make sure it's never a reserved word.
+  $alias = 'signup_alias_' . db_escape_table($content_type);
 
   // See what fields to SELECT.
   $fields[] = $alias .'.'. $field['database']['columns']['value']['column'];
   if (isset($field['database']['columns']['timezone']['column'])) {
     $fields[] = $alias .'.'. $field['database']['columns']['timezone']['column'];
   }
-  // We need to quote the alias in case someone used a reserved word for the
-  // machine-readable name of a content type.
-  $table = '{'. $field['database']['table'] .'} "'. $alias .'"';
+  $table = '{'. $field['database']['table'] ."} ". $alias;
   return array(
     'fields' => $fields,
     'joins' => array("LEFT JOIN $table ON $alias.vid = n.vid"),
