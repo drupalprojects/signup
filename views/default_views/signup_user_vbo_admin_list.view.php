@@ -36,7 +36,7 @@ $handler->override_option('relationships', array(
 ));
 $handler->override_option('fields', array(
   'name' => array(
-    'label' => 'Name',
+    'label' => 'Username',
     'link_to_user' => 1,
     'exclude' => 0,
     'id' => 'name',

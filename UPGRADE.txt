@@ -7,6 +7,11 @@ this file when you download a new version to see if there are any
 specific things you need to know about a certain upgrade.
 ======================================================================
 
+* Upgrading to 6.x-1.0-rc6 (from any earlier version)
+  There is a new dependency on Views (http://drupal.org/project/views).
+Be sure to install at least version 6.x-2.6 for the best results.
+
+
 * Upgrading to 6.x-1.0-rc3 (from any earlier version)
   There is a new permission called "cancel signups" which is required
 to cancel other user's signups at the signup administration tab at
