@@ -1,6 +1,14 @@
 $Id$
 
 ------------------------
+6.x-1.x-dev
+------------------------
+Bugs fixed since 6.x-1.0:
+= #856604 by dww: Removed duplicate entry in signup_theme().
+= #1020590 by dww: Removed includes/no_views.inc (missed during #582986).
+
+
+------------------------
 6.x-1.0 (2011-01-09)
 ------------------------
 Bugs fixed since 6.x-1.0-rc6:
