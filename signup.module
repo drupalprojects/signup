@@ -135,13 +135,6 @@ function signup_theme() {
         'node' => NULL,
       ),
     ),
-    'signup_node_title' => array(
-      'file' => 'node.inc',
-      'path' => $path,
-      'arguments' => array(
-        'node' => NULL,
-      ),
-    ),
     'signup_user_form' => array(
       'file' => 'signup_form.inc',
       'path' => $path,

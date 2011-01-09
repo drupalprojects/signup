@@ -1,6 +1,13 @@
 $Id$
 
 ------------------------
+6.x-1.x-dev
+------------------------
+Bugs fixed since 6.x-1.0:
+= #856604 by dww: Removed duplicate entry in signup_theme().
+
+
+------------------------
 6.x-1.0 (2011-01-09)
 ------------------------
 Bugs fixed since 6.x-1.0-rc6:
