@@ -6,6 +6,7 @@ $Id$
 Bugs fixed since 6.x-1.0:
 = #856604 by dww: Removed duplicate entry in signup_theme().
 = #1020590 by dww: Removed includes/no_views.inc (missed during #582986).
+= #1020758 by dww: Fixed missing table prefix for query (introduced in #856604)
 
 
 ------------------------

@@ -633,7 +633,7 @@ function signup_user($type, &$edit, &$account, $category = NULL) {
   switch ($type) {
     case 'register':
       // Get a list of nodes that should appear on the user registration form.
-      $query = db_query(db_rewrite_sql("SELECT n.nid FROM {node} n INNER JOIN signup s on n.nid=s.nid WHERE s.user_reg_form = 1 AND s.status = 1 AND n.status = 1"));
+      $query = db_query(db_rewrite_sql("SELECT n.nid FROM {node} n INNER JOIN {signup} s on n.nid = s.nid WHERE s.user_reg_form = 1 AND s.status = 1 AND n.status = 1"));
       while ($result = db_fetch_object($query)) {
         $nids[] = $result->nid;
       }
