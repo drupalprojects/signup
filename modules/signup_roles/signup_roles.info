@@ -1,4 +1,3 @@
-; $Id$
 name = Signup Roles
 description = "Allows the site to grant one or more roles to users who sign up for nodes."
 dependencies[] = signup

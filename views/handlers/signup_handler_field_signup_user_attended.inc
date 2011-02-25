@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * Field handler to display the attendance for a signed up user.

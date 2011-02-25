@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * Field handler to display custom (site-specific) signup form data.

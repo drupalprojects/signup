@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * Rebuild the site's menu to remove the stale menu item.

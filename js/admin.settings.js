@@ -1,4 +1,3 @@
-/* $Id$ */
 
 /**
  * Conditionally show/hide settings based on the signup form location.

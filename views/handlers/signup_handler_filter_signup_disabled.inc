@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * Filter nodes based on if signups are disabled or enabled.

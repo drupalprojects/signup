@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * Field handler to generate links to the various signup subtabs on a node.
