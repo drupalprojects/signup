@@ -1,4 +1,3 @@
-/* $Id$ */
 
 /**
  * On a node form, if the "Allow signups" radios are set to 1

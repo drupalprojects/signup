@@ -1,6 +1,5 @@
 <?php
 
-// $Id$
 
 /**
  * Format a user signup for display in a schedule list.

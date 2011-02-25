@@ -1,4 +1,3 @@
-$Id$
 
 The signup module allows users to sign up for nodes of any type.  For
 each signup-enabled node, this module provides options for sending a
