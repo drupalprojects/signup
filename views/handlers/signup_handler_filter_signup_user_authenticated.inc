@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * Filter signups based on if the user is anonymous or authenticated.

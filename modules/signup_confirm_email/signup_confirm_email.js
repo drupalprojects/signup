@@ -1,4 +1,3 @@
-/* $Id$ */
 
 /**
  * Conditionally show the "Update e-mail..." checkbox on signup forms.

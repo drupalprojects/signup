@@ -1,4 +1,3 @@
-/* $Id$ */
 
 /**
  * On the signup edit form, add some bling to make users "confirm" the edit.

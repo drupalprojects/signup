@@ -1,4 +1,3 @@
-$Id$
 
 This directory contains separate include files for all of the theme
 functions provided by the Signup module.

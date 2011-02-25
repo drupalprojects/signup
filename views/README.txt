@@ -1,4 +1,3 @@
-$Id$
 
 This directory contains the files necessary to provide integration
 between the Signup module and the Views module.  For more information

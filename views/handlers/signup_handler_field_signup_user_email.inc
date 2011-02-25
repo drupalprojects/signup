@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * Field handler to display the email address of a signed up user.

@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * Filter nodes based on their signup status (open vs. closed).
