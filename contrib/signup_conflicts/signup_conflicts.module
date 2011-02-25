@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * @defgroup signup_conflicts_core Core drupal hooks

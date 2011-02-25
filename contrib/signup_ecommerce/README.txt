@@ -1,5 +1,4 @@
 * signup_ecommerce
-* $Id$
 * Originally written by: Chad Phillips (http://drupal.org/user/22079)
 
 NOTE: this module requires both the ecommerce and signup modules to be

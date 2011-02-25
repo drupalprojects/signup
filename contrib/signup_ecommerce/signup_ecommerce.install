@@ -1,6 +1,5 @@
 <?php
 
-// $Id$
 
 /**
  * Converts the per-content-type variables used in the 4.6.x version

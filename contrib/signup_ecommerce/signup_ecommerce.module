@@ -1,6 +1,5 @@
 <?php
 
-// $Id$
 
 /**
  * @defgroup signup_ecommerce_core Core drupal hooks
