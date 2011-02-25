@@ -1,4 +1,3 @@
-$Id$
 
 It is assumed that you have Drupal up and running.  Be sure to check
 the Drupal web site if you need assistance.  If you run into problems,

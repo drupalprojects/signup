@@ -1,4 +1,3 @@
-# $Id$
 #
 # LANGUAGE translation of Drupal (contrib/signup_ecommerce/signup_ecommerce.module)
 # Copyright YEAR NAME <EMAIL@ADDRESS>

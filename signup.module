@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 include_once(drupal_get_path('module', 'signup') . '/signup.theme');
 

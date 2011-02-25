@@ -1,4 +1,3 @@
-$Id$
 
 The following is a wish list for ugrades to this module.  If you'd be
 interested in providing financial sponsorship for any of these

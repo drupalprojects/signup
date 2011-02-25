@@ -1,4 +1,3 @@
-# $Id$
 #
 # LANGUAGE translation of Drupal (contrib/signup_conflicts/signup_conflicts.module)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
