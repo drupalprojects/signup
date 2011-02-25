@@ -1,3 +1,2 @@
-; $Id$
 name = Signup
 description = "Allow users to sign up for content (especially events)."
