@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * Argument handler display nodes the given UID has not signed up for.

@@ -1,4 +1,3 @@
-$Id$
 
 The signup webform module provides a signup pane for each webform node. This allows  users to quickly create a form to collect data specific to a signup event.
 

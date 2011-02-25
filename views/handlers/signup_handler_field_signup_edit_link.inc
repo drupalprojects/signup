@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * Field handler to generate a link to edit a given signup.

@@ -1,4 +1,3 @@
-; $Id$
 name = Signup basic form
 description = Provides a signup form pane with name and phone fields.
 package = Signup

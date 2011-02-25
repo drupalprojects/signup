@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * @file signup_pane_example.module
  * A very simple example signup pane module.

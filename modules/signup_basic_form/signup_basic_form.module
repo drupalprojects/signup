@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * @file signup_basic_form.module
  * Provides a basic signup form pane to collect participant name and phone.

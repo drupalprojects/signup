@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * Filter signups based on if the user attended or not.

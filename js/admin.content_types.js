@@ -1,4 +1,3 @@
-/* $Id$ */
 
 /**
  * Conditionally show or hide the signup date field setting.

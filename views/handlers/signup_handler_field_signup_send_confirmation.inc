@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * Field handler to display if confirmation emails are enabled for a node.
