@@ -1,6 +1,4 @@
 <?php
-
-
 /**
  * @file
  * Code to support using CCK date fields for time-based signup functionality.
@@ -22,33 +20,55 @@ function _signup_date_admin_sql($content_type) {
   $alias = 'signup_alias_' . db_escape_table($content_type);
 
   // See what fields to SELECT.
-  $fields[] = $alias .'.'. $field['database']['columns']['value']['column'];
-  if (isset($field['database']['columns']['timezone']['column'])) {
-    $fields[] = $alias .'.'. $field['database']['columns']['timezone']['column'];
+  $fields[] = $alias . '.' . $field['field_name'] . '_value';
+  if (isset($field['columns']['timezone'])) {
+    $fields[] = $alias . '.' . $field['field_name'] . '_timezone';
   }
-  $table = '{'. $field['database']['table'] ."} ". $alias;
+  $table = '{' . $field['database']['table'] . '} ' . $alias;
   return array(
     'fields' => $fields,
-    'joins' => array("LEFT JOIN $table ON $alias.vid = n.vid"),
+    'joins' => array("LEFT JOIN $table ON $alias.revision_id = n.vid"),
     'group_by' => $fields,
   );
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function signup_field_names($content_type = NULL) {
   $fields = array();
-  $content_type_info = _content_type_info();
-  if ($content_type_info['content types'][$content_type]) {
+  /*$content_type_info = _content_type_info();
+   if ($content_type_info['content types'][$content_type]) {
     foreach ($content_type_info['content types'][$content_type]['fields'] as $field) {
       if (in_array($field['type'], array('date', 'datestamp', 'datetime'))) {
         $fields[$field['field_name']] = $field['widget']['label'];
+      }
+    }
+   }*/
+
+  /* TODO: Test if this works, and if this is the optimum way of retrieving
+   * this information.
+   *
+   * @see http://api.drupal.org/api/drupal/modules--field--field.info.inc/7
+   */
+  $content_type_info = field_info_instances('node');
+  if ($content_type_info[$content_type]) {
+    foreach ($content_type_info[$content_type] as $field_name => $field) {
+      if ($field['widget']['module'] == 'date') {
+        $fields[$field_name] = $field['label'];
       }
     }
   }
   return $fields;
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function signup_date_field($content_type) {
-  $field_name = variable_get('signup_date_field_'. $content_type, 0);
+  $field_name = variable_get('signup_date_field_' . $content_type, 0);
   if ($field_name === 0 || $field_name == '0') {
     // PHP is completely evil and 'none' == 0 is TRUE, hence the extra checks.
     return FALSE;
@@ -56,11 +76,17 @@ function signup_date_field($content_type) {
   if ($field_name == 'none') {
     return 'none';
   }
-  $field = content_fields($field_name, $content_type);
+  $field = field_info_field($field_name);
   if (empty($field)) {
     return array();
   }
-  $field['database'] = content_database_info($field);
+
+	// Store the database table for this field.
+	// @TODO: this probably could be done in a much, much more elegant and robust fashion....
+	if (!isset($field['database'])) {
+		$field['database'] = array('table' => 'field_data_' . $field_name);
+	}
+
   return $field;
 }
 
@@ -83,10 +109,10 @@ function signup_content_type_fields() {
  */
 function _signup_date_get_node_scheduler($node) {
   $field = signup_date_field($node->type);
-  if (!empty($node->{$field['field_name']}[0]['value'])) {
+  if (!empty($node->{$field['field_name']}[$node->language][0]['value'])) {
     return 'date';
   }
-  if (isset($node->{$field['database']['columns']['value']['column']})) {
+  if (isset($node->{$field['field_name'] . '_value'})) {
     return 'date';
   }
   return 'none';
@@ -101,7 +127,7 @@ function _signup_date_get_node_scheduler($node) {
  */
 function signup_form_content_field_edit_form_alter(&$form, &$form_state) {
   $type = $form['type_name']['#value'];
-  if (in_array($form['#field']['type'], array('date', 'datestamp', 'datetime')) && variable_get('signup_node_default_state_'. $type, 'disabled') != 'disabled') {
+  if (in_array($form['#field']['type'], array('date', 'datestamp', 'datetime')) && variable_get('signup_node_default_state_' . $type, 'disabled') != 'disabled') {
     $form['signup'] = array(
       '#type' => 'fieldset',
       '#title' => t('Signup settings'),
@@ -123,10 +149,10 @@ function signup_form_content_field_edit_form_alter(&$form, &$form_state) {
 function _signup_date_field_form_submit($form, &$form_state) {
   $type = $form_state['values']['type_name'];
   if (empty($form_state['values']['signup_date_field'])) {
-    variable_del('signup_date_field_'. $type);
+    variable_del('signup_date_field_' . $type);
   }
   else {
-    variable_set('signup_date_field_'. $type, $form_state['values']['signup_date_field']);
+    variable_set('signup_date_field_' . $type, $form_state['values']['signup_date_field']);
   }
 }
 
@@ -136,10 +162,10 @@ function _signup_date_field_form_submit($form, &$form_state) {
  * @see signup_alter_node_type_form()
  */
 function _signup_date_alter_node_type_form(&$form, &$form_state) {
-  drupal_add_js(drupal_get_path('module', 'signup') .'/js/admin.content_types.js');
+  drupal_add_js(drupal_get_path('module', 'signup') . '/js/admin.content_types.js');
 
   $type = $form['#node_type']->type;
-  $default_signup_state = variable_get('signup_node_default_state_'. $type, 'disabled');
+  $default_signup_state = variable_get('signup_node_default_state_' . $type, 'disabled');
 
   // Add a div to the 'Signup options' radios for signup.date.js.
   $form['signup']['signup_node_default_state']['#prefix'] = '<div class="signup-node-default-state-radios">';
@@ -162,7 +188,7 @@ function _signup_date_alter_node_type_form(&$form, &$form_state) {
   }
 
   $form['signup']['signup_date_field'] = _signup_date_field_element($type);
-  $form['signup']['signup_date_field']['#prefix'] = '<div class="'. $class .'">';
+  $form['signup']['signup_date_field']['#prefix'] = '<div class="' . $class . '">';
   $form['signup']['signup_date_field']['#suffix'] = '</div>';
 }
 
@@ -183,7 +209,7 @@ function _signup_date_field_element($type) {
     '#type' => 'select',
     '#title' => t('Date field to use with signup'),
     '#options' => _signup_get_date_field_options($type),
-    '#default_value' => variable_get('signup_date_field_'. $type, 0),
+    '#default_value' => variable_get('signup_date_field_' . $type, 0),
     '#description' => t('Select the date field of this content type to use for signup time-based functionality, such as automatically closing signups when the start time has passed and sending reminder emails. Select "%none" to not use a date field for signup functionality at all.', array('%none' => t('None'))),
   );
 }
@@ -204,7 +230,7 @@ function _signup_date_field_element($type) {
  * @see signup_date_field_check_config()
  */
 function signup_date_check_node_types($type = NULL) {
-  $names = node_get_types('names');
+  $names = node_type_get_names();
   if (!empty($type)) {
     signup_date_field_check_config($type, $names[$type]);
   }
@@ -236,7 +262,7 @@ function signup_date_check_node_types($type = NULL) {
  * @see signup_help()
  */
 function signup_date_field_check_config($type, $name) {
-  $signup_default_state = variable_get('signup_node_default_state_'. $type, 'disabled');
+  $signup_default_state = variable_get('signup_node_default_state_' . $type, 'disabled');
   $signup_scheduler = _signup_get_node_type_scheduler($type);
   if ($signup_scheduler != 'event' && $signup_default_state != 'disabled') {
     // Signups aren't disabled on this node type, see if there's a date field.
@@ -246,8 +272,8 @@ function signup_date_field_check_config($type, $name) {
       $placeholders = array(
         '%node_type' => $name,
         '%signup_date_field' => t('Date field to use with signup'),
-        '@type_admin_url' => url('admin/content/node-type/'. $type_url),
-        '@type_add_field_url' => url('admin/content/node-type/'. $type_url .'/fields'),
+        '@type_admin_url' => url('admin/content/node-type/' . $type_url),
+        '@type_add_field_url' => url('admin/content/node-type/' . $type_url . '/fields'),
         '%none' => '<' . t('none') . '>',
       );
       // Administrator hasn't specifically turned off date support...
@@ -279,7 +305,7 @@ function signup_date_field_check_config($type, $name) {
 function _signup_get_date_field_options($type) {
   $options = array();
   // Add "Not specified" if the user never selected a field.
-  if (variable_get('signup_date_field_'. $type, 0) == 0) {
+  if (variable_get('signup_date_field_' . $type, 0) == 0) {
     $options = array(0 => '<' . t('Not specified') . '>');
   }
   // Add any date fields from this node type.
@@ -296,17 +322,17 @@ function _signup_get_date_field_options($type) {
 function _signup_date_reminder_sql($content_type) {
   // Get the date field information for this content type.
   $field = signup_date_field($content_type);
-  $start_field = $field['database']['columns']['value']['column'];
+  $start_field = $field['field_name'] . '_value';
 
   // Figure out what TZ we want to do the date comparisons in.
-  $compare_tz = $field['tz_handling'] == 'none' ? date_default_timezone_name() : 'UTC';
+  $compare_tz = $field['settings']['tz_handling'] == 'none' ? date_default_timezone_name() : 'UTC';
   // Get a DateAPI SQL handler class for this field.
   $handler = date_field_get_sql_handler($field, $compare_tz);
 
   // Find the current time in the appropriate TZ for this field.
   $now_date = date_now($compare_tz);
   // Need to enclose this in ' marks to use directly in the SQL.
-  $now = "'". date_format($now_date, DATE_FORMAT_DATETIME) ."'";
+  $now = "'" . date_format($now_date, DATE_FORMAT_DATETIME) . "'";
 
   // Extract the correct SQL to represent the start time.
   $start_time = $handler->sql_field($start_field);
@@ -326,13 +352,13 @@ function _signup_date_reminder_sql($content_type) {
 
   // See what fields to SELECT.
   $fields[] = $start_field;
-  if (isset($field['database']['columns']['timezone']['column'])) {
-    $fields[] = $field['database']['columns']['timezone']['column'];
+  if (isset($field['columns']['timezone'])) {
+    $fields[] = $field['field_name'] . '_timezone';
   }
-  $table = '{'. $field['database']['table'] .'}';
+  $table = '{' . $field['database']['table'] . '}';
   return array(
     'fields' => $fields,
-    'joins' => array("INNER JOIN $table ON $table.vid = n.vid"),
+    'joins' => array("INNER JOIN $table ON $table.revision_id = n.vid"),
     'where' => $where,
   );
 }
@@ -344,10 +370,10 @@ function _signup_date_reminder_sql($content_type) {
 function _signup_date_autoclose_sql($content_type) {
   // Get the date field information for this content type.
   $field = signup_date_field($content_type);
-  $start_field = $field['database']['columns']['value']['column'];
+  $start_field = $field['field_name'] . '_value';
 
   // Figure out what TZ we want to do the date comparisons in.
-  $compare_tz = $field['tz_handling'] == 'none' ? date_default_timezone_name() : 'UTC';
+  $compare_tz = $field['settings']['tz_handling'] == 'none' ? date_default_timezone_name() : 'UTC';
   // Get a DateAPI SQL handler class for this field.
   $handler = date_field_get_sql_handler($field, $compare_tz);
 
@@ -367,13 +393,13 @@ function _signup_date_autoclose_sql($content_type) {
 
   // See what fields to SELECT.
   $fields[] = $start_field;
-  if (isset($field['database']['columns']['timezone']['column'])) {
-    $fields[] = $field['database']['columns']['timezone']['column'];
+  if (isset($field['columns']['timezone'])) {
+    $fields[] = $field['field_name'] . '_timezone';
   }
-  $table = '{'. $field['database']['table'] .'}';
+  $table = '{' . $field['database']['table'] . '}';
   return array(
     'fields' => $fields,
-    'joins' => array("INNER JOIN $table ON $table.vid = n.vid"),
+    'joins' => array("INNER JOIN $table ON $table.revision_id = n.vid"),
     'where' => $where,
   );
 }
@@ -386,23 +412,23 @@ function _signup_date_node_completed($node) {
   $field = signup_date_field($node->type);
   if ($field && $field != 'none' && isset($node->{$field['field_name']})) {
     // Grab whatever date value we actually have, regardless of format.
-    $date_value = $node->{$field['field_name']}[0]['value'];
+    $date_value = $node->{$field['field_name']}[$node->language][0]['value'];
     // Figure out the timezone handling for this date.
-    if ($field['tz_handling'] == 'date') {
-      $tz = $node->{$field['field_name']}[0]['timezone'];
+    if ($field['settings']['tz_handling'] == 'date') {
+      $tz = $node->{$field['field_name']}[$node->language][0]['timezone'];
     }
     else {
-      $tz = date_default_timezone_name();
+      $tz = date_default_timezone();
     }
-    $db_tz = date_get_timezone_db($field['tz_handling'], $tz);
+    $db_tz = date_get_timezone_db($field['settings']['tz_handling'], $tz);
     // Create a date object
-    $date = date_make_date($date_value, $db_tz, $field['type']);
+    $date = new DateObject($date_value, $db_tz, NULL);
     // Make sure the date object is going to print UTC values.
-    date_timezone_set($date, timezone_open('UTC'));
+    $date->setTimezone(timezone_open('UTC'));
     // Find out how early signups should be automatically closed.
     $close_early_hours = variable_get('signup_close_early', 1);
-    date_modify($date, "-$close_early_hours hours");
-    $close_time = date_format($date, 'U');
+    $date->modify("-$close_early_hours hours");
+    $close_time = $date->format('U');
     // Find the current UTC time.
     $now = date_now('UTC');
     if (date_format($now, 'U') >= $close_time) {
@@ -418,47 +444,50 @@ function _signup_date_format_date($node, $include_to_date = FALSE) {
   if (!$field || $field == 'none') {
     return '';
   }
-  if ($field['tz_handling'] == 'date') {
+  if ($field['settings']['tz_handling'] == 'date') {
     if (isset($node->{$field['field_name']})) {
-      $tz = $node->{$field['field_name']}[0]['timezone'];
+      $tz = $node->{$field['field_name']}[$node->language][0]['timezone'];
     }
     else {
-      $tz = $node->{$field['database']['columns']['timezone']['column']};
+      $tz = $node->{$field['field_name'] . '_timezone'};
     }
   }
   else {
-    $tz = date_default_timezone_name();
+    $tz = date_default_timezone();
   }
-  $display_tz = date_get_timezone($field['tz_handling'], $tz);
-  $db_tz = date_get_timezone_db($field['tz_handling'], $tz);
+  $display_tz = date_get_timezone($field['settings']['tz_handling'], $tz);
+  $db_tz = date_get_timezone_db($field['settings']['tz_handling'], $tz);
 
   if (isset($node->{$field['field_name']})) {
-    $date_value = $node->{$field['field_name']}[0]['value'];
+    $date_value = $node->{$field['field_name']}[$node->language][0]['value'];
   }
   else {
-    $date_value = $node->{$field['database']['columns']['value']['column']};
+    $date_value = $node->{$field['field_name'] . '_value'};
   }
-  $date = date_make_date($date_value, $db_tz, $field['type']);
+
+  $date = new DateObject($date_value, $db_tz, NULL);
   if ($db_tz != $display_tz) {
-    date_timezone_set($date, timezone_open($display_tz));
+    $date->setTimezone(timezone_open($display_tz));
   }
   $format = date_formatter_format('default', $field['field_name']);
-  $date_out = date_format_date($date, 'custom', $format);
+  $date_out = $date->format($format);
 
   if ($include_to_date) {
     if (isset($node->{$field['field_name']})) {
-      $date_value = $node->{$field['field_name']}[0]['value2'];
+      $date_value = $node->{$field['field_name']}[$node->language][0]['value2'];
     }
     else {
-      $date_value = $node->{$field['database']['columns']['value2']['column']};
+      $date_value = $node->{$field['field_name'] . '_value2'};
     }
-    $date = date_make_date($date_value, $db_tz, $field['type']);
+    $date = new DateObject($date_value, $db_tz, $field['type']);
     if ($db_tz != $display_tz) {
-      date_timezone_set($date, timezone_open($display_tz));
+      $date->setTimezone(timezone_open($display_tz));
     }
-    $date = date_format_date($date, 'custom', $format);
+    //@TODO: shouldn't this be $date_out?
+    $date = $date->format($format);
     if ($date_value) {
-      $date_out .= t(' to ') . date_format_date(date_make_date($date_value), 'custom', $format);
+      $date = new DateObject($date_value);
+      $date_out .= t(' to ') . $date->format($format);
     }
   }
 

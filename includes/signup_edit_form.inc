@@ -1,6 +1,4 @@
 <?php
-
-
 /**
  * @file
  * Code for the form to edit existing signups.
@@ -9,6 +7,8 @@
 /**
  * Build the form for editing existing signups.
  *
+ * @param $form
+ *   An associative array containing the structure of the form.
  * @param $form_state
  *   The state of the form to build (not currently used).
  * @param $signup
@@ -19,9 +19,8 @@
  * @return
  *   The FAPI form array for the signup edit form.
  */
-function signup_edit_form($form_state, $signup, $type) {
+function signup_edit_form($form, &$form_state, $signup, $type) {
   global $user;
-  $form = array();
 
   $form['#signup'] = $signup;
   $node = node_load($signup->nid);
@@ -33,7 +32,7 @@ function signup_edit_form($form_state, $signup, $type) {
   $can_edit = $admin || (user_access('edit own signups') && $own);
 
   if ($type == 'admin') {
-    $title = t("Information for !user's signup to !node", array('!user' => _signup_get_username($signup, TRUE), '!node' => l($node->title, 'node/'. $node->nid)));
+    $title = t("Information for !user's signup to !node", array('!user' => _signup_get_username($signup, TRUE), '!node' => l($node->title, 'node/' . $node->nid)));
   }
   else {
     $title = t('Your signup information');
@@ -50,8 +49,7 @@ function signup_edit_form($form_state, $signup, $type) {
   else {
     $form['elements'] = array();
     $form['elements']['header'] = array(
-      '#type' => 'markup',
-      '#value' => $title,
+      '#markup' => $title,
       '#prefix' => '<h4>',
       '#suffix' => '</h4>',
     );
@@ -71,21 +69,21 @@ function signup_edit_form($form_state, $signup, $type) {
 
   if ($admin) {
     $options = array();
-    if (1|| !isset($signup->attended)) {
+    if (1 || !isset($signup->attended)) {
       $options[-1] = t('- Not recorded -');
     }
-    $options[1] = theme('signup_attended_text', 1);
-    $options[0] = theme('signup_attended_text', 0);
+    $options[1] = theme('signup_attended_text', array('attended' => 1));
+    $options[0] = theme('signup_attended_text', array('attended' => 0));
     $form['elements']['attended'] = array(
       '#type' => 'select',
       '#title' => t('Attendance'),
       '#default_value' => isset($signup->attended) ? $signup->attended : -1,
-      '#options' => $options
+      '#options' => $options,
     );
   }
 
   // Build the themed signup form for this site and include that.
-  $site_form = theme('signup_user_form', $node);
+  $site_form = theme('signup_user_form', array('node' => $node));
   $form_data = unserialize($signup->form_data);
 
   // This is sort of a hack, but we don't support nested arrays for the custom
@@ -111,17 +109,16 @@ function signup_edit_form($form_state, $signup, $type) {
     );
   }
   if ($can_cancel) {
-    if (isset($_REQUEST['destination'])) {
+    if (isset($_GET['destination'])) {
       $destination = drupal_get_destination();
     }
     else {
       // If there's no destination already set, redirect to the node.
-      $destination = 'destination='. urlencode("node/$signup->nid");
+      $destination = array('destination' => 'node/' . $signup->nid);
     }
     $signup_token = signup_get_token($signup->sid, 'cancel');
     $form['elements']['cancel-signup'] = array(
-      '#type' => 'markup',
-      '#value' => l(t('Cancel signup'), "signup/cancel/$signup->sid/$signup_token", array('query' => $destination)),
+      '#markup' => l(t('Cancel signup'), "signup/cancel/$signup->sid/$signup_token", array('query' => $destination)),
     );
   }
 
@@ -172,7 +169,11 @@ function signup_edit_form_save_submit($form, $form_state) {
   // be NULL, if the attendence was cleared out by this edit, we need to
   // manually set the DB record to NULL here.
   if (!isset($signup->attended)) {
-    db_query("UPDATE {signup_log} SET attended = NULL WHERE sid = %d", $signup->sid);
+    //db_query("UPDATE {signup_log} SET attended = NULL WHERE sid = %d", $signup->sid);
+    db_update('signup_log')
+      ->fields(array('attended' => NULL))
+      ->condition('sid', $signup->sid)
+      ->execute();
   }
 
   drupal_set_message(t('Signup information updated.'));

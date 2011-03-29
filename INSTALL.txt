@@ -1,4 +1,3 @@
-
 It is assumed that you have Drupal up and running.  Be sure to check
 the http://drupal.org web site if you need assistance.  If you run
 into problems, you should always read the INSTALL.txt that comes with
@@ -104,6 +103,7 @@ the Drupal package and read the online documentation.
    better suit the needs of your site.  For example, if you are using
    the event module, you might want to add a filter to the 'current
    signups' view to restrict it to events that have not started yet.
+
 
 8. (Optional) Configure if and how you want a list of users signed up
    for each node to appear.  Under the 'Advanced settings' at

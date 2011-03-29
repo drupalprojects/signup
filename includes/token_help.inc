@@ -1,6 +1,4 @@
 <?php
-
-
 /**
  * @file
  * Code for building help text for token.module support on various forms.
@@ -23,7 +21,7 @@ function _signup_token_help(&$form, $element_name) {
     '#collapsed' => TRUE,
   );
   $form[$element_name]['help_text'] = array(
-    '#value' => _signup_build_token_help(),
+    '#markup' => _signup_build_token_help(),
   );
 }
 
@@ -35,6 +33,7 @@ function _signup_token_help(&$form, $element_name) {
 function _signup_build_token_help() {
   static $help_html = '';
   if (empty($help_html)) {
+    // TODO: Why can't theme_token_help() be found in this module?!?!
     $help_html = theme('token_help', array('signup', 'node', 'global'));
   }
   return $help_html;

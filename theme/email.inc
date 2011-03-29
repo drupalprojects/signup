@@ -1,6 +1,4 @@
 <?php
-
-
 /**
  * @file
  * Theme functions for generating signup email messages.
@@ -15,8 +13,8 @@
  * @see theme_signup_user_form()
  * @see theme_signup_custom_data_email()
  */
-function theme_signup_email_token_custom_data($signup_data) {
-  return t('SIGNUP INFORMATION') ."\n\r". theme('signup_custom_data_email', $signup_data);
+function theme_signup_email_token_custom_data($variables) {
+  return t('SIGNUP INFORMATION') . "\n\r" . theme('signup_custom_data_email', array('data' => $variables['signup_data']));
 }
 
 /**
@@ -34,17 +32,19 @@ function theme_signup_email_token_custom_data($signup_data) {
  *
  * @see theme_signup_user_form()
  */
-function theme_signup_custom_data_email($data) {
+function theme_signup_custom_data_email($variables) {
+  $data = $variables['data'];
+
   $output = '';
   // Loop through each first level element.
   foreach ($data as $key => $value) {
     if (is_array($value)) {
       // Element is nested, render it recursively.
       // Instead of the overhead of theme(), just call ourself directly.
-      $output .= "\n\r". call_user_func(__FUNCTION__, $value) ."\n\r";
+      $output .= "\n\r" . call_user_func(__FUNCTION__, $value) . "\n\r";
     }
     else {
-      $output .= theme('signup_custom_data_field_text', $key, $value) ."\n\r";
+      $output .= theme('signup_custom_data_field_text', array('key' => $key, 'value' => $value)) . "\n\r";
     }
   }
   return $output;
@@ -63,14 +63,17 @@ function theme_signup_custom_data_email($data) {
  *
  * @see theme_signup_user_form()
  */
-function theme_signup_custom_data_field_text($key, $value) {
+function theme_signup_custom_data_field_text($variables) {
+  $key = $variables['key'];
+  $value = $variables['value'];
+
   // All of the possible array key values should already be translated as
   // string literals in theme_signup_user_form() via the #title attributes, so
   // passing a variable to t() is actually safe here.  However, to avoid
   // warnings when extracting strings, "hide" the call to t() by using a
   // variable to hold the function name.
   $tr = 't';
-  return $tr($key) .': '. $value;
+  return $tr($key) . ': ' . $value;
 }
 
 /**
@@ -84,13 +87,16 @@ function theme_signup_custom_data_field_text($key, $value) {
  * @return
  *   The final text to put in the email body sent to the broadcast sender.
  */
-function theme_signup_broadcast_sender_copy($raw_message, $cooked_message) {
-  $output = t('This is a copy of the signup broadcast you just sent.') ."\n";
-  $output .= wordwrap(t('Here is the original text you entered, with none of the tokens replaced:'), 72) ."\n";
+function theme_signup_broadcast_sender_copy($variables) {
+  $raw_message = $variables['raw_message'];
+  $cooked_message = $variables['cooked_message'];
+
+  $output = t('This is a copy of the signup broadcast you just sent.') . "\n";
+  $output .= wordwrap(t('Here is the original text you entered, with none of the tokens replaced:'), 72) . "\n";
   $output .= "----------\n";
   $output .= $raw_message;
   $output .= "\n----------\n\n";
-  $output .= wordwrap(t('Here is how the message that was sent to each user looked, with all of the tokens replaced (using your account for the user-related tokens):'), 72) ."\n";
+  $output .= wordwrap(t('Here is how the message that was sent to each user looked, with all of the tokens replaced (using your account for the user-related tokens):'), 72) . "\n";
   $output .= "----------\n";
   $output .= $cooked_message;
   $output .= "\n----------\n\n";

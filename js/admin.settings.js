@@ -1,3 +1,4 @@
+(function ($) {
 
 /**
  * Conditionally show/hide settings based on the signup form location.
@@ -7,17 +8,19 @@
  * should be collapsed.  Only show this setting if the form is going
  * to be displayed on the node itself.
  */
-Drupal.behaviors.signupShowFormLocationSetting = function () {
-  $('div.signup-form-location-radios input.form-radio').click(function () {
-    // Simple part: Depending on the form location, hide/show the
-    // collapsible fieldset setting.
-    if (this.value == 'node') {
-      $('div.signup-fieldset_collapsed-setting').show();
-    }
-    else {
-      $('div.signup-fieldset_collapsed-setting').hide();
-    }
-  });
+Drupal.behaviors.signupShowFormLocationSetting = {
+  attach: function (context, settings) {
+    $('div.signup-form-location-radios input.form-radio', context).click(function () {
+      // Simple part: Depending on the form location, hide/show the
+      // collapsible fieldset setting.
+      if (this.value == 'node') {
+        $('div.signup-fieldset_collapsed-setting', context).show();
+      }
+      else {
+        $('div.signup-fieldset_collapsed-setting', context).hide();
+      }
+    });
+  }
 };
 
 /**
@@ -26,15 +29,17 @@ Drupal.behaviors.signupShowFormLocationSetting = function () {
  * If the signup user list is going to be an embedded view, show the
  * view-related settings, otherwise, hide them.
  */
-Drupal.behaviors.signupShowUserListViewSetting = function () {
-  $('div.signup-display-signup-user-list-setting input.form-radio').click(function () {
-    if (this.value == 'embed-view' || this.value == 'embed-view-tab') {
-      $('div.signup-user-list-view-settings').show();
-    }
-    else {
-      $('div.signup-user-list-view-settings').hide();
-    }
-  });
+Drupal.behaviors.signupShowUserListViewSetting = {
+  attach: function (context, settings) {
+    $('div.signup-display-signup-user-list-setting input.form-radio', context).click(function () {
+      if (this.value == 'embed-view' || this.value == 'embed-view-tab') {
+        $('div.signup-user-list-view-settings', context).show();
+      }
+      else {
+        $('div.signup-user-list-view-settings', context).hide();
+      }
+    });
+  }
 };
 
 /**
@@ -43,13 +48,17 @@ Drupal.behaviors.signupShowUserListViewSetting = function () {
  * If the administer signup user list is going to be an embedded view,
  * show the view-related settings, otherwise, hide them.
  */
-Drupal.behaviors.signupShowAdminListViewSetting = function () {
-  $('div.signup-display-signup-admin-list-setting input.form-radio').click(function () {
-    if (this.value == 'embed-view') {
-      $('div.signup-admin-list-view-settings').show();
-    }
-    else {
-      $('div.signup-admin-list-view-settings').hide();
-    }
-  });
+Drupal.behaviors.signupShowAdminListViewSetting = {
+  attach: function (context, settings) {
+    $('div.signup-display-signup-admin-list-setting input.form-radio', context).click(function () {
+      if (this.value == 'embed-view') {
+        $('div.signup-admin-list-view-settings', context).show();
+      }
+      else {
+        $('div.signup-admin-list-view-settings', context).hide();
+      }
+    });
+  }
 };
+
+})(jQuery);

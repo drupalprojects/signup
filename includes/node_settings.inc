@@ -1,6 +1,4 @@
 <?php
-
-
 /**
  * @file
  * Code related to the per-node signup settings form.
@@ -27,7 +25,7 @@
  *   The form array for the per-node signup settings.
  *
  */
-function signup_node_settings_form($form_state, $node = NULL, $node_type = NULL, $has_date = FALSE, $include_buttons = FALSE) {
+function signup_node_settings_form($form, $form_state, $node = NULL, $node_type = NULL, $has_date = FALSE, $include_buttons = FALSE) {
   if (module_exists('token')) {
     $signup_token_description = t('Supported string substitutions: %node_title, %node_url, %node_start_time, %user_name, %user_mail, %user_signup_info (additional information from the signup form), %cancel_signup_url (access to this link is denied to users without the "%cancel_own_signups" permission), and any tokens in the %replacement_tokens list.', array('%replacement_tokens' => t('Replacement tokens'), '%cancel_own_signups' => t('cancel own signups')));
   }
@@ -37,7 +35,7 @@ function signup_node_settings_form($form_state, $node = NULL, $node_type = NULL,
 
   // Load the default admin form data for new nodes.
   if (!$node || !$node->signup) {
-    $result = db_fetch_object(db_query("SELECT * FROM {signup} WHERE nid = 0"));
+    $result = db_query("SELECT * FROM {signup} WHERE nid = :nid", array(':nid' => 0))->fetchObject();
     $node->signup_forwarding_email = $result->forwarding_email;
     $node->signup_send_confirmation = $result->send_confirmation;
     $node->signup_confirmation_email = $result->confirmation_email;
@@ -51,7 +49,8 @@ function signup_node_settings_form($form_state, $node = NULL, $node_type = NULL,
     '#type' => 'textfield',
     '#title' => t('Send signups to'),
     '#default_value' => $node->signup_forwarding_email,
-    '#size' => 40, '#maxlength' => 64,
+    '#size' => 40,
+    '#maxlength' => 64,
     '#description' => t('Email address where notification of new signups will be sent. Leave blank for no notifications.'),
   );
   $form['signup_send_confirmation'] = array(
@@ -63,7 +62,8 @@ function signup_node_settings_form($form_state, $node = NULL, $node_type = NULL,
     '#type' => 'textarea',
     '#title' => t('Confirmation email'),
     '#default_value' => $node->signup_confirmation_email,
-    '#cols' => 40, '#rows' => 6,
+    '#cols' => 40,
+    '#rows' => 6,
     '#description' => t('Email sent to user upon signup. !token_description', array('!token_description' => $signup_token_description)),
   );
   if (module_exists('token')) {
@@ -87,7 +87,7 @@ function signup_node_settings_form($form_state, $node = NULL, $node_type = NULL,
     for ($i = 1; $i <= 60; $i++) {
       $options[$i] = $i;
     }
-    $node_type_name = isset($node_type) ? node_get_types('name', $node_type) : '';
+    $node_type_name = isset($node_type) ? node_type_get_name($node_type) : '';
     $form['signup_reminder']['signup_reminder_days_before'] = array(
       '#type' => 'select',
       '#default_value' => $node->signup_reminder_days_before,
@@ -98,8 +98,9 @@ function signup_node_settings_form($form_state, $node = NULL, $node_type = NULL,
       '#type' => 'textarea',
       '#title' => t('Reminder email'),
       '#default_value' => $node->signup_reminder_email,
-      '#cols' => 40, '#rows' => 6,
-      '#description' =>  !empty($node_type_name) ? t('Email sent to user as a reminder before the %node_type starts. !token_description', array('%node_type' => $node_type_name, '!token_description' => $signup_token_description)) : t('Email sent to user as a reminder before the start time. !token_description', array('!token_description' => $signup_token_description)),
+      '#cols' => 40,
+      '#rows' => 6,
+      '#description' => !empty($node_type_name) ? t('Email sent to user as a reminder before the %node_type starts. !token_description', array('%node_type' => $node_type_name, '!token_description' => $signup_token_description)) : t('Email sent to user as a reminder before the start time. !token_description', array('!token_description' => $signup_token_description)),
     );
     if (module_exists('token')) {
       module_load_include('inc', 'signup', 'includes/token_help');
@@ -111,12 +112,16 @@ function signup_node_settings_form($form_state, $node = NULL, $node_type = NULL,
     '#type' => 'textfield',
     '#title' => t('Signup limit'),
     '#default_value' => $node->signup_close_signup_limit,
-    '#size' => 4, '#maxlength' => 8,
+    '#size' => 4,
+    '#maxlength' => 8,
     '#description' => t('Maximum number of users who can sign up before signups are automatically closed. If set to 0, there is no limit.'),
     '#prefix' => '<div id="signup-limit">',
     '#suffix' => '</div>',
   );
-  $form['signup'] = array('#type' => 'hidden', '#value' => 1);
+  $form['signup'] = array(
+    '#type' => 'hidden',
+    '#value' => 1,
+  );
 
   if ($include_buttons) {
     $form['#node'] = $node;
@@ -138,6 +143,9 @@ function signup_node_settings_form($form_state, $node = NULL, $node_type = NULL,
  * Page callback for the node/N/signups/settings subtab.
  */
 function signup_node_settings_page($node) {
+  // TODO: This probably shouldn't be here.
+  drupal_set_title($node->title);
+
   $node_scheduler = _signup_get_node_scheduler($node);
   $node_has_date = $node_scheduler != 'none';
   return drupal_get_form('signup_node_settings_form', $node, $node->type, $node_has_date, TRUE);
@@ -155,7 +163,7 @@ function signup_node_settings_form_submit($form, &$form_state) {
   $op = isset($form_state['values']['op']) ? $form_state['values']['op'] : '';
   if ($op == t('Reset to defaults')) {
     // If we're resetting, we just want to grab the site-wide defaults.
-    $values = db_fetch_array(db_query("SELECT forwarding_email, send_confirmation, confirmation_email, close_signup_limit, send_reminder, reminder_days_before, reminder_email FROM {signup} WHERE nid = 0"));
+    $values = db_query("SELECT forwarding_email, send_confirmation, confirmation_email, close_signup_limit, send_reminder, reminder_days_before, reminder_email FROM {signup} WHERE nid = :nid", array(':nid' => 0))->fetchAssoc();
   }
   else {
     // Populate $values from $form_state.
@@ -173,13 +181,17 @@ function signup_node_settings_form_submit($form, &$form_state) {
   // Either way, we want to make sure we're updating the values for the
   // current node, not nid 0...
   $node = $form['#node'];
-  $values[] = $node->nid;
-  db_query("UPDATE {signup} SET forwarding_email = '%s', send_confirmation = %d, confirmation_email = '%s', close_signup_limit = %d, send_reminder = %d, reminder_days_before = %d, reminder_email = '%s' WHERE nid = %d", $values);
+  // TODO Please review the conversion of this statement to the D7 database API syntax.
+  /* db_query("UPDATE {signup} SET forwarding_email = '%s', send_confirmation = %d, confirmation_email = '%s', close_signup_limit = %d, send_reminder = %d, reminder_days_before = %d, reminder_email = '%s' WHERE nid = %d", $values) */
+  db_update('signup')
+    ->fields($values)
+    ->condition('nid', $node->nid)
+    ->execute();
 
   // See if the limit changed, and if so, take any necessary action.
   if ($node->signup_close_signup_limit != $form_state['values']['signup_close_signup_limit']) {
     $node->signup_close_signup_limit = $form_state['values']['signup_close_signup_limit'];
-    $node->signup_effective_total = db_result(db_query("SELECT SUM(count_towards_limit) FROM {signup_log} WHERE nid = %d", $node->nid));
+    $node->signup_effective_total = db_query("SELECT SUM(count_towards_limit) FROM {signup_log} WHERE nid = :nid", array(':nid' => $node->nid))->fetchField();
     _signup_check_limit($node, 'limit');
   }
 

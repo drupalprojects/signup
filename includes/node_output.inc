@@ -1,6 +1,4 @@
 <?php
-
-
 /**
  * @file
  * Code used to generate singup-related output when viewing nodes.
@@ -28,7 +26,7 @@
  *
  */
 function _signup_node_output($node, $type = 'node') {
-  $output = theme('signup_node_output_header', $node);
+  $output = theme('signup_node_output_header', array('node' => $node));
   $output .= _signup_current_user_signup($node, $type);
   return $output;
 }
@@ -48,12 +46,12 @@ function _signup_current_user_signup($node, $type = 'node') {
       // If they're logged in and already signed up, show their current
       // signup info and give them the option to cancel.
       if ($user->uid) {
-        $signup = db_fetch_object(db_query("SELECT sl.*, n.title, u.name FROM {signup_log} sl INNER JOIN {node} n ON sl.nid = n.nid INNER JOIN {users} u ON sl.uid = u.uid WHERE sl.uid = %d AND sl.nid = %d", $user->uid, $node->nid));
+        $signup = db_query("SELECT sl.*, n.title, u.name FROM {signup_log} sl INNER JOIN {node} n ON sl.nid = n.nid INNER JOIN {users} u ON sl.uid = u.uid WHERE sl.uid = :uid AND sl.nid = :nid", array(':uid' => $user->uid, ':nid' => $node->nid))->fetchObject();
         if (!empty($signup)) {
           $current_signup = _signup_render_signup_edit_form($signup, $type);
         }
       }
-      $output .= theme('signup_signups_closed', $node, $current_signup);
+      $output .= theme('signup_signups_closed', array('node' => $node, 'current_signup' => $current_signup));
     }
   }
   else {
@@ -62,7 +60,8 @@ function _signup_current_user_signup($node, $type = 'node') {
       if (user_access('sign up for content')) {
         // If they can signup, render the anonymous sigup form.
         module_load_include('inc', 'signup', 'includes/signup_form');
-        $output .= drupal_get_form('signup_form', $node, 'anon', $fieldset);
+        $form = drupal_get_form('signup_form', $node, 'anon', $fieldset);
+        $output .= drupal_render($form);
       }
       else {
         // If not, then display the appropriate login/register link if the
@@ -73,7 +72,7 @@ function _signup_current_user_signup($node, $type = 'node') {
           $token_array = array(
             '!login' => l(t('login'), 'user/login', array('query' => drupal_get_destination())),
             '!register' => l(t('register'), 'user/register', array('query' => drupal_get_destination())),
-            '%node_type' => node_get_types('name', $node->type),
+            '%node_type' => node_type_get_name($node->type),
           );
           if (variable_get('user_register', 1) == 0) {
             $anon_login_text = t('Please !login to sign up for this %node_type.', $token_array);
@@ -82,20 +81,21 @@ function _signup_current_user_signup($node, $type = 'node') {
             $anon_login_text = t('Please !login or !register to sign up for this %node_type.', $token_array);
           }
         }
-        $output .= theme('signup_anonymous_user_login_text', $anon_login_text);
+        $output .= theme('signup_anonymous_user_login_text', array('anon_login_text' => $anon_login_text));
       }
     }
     else {
       // An authenticated user.
 
       // See if the user is already signed up for this node.
-      $signup = db_fetch_object(db_query("SELECT sl.*, n.title, u.name, u.mail FROM {signup_log} sl INNER JOIN {node} n ON sl.nid = n.nid INNER JOIN {users} u ON sl.uid = u.uid WHERE sl.uid = %d AND sl.nid = %d", $user->uid, $node->nid));
+      $signup = db_query("SELECT sl.*, n.title, u.name, u.mail FROM {signup_log} sl INNER JOIN {node} n ON sl.nid = n.nid INNER JOIN {users} u ON sl.uid = u.uid WHERE sl.uid = :uid AND sl.nid = :nid", array(':uid' => $user->uid, ':nid' => $node->nid))->fetchObject();
       if (empty($signup)) {
         // Not yet signed up
         if (user_access('sign up for content')) {
           // User has permission to do so, so give them the form.
           module_load_include('inc', 'signup', 'includes/signup_form');
-          $output .= drupal_get_form('signup_form', $node, 'auth', $fieldset);
+          $form = drupal_get_form('signup_form', $node, 'auth', $fieldset);
+          $output .= drupal_render($form);
         }
       }
       else {
@@ -112,6 +112,9 @@ function _signup_current_user_signup($node, $type = 'node') {
  */
 function signup_user_list_output($node) {
   $output = '';
+
+  // TODO: This probably shouldn't be here.
+  drupal_set_title($node->title);
 
   // How should the list of signed-up users be displayed, if at all?
   $display_list = variable_get('signup_display_signup_user_list', 'embed-view');
@@ -151,7 +154,7 @@ function signup_user_list_output($node) {
  * @see _signup_node_output()
  */
 function signup_node_tab($node) {
-  drupal_set_title(check_plain($node->title));
+  drupal_set_title($node->title);
   return _signup_node_output($node, 'tab');
 }
 
@@ -167,7 +170,7 @@ function _signup_render_signup_edit_form($signup, $type) {
   module_load_include('inc', 'signup', 'includes/signup_edit_form');
   $form = drupal_get_form('signup_edit_form', $signup, $type);
   $form_errors = form_get_errors() ? TRUE : FALSE;
-  drupal_add_js(array('signupEditFormErrors' => $form_errors), 'setting');
-  return $form;
+  drupal_add_js(array('signupEditFormErrors' => $form_errors), array('type' => 'setting', 'scope' => JS_DEFAULT));
+  return drupal_render($form);
 }
 

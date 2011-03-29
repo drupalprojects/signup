@@ -1,6 +1,4 @@
 <?php
-
-
 /**
  * @file
  * This file documents the hooks invoked by the Signup module.
@@ -48,8 +46,7 @@ function hook_signup_cancel($signup, $node) {
   $form_data = unserialize($signup->form_data);
   $info[] = t('Custom signup form data: %signup_form_data', array('%signup_form_data' => theme('signup_custom_data_email', $form_data)));
   $info[] = t('Attendance record: %attended', array('%attended' => theme('signup_attended_text', $signup->attended)));
-  $info[] = t('Slots consumed by this signup: @count_towards_limit', array('@co
-unt_towards_limit' => $signup->count_towards_limit));
+  $info[] = t('Slots consumed by this signup: @count_towards_limit', array('@count_towards_limit' => $signup->count_towards_limit));
 
   drupal_set_message(theme('item_list', $info, t('Signup canceled for %node_title', array('%node_title' => $node->title))));
 }
@@ -97,7 +94,7 @@ function hook_signup_update($signup) {
  */
 function hook_signup_sign_up($node, $account) {
   return array(
-    t('Node type') => node_get_types('name', $node->type),
+    t('Node type') => node_type_get_name($node->type),
     t('User created') => format_date($account->created),
   );
 }

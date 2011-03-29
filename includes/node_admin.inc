@@ -1,6 +1,4 @@
 <?php
-
-
 /**
  * @file
  * Code related to the signup administration tab on each node.
@@ -10,7 +8,7 @@
  * Print the signup administration tab for a single node.
  */
 function signup_node_admin_page($node) {
-  drupal_set_title(check_plain($node->title));
+  drupal_set_title($node->title);
 
   // Administrative table to control signups for this node.
   // We only want this if we're not in the middle of confirming a bulk
@@ -20,7 +18,8 @@ function signup_node_admin_page($node) {
   // based on if it's a certain kind of POST...
   if (empty($_POST['operation'])) {
     module_load_include('inc', 'signup', 'includes/node_admin_summary');
-    $signup_node_admin_summary_form = drupal_get_form('signup_node_admin_summary_form', $node);
+    $form = drupal_get_form('signup_node_admin_summary_form', $node);
+    $signup_node_admin_summary_form = drupal_render($form);
   }
   else {
     // We're either dealing with a validation error or on a confirm form, so
@@ -43,6 +42,6 @@ function signup_node_admin_page($node) {
     $signup_node_admin_details_form = '';
   }
 
-  return theme('signup_node_admin_page', $node, $signup_node_admin_summary_form, $signup_node_admin_details_form);
+  return theme('signup_node_admin_page', array('node' => $node, 'signup_node_admin_summary_form' => $signup_node_admin_summary_form, 'signup_node_admin_details_form' => $signup_node_admin_details_form));
 }
 

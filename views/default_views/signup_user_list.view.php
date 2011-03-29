@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * All users who have signed up for a given node.

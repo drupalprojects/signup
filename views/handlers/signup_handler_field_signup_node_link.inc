@@ -1,13 +1,18 @@
 <?php
-
 /**
  * Field handler to generate links to the various signup subtabs on a node.
  */
 class signup_handler_field_signup_node_link extends views_handler_field_node_link {
   function construct() {
     parent::construct();
-    $this->additional_fields['uid'] = array('table' => 'node', 'field' => 'uid');
-    $this->additional_fields['signup_status'] = array('table' => 'signup', 'field' => 'status');
+    $this->additional_fields['uid'] = array(
+      'table' => 'node',
+      'field' => 'uid',
+    );
+    $this->additional_fields['signup_status'] = array(
+      'table' => 'signup',
+      'field' => 'status',
+    );
   }
 
   function options_form(&$form, &$form_state) {
@@ -35,7 +40,7 @@ class signup_handler_field_signup_node_link extends views_handler_field_node_lin
 
   function render($values) {
     $tab = $this->options['tab'];
-    $node = new StdClass();
+    $node = new stdClass();
     $node->nid = $values->{$this->aliases['nid']};
     $node->uid = $values->{$this->aliases['uid']};
     $node->signup_status = $values->{$this->aliases['signup_status']};
@@ -79,7 +84,7 @@ class signup_handler_field_signup_node_link extends views_handler_field_node_lin
   }
 
   function check_access($node, $tab) {
-    switch ($tab) {    
+    switch ($tab) {
       case 'signup':
         // Slightly complicated, since _signup_menu_access() is testing if we
         // want the signup tab, but here we just want to know if the user can

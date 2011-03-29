@@ -1,6 +1,4 @@
 <?php
-
-
 /**
  * @file
  * Code necessary to determine which scheduler backend(s) to use.
@@ -66,11 +64,11 @@ function _signup_get_node_scheduler($node) {
  *   the node type is untimed.
  */
 function _signup_get_node_type_scheduler($type) {
-  if (module_exists('event') && variable_get('event_nodeapi_'. $type, 'never') != 'never') {
+  if (module_exists('event') && variable_get('event_nodeapi_' . $type, 'never') != 'never') {
     return 'event';
   }
   if (module_exists('date')) {
-    $date_field = variable_get('signup_date_field_'. $type, 0);
+    $date_field = variable_get('signup_date_field_' . $type, 0);
     if (!empty($date_field) && $date_field != 'none') {
       return 'date';
     }
@@ -97,6 +95,10 @@ function _signup_node_completed($node) {
   }
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function signup_format_date($node) {
   switch (_signup_get_node_scheduler($node)) {
     case 'event':
@@ -110,6 +112,10 @@ function signup_format_date($node) {
   }
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function signup_reminder_sql($node_type) {
   switch (_signup_get_node_type_scheduler($node_type)) {
     case 'event':
@@ -123,6 +129,10 @@ function signup_reminder_sql($node_type) {
   }
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function signup_autoclose_sql($node_type) {
   switch (_signup_get_node_type_scheduler($node_type)) {
     case 'event':
@@ -136,6 +146,10 @@ function signup_autoclose_sql($node_type) {
   }
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function signup_admin_sql($node_type) {
   switch (_signup_get_node_type_scheduler($node_type)) {
     case 'event':

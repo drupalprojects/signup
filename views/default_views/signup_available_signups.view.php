@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Subtab of user/N/signups for all signup-enabled nodes that the user hasn't

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Field handler to display the current signup status of a node.
  */

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Argument handler display nodes the given UID has not signed up for.
  */
@@ -19,7 +18,7 @@ class signup_handler_argument_signup_user_uid extends views_handler_argument_num
       'value' => $this->argument,
     );
     $alias = $this->query->add_table($this->table, $this->relationship, $join);
-    $this->query->add_where(0, "$alias.$this->real_field IS NULL");
+    $this->query->add_where(0, "$alias.$this->real_field", NULL, 'IS NULL');
   }
 }
 

@@ -1,6 +1,4 @@
 <?php
-
-
 /**
  * @file
  * Provides support for Views integration.
@@ -10,7 +8,7 @@
  */
 
 /**
- * Implementation of hook_views_data().
+ * Implements hook_views_data().
  */
 function signup_views_data() {
   // Define the base group of the signup table.  Fields that don't
@@ -135,7 +133,7 @@ function signup_views_data() {
       'handler' => 'signup_handler_filter_signup_disabled',
       'help' => t('Filter on if signups are enabled or disabled.'),
       'label' => 'Signups',
-      ),
+    ),
   );
 
   $data['signup']['node_link'] = array(
@@ -188,9 +186,9 @@ function signup_views_data() {
     'sort' => array(
       'handler' => 'views_handler_sort',
       'help' => t('Sort by signup ID.'),
-    )
+    ),
   );
-  
+
   $data['signup_log']['nid'] = array(
     'title' => t('Node'),
     'help' => t('The node a user signed up to.'),
@@ -225,7 +223,7 @@ function signup_views_data() {
     'click sortable' => TRUE,
     'field' => array(
       'handler' => 'signup_handler_field_signup_user_email',
-      'help' => t('Email address of a user (authenticated or anonymous) who signed up.') .' <strong>'. t('WARNING: only expose this data in a view that is restricted to users whom you can trust with such sensitive information.') .'</strong>',
+      'help' => t('Email address of a user (authenticated or anonymous) who signed up.') . ' <strong>' . t('WARNING: only expose this data in a view that is restricted to users whom you can trust with such sensitive information.') . '</strong>',
     ),
   );
 
@@ -305,7 +303,7 @@ function signup_views_data() {
 }
 
 /**
- * Implementation of hook_views_handlers().
+ * Implements hook_views_handlers().
  *
  * Register information about all of the views handlers provided by the Signup
  * module.
@@ -313,7 +311,7 @@ function signup_views_data() {
 function signup_views_handlers() {
   return array(
     'info' => array(
-      'path' => drupal_get_path('module', 'signup') .'/views/handlers',
+      'path' => drupal_get_path('module', 'signup') . '/views/handlers',
     ),
     'handlers' => array(
       'signup_handler_argument_signup_user_uid' => array(
@@ -357,10 +355,10 @@ function signup_views_handlers() {
 }
 
 /**
- * Implementation of hook_views_plugins().
+ * Implements hook_views_plugins().
  */
 function signup_views_plugins() {
-  $path = drupal_get_path('module', 'signup') .'/views/plugins';
+  $path = drupal_get_path('module', 'signup') . '/views/plugins';
   return array(
     'argument validator' => array(
       'signup_status' => array(

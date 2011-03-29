@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Signup schedule at user/N/signups and the "Current signups" block.

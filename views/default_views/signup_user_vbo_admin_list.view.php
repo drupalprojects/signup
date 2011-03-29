@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Views Bulk Operations (VBO) view for administering signups on a node.

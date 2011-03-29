@@ -1,5 +1,4 @@
 <?php
-// $Id:
 /**
  * @file
  * The Signup roles module allows administrators to configure a site so that it
@@ -7,7 +6,7 @@
  */
 
 /**
- * Implementation of hook_signup_sign_up().
+ * Implements hook_signup_sign_up().
  */
 function signup_roles_signup_sign_up($node, $account) {
   // We can't grant roles to anonymous users.
@@ -38,9 +37,9 @@ function signup_roles_signup_sign_up($node, $account) {
 }
 
 /**
- * Implementation of hook_form_alter().
+ * Implements hook_form_alter().
  */
-function signup_roles_form_alter(&$form, $form_state, $form_id) {
+function signup_roles_form_alter(&$form, &$form_state, $form_id) {
   if ($form_id == 'signup_settings_form') {
     // Only show them roles beyond the Authenticated.
     $roles = user_roles(TRUE);
@@ -62,11 +61,11 @@ function signup_roles_form_alter(&$form, $form_state, $form_id) {
 }
 
 /**
-* Public function for removing roles if a user cancels.
-*
-* This function is not automatically invoked by Signup. You should call this
-* function from your own code if you wish to remove roles.
-*/
+ * Public function for removing roles if a user cancels.
+ *
+ * This function is not automatically invoked by Signup. You should call this
+ * function from your own code if you wish to remove roles.
+ */
 function signup_roles_cancel($account) {
   // We can't remove roles from anonymous users.
   if (empty($account->uid)) {

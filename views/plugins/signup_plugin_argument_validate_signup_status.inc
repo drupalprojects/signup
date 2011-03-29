@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Validate whether an argument is a signup-enabled node.
  *

@@ -1,4 +1,3 @@
-
 The signup module allows users to sign up for nodes of any type.  For
 each signup-enabled node, this module provides options for sending a
 notification email to a selected email address upon a new user signup
@@ -16,17 +15,17 @@ Both can receive confirmation and reminder emails, and registered
 users are optionally able to cancel or edit their own signups and view
 listings of their current signups.
 
-The Views module (http://druapl.org/project/views) is a dependency
+The Views module (http://drupal.org/project/views) is a dependency
 which is used to create various listings, and there is extensive views
 support for your own customizations.  Installing the View Bulk
-Operations (VBO) module (http://druapl.org/project/views_bulk_operations)
+Operations (VBO) module (http://drupal.org/project/views_bulk_operations)
 is strongly encouraged to facilitate various administrative tasks.
 There is also support to embed the signup form as a pane using panels
-(http://druapl.org/project/panels).
+(http://drupal.org/project/panels).
 
 Some add-on modules that enhance the basic functionality are available
 in the "modules" subdirectory, and there is a listing of other add-on
-modules on the Signup project page (http://druapl.org/project/signup).
+modules on the Signup project page (http://drupal.org/project/signup).
 
 For installation instructions, see INSTALL.txt.
 

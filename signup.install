@@ -1,80 +1,78 @@
 <?php
-
-
 /**
  * Implementation of hook_schema().
  */
 function signup_schema() {
   $schema['signup'] = array(
-    'description' => t('Signup module per-node settings.'),
+    'description' => 'Signup module per-node settings.',
     'fields' => array(
       'nid' => array(
-        'description' => t('Primary key: node ID'),
+        'description' => 'Primary key: node ID',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
         'default' => 0,
       ),
       'forwarding_email' => array(
-        'description' => t('Email address to send signup notifications to.'),
+        'description' => 'Email address to send signup notifications to.',
         'type' => 'varchar',
         'length' => 64,
         'not null' => TRUE,
         'default' => '',
       ),
       'send_confirmation' => array(
-        'description' => t('Boolean indicating whether confirmation emails should be sent.'),
+        'description' => 'Boolean indicating whether confirmation emails should be sent.',
         'type' => 'int',
         'not null' => TRUE,
         'default' => 0,
       ),
       'confirmation_email' => array(
-        'description' => t('Email template to send to users when they signup.'),
+        'description' => 'Email template to send to users when they signup.',
         'type' => 'text',
         'size' => 'big',
         'not null' => TRUE,
       ),
       'send_reminder' => array(
-        'description' => t('Boolean indicating whether reminder emails should be sent. This is set to 0 once the reminders are sent.'),
+        'description' => 'Boolean indicating whether reminder emails should be sent. This is set to 0 once the reminders are sent.',
         'type' => 'int',
         'not null' => TRUE,
         'default' => 0,
       ),
       'reminder_days_before' => array(
-        'description' => t('Number of days before the start of a time-based node when the reminder emails should be sent.'),
+        'description' => 'Number of days before the start of a time-based node when the reminder emails should be sent.',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
         'default' => 0,
       ),
       'reminder_email' => array(
-        'description' => t('Email template to send to users to remind them about a signup.'),
+        'description' => 'Email template to send to users to remind them about a signup.',
         'type' => 'text',
         'size' => 'big',
         'not null' => TRUE,
       ),
       'close_in_advance_time' => array(
-        'description' => t('Number of hours before the start of a time-based node when signups should automatically be closed. This column is not currently used and the behavior is controlled by a site-wide setting.  See http://drupal.org/node/290249 for more information.'),
+        'description' => 'Number of hours before the start of a time-based node when signups should automatically be closed. This column is not currently used and the behavior is controlled by a site-wide setting.  See http://drupal.org/node/290249 for more information.',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
         'default' => 0,
       ),
       'close_signup_limit' => array(
-        'description' => t('Maximum number of users who can signup before signups are closed. If set to 0, there is no limit.'),
+        'description' => 'Maximum number of users who can signup before signups are closed. If set to 0, there is no limit.',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
         'default' => 0,
       ),
       'status' => array(
-        'description' => t('Boolean indicating if signups are open (1) or closed (0) for the given node'),
+        'description' => 'Boolean indicating if signups are open (1) or closed (0) for the given node',
         'type' => 'int',
         'not null' => TRUE,
         'default' => 1,
       ),
-     'user_reg_form' => array(
-        'description' => t('Boolean indicating if users can sign up for this event from the user registration form.'),
+      'user_reg_form' => array(
+        'description' => 'Boolean indicating if users can sign up for this event from the user registration form.',
         'type' => 'int',
         'not null' => TRUE,
         'default' => 0,
@@ -84,56 +82,56 @@ function signup_schema() {
   );
 
   $schema['signup_log'] = array(
-    'description' => t('Records information for each user who signs up for a node.'),
+    'description' => 'Records information for each user who signs up for a node.',
     'fields' => array(
       'sid' => array(
-        'description' => t('Primary key: signup ID'),
+        'description' => 'Primary key: signup ID',
         'type' => 'serial',
         'size' => 'normal',
         'unsigned' => TRUE,
         'not null' => TRUE,
       ),
       'uid' => array(
-        'description' => t('Key: the user ID of the user who signed up.'),
+        'description' => 'Key: the user ID of the user who signed up.',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
         'default' => 0,
       ),
       'nid' => array(
-        'description' => t('Key: the node ID of the node the user signed up for.'),
+        'description' => 'Key: the node ID of the node the user signed up for.',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
         'default' => 0,
       ),
       'anon_mail' => array(
-        'description' => t('The email address for an anonymous user who signed up, or an empty string for authenticated users.'),
+        'description' => 'The email address for an anonymous user who signed up, or an empty string for authenticated users.',
         'type' => 'varchar',
         'length' => 255,
         'not null' => TRUE,
         'default' => '',
       ),
       'signup_time' => array(
-        'description' => t('Integer timestamp of when the user signed up for the node.'),
+        'description' => 'Integer timestamp of when the user signed up for the node.',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
         'default' => 0,
       ),
       'form_data' => array(
-        'description' => t('Serialized string of additional signup form values.  See theme_signup_user_form() from theme/signup.theme for more information.'),
+        'description' => 'Serialized string of additional signup form values.  See theme_signup_user_form() from theme/signup.theme for more information.',
         'type' => 'text',
         'size' => 'big',
         'not null' => TRUE,
       ),
       'attended' => array(
-        'description' => t('Did this user actually attend the node they signed up for?'),
+        'description' => 'Did this user actually attend the node they signed up for?',
         'type' => 'int',
         'size' => 'tiny',
       ),
       'count_towards_limit' => array(
-        'description' => t('How many slots (if any) this signup should use towards the total signup limit for this node'),
+        'description' => 'How many slots (if any) this signup should use towards the total signup limit for this node',
         'type' => 'int',
         'not null' => TRUE,
         'default' => 1,
@@ -150,7 +148,7 @@ function signup_schema() {
 }
 
 /**
- * Implementation of hook_install().
+ * Implements hook_install().
  *
  * This will automatically install the database tables for the Signup
  * module for both the MySQL and PostgreSQL databases.
@@ -164,17 +162,22 @@ function signup_schema() {
  */
 function signup_install() {
   // Create tables.
-  drupal_install_schema('signup');
+  // TODO The drupal_(un)install_schema functions are called automatically in D7.
+  // drupal_install_schema('signup')
   signup_insert_default_signup_info();
 }
 
+/**
+ * Implements hook_uninstall().
+ */
 function signup_uninstall() {
   // Remove tables.
-  drupal_uninstall_schema('signup');
-
-  $variables = db_query("SELECT name FROM {variable} WHERE name LIKE 'signup%%'");
-  while ($variable = db_fetch_object($variables)) {
-    variable_del($variable->name);
+  // TODO The drupal_(un)install_schema functions are called automatically in D7.
+  // drupal_uninstall_schema('signup')
+  // TODO Please review the conversion of this statement to the D7 database API syntax.
+  $variables = db_query("SELECT name FROM {variable} WHERE name LIKE :name", array(':name' => 'signup%'))->fetchCol();
+  foreach ($variables as $variable) {
+    variable_del($variable);
   }
 }
 
@@ -184,34 +187,64 @@ function signup_uninstall() {
  * settings for new signup-enabled nodes.
  */
 function signup_insert_default_signup_info() {
-  return db_query("INSERT INTO {signup} (nid, forwarding_email,
-    send_confirmation, confirmation_email,
-    send_reminder, reminder_days_before, reminder_email,
-    close_in_advance_time, close_signup_limit, status, user_reg_form) VALUES (0, '',
-    1, 'Enter your default confirmation email message here',
-    1, 1, 'Enter your default reminder email message here',
-    0, 0, 1, 0)");
+  // TODO Please review the conversion of this statement to the D7 database API syntax.
+  /* db_query("INSERT INTO {signup} (nid, forwarding_email,
+   send_confirmation, confirmation_email,
+   send_reminder, reminder_days_before, reminder_email,
+   close_in_advance_time, close_signup_limit, status, user_reg_form) VALUES (0, '',
+   1, 'Enter your default confirmation email message here',
+   1, 1, 'Enter your default reminder email message here',
+   0, 0, 1, 0)") */
+  return $id = db_insert('signup')
+  ->fields(array(
+    'nid' => 0,
+    'forwarding_email' => '',
+    'send_confirmation' => 1,
+    'confirmation_email' => 'Enter your default confirmation email message here',
+    'send_reminder' => 1,
+    'reminder_days_before' => 1,
+    'reminder_email' => 'Enter your default reminder email message here',
+    'close_in_advance_time' => 0,
+    'close_signup_limit' => 0,
+    'status' => 1,
+    'user_reg_form' => 0,
+  ))
+  ->execute();
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function signup_update_3() {
   $ret = array();
   switch ($GLOBALS['db_type']) {
     case 'mysql':
     case 'mysqli':
-      $ret[] = update_sql("ALTER TABLE {signup_log} ADD anon_mail VARCHAR( 255 ) NOT NULL default '' AFTER nid;");
-      $ret[] = update_sql("ALTER TABLE {signup_log} DROP INDEX uid_nid;");
-      $ret[] = update_sql("ALTER TABLE {signup_log} ADD INDEX (uid);");
-      $ret[] = update_sql("ALTER TABLE {signup_log} ADD INDEX (nid);");
+      // TODO update_sql has been removed. Use the database API for any schema or data changes.
+      $ret[] = array() /* update_sql("ALTER TABLE {signup_log} ADD anon_mail VARCHAR( 255 ) NOT NULL default '' AFTER nid;") */;
+      // TODO update_sql has been removed. Use the database API for any schema or data changes.
+      $ret[] = array() /* update_sql("ALTER TABLE {signup_log} DROP INDEX uid_nid;") */;
+      // TODO update_sql has been removed. Use the database API for any schema or data changes.
+      $ret[] = array() /* update_sql("ALTER TABLE {signup_log} ADD INDEX (uid);") */;
+      // TODO update_sql has been removed. Use the database API for any schema or data changes.
+      $ret[] = array() /* update_sql("ALTER TABLE {signup_log} ADD INDEX (nid);") */;
       break;
 
     case 'pgsql':
       db_add_column($ret, 'signup_log', 'anon_mail', 'text', array('not null' => TRUE, 'default' => "''"));
-      $ret[] = update_sql("DROP INDEX {signup_log}_uid_nid_idx;");
-      $ret[] = update_sql("CREATE INDEX {signup_log}_uid_idx ON {signup_log}(uid);");
-      $ret[] = update_sql("CREATE INDEX {signup_log}_nid_idx ON {signup_log}(nid);");
+      // TODO update_sql has been removed. Use the database API for any schema or data changes.
+      $ret[] = array() /* update_sql("DROP INDEX {signup_log}_uid_nid_idx;") */;
+      // TODO update_sql has been removed. Use the database API for any schema or data changes.
+      $ret[] = array() /* update_sql("CREATE INDEX {signup_log}_uid_idx ON {signup_log}(uid);") */;
+      // TODO update_sql has been removed. Use the database API for any schema or data changes.
+      $ret[] = array() /* update_sql("CREATE INDEX {signup_log}_nid_idx ON {signup_log}(nid);") */;
       break;
   }
-  return $ret;
+  // hook_update_N() no longer returns a $ret array. Instead, return
+  // nothing or a translated string indicating the update ran successfully.
+  // See http://drupal.org/node/224333#update_sql.
+  return t('TODO Add a descriptive string here to show in the UI.') /* $ret */;
 }
 
 /**
@@ -248,14 +281,18 @@ function signup_update_4() {
         drupal_set_message(t('The old %signup_user_view setting was enabled on your site, so the %view_all_signups permission has been added to the %authenticated_user role. Please consider customizing what roles have this permission on the !access_control page.', array('%signup_user_view' => t('Users can view signups'), '%view_all_signups' => 'view all signups', '%authenticated_user' => 'Authenticated user', '!access_control' => l(t('Access control'), '/admin/user/access'))));
       }
     }
-    $ret[] = update_sql("UPDATE {permission} SET perm = '$fixed_perm' WHERE rid = $role->rid");
+    // TODO update_sql has been removed. Use the database API for any schema or data changes.
+    $ret[] = array() /* update_sql("UPDATE {permission} SET perm = '$fixed_perm' WHERE rid = $role->rid") */;
   }
 
   // Remove the stale setting from the {variable} table in the DB.
   variable_del('signup_user_view');
   drupal_set_message(t('The %signup_user_view setting has been removed.', array('%signup_user_view' => t('Users can view signups'))));
 
-  return $ret;
+  // hook_update_N() no longer returns a $ret array. Instead, return
+  // nothing or a translated string indicating the update ran successfully.
+  // See http://drupal.org/node/224333#update_sql.
+  return t('TODO Add a descriptive string here to show in the UI.') /* $ret */;
 }
 
 /**
@@ -267,16 +304,22 @@ function signup_update_5200() {
   switch ($GLOBALS['db_type']) {
     case 'mysql':
     case 'mysqli':
-      $ret[] = update_sql("ALTER TABLE {signup} ADD status int NOT NULL default '1'");
+      // TODO update_sql has been removed. Use the database API for any schema or data changes.
+      $ret[] = array() /* update_sql("ALTER TABLE {signup} ADD status int NOT NULL default '1'") */;
       break;
 
     case 'pgsql':
       db_add_column($ret, 'signup', 'status', 'integer', array('not null' => TRUE, 'default' => "'1'"));
       break;
   }
-  $ret[] = update_sql("UPDATE {signup} SET status = (1 - completed)");
-  $ret[] = update_sql("ALTER TABLE {signup} DROP completed");
-  return $ret;
+  // TODO update_sql has been removed. Use the database API for any schema or data changes.
+  $ret[] = array() /* update_sql("UPDATE {signup} SET status = (1 - completed)") */;
+  // TODO update_sql has been removed. Use the database API for any schema or data changes.
+  $ret[] = array() /* update_sql("ALTER TABLE {signup} DROP completed") */;
+  // hook_update_N() no longer returns a $ret array. Instead, return
+  // nothing or a translated string indicating the update ran successfully.
+  // See http://drupal.org/node/224333#update_sql.
+  return t('TODO Add a descriptive string here to show in the UI.') /* $ret */;
 }
 
 /**
@@ -292,18 +335,22 @@ function signup_update_5201() {
   switch ($GLOBALS['db_type']) {
     case 'mysql':
     case 'mysqli':
-      if (!db_column_exists('signup', 'close_signup_limit')) {
-        $ret[] = update_sql("ALTER TABLE {signup} ADD close_signup_limit int(10) unsigned NOT NULL default '0'");
+      if (!db_field_exists('signup', 'close_signup_limit')) {
+        // TODO update_sql has been removed. Use the database API for any schema or data changes.
+        $ret[] = array() /* update_sql("ALTER TABLE {signup} ADD close_signup_limit int(10) unsigned NOT NULL default '0'") */;
       }
       break;
 
     case 'pgsql':
-      if (!db_column_exists('signup', 'close_signup_limit')) {
+      if (!db_field_exists('signup', 'close_signup_limit')) {
         db_add_column($ret, 'signup', 'close_signup_limit', 'integer', array('not null' => TRUE, 'default' => "'0'"));
       }
       break;
   }
-  return $ret;
+  // hook_update_N() no longer returns a $ret array. Instead, return
+  // nothing or a translated string indicating the update ran successfully.
+  // See http://drupal.org/node/224333#update_sql.
+  return t('TODO Add a descriptive string here to show in the UI.') /* $ret */;
 }
 
 /**
@@ -315,15 +362,20 @@ function signup_update_5202() {
   switch ($GLOBALS['db_type']) {
     case 'mysql':
     case 'mysqli':
-      $ret[] = update_sql("UPDATE {permission} SET perm = CONCAT(perm, ', cancel own signups') WHERE CONCAT(perm, ', ') LIKE '%%sign up for content, %%'");
+      // TODO update_sql has been removed. Use the database API for any schema or data changes.
+      $ret[] = array() /* update_sql("UPDATE {permission} SET perm = CONCAT(perm, ', cancel own signups') WHERE CONCAT(perm, ', ') LIKE '%%sign up for content, %%'") */;
       break;
 
     case 'pgsql':
-      $ret[] = update_sql("UPDATE {permission} SET perm = perm || ', cancel own signups' WHERE perm || ', ' LIKE '%%sign up for content, %%'");
+      // TODO update_sql has been removed. Use the database API for any schema or data changes.
+      $ret[] = array() /* update_sql("UPDATE {permission} SET perm = perm || ', cancel own signups' WHERE perm || ', ' LIKE '%%sign up for content, %%'") */;
       break;
   }
-  drupal_set_message(t("Added the 'cancel own signups' permission to all roles that have the 'sign up for content' permission.") .'<br />'. t('If you do not want your users to cancel their own signups, go to the <a href="@access_url">Access control</a> page and unset this permission.', array('@access_url' => url('/admin/user/access'))));
-  return $ret;
+  drupal_set_message(t("Added the 'cancel own signups' permission to all roles that have the 'sign up for content' permission.") . '<br />' . t('If you do not want your users to cancel their own signups, go to the <a href="@access_url">Access control</a> page and unset this permission.', array('@access_url' => url('/admin/user/access'))));
+  // hook_update_N() no longer returns a $ret array. Instead, return
+  // nothing or a translated string indicating the update ran successfully.
+  // See http://drupal.org/node/224333#update_sql.
+  return t('TODO Add a descriptive string here to show in the UI.') /* $ret */;
 }
 
 /**
@@ -332,16 +384,20 @@ function signup_update_5202() {
  */
 function signup_update_5203() {
   $old_prefix = 'signup_form_';
+  // TODO Please convert this statement to the D7 database API syntax.
   $result = db_query("SELECT name FROM {variable} WHERE name LIKE '$old_prefix%%'");
   while ($row = db_fetch_object($result)) {
     $old_name = $row->name;
-    $new_name = 'signup_node_default_state_'. substr($old_name, strlen($old_prefix));
+    $new_name = 'signup_node_default_state_' . substr($old_name, strlen($old_prefix));
     $new_value = variable_get($old_name, 0) == 1 ? 'enabled_on' : 'disabled';
     variable_del($old_name);
     variable_set($new_name, $new_value);
   }
   drupal_set_message(t('Migrated signup settings per content type.'));
-  return array();
+  // hook_update_N() no longer returns a $ret array. Instead, return
+  // nothing or a translated string indicating the update ran successfully.
+  // See http://drupal.org/node/224333#update_sql.
+  return t('TODO Add a descriptive string here to show in the UI.') /* array() */;
 }
 
 /**
@@ -355,7 +411,7 @@ function signup_update_5204() {
     // We need to start at nid 0 for the site-wide defaults, so
     // initialize our variable to the value below that.
     $_SESSION['signup_update_5204'] = -1;
-    $_SESSION['signup_update_5204_max'] = db_result(db_query("SELECT MAX(nid) FROM {signup}"));
+    $_SESSION['signup_update_5204_max'] = db_query("SELECT MAX(nid) FROM {signup}")->fetchField();
   }
 
   // Array of replacements mapping old names to the new names.
@@ -386,6 +442,7 @@ function signup_update_5204() {
   // Find the next N records to update, or do the final batch.
   $next = min($_SESSION['signup_update_5204'] + 2000, $_SESSION['signup_update_5204_max']);
   // Perform the UPDATE in our specified range of nid values.
+  // TODO Please convert this statement to the D7 database API syntax.
   db_query("UPDATE {signup} SET reminder_email = $reminder_replace, confirmation_email = $confirmation_replace WHERE nid > %d AND nid <= %d", $_SESSION['signup_update_5204'], $next);
   // Remember where we left off.
   $_SESSION['signup_update_5204'] = $next;
@@ -409,14 +466,20 @@ function signup_update_5204() {
       '%user_name' => '%user_name',
       '%user_mail' => '%user_mail',
       '%user_signup_info' => '%user_signup_info',
-      );
-    $ret[] = array('success' => TRUE, 'query' => t('Replaced %event, %eventurl, %time, %username, %useremail, and %info tokens with %node_title, %node_url, %node_start_time, %user_name, %user_mail, and %user_signup_info in the reminder and confirmation email templates.', $tokens));
+    );
+    $ret[] = array(
+      'success' => TRUE,
+      'query' => t('Replaced %event, %eventurl, %time, %username, %useremail, and %info tokens with %node_title, %node_url, %node_start_time, %user_name, %user_mail, and %user_signup_info in the reminder and confirmation email templates.', $tokens),
+    );
   }
   else {
     // Report how much is left to complete.
     $ret['#finished'] = $_SESSION['signup_update_5204'] / $_SESSION['signup_update_5204_max'];
   }
-  return $ret;
+  // hook_update_N() no longer returns a $ret array. Instead, return
+  // nothing or a translated string indicating the update ran successfully.
+  // See http://drupal.org/node/224333#update_sql.
+  return t('TODO Add a descriptive string here to show in the UI.') /* $ret */;
 }
 
 /**
@@ -432,11 +495,14 @@ function signup_update_6000() {
       '%old_view_name' => 'signup_user_list_view_name',
       '%old_view_type' => 'signup_user_list_view_type',
       // NOTE: we can't use url() here because it would use 'update.php?q=...'
-      '@signup_settings_url' => base_path() .'?q=admin/settings/signup',
+      '@signup_settings_url' => base_path() . '?q=admin/settings/signup',
       '%setting_name' => t('View to embed for the signup user list'),
     )),
   );
-  return $ret;
+  // hook_update_N() no longer returns a $ret array. Instead, return
+  // nothing or a translated string indicating the update ran successfully.
+  // See http://drupal.org/node/224333#update_sql.
+  return t('TODO Add a descriptive string here to show in the UI.') /* $ret */;
 }
 
 /**
@@ -452,8 +518,11 @@ function signup_update_6001() {
     'unsigned' => TRUE,
     'not null' => TRUE,
   );
-  db_add_field($ret, 'signup_log', 'sid', $field, array('primary key' => array('sid')));
-  return $ret;	
+  db_add_field('signup_log', 'sid', $field, array('primary key' => array('sid')));
+  // hook_update_N() no longer returns a $ret array. Instead, return
+  // nothing or a translated string indicating the update ran successfully.
+  // See http://drupal.org/node/224333#update_sql.
+  return t('TODO Add a descriptive string here to show in the UI.') /* $ret */;
 }
 
 /**
@@ -467,8 +536,11 @@ function signup_update_6002() {
     'type' => 'int',
     'size' => 'tiny',
   );
-  db_add_field($ret, 'signup_log', 'attended', $field);
-  return $ret;	
+  db_add_field('signup_log', 'attended', $field);
+  // hook_update_N() no longer returns a $ret array. Instead, return
+  // nothing or a translated string indicating the update ran successfully.
+  // See http://drupal.org/node/224333#update_sql.
+  return t('TODO Add a descriptive string here to show in the UI.') /* $ret */;
 }
 
 /**
@@ -483,8 +555,11 @@ function signup_update_6003() {
     'not null' => TRUE,
     'default' => 1,
   );
-  db_add_field($ret, 'signup_log', 'count_towards_limit', $field);
-  return $ret;
+  db_add_field('signup_log', 'count_towards_limit', $field);
+  // hook_update_N() no longer returns a $ret array. Instead, return
+  // nothing or a translated string indicating the update ran successfully.
+  // See http://drupal.org/node/224333#update_sql.
+  return t('TODO Add a descriptive string here to show in the UI.') /* $ret */;
 }
 
 /**
@@ -511,10 +586,13 @@ function signup_update_6004() {
     variable_set('signup_display_signup_admin_list', 'embed-view');
   }
 
-  return $ret;
+  // hook_update_N() no longer returns a $ret array. Instead, return
+  // nothing or a translated string indicating the update ran successfully.
+  // See http://drupal.org/node/224333#update_sql.
+  return t('TODO Add a descriptive string here to show in the UI.') /* $ret */;
 }
 
-/*
+/**
  * Add the 'user_reg_form' field to the {signup} table.
  * See http://drupal.org/node/856604 for more information.
  */
@@ -525,6 +603,9 @@ function signup_update_6005() {
     'not null' => TRUE,
     'default' => 0,
   );
-  db_add_field($ret, 'signup', 'user_reg_form', $field);
-  return $ret;
+  db_add_field('signup', 'user_reg_form', $field);
+  // hook_update_N() no longer returns a $ret array. Instead, return
+  // nothing or a translated string indicating the update ran successfully.
+  // See http://drupal.org/node/224333#update_sql.
+  return t('TODO Add a descriptive string here to show in the UI.') /* $ret */;
 }

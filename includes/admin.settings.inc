@@ -1,25 +1,24 @@
 <?php
-
-
 /**
  * @file
- * Code required for the signup settings page (admin/settings/signup).
+ * Code required for the signup settings page (admin/config/people/signup).
  */
 
 /**
- * Form builder for the settings page under admin/setttings/signup
+ * Form builder for the settings page under admin/config/people/signup
  */
-function signup_settings_form() {
+function signup_settings_form($form, &$form_state) {
   module_load_include('inc', 'signup', 'includes/node_settings');
   if (signup_site_has_dates()) {
     $form['signup_close_early'] = array(
       '#title' => t('Close x hours before'),
       '#type' => 'textfield',
       '#default_value' => variable_get('signup_close_early', 1),
-      '#size' => 5, '#maxlength' => 10,
+      '#size' => 5,
+      '#maxlength' => 10,
       '#description' => t('The number of hours before the event which signups will no longer be allowed. Use negative numbers to close signups after the event start (example: -12).'),
     );
-  };
+  }
   $form['node_defaults'] = array(
     '#type' => 'fieldset',
     '#title' => t('Default signup information'),
@@ -43,7 +42,7 @@ function signup_settings_form() {
       'large' => t('Large'),
     ),
     '#default_value' => variable_get('signup_date_format', 'small'),
-    '#description' => t('Whenever this module needs to print a date (both in the administrative interface, and in the various e-mail messages it can send), this setting controls which date format string to use. The format strings are defined at the <a href="!settings_url">Date and time settings page</a>.', array('!settings_url' => url('admin/settings/date-time'))),
+    '#description' => t('Whenever this module needs to print a date (both in the administrative interface, and in the various e-mail messages it can send), this setting controls which date format string to use. The format strings are defined at the <a href="!settings_url">Date and time settings page</a>.', array('!settings_url' => url('admin/config/date-time'))),
   );
   $form['adv_settings']['signup_ignore_default_fields'] = array(
     '#type' => 'checkbox',
@@ -61,8 +60,7 @@ function signup_settings_form() {
       'none' => t('Do not display signup form'),
     ),
     '#default_value' => variable_get('signup_form_location', 'node'),
-    '#description' => t('On every signup-enabled node, users with permission to
- sign up can be presented with a form. This setting controls where this form should be displayed: either directly on the node itself, on a separate tab, or not at all.'),
+    '#description' => t('On every signup-enabled node, users with permission to sign up can be presented with a form. This setting controls where this form should be displayed: either directly on the node itself, on a separate tab, or not at all.'),
     '#prefix' => '<div class="signup-form-location-radios">',
     '#suffix' => '</div>',
   );
@@ -76,7 +74,7 @@ function signup_settings_form() {
   // form is being displayed.  We use jQuery to hide settings when they're not
   // relevant.
   $signup_path = drupal_get_path('module', 'signup');
-  drupal_add_js($signup_path .'/js/admin.settings.js');
+  drupal_add_js($signup_path . '/js/admin.settings.js');
 
   // For each setting that should be hidden, system.css will hide all the
   // settings on page load if JS is enabled.
@@ -87,10 +85,13 @@ function signup_settings_form() {
   $form['adv_settings']['signup_fieldset_collapsed'] = array(
     '#title' => t('Default fieldset behavior for per-node signup form'),
     '#type' => 'radios',
-    '#options' => array(1 => t('Collapsed'), 0 => t('Expanded')),
+    '#options' => array(
+      1 => t('Collapsed'),
+      0 => t('Expanded'),
+    ),
     '#default_value' => variable_get('signup_fieldset_collapsed', 1),
     '#description' => t('If the signup form is included on each node, the signup form will be encapsulated in a collapsible fieldset. This setting controls if that fieldset is expanded or collapsed by default.'),
-    '#prefix' => '<div class="'. $class .'">',
+    '#prefix' => '<div class="' . $class . '">',
     '#suffix' => '</div>',
   );
 
@@ -132,7 +133,7 @@ function signup_settings_form() {
     $class .= ' js-hide';
   }
   $form['adv_settings']['view_settings'] = array(
-    '#prefix' => '<div class="'. $class .'">',
+    '#prefix' => '<div class="' . $class . '">',
     '#suffix' => '</div>',
     '#weight' => 2,
   );
@@ -141,8 +142,11 @@ function signup_settings_form() {
   foreach ($views as $view) {
     foreach (array_keys($view->display) as $display_id) {
       if ($display_id != 'default' || 1) {
-        $key = $view->name .':'. $display_id;
-        $view_options[$key] = theme('signup_settings_view_label', $view, $display_id);
+        $key = $view->name . ':' . $display_id;
+        $view_options[$key] = theme('signup_settings_view_label', array(
+          'view' => $view,
+          'display_id' => $display_id,
+        ));
       }
     }
   }
@@ -159,7 +163,7 @@ function signup_settings_form() {
     $class .= ' js-hide';
   }
   $form['adv_settings']['admin_view_settings'] = array(
-    '#prefix' => '<div class="'. $class .'">',
+    '#prefix' => '<div class="' . $class . '">',
     '#suffix' => '</div>',
     '#weight' => 6,
   );
@@ -189,22 +193,26 @@ function signup_settings_form() {
  */
 function signup_settings_form_submit($form, &$form_state) {
   $op = isset($form_state['values']['op']) ? $form_state['values']['op'] : '';
-  if ($op == t('Save configuration') && db_result(db_query('SELECT COUNT(*) FROM {signup} WHERE nid = 0'))) {
-    $values = array(
-      $form_state['values']['signup_forwarding_email'],
-      $form_state['values']['signup_send_confirmation'],
-      $form_state['values']['signup_confirmation_email'],
-      $form_state['values']['signup_close_signup_limit'],
-    );
-    $values[] = isset($form_state['values']['signup_send_reminder']) ? $form_state['values']['signup_send_reminder'] : 0;
-    $values[] = isset($form_state['values']['signup_reminder_days_before']) ? $form_state['values']['signup_reminder_days_before'] : 0;
-    $values[] = isset($form_state['values']['signup_reminder_email']) ? $form_state['values']['signup_reminder_email'] : '';
-    $values[] = 0;  // "nid" of the row in {signup} for the global settings.
-    db_query("UPDATE {signup} SET forwarding_email = '%s', send_confirmation = %d, confirmation_email = '%s', close_signup_limit = %d, send_reminder = %d, reminder_days_before = %d, reminder_email = '%s' WHERE nid = %d", $values);
+  if ($op == t('Save configuration') && (bool) db_query_range('SELECT 1 FROM {signup} WHERE nid = :nid', 0, 1, array(':nid' => 0))->fetchField()) {
+    // TODO Please review the conversion of this statement to the D7 database API syntax.
+    db_update('signup')
+      ->fields(array(
+      'forwarding_email' => $form_state['values']['signup_forwarding_email'],
+      'send_confirmation' => $form_state['values']['signup_send_confirmation'],
+      'confirmation_email' => $form_state['values']['signup_confirmation_email'],
+      'close_signup_limit' => $form_state['values']['signup_close_signup_limit'],
+      'reminder_days_before' => isset($form_state['values']['signup_reminder_days_before']) ? $form_state['values']['signup_reminder_days_before'] : 0,
+      'send_reminder' => isset($form_state['values']['signup_send_reminder']) ? $form_state['values']['signup_send_reminder'] : 0,
+      'reminder_email' => isset($form_state['values']['signup_reminder_email']) ? $form_state['values']['signup_reminder_email'] : '',
+    ))
+      ->condition('nid', 0)
+      ->execute();
   }
   else {
     module_load_include('install', 'signup', 'signup');
-    db_query("DELETE FROM {signup} WHERE nid = 0");
+    db_delete('signup')
+      ->condition('nid', 0)
+      ->execute();
     signup_insert_default_signup_info();
   }
 
@@ -247,13 +255,16 @@ function signup_settings_form_submit($form, &$form_state) {
  *
  * @see signup_settings_form()
  */
-function theme_signup_settings_view_label($view, $display_id) {
+function theme_signup_settings_view_label($variables) {
+  $view = $variables['view'];
+  $display_id = $variables['display_id'];
+
   $display_title = check_plain($view->display[$display_id]->display_title);
   $label = $view->name;
-  $label .= ' ['. $display_title .']: ';
+  $label .= ' [' . $display_title . ']: ';
   $label .= $view->description;
   if (drupal_strlen($label) > 90) {
-    $label = drupal_substr($label, 0, 90) .'...';
+    $label = drupal_substr($label, 0, 90) . '...';
   }
   return $label;
 }

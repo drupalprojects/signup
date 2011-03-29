@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Administrative list of all users signed up for a given node.

@@ -1,12 +1,11 @@
 <?php
-
-
 /**
  * @file
  * Signup-related code needed while editing a node.
  */
 
 /**
+ * TODO: this doc is not correct for D7
  * Save signup-related information when a node is created or edited.
  *
  * This is a helper function invoked via signup_nodeapi(). If signups are
@@ -36,10 +35,18 @@ function signup_save_node($node, $op) {
   if ($op == 'update' && isset($node->signup_enabled)) {
     switch ($node->signup_enabled) {
       case 2: // Disabled, and delete {signup_log}, too
-        db_query("DELETE FROM {signup_log} WHERE nid = %d", $node->nid);
+        // TODO Please review the conversion of this statement to the D7 database API syntax.
+        /* db_query("DELETE FROM {signup_log} WHERE nid = %d", $node->nid) */
+        db_delete('signup_log')
+          ->condition('nid', $node->nid)
+          ->execute();
         // No break, fall through and remove from {signup} too.
       case 0: // Disabled, but leave {signup_log} alone
-        db_query("DELETE FROM {signup} WHERE nid = %d", $node->nid);
+        // TODO Please review the conversion of this statement to the D7 database API syntax.
+        /* db_query("DELETE FROM {signup} WHERE nid = %d", $node->nid) */
+        db_delete('signup')
+          ->condition('nid', $node->nid)
+          ->execute();
         // We're done.
         return;
     }
@@ -52,35 +59,47 @@ function signup_save_node($node, $op) {
   // the node type), see if we need to insert a new record into the {signup}
   // table for this node using the site-wide defaults.
   $needs_defaults = FALSE;
-  if ((isset($node->signup_enabled) && $node->signup_enabled == 1) || (!isset($node->signup_enabled) && variable_get('signup_node_default_state_'. $node->type, 'disabled') == 'enabled_on')) {
+  if ((isset($node->signup_enabled) && $node->signup_enabled == 1) || (!isset($node->signup_enabled) && variable_get('signup_node_default_state_' . $node->type, 'disabled') == 'enabled_on')) {
     if ($op == 'insert') {
       $needs_defaults = TRUE;
     }
     else {
       // Updating -- see if we already have a record for this node.
-      $has_record = db_result(db_query("SELECT nid FROM {signup} WHERE nid = %d", $node->nid));
+      $has_record = db_query("SELECT nid FROM {signup} WHERE nid = :nid", array(':nid' => $node->nid))->fetchField();
       $needs_defaults = empty($has_record);
     }
   }
 
   if ($needs_defaults) {
-    $values = db_fetch_array(db_query("SELECT forwarding_email, send_confirmation, confirmation_email, close_signup_limit, send_reminder, reminder_days_before, reminder_email FROM {signup} WHERE nid = 0"));
-    $values[] = $node->nid;
-    db_query("INSERT INTO {signup} (forwarding_email, send_confirmation, confirmation_email, close_signup_limit, send_reminder, reminder_days_before, reminder_email, nid) VALUES ('%s', %d, '%s', %d, %d, %d, '%s', %d)", $values);
+    //TODO: this is untested
+    $values = db_query("SELECT forwarding_email, send_confirmation, confirmation_email, close_signup_limit, send_reminder, reminder_days_before, reminder_email FROM {signup} WHERE nid = 0")->fetchAssoc();
+    $values['nid'] = $node->nid;
+    db_insert('signup')
+      ->fields(array('forwarding_email', 'send_confirmation', 'confirmation_email', 'close_signup_limit', 'send_reminder', 'reminder_days_before', 'reminder_email', 'nid'))
+      ->values($values)
+      ->execute();
   }
-  db_query("UPDATE {signup} SET user_reg_form = %d WHERE nid = %d", $node->signup_user_reg, $node->nid);
+
+  if (isset($node->signup_user_reg)) {
+    db_update('signup')
+      ->fields(array('user_reg_form' => $node->signup_user_reg))
+      ->condition('nid', $node->nid)
+      ->execute();
+  }
+
   $node = node_load($node->nid);
   // We clear CCK's cache for this node due to an edge case bug:
   // http://drupal.org/node/605594.
+  // TODO: is this still needed for D7?
   if (module_exists('content')) {
-    cache_clear_all('content:'. $node->nid .':'. $node->vid, content_cache_tablename());
+    cache_clear_all('content:' . $node->nid . ':' . $node->vid, content_cache_tablename());
   }
   if (_signup_node_completed($node) && !empty($node->signup_status)) {
     // If this is an time-based node, and it's already past the close in
     // advance time (e.g. someone just changed the node start time), and
     // signups are still open, close them now.
     signup_close_signup($node->nid);
-    drupal_set_message(t('%node_type start time is already past the signup close-in-advance time, signups now closed.', array('%node_type' => node_get_types('name', $node->type))));
+    drupal_set_message(t('%node_type start time is already past the signup close-in-advance time, signups now closed.', array('%node_type' => node_type_get_name($node->type))));
   }
 }
 
@@ -91,7 +110,7 @@ function signup_alter_node_form(&$form, &$form_state, $form_id) {
   global $user;
 
   // Node is not saved but previewed (nid is empty).
-  if (isset($form['#node']->build_mode) && $form['#node']->build_mode == NODE_BUILD_PREVIEW) {
+  if (isset($form['#node']->in_preview) && $form['#node']->in_preview) {
     $node = $form['#node'];
   }
   // Load the node if it already exists.
@@ -103,7 +122,7 @@ function signup_alter_node_form(&$form, &$form_state, $form_id) {
   }
   $node_type = $form['type']['#value'];
 
-  $signup_type_default = variable_get('signup_node_default_state_'. $node_type, 'disabled');
+  $signup_type_default = variable_get('signup_node_default_state_' . $node_type, 'disabled');
 
   // If signups are possible, and the current user either has the global
   // 'administer all signups' permission or has the 'administer signups
@@ -122,7 +141,7 @@ function signup_alter_node_form(&$form, &$form_state, $form_id) {
       '#type' => 'fieldset',
       '#title' => t('Signup settings'),
       '#collapsible' => TRUE,
-      '#collapsed' => TRUE,
+      '#collapsed' => FALSE,
       '#weight' => 30,
       '#group' => 'additional_settings',
     );
@@ -130,11 +149,11 @@ function signup_alter_node_form(&$form, &$form_state, $form_id) {
     // Figure out what the options should be.  If there are already
     // people signed-up for this node, we need a 3rd choice: disable
     // signups and remove all signup data.
-    $has_signups = !empty($node) && db_result(db_query("SELECT COUNT(*) from {signup_log} WHERE nid = %d", $node->nid));
+    $has_signups = !empty($node) && (bool) db_query_range("SELECT 1 from {signup_log} WHERE nid = :nid", 0, 1, array(':nid' => $node->nid))->fetchField();
     $radio_options[1] = t('Enabled');
     if ($has_signups) {
       $radio_options[0] = t('Disabled, but save existing signup information');
-      $radio_options[2] = t('Disabled, and remove all signup information') .' <strong>('. t('This can not be undone, use with extreme caution!') .')</strong>';
+      $radio_options[2] = t('Disabled, and remove all signup information') . ' <strong>(' . t('This can not be undone, use with extreme caution!') . ')</strong>';
     }
     else {
       $radio_options[0] = t('Disabled');
@@ -152,13 +171,13 @@ function signup_alter_node_form(&$form, &$form_state, $form_id) {
       '#type' => 'radios',
       '#options' => $radio_options,
       '#default_value' => $default_option,
-      '#description' => t('If enabled, you can control whether users may sign up by visiting the !signup_admin tab and toggling if signups are %open or %closed for this %node_type. Other signup-related settings can be defined at the !signup_settings tab.', array('!signup_admin' => !empty($node->signup) ? l(t('Signups: Administer'), 'node/'. $node->nid .'/signups/admin') : theme('placeholder', t('Signups: Administer')), '!signup_settings' => !empty($node->signup) ? l(t('Signups: Settings'), 'node/'. $node->nid .'/signups/settings') : theme('placeholder', t('Signups: Settings')), '%open' => t('open'), '%closed' => t('closed'), '%node_type' => node_get_types('name', $node_type))),
+      '#description' => t('If enabled, you can control whether users may sign up by visiting the !signup_admin tab and toggling if signups are %open or %closed for this %node_type. Other signup-related settings can be defined at the !signup_settings tab.', array('!signup_admin' => !empty($node->signup) ? l(t('Signups: Administer'), 'node/' . $node->nid . '/signups/admin') : drupal_placeholder(t('Signups: Administer')), '!signup_settings' => !empty($node->signup) ? l(t('Signups: Settings'), 'node/' . $node->nid . '/signups/settings') : drupal_placeholder(t('Signups: Settings')), '%open' => t('open'), '%closed' => t('closed'), '%node_type' => node_type_get_name($node_type))),
     );
     $form['signup']['signup_user_reg'] = array(
       '#type' => 'checkbox',
       '#title' => t('Users can sign up for this event from the user registration form.'),
       '#description' => t('If selected, new users will be able to sign up for this event when they register.'),
-      '#default_value' => $node->signup_user_reg_form,
+      '#default_value' => isset($node->signup_user_reg_form) ? $node->signup_user_reg_form : NULL,
     );
   }
 }

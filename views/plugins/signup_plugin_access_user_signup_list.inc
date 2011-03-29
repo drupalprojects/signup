@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Validate whether an argument is a user who has permission to view signups.
  */
@@ -35,7 +34,7 @@ class signup_plugin_access_user_signup_list extends views_plugin_access {
   function option_defaults(&$options) {
     $options['signup_user_argument'] = '';
   }
-  
+
   function options_form(&$form, &$form_state) {
     $arguments = array();
     foreach ($this->view->display_handler->get_handlers('argument') as $id => $handler) {
