@@ -290,6 +290,7 @@ function signup_views_data() {
     'filter' => array(
       'handler' => 'views_handler_filter_user_current',
       'help' => t('This allows you to filter by whether or not the node was signed up by the logged in user of the view.'),
+      'accept_null' => TRUE,
     ),
   );
 
