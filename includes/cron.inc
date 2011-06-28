@@ -59,7 +59,7 @@ function _signup_cron_send_reminders() {
           'signup' => $signup,
         );
         if (module_exists('token')) {
-          $params['body'] = token_replace_multiple($params['body'], array('node' => node_load($node->nid), 'signup' => $signup, 'global' => NULL));
+          $params['body'] = token_replace($params['body'], array('node' => node_load($node->nid), 'signup' => $signup, 'global' => NULL));
         }
         $language = user_preferred_language($signup);
         drupal_mail('signup', 'signup_reminder_mail', $user_mail, $language, $params, $from);

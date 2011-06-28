@@ -1442,7 +1442,7 @@ function signup_send_confirmation_mail($signup, $node) {
     'signup' => $signup,
   );
   if (module_exists('token')) {
-    $params['body'] = token_replace_multiple($params['body'], array('node' => $node, 'signup' => $signup, 'global' => NULL));
+    $params['body'] = token_replace($params['body'], array('node' => $node, 'signup' => $signup, 'global' => NULL));
   }
   $language = user_preferred_language($signup);
   return drupal_mail('signup', 'signup_confirmation_mail', $user_mail, $language, $params);
@@ -1499,7 +1499,7 @@ function signup_send_forwarding_mail($signup, $node) {
     'header' => array('From' => t('New !node_type Signup', array('!node_type' => $node_type_name)) . "<$from>"),
   );
   if (module_exists('token')) {
-    $params['body'] = token_replace_multiple($params['body'], array('node' => $node, 'signup' => $signup, 'global' => NULL));
+    $params['body'] = token_replace($params['body'], array('node' => $node, 'signup' => $signup, 'global' => NULL));
   }
   $language = user_preferred_language($signup);
   return drupal_mail('signup', 'signup_forwarding_mail', $node->signup_forwarding_email, $language, $params, $from);
