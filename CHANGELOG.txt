@@ -1,4 +1,11 @@
 ------------------------
+7.x-1.x-dev
+------------------------
+Bugs fixed since 6.x-1.0:
+= #1128288 by jwilson3: Fixed Incorrect header array key in admin/content/signup.
+
+
+------------------------
 6.x-1.x-dev
 ------------------------
 Bugs fixed since 6.x-1.0:
