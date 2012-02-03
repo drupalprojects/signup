@@ -26,6 +26,7 @@ Bugs fixed since 6.x-1.0:
   Views 7.x-3.0-rc3 breaks Signup module.
 = #1223938 by benjf, sgabe | mariagwyn: Fixed Showing custom signup_user_form()
   fields in views."
+= #1426028 by sgabe: Fixed Edit signup link is not displaying.
 
 New features since 6.x-1.0:
 = #1112496 by BTMash: Added Show signup in the display ui for a node type.
