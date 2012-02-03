@@ -12,6 +12,8 @@ Bugs fixed since 6.x-1.0:
   (limit reached)' message disappeared.
 = #1224114 by dalin: Fixed Move signup from admin/content/signups to
   admin/people/signups.
+= #1266764 by 30equals, mikestefff: Fixed php: Notice: Undefined variable: views in
+  signup_views_default_views().
 
 
 ------------------------
