@@ -10,6 +10,8 @@ Bugs fixed since 6.x-1.0:
 = #1266026 by jwilson3: Fixed Strict warnings in Signup module.
 = #1321474 by sgabe, James Andres: Fixed Signup summary 'Signups are Closed
   (limit reached)' message disappeared.
+= #1224114 by dalin: Fixed Move signup from admin/content/signups to
+  admin/people/signups.
 
 
 ------------------------

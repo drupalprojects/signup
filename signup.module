@@ -305,11 +305,11 @@ function signup_menu() {
     'file path' => $path,
   );
 
-  $items['admin/content/signup'] = array(
+  $items['admin/people/signup'] = array(
     'description' => 'View all signup-enabled posts, and open or close signups on them.',
     'access arguments' => array('administer all signups'),
     'page callback' => 'signup_admin_page',
-    'title' => 'Signup administration',
+    'title' => 'Signups',
     'type' => MENU_LOCAL_TASK,
     'file' => 'admin.signup_administration.inc',
     'file path' => $path,
