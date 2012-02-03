@@ -3,11 +3,19 @@
  * Field handler to display custom (site-specific) signup form data.
  */
 class signup_handler_field_signup_user_form_data extends views_handler_field_prerender_list {
+  function option_definition() {
+    $options = parent::option_definition();
+
+    $options['form_data_fieldname'] = array('default' => '');
+
+    return $options;
+  }
+
   function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
     $form['form_data_fieldname'] = array(
       '#type' => 'textfield',
-      '#title' => t(' Field Name'),
+      '#title' => t('Field Name'),
       '#description' => t('If you want to display a single field from the signup form (see theme/signup_form.inc), enter its name here. Otherwise, all fields will be displayed.'),
       '#default_value' => isset($this->options['form_data_fieldname']) ? $this->options['form_data_fieldname'] : '',
     );
@@ -37,7 +45,15 @@ class signup_handler_field_signup_user_form_data extends views_handler_field_pre
       return check_plain($form_data[$this->options['form_data_fieldname']]);
     }
     else {
-      return parent::render($values);
+      $field = $this->get_value($values);
+      if (!empty($field)) {
+        if ($this->options['type'] == 'separator') {
+          return implode($this->sanitize_value($this->options['separator']), $field);
+        }
+        else {
+          return theme('item_list', array('items' => $field, 'title' => NULL, 'type' => $this->options['type']));
+        }
+      }
     }
   }
 }
