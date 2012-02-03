@@ -1436,14 +1436,11 @@ function signup_send_confirmation_mail($signup, $node) {
   }
   $node_type_name = node_type_get_name($node->type);
   $params = array(
-    'subject' => t('Signup confirmation for !node_type: !title', array('!node_type' => $node_type_name, '!title' => $node->title)),
-    'body' => $node->signup_confirmation_email,
+    'subject' => token_replace('Signup confirmation for [node:content-type]: [node:title]', array('node' => $node, 'signup' => $signup)),
+    'body' => token_replace($node->signup_confirmation_email, array('node' => $node, 'signup' => $signup, 'global' => NULL)),
     'node' => $node,
     'signup' => $signup,
   );
-  if (module_exists('token')) {
-    $params['body'] = token_replace($params['body'], array('node' => $node, 'signup' => $signup, 'global' => NULL));
-  }
   $language = user_preferred_language($signup);
   return drupal_mail('signup', 'signup_confirmation_mail', $user_mail, $language, $params);
 }

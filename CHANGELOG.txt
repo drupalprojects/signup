@@ -14,6 +14,8 @@ Bugs fixed since 6.x-1.0:
   admin/people/signups.
 = #1266764 by 30equals, mikestefff: Fixed php: Notice: Undefined variable: views in
   signup_views_default_views().
+= #1212396 by BTMash: Fixed Remove token dependency from
+  signup_send_confirmation_mail().
 
 
 ------------------------
