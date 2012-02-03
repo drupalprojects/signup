@@ -19,6 +19,8 @@ Bugs fixed since 6.x-1.0:
 = #1297808 by plach: Fixed Reminder watchdog entry always inserted.
 = #1212096 by BTMash: Fixed Use token replacements for broadcast.
 = #1191324 by BTMash | magnusk: Fixed Use token tree UI to show replacement tokens.
+= #1191128 by roborn | magnusk: Fixed Call to undefined function
+  date_default_timezone_name().
 
 New features since 6.x-1.0:
 = #1112496 by BTMash: Added Show signup in the display ui for a node type.
