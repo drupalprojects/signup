@@ -22,6 +22,8 @@ Bugs fixed since 6.x-1.0:
 = #1191128 by roborn | magnusk: Fixed Call to undefined function
   date_default_timezone_name().
 = #1212392 by BTMash, sgabe: Fixed Anonymous username warning.
+= #1358258 by dereine, arh1, benjf | kristiaanvandeneynde: Fixed Updating to
+  Views 7.x-3.0-rc3 breaks Signup module.
 
 New features since 6.x-1.0:
 = #1112496 by BTMash: Added Show signup in the display ui for a node type.
