@@ -178,6 +178,7 @@ function signup_admin_form_sql() {
       'n.nid',
       'n.title',
       'n.type',
+      'n.language',
       's.status AS signup_status',
       'COUNT(s_l.nid) AS signup_total',
       's.close_signup_limit AS signup_close_signup_limit',
