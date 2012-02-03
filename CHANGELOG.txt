@@ -21,6 +21,7 @@ Bugs fixed since 6.x-1.0:
 = #1191324 by BTMash | magnusk: Fixed Use token tree UI to show replacement tokens.
 = #1191128 by roborn | magnusk: Fixed Call to undefined function
   date_default_timezone_name().
+= #1212392 by BTMash, sgabe: Fixed Anonymous username warning.
 
 New features since 6.x-1.0:
 = #1112496 by BTMash: Added Show signup in the display ui for a node type.
