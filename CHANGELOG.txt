@@ -3,6 +3,8 @@
 ------------------------
 Bugs fixed since 6.x-1.0:
 = #1128288 by jwilson3: Fixed Incorrect header array key in admin/content/signup.
+= #1175902 by mcarbone: Fixed Reminder fields no longer appearing in 'Default
+  signup information' form.
 
 
 ------------------------
