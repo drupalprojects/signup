@@ -17,6 +17,7 @@ Bugs fixed since 6.x-1.0:
 = #1212396 by BTMash: Fixed Remove token dependency from
   signup_send_confirmation_mail().
 = #1297808 by plach: Fixed Reminder watchdog entry always inserted.
+= #1212096 by BTMash: Fixed Use token replacements for broadcast.
 
 
 ------------------------
