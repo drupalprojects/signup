@@ -855,6 +855,22 @@ function signup_node_load($nodes, $types) {
 }
 
 /**
+ * Implements hook_field_extra_fields().
+ */
+function signup_field_extra_fields() {
+  $types = node_type_get_types();
+  $extras = array();
+  foreach ($types as $type => $object) {
+    $extras['node'][$type]['display']['signup'] = array(
+      'label' => t('Signup'),
+      'description' => t('Signup form.'),
+      'weight' => 10,
+    );
+  }
+  return $extras;
+}
+
+/**
  * Implements hook_node_view().
  */
 function signup_node_view($node, $view_mode = 'full') {
