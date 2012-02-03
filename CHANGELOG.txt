@@ -7,6 +7,7 @@ Bugs fixed since 6.x-1.0:
   signup information' form.
 = #1190944 by jwilson3: Fixed Notice: Undefined property: stdClass::$language in
   _signup_date_get_node_scheduler().
+= #1266026 by jwilson3: Fixed Strict warnings in Signup module.
 
 
 ------------------------

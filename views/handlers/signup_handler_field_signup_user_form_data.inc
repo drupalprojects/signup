@@ -18,7 +18,7 @@ class signup_handler_field_signup_user_form_data extends views_handler_field_pre
    *
    * @see theme_signup_custom_data_field_text()
    */
-  function pre_render($values) {
+  function pre_render(&$values) {
     if (!$this->options['form_data_fieldname']) {
       foreach ($values as $key => $result) {
         $form_data = unserialize($result->{$this->field_alias});
