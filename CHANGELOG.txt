@@ -18,6 +18,7 @@ Bugs fixed since 6.x-1.0:
   signup_send_confirmation_mail().
 = #1297808 by plach: Fixed Reminder watchdog entry always inserted.
 = #1212096 by BTMash: Fixed Use token replacements for broadcast.
+= #1191324 by BTMash | magnusk: Fixed Use token tree UI to show replacement tokens.
 
 
 ------------------------
