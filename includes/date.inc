@@ -167,10 +167,10 @@ function _signup_date_alter_node_type_form(&$form, &$form_state) {
 /**
  * Create the FAPI form element for the signup date field.
  *
- * @param $type
+ * @param string $type
  *   The node type to generate the form element for.
  *
- * @return
+ * @return array
  *   FAPI form array for the signup date field element.
  *
  * @see _signup_date_field_form_alter()
@@ -193,7 +193,7 @@ function _signup_date_field_element($type) {
  * configuration of any signup-enabled node types to ensure that the CCK date
  * field and signup settings make sense.
  *
- * @param $type
+ * @param string $type
  *   The 4th element in the URL which specifies which node type is currently
  *   being configured.  If this is empty, it means we're at the node type
  *   overview listing and we should test all node types.
@@ -223,13 +223,10 @@ function signup_date_check_node_types($type = NULL) {
  * date fields at all, or if they have date fields but haven't selected the
  * one to use for signup functionality.
  *
- * @param $type
+ * @param string $type
  *   The node type to check signup and CCK date field configuration on.
- * @param $name
+ * @param string $name
  *   Human readable name of the node type to check.
- *
- * @return
- *   Nothing -- configuration errors are reported via drupal_set_message().
  *
  * @see signup_help()
  */
@@ -266,10 +263,10 @@ function signup_date_field_check_config($type, $name) {
 /**
  * Helper function for the date field select to build its options.
  *
- * @param $type
+ * @param string $type
  *   Content type whose date fields should be listed.
  *
- * @return
+ * @return array
  *   Associative array with all date fields of the given content type plus
  *   'None' and an optional 'Not specified' if the user never selected a
  *   value.
