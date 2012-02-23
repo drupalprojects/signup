@@ -27,6 +27,8 @@ Bugs fixed since 6.x-1.0:
 = #1223938 by benjf, sgabe | mariagwyn: Fixed Showing custom signup_user_form()
   fields in views."
 = #1426028 by sgabe: Fixed Edit signup link is not displaying.
+= #1428652 by sgabe | dannymacom: Fixed Adding Views field 'Signup: Node: Signup link'
+  gives error: Undefined Index.
 
 New features since 6.x-1.0:
 = #1112496 by BTMash: Added Show signup in the display ui for a node type.
