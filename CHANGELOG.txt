@@ -32,6 +32,8 @@ Bugs fixed since 6.x-1.0:
 = #1436906 by sgabe: Fixed Signup administration page is broken.
 = #1457146 by sgabe | ivo_m: Fixed Get the proper date information on the
   events overview page.
+= #1399178 by jordojuice, sgabe | chaloum: Fixed Ajax error when trying to use
+  the sign up link in a view.
 
 New features since 6.x-1.0:
 = #1112496 by BTMash: Added Show signup in the display ui for a node type.
