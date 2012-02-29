@@ -215,13 +215,11 @@ function signup_admin_form_query($header) {
 
   $query->innerJoin('signup', 's', 's.nid = n.nid');
   $query->leftJoin('signup_log', 's_l', 's.nid = s_l.nid');
-  $query->leftJoin('field_data_field_date', 'd', 'd.entity_id = n.nid');
 
   $query->fields('n', array('nid', 'title', 'type', 'language'));
 
   $query->addField('s', 'status', 'signup_status');
   $query->addField('s', 'close_signup_limit', 'signup_close_signup_limit');
-  $query->addField('d', 'field_date_value', 'field_date_value');
 
   $query->addExpression('COUNT(s_l.nid)', 'signup_total');
 
@@ -230,6 +228,11 @@ function signup_admin_form_query($header) {
   $query->groupBy('type');
   $query->groupBy('signup_status');
   $query->groupBy('signup_close_signup_limit');
+
+  // Get the right query elements from the currently installed scheduler backend.
+  foreach (signup_content_types() as $content_type) {
+    signup_admin_query($query, $content_type);
+  }
 
   $nodes = $query
     ->limit(25)

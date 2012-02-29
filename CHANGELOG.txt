@@ -30,6 +30,8 @@ Bugs fixed since 6.x-1.0:
 = #1428652 by sgabe | dannymacom: Fixed Adding Views field 'Signup: Node: Signup link'
   gives error: Undefined Index.
 = #1436906 by sgabe: Fixed Signup administration page is broken.
+= #1457146 by sgabe | ivo_m: Fixed Get the proper date information on the
+  events overview page.
 
 New features since 6.x-1.0:
 = #1112496 by BTMash: Added Show signup in the display ui for a node type.

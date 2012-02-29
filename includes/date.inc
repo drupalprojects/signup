@@ -5,34 +5,6 @@
  */
 
 /**
- *
- * @return Array of SQL clauses for admin overview page query builder.
- */
-function _signup_date_admin_sql($content_type) {
-  // Get the date field information for this content type.
-  $field = signup_date_field($content_type);
-
-  // In the case where the same CCK date field is being reused on multiple
-  // content types, we'll potentially be JOINing on the same tables and
-  // columns for different content types.  To defend against duplicate table
-  // names or ambiguous columns in the query, use the content type to alias.
-  // Also, prefix it to make sure it's never a reserved word.
-  $alias = 'signup_alias_' . db_escape_table($content_type);
-
-  // See what fields to SELECT.
-  $fields[] = $alias . '.' . $field['field_name'] . '_value';
-  if (isset($field['columns']['timezone'])) {
-    $fields[] = $alias . '.' . $field['field_name'] . '_timezone';
-  }
-  $table = '{' . $field['database']['table'] . '} ' . $alias;
-  return array(
-    'fields' => $fields,
-    'joins' => array("LEFT JOIN $table ON $alias.revision_id = n.vid"),
-    'group_by' => $fields,
-  );
-}
-
-/**
  * @todo Please document this function.
  * @see http://drupal.org/node/1354
  */
@@ -402,6 +374,38 @@ function _signup_date_autoclose_sql($content_type) {
     'joins' => array("INNER JOIN $table ON $table.revision_id = n.vid"),
     'where' => $where,
   );
+}
+
+/**
+ * Alters the SQL query for the admin overview page.
+ *
+ * @param object $query
+ *   The database query object.
+ * @param string $content_type
+ *   A string containing the content type of the node.
+ */
+function _signup_date_admin_query(&$query, $content_type) {
+  // Get the date field information for this content type.
+  $field = signup_date_field($content_type);
+
+  // In the case where the same date field is being reused on multiple
+  // content types, we'll potentially be JOINing on the same tables and
+  // columns for different content types. To defend against duplicate table
+  // names or ambiguous columns in the query, use the content type to alias.
+  // Also, prefix it to make sure it's never a reserved word.
+  $alias = 'signup_alias_' . db_escape_table($content_type);
+  $table = $field['database']['table'];
+
+  $date = $field['field_name'] . '_value';
+  $query->leftJoin($table, $alias, $alias . '.revision_id = n.vid');
+  $query->addField($alias, $date, $date);
+  $query->groupBy($date);
+
+  if (isset($field['columns']['timezone'])) {
+    $timezone = $field['field_name'] . '_timezone';
+    $query->addField($alias, $timezone, $timezone);
+    $query->groupBy($timezone);
+  }
 }
 
 /**

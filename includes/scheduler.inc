@@ -147,19 +147,17 @@ function signup_autoclose_sql($node_type) {
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Helper function to build the database query for the admin overview page.
  */
-function signup_admin_sql($node_type) {
+function signup_admin_query(&$query, $node_type) {
   switch (_signup_get_node_type_scheduler($node_type)) {
     case 'event':
-      return _signup_event_admin_sql($node_type);
-
+      _signup_event_admin_query($query, $node_type);
+      break;
     case 'date':
-      return _signup_date_admin_sql($node_type);
-
+      _signup_date_admin_query($query, $node_type);
+      break;
     default:
-      return array();
+      break;
   }
 }
-
