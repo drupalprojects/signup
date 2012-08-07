@@ -34,6 +34,7 @@ Bugs fixed since 6.x-1.0:
   events overview page.
 = #1399178 by jordojuice, sgabe | chaloum: Fixed Ajax error when trying to use
   the sign up link in a view.
+= #1513076 by sgabe | grendzy: Fixed phptemplate_HOOK is obsolete.
 
 New features since 6.x-1.0:
 = #1112496 by BTMash: Added Show signup in the display ui for a node type.

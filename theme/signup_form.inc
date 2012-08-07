@@ -9,7 +9,7 @@
  *
  * To customize this for your site, copy this entire function into
  * your theme's template.php file, rename the function to
- * phptemplate_signup_user_form(), and modify to taste.  Feel free to
+ * THEMENAME_signup_user_form(), and modify to taste.  Feel free to
  * alter any elements in this section, remove them, or add any others.
  *
  * WARNING: If your site allows anonymous signups and you alter the
