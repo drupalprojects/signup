@@ -36,6 +36,8 @@ Bugs fixed since 6.x-1.0:
   the sign up link in a view.
 = #1513076 by sgabe | grendzy: Fixed phptemplate_HOOK is obsolete.
 = #1670868 by crantok: Fixed content type token in confirmation email subject.
+= #1452920 by BTMash, pezia | flightrisk: Fixed fatal error caused by undefined
+  date_field_get_sql_handler function.
 
 New features since 6.x-1.0:
 = #1112496 by BTMash: Added Show signup in the display ui for a node type.
