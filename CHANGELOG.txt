@@ -6,6 +6,8 @@ Bugs fixed since 6.x-1.0:
 = #856604 by dww: Removed duplicate entry in signup_theme().
 = #1020590 by dww: Removed includes/no_views.inc (missed during #582986).
 = #1020758 by dww: Fixed missing table prefix for query (introduced in #856604)
+= #1216890 by scottrigby: Fixed 'Edit signup' button should not be displayed if
+  there are no form elements to edit.
 
 
 ------------------------
@@ -523,7 +525,7 @@ Bug fixes since 5.x-2.4:
   "Signup settings" fieldset should be added to node forms or not.
 = #219678 by dww: Changed email notification to event owner to omit
   "Date/Time: [Untimed]" if the event has no time.
-= #290740 by deviantintegral and dww: If 'site_mail' is undefined, 
+= #290740 by deviantintegral and dww: If 'site_mail' is undefined,
   use the 'sendmail_from' PHP ini setting as the fall-back value for
   the From address in e-mails sent by this module.
 = #278739 by dww: Fixed incorrect start date on signup administration
